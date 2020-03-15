@@ -7,7 +7,6 @@ homepage = "https://github.com/CleanCut/rusty_engine/rusty_audio/"
 repository = "https://github.com/CleanCut/rusty_engine/rusty_audio/"
 readme = "README.md"
 keywords = ["audio", "sound", "effects", "sfx", "rusty"]
-categories = ["game-"]
 license = "MIT OR Apache-2.0"
 edition = "2018"
 
