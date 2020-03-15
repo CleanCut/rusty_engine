@@ -1,0 +1,17 @@
+[package]
+name = "rusty_audio"
+version = "1.1.2"
+authors = ["Nathan Stocks <nathan.stocks@gmail.com>"]
+description = "Convenient sound library for small projects and educational purposes."
+homepage = "https://github.com/CleanCut/rusty_engine/rusty_audio/"
+repository = "https://github.com/CleanCut/rusty_engine/rusty_audio/"
+readme = "README.md"
+keywords = ["audio", "sound", "effects", "sfx", "rusty"]
+categories = ["game-"]
+license = "MIT OR Apache-2.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+rodio = "0.10.0"
