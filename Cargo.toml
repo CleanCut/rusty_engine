@@ -1,6 +1,6 @@
 [package]
 name = "rusty_engine"
-version = "0.0.1"
+version = "0.0.2"
 authors = ["Nathan Stocks <nathan@agileperception.com>"]
 description = "A fun and easy 2D game engine to make games in Rust."
 edition = "2018"
@@ -19,5 +19,5 @@ members = [
 ]
 
 [dependencies]
-rusty_audio = { path = "rusty_audio", version = "1.1.2" }
+rusty_audio = { path = "rusty_audio", version = "1.1.3" }
 

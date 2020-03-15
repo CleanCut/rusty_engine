@@ -1,6 +1,6 @@
 [package]
 name = "rusty_audio"
-version = "1.1.2"
+version = "1.1.3"
 authors = ["Nathan Stocks <nathan.stocks@gmail.com>"]
 description = "Convenient sound library for small projects and educational purposes."
 homepage = "https://github.com/CleanCut/rusty_engine/tree/master/rusty_audio"
