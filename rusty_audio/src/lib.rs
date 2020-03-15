@@ -22,6 +22,7 @@ use std::io::{Cursor, Read};
 
 /// A simple 4-track audio system to load/decode audio files from disk to play later. Supported
 /// formats are: MP3, WAV, Vorbis and Flac.
+#[derive(Default)]
 pub struct Audio {
     clips: HashMap<&'static str, Buffered<Decoder<Cursor<Vec<u8>>>>>,
     channels: Vec<Sink>,
@@ -67,6 +68,7 @@ impl Audio {
         // Mutex.
         let warm = buffered.clone();
         for i in warm {
+            #[allow(clippy::drop_copy)]
             drop(i);
         }
         self.clips.insert(name, buffered);
@@ -85,7 +87,7 @@ impl Audio {
     /// have played.
     pub fn wait(&self) {
         loop {
-            if self.channels.iter().any(|x| x.empty() == false) {
+            if self.channels.iter().any(|x| !x.empty()) {
                 std::thread::sleep(std::time::Duration::from_millis(50));
                 continue;
             }
