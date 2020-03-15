@@ -1,11 +1,11 @@
 [package]
 name = "rusty_core"
-version = "0.0.1"
+version = "0.1.0"
 authors = ["Nathan Stocks <nathan.stocks@gmail.com>"]
 edition = "2018"
 description = "Common library for crates that are part of `rusty_engine`"
-homepage = "https://github.com/CleanCut/rusty_engine/tree/master/rusty_core"
-repository = "https://github.com/CleanCut/rusty_engine/tree/master/rusty_core"
+homepage = "https://github.com/cleancut/rusty_engine/tree/master/rusty_core"
+repository = "https://github.com/cleancut/rusty_engine/tree/master/rusty_core"
 readme = "README.md"
 license = "MIT OR Apache-2.0"
 
