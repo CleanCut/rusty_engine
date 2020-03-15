@@ -1,0 +1,15 @@
+[package]
+name = "rusty_engine"
+version = "0.0.1"
+authors = ["Nathan Stocks <nathan@agileperception.com>"]
+description = "A fun and easy 2D game engine to make games in Rust."
+edition = "2018"
+homepage = "https://github.com/CleanCut/rusty_engine"
+repository = "https://github.com/CleanCut/rusty_engine"
+readme = "README.md"
+keywords = ["engine", "game", "graphics", "audio", "educational"]
+license = "MIT OR Apache-2.0"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
