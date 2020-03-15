@@ -1,7 +1,7 @@
-# Version 1.1.2
+# Version 1.1.2 and 1.1.3
 # 2020-03-14
 
-- `rusty_audio` is now part of [`rusty_engine`]
+- `rusty_audio` is now part of [`rusty_engine`] (had to do a couple versions to get it right)
 - Added option to use Apache 2.0 license
 
 [`rusty_engine`]: https://github.com/cleancut/rusty_engine

@@ -16,8 +16,10 @@ license = "MIT OR Apache-2.0"
 [workspace]
 members = [
     "rusty_audio",
+    "rusty_core"
 ]
 
 [dependencies]
 rusty_audio = { path = "rusty_audio", version = "1.1.3" }
+rusty_core = { path = "rusty_core", version = "0.0.1" }
 
