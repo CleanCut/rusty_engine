@@ -1,4 +1,5 @@
 # Rusty GFX
 
-`rusty_gfx` is a library for simple OpenGL window creation and graphics drawing for educational 
-purposes.
+Create windows, display graphics, handle input events (keyboard, mouse, etc.). Part of the
+[`rusty_engine`](https://github.com/cleancut/rusty_engine) game engine.
+

@@ -1,6 +1,6 @@
 # Rusty Engine
 
-A fun and easy 2D game engine to make games in Rust.
+A fun way to learn Rust using a simple 2D game engine.
 
 [Questions], [bug reports], and contributions are most welcome!
 
@@ -17,3 +17,31 @@ functionality and re-exports from external crates.
 - `rusty_gfx` - Create windows, display graphics, handle input events (keyboard, mouse, etc.)
 - `rusty_core` - Used by the rest of the `rusty_*` crates for anything they have in common,
   including re-exports of external libraries.
+
+### Audio Dependencies on Linux
+
+Audio should work out-of-the-box on macOS, Windows, iOS, and emscripten.  For Linux, the
+downstream package for actually _playing_ sound ([CPAL](https://github.com/RustAudio/cpal) requires
+the *alsa* development libraries to be installed.
+
+**CentOS**
+
+```bash
+sudo yum install -y alsa-lib-devel
+```
+
+**Debian/Ubuntu**
+
+```bash
+sudo apt install libasound2-dev
+```
+
+## Contribution
+
+All contributions are assumed to be dual-licensed under MIT/Apache-2.
+
+## License
+
+Distributed under the terms of both the MIT license and the Apache License (Version 2.0).
+
+See [LICENSE-APACHE](license/APACHE) and [LICENSE-MIT](license/MIT).
