@@ -22,7 +22,7 @@ use std::f64::consts::PI;
 use std::cmp::min;
 use std::hash::{Hash, Hasher};
 
-pub use nalgebra_glm::{distance, Vec2};
+use rusty_core::nalgebra_glm::Vec2;
 
 
 pub fn clamp_vec_to_magnitude(v: &mut Vec2, magnitude: f32) {

@@ -1,3 +1,5 @@
+pub use nalgebra_glm;
+
 #[cfg(test)]
 mod tests {
     #[test]
