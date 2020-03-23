@@ -20,6 +20,10 @@ use std::collections::HashMap;
 use std::fs::File;
 use std::io::{Cursor, Read};
 
+pub mod prelude {
+    pub use crate::Audio;
+}
+
 /// A simple 4-track audio system to load/decode audio files from disk to play later. Supported
 /// formats are: MP3, WAV, Vorbis and Flac.
 #[derive(Default)]

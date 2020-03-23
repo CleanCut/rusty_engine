@@ -22,8 +22,11 @@ use std::f64::consts::PI;
 use std::cmp::min;
 use std::hash::{Hash, Hasher};
 
-use rusty_core::nalgebra_glm::Vec2;
+use rusty_core::glm::Vec2;
 
+pub mod prelude {
+    pub use crate::{GameEvent, Window};
+}
 
 pub fn clamp_vec_to_magnitude(v: &mut Vec2, magnitude: f32) {
     if v.magnitude() > magnitude {
@@ -244,6 +247,7 @@ implement_vertex!(ImgVertex, position, tex_coords, color, tint);
 pub struct Img {
     pub pos: Vec2,
     pub direction: f32,
+    pub scale: f32,
     vertex_buffer: VertexBuffer<ImgVertex>,
     index_buffer: IndexBuffer<u16>,
     texture: CompressedTexture2d,
@@ -257,6 +261,7 @@ impl Img {
         window: &Window,
         pos: Vec2,
         direction: f32,
+        scale: f32,
         color: Option<Color>,
         filename: &str,
     ) -> Self {
@@ -270,39 +275,43 @@ impl Img {
         let tint = if color.is_some() { 1 } else { 0 };
         let color = color.unwrap_or_else(|| Color::new(1.0, 1.0, 1.0));
 
-        let vertex_buffer = {
-            let scale = 0.1;
+        // Size the image relative to the window - calculations assume a square window
+        // Assuming 16 game units fit in the (1.0, 1.0) to (-1.0, -1.0) viewspace
+        // So: 8 game units per OpenGL unit, a window is 2 OpenGL units high and wide
+        let pixels_per_game_unit = window.dimension as f32 * 0.0625;
+        let scale_x = image_dimensions.0 as f32 / pixels_per_game_unit / 16.;
+        let scale_y = image_dimensions.1 as f32 / pixels_per_game_unit / 16.;
+
+        let vertex_buffer =
             VertexBuffer::new(
                 &window.display,
                 &[
                     ImgVertex {
-                        position: [-scale, -scale],
+                        position: [-scale_x, -scale_y],
                         tex_coords: [0.0, 0.0],
                         color: [color.r, color.g, color.b],
                         tint,
                     },
                     ImgVertex {
-                        position: [-scale, scale],
+                        position: [-scale_x, scale_y],
                         tex_coords: [0.0, 1.0],
                         color: [color.r, color.g, color.b],
                         tint,
                     },
                     ImgVertex {
-                        position: [scale, scale],
+                        position: [scale_x, scale_y],
                         tex_coords: [1.0, 1.0],
                         color: [color.r, color.g, color.b],
                         tint,
                     },
                     ImgVertex {
-                        position: [scale, -scale],
+                        position: [scale_x, -scale_y],
                         tex_coords: [1.0, 0.0],
                         color: [color.r, color.g, color.b],
                         tint,
                     },
                 ],
-            )
-                .unwrap()
-        };
+            ).unwrap();
         let index_buffer = IndexBuffer::new(
             &window.display,
             PrimitiveType::TriangleStrip,
@@ -312,6 +321,7 @@ impl Img {
         Self {
             pos,
             direction,
+            scale,
             vertex_buffer,
             index_buffer,
             texture,
@@ -327,22 +337,18 @@ pub struct Window {
     shape_program: Program,
     img_program: Program,
     screen_to_opengl: Box<dyn Fn(PhysicalPosition<f64>) -> Vec2>,
+    dimension: u32,
     target: Option<Frame>,
 }
 
 impl Window {
-    /// By default, this will be a square window with a dimension of `1024` logical pixels or
-    /// `(smallest monitor height - 100)` logical pixels, whichever is smaller.  You can override
-    /// the dimension by providing a value for override_dimension, for example: `Some(2048)`.
+    /// By default, this will be a square window with a dimension of `1024` logical pixels.  You can
+    /// override the dimension by providing a value for override_dimension, for example: `Some(1200)`.
     ///
     /// `window_title` is for the OS to use on the bar above your window.
     pub fn new(override_dimension: Option<u32>, window_title: &str) -> Self {
         let event_loop = EventLoop::<()>::new();
-        let mut min_height = 1024;
-        for monitor in event_loop.available_monitors() {
-            min_height = min(min_height, monitor.size().to_logical::<u32>(monitor.scale_factor()).height- 100);
-        }
-        let dimension = override_dimension.unwrap_or(min_height);
+        let dimension = override_dimension.unwrap_or(1024);
         let logical_size = LogicalSize::new(dimension, dimension);
         let window = WindowBuilder::new()
             .with_inner_size(logical_size)
@@ -390,7 +396,7 @@ impl Window {
             }
         "#;
 
-        let program = Program::new(
+        let shape_program = Program::new(
             &display,
             ProgramCreationInput::SourceCode {
                 vertex_shader: shape_vertex_shader,
@@ -440,7 +446,7 @@ impl Window {
             }
         "#;
 
-        let program_img = Program::new(
+        let img_program = Program::new(
             &display,
             ProgramCreationInput::SourceCode {
                 vertex_shader: vertex_shader_img,
@@ -456,11 +462,12 @@ impl Window {
             .unwrap();
 
         Self {
-            event_loop: event_loop,
+            event_loop,
             display,
-            shape_program: program,
-            img_program: program_img,
+            shape_program,
+            img_program,
             screen_to_opengl,
+            dimension,
             target: None,
         }
     }
