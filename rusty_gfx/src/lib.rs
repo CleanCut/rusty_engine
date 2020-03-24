@@ -19,10 +19,9 @@ use glium::{
 use rand::prelude::Rng;
 use serde::{Deserialize, Serialize};
 use std::f64::consts::PI;
-use std::cmp::min;
 use std::hash::{Hash, Hasher};
 
-use rusty_core::glm::Vec2;
+use rusty_core::glm::{self, Vec2};
 
 pub mod prelude {
     pub use crate::{GameEvent, Window};
@@ -536,16 +535,20 @@ impl Window {
     /// frame! Draw calls draw to the framebuffer in the order that they occur, so the last image
     /// you draw will be on top.
     pub fn draw(&mut self, img: &Img) {
+        use std::convert::TryInto;
         if let Some(ref mut target) = self.target {
+            let matrix: [[f32; 4]; 4] = glm::translation(&glm::vec2_to_vec3(&img.pos)).try_into().unwrap();
             let uniforms = uniform! {
-            // CAUTION: The inner arrays are COLUMNS not ROWS (left to right actually is top to bottom)
-                matrix: [
-                    [img.direction.cos() as f32, img.direction.sin() as f32, 0.0, 0.0],
-                    [-img.direction.sin() as f32, img.direction.cos() as f32, 0.0, 0.0],
-                    [0.0, 0.0, 1.0, 0.0],
-                    [img.pos.x, img.pos.y, 0.0, 1.0f32],
-                ],
+                matrix: matrix,
                 tex: &img.texture
+            // CAUTION: The inner arrays are COLUMNS not ROWS (left to right actually is top to bottom)
+            //     matrix: [
+            //         [img.direction.cos() as f32, img.direction.sin() as f32, 0.0, 0.0],
+            //         [-img.direction.sin() as f32, img.direction.cos() as f32, 0.0, 0.0],
+            //         [0.0, 0.0, 1.0, 0.0],
+            //         [img.pos.x, img.pos.y, 0.0, 1.0f32],
+            //     ],
+            //     tex: &img.texture
             };
 
             // These options don't seem to have any effect at all :-(
