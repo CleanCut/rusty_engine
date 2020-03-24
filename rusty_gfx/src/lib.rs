@@ -22,6 +22,8 @@ use std::f64::consts::PI;
 use std::hash::{Hash, Hasher};
 
 use rusty_core::glm::{self, Vec2};
+use std::convert::TryInto;
+use glm::RealField;
 
 pub mod prelude {
     pub use crate::{GameEvent, Window};
@@ -250,6 +252,8 @@ pub struct Img {
     vertex_buffer: VertexBuffer<ImgVertex>,
     index_buffer: IndexBuffer<u16>,
     texture: CompressedTexture2d,
+    affine: Option<[[f32; 4]; 4]>,
+    affine_cache: (Vec2, f32, f32),
 }
 
 impl Img {
@@ -324,7 +328,19 @@ impl Img {
             vertex_buffer,
             index_buffer,
             texture,
+            affine: None,
+            affine_cache: (glm::vec2(std::f32::NAN, std::f32::NAN), std::f32::NAN, std::f32::NAN),
         }
+    }
+    fn get_affine(&mut self) -> [[f32; 4]; 4] {
+        if self.affine_cache == (self.pos, self.direction, self.scale) {
+            return self.affine.unwrap();
+        }
+        let translated = glm::translation(&glm::vec2_to_vec3(&self.pos));
+        let rotated = glm::rotate(&translated, self.direction, &glm::vec3(0.0f32, 0., 1.));
+        let scaled = glm::scale(&rotated, &glm::vec3(self.scale, self.scale, self.scale));
+        self.affine_cache = (self.pos, self.direction, self.scale);
+        scaled.try_into().unwrap()
     }
 }
 
@@ -534,21 +550,11 @@ impl Window {
     /// position/rotation, which is super efficient, so don't destroy and recreate images every
     /// frame! Draw calls draw to the framebuffer in the order that they occur, so the last image
     /// you draw will be on top.
-    pub fn draw(&mut self, img: &Img) {
-        use std::convert::TryInto;
+    pub fn draw(&mut self, img: &mut Img) {
         if let Some(ref mut target) = self.target {
-            let matrix: [[f32; 4]; 4] = glm::translation(&glm::vec2_to_vec3(&img.pos)).try_into().unwrap();
             let uniforms = uniform! {
-                matrix: matrix,
+                matrix: img.get_affine(),
                 tex: &img.texture
-            // CAUTION: The inner arrays are COLUMNS not ROWS (left to right actually is top to bottom)
-            //     matrix: [
-            //         [img.direction.cos() as f32, img.direction.sin() as f32, 0.0, 0.0],
-            //         [-img.direction.sin() as f32, img.direction.cos() as f32, 0.0, 0.0],
-            //         [0.0, 0.0, 1.0, 0.0],
-            //         [img.pos.x, img.pos.y, 0.0, 1.0f32],
-            //     ],
-            //     tex: &img.texture
             };
 
             // These options don't seem to have any effect at all :-(
