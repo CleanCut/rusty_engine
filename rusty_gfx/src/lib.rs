@@ -23,7 +23,6 @@ use std::hash::{Hash, Hasher};
 
 use rusty_core::glm::{self, Vec2};
 use std::convert::TryInto;
-use glm::RealField;
 
 pub mod prelude {
     pub use crate::{GameEvent, Window};
