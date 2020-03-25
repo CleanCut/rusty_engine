@@ -1,28 +1,29 @@
 # Rusty Engine
 
-A fun way to learn Rust using a simple 2D game engine.
+Rusty Engine is a fun, cross-platform game engine written in Rust. The primary goal is to be as
+simple to use as possible so game engine concepts don't get in the way of learning Rust.
 
 [Questions], [bug reports], and contributions are most welcome!
 
-[Questions]: https://github.com/CleanCut/rusty_engine/issues/new
-[bug reports]: https://github.com/CleanCut/rusty_engine/issues/new
 
-## Libraries
+## Features
 
-Rusty Engine is a collection of related but independent libraries.  All of the libraries are
-designed to optionally be used standalone, with the exception of `rusty_core` which is for shared
-functionality and re-exports from external crates.
+- 4-channel audio system supporting MP3, WAV, Vorbis and Flac.
+- Keyboard, mouse, and window input events.
+- OpenGL backend via glium.
 
-- `rusty_audio` - Load & play audio
-- `rusty_gfx` - Create windows, display graphics, handle input events (keyboard, mouse, etc.)
-- `rusty_core` - Used by the rest of the `rusty_*` crates for anything they have in common,
-  including re-exports of external libraries.
+## Aspirational Plans
+
+- Companion course ([Ultimate Rust Crash Course]) with project walkthrough videos (the course
+  exists, it just doesn't have project walkthrough videos yet)
+- Switch to Vulkan/Metal via [rendy] before OpenGL stops working on macOS.
+- A user guide
 
 ### Audio Dependencies on Linux
 
 Audio should work out-of-the-box on macOS, Windows, iOS, and emscripten.  For Linux, the
-downstream package for actually _playing_ sound ([CPAL](https://github.com/RustAudio/cpal) requires
-the *alsa* development libraries to be installed.
+downstream package for actually _playing_ sound ([CPAL]) requires
+the *Alsa* development libraries to be installed.
 
 **CentOS**
 
@@ -45,3 +46,9 @@ All contributions are assumed to be dual-licensed under MIT/Apache-2.
 Distributed under the terms of both the MIT license and the Apache License (Version 2.0).
 
 See [license/APACHE](license/APACHE) and [license/MIT](license/MIT).
+
+[CPAL]: https://github.com/RustAudio/cpal
+[Questions]: https://github.com/CleanCut/rusty_engine/issues/new
+[Ultimate Rust Crash Course]: https://agileperception.com/ultimate_rust_crash_course
+[bug reports]: https://github.com/CleanCut/rusty_engine/issues/new
+[rendy]: https://github.com/amethyst/rendy
