@@ -1,21 +1,13 @@
 //! The OpenGL window is (-1.0, -1.0) in the bottom left to (1.0, 1.0) in the top right.
 
-use glium::{
-    glutin::{
-        dpi::{LogicalSize, PhysicalPosition},
-        event::{ElementState, Event, MouseButton, VirtualKeyCode, WindowEvent},
-        event_loop::{ControlFlow, EventLoop},
-        platform::desktop::EventLoopExtDesktop,
-        window::WindowBuilder,
-        ContextBuilder,
-    },
-    implement_vertex,
-    index::{NoIndices, PrimitiveType},
-    program::ProgramCreationInput,
-    texture::{CompressedTexture2d, RawImage2d},
-    uniform, Blend, Display, DrawParameters, Frame, IndexBuffer, Program, Smooth, Surface,
-    VertexBuffer,
-};
+use glium::{glutin::{
+    dpi::{LogicalSize, PhysicalPosition},
+    event::{ElementState, Event, MouseButton, VirtualKeyCode, WindowEvent},
+    event_loop::{ControlFlow, EventLoop},
+    platform::desktop::EventLoopExtDesktop,
+    window::WindowBuilder,
+    ContextBuilder,
+}, implement_vertex, index::{NoIndices, PrimitiveType}, program::ProgramCreationInput, texture::{CompressedTexture2d, RawImage2d}, uniform, Blend, Display, DrawParameters, Frame, IndexBuffer, Program, Smooth, Surface, VertexBuffer, PolygonMode};
 use rand::prelude::Rng;
 use serde::{Deserialize, Serialize};
 use std::f64::consts::PI;
@@ -129,102 +121,245 @@ pub enum GameEvent {
     },
 }
 
+pub enum ShapeStyle {
+    Fill,
+    Line,
+}
+
+pub enum DrawBundle<'a> {
+    Img(&'a VertexBuffer<ImgVertex>, &'a IndexBuffer<u16>, &'a CompressedTexture2d),
+    Shape(&'a VertexBuffer<ShapeVertex>, &'a NoIndices, PolygonMode),
+}
+
+pub trait Drawable {
+    fn get_shader_items(&self) -> DrawBundle;
+}
+
+pub struct Sprite {
+    pub pos: Vec2,
+    pub direction: f32,
+    pub scale: f32,
+    affine: [[f32; 4]; 4],
+    affine_cache: (Vec2, f32, f32),
+    drawable: Box<dyn Drawable>,
+}
+
+impl Sprite {
+    pub fn new_image(
+        window: &Window,
+        pos: Vec2,
+        direction: f32,
+        scale: f32,
+        color: Option<Color>,
+        filename: &str,
+    ) -> Self {
+        Self {
+            pos,
+            direction,
+            scale,
+            affine: [[0., 0., 0., 0.], [0., 0., 0., 0.], [0., 0., 0., 0.], [0., 0., 0., 0.]],
+            affine_cache: (glm::vec2(std::f32::NAN, std::f32::NAN), std::f32::NAN, std::f32::NAN),
+            drawable: Box::new(Img::new(&window, color, filename)),
+        }
+
+    }
+    pub fn new_circle(
+        window: &Window,
+        pos: Vec2,
+        direction: f32,
+        scale: f32,
+        radius: f32,
+        color: Color,
+        shape_style: ShapeStyle,
+    ) -> Self {
+        Self {
+            pos,
+            direction,
+            scale,
+            affine: [[0., 0., 0., 0.], [0., 0., 0., 0.], [0., 0., 0., 0.], [0., 0., 0., 0.]],
+            affine_cache: (glm::vec2(std::f32::NAN, std::f32::NAN), std::f32::NAN, std::f32::NAN),
+            drawable: Box::new(Shape::new_circle(&window, radius, color, shape_style)),
+        }
+    }
+    pub fn new_rectangle(
+        window: &Window,
+        pos: Vec2,
+        direction: f32,
+        scale: f32,
+        width: f32,
+        height: f32,
+        color: Color,
+        shape_style: ShapeStyle,
+    ) -> Self {
+        Self {
+            pos,
+            direction,
+            scale,
+            affine: [[0., 0., 0., 0.], [0., 0., 0., 0.], [0., 0., 0., 0.], [0., 0., 0., 0.]],
+            affine_cache: (glm::vec2(std::f32::NAN, std::f32::NAN), std::f32::NAN, std::f32::NAN),
+            drawable: Box::new(Shape::new_rectangle(&window, width, height, color, shape_style)),
+        }
+    }
+    /// You must call a `Window`'s `.drawstart()` before calling this method.  `draw()` will draw your
+    /// image to the current off-screen framebuffer.  After the first time a given image value is
+    /// drawn it stays on the GPU and during subsequent calls it only sends updated
+    /// position/rotation, which is super efficient, so don't destroy and recreate images every
+    /// frame! Draw calls draw to the framebuffer in the order that they occur, so the last image
+    pub fn draw(&mut self, window: &mut Window) {
+        if let Some(ref mut target) = window.target {
+            let affine = if self.affine_cache == (self.pos, self.direction, self.scale) {
+                self.affine
+            } else {
+                let translated = glm::translation(&glm::vec2_to_vec3(&self.pos));
+                let rotated = glm::rotate(&translated, self.direction, &glm::vec3(0.0f32, 0., 1.));
+                let scaled = glm::scale(&rotated, &glm::vec3(self.scale, self.scale, self.scale));
+                self.affine_cache = (self.pos, self.direction, self.scale);
+                self.affine = scaled.try_into().unwrap();
+                self.affine
+            };
+
+            match self.drawable.get_shader_items() {
+                DrawBundle::Img(vertex_buffer, index_buffer, texture) => {
+                    let uniforms = uniform! {
+                        matrix: affine,
+                        tex: texture,
+                    };
+
+                    let draw_parameters = DrawParameters {
+                        blend: Blend::alpha_blending(),
+//                        smooth: Some(Smooth::Nicest),
+                        ..Default::default()
+                    };
+
+                    target
+                        .draw(
+                            vertex_buffer,
+                            index_buffer,
+                            &window.img_program,
+                            &uniforms,
+                            &draw_parameters,
+                        )
+                        .unwrap();
+                }
+                DrawBundle::Shape(vertex_buffer, indices, polygon_mode) => {
+                    let uniforms = uniform! {
+                            matrix: affine,
+                        };
+
+                    let draw_parameters = DrawParameters {
+                        blend: Blend::alpha_blending(),
+                        smooth: Some(Smooth::Nicest),
+                        polygon_mode,
+                        ..Default::default()
+                    };
+                    target
+                        .draw(
+                            vertex_buffer,
+                            indices,
+                            &window.shape_program,
+                            &uniforms,
+                            &draw_parameters,
+                        )
+                        .unwrap();
+                },
+            }
+        }
+    }
+}
+
 #[derive(Copy, Clone, Debug)]
-struct ShapeVertex {
+pub struct ShapeVertex {
     position: [f32; 2],
     color: [f32; 3],
 }
 implement_vertex!(ShapeVertex, position, color);
 
-fn create_circle_vertices(radius: f32, num_vertices: usize, color: Color) -> Vec<ShapeVertex> {
-    let mut v = Vec::<ShapeVertex>::with_capacity(num_vertices + 2);
-    // The center of the circle/fan
-    v.push(ShapeVertex {
-        position: [0.0, 0.0],
-        color: [color.r, color.g, color.b],
-    });
-    for x in 0..=num_vertices {
-        let inner: f64 = 2.0 * PI / num_vertices as f64 * x as f64;
-        // Color the forward-facing vertex of the circle differently so we can have a small "sword"
-        // indicator of our forward-facing direction
-        let color = if x == 0 || x == num_vertices {
-            Color {
-                r: 0.0,
-                g: 0.0,
-                b: 0.0,
-            }
-        } else {
-            color
-        };
-        v.push(ShapeVertex {
-            position: [inner.cos() as f32 * radius, inner.sin() as f32 * radius],
-            color: [color.r, color.g, color.b],
-        });
-    }
-    v
-}
-
-fn create_ring_vertices(radius: f32, num_vertices: usize, color: Color) -> Vec<ShapeVertex> {
-    let mut v = Vec::<ShapeVertex>::with_capacity(num_vertices + 1);
-    for x in 0..=num_vertices {
-        let inner: f64 = 2.0 * PI / num_vertices as f64 * x as f64;
-        v.push(ShapeVertex {
-            position: [inner.cos() as f32 * radius, inner.sin() as f32 * radius],
-            color: [color.r, color.g, color.b],
-        });
-    }
-    v
-}
-
 /// A `Shape` can be drawn to a `Window` using its `draw_shape()` method. Use the provided `new_*`
 /// methods to make a `Shape`.
 #[derive(Debug)]
 pub struct Shape {
-    pub pos: Vec2,
-    pub direction: f32,
     vertex_buffer: VertexBuffer<ShapeVertex>,
     indices: NoIndices,
+    polygon_mode: PolygonMode,
+}
+
+impl Drawable for Shape {
+    fn get_shader_items(&self) -> DrawBundle {
+        DrawBundle::Shape(&self.vertex_buffer, &self.indices, self.polygon_mode)
+    }
 }
 
 impl Shape {
+    // todo: document
+    pub fn new_rectangle(
+        window: &Window,
+        width: f32,
+        height: f32,
+        color: Color,
+        shape_style: ShapeStyle,
+    ) -> Self {
+        let vertex_buffer = VertexBuffer::new(
+            &window.display,
+            &vec![
+                ShapeVertex {
+                    position: (glm::vec2(width * 0.5, height * 0.5)).into(),
+                    color: [color.r, color.g, color.b],
+                },
+                ShapeVertex {
+                    position: (glm::vec2(width * 0.5, -height * 0.5)).into(),
+                    color: [color.r, color.g, color.b],
+                },
+                ShapeVertex {
+                    position: (glm::vec2(-width * 0.5, -height * 0.5)).into(),
+                    color: [color.r, color.g, color.b],
+                },
+                ShapeVertex {
+                    position: (glm::vec2(-width * 0.5, height * 0.5)).into(),
+                    color: [color.r, color.g, color.b],
+                },
+            ]).unwrap();
+        let (primitive_type, polygon_mode) = match shape_style {
+            ShapeStyle::Fill => (PrimitiveType::TriangleFan, PolygonMode::Fill),
+            ShapeStyle::Line => (PrimitiveType::LineLoop, PolygonMode::Line),
+        };
+        Self {
+            vertex_buffer,
+            indices: NoIndices(primitive_type),
+            polygon_mode,
+        }
+    }
     /// Create a solid circle with a stripe that always faces `direction`.
     pub fn new_circle(
         window: &Window,
         radius: f32,
-        pos: Vec2,
-        direction: f32,
         color: Color,
+        shape_style: ShapeStyle,
     ) -> Self {
-        let vertex_buffer =
-            VertexBuffer::new(&window.display, &create_circle_vertices(radius, 32, color)).unwrap();
-        Self {
-            pos,
-            direction,
-            vertex_buffer,
-            indices: NoIndices(PrimitiveType::TriangleFan),
+        let num_vertices = 63;
+        let mut v = Vec::<ShapeVertex>::with_capacity(num_vertices + 1);
+        for x in 0..=num_vertices {
+            let inner: f64 = 2.0 * PI / num_vertices as f64 * x as f64;
+            v.push(ShapeVertex {
+                position: [inner.cos() as f32 * radius, inner.sin() as f32 * radius],
+                color: [color.r, color.g, color.b],
+            });
         }
-    }
-    /// Create a thin ring, or outline of a circle.
-    pub fn new_ring(
-        window: &Window,
-        radius: f32,
-        pos: Vec2,
-        direction: f32,
-        color: Color,
-    ) -> Self {
         let vertex_buffer =
-            VertexBuffer::new(&window.display, &create_ring_vertices(radius, 32, color)).unwrap();
+            VertexBuffer::new(&window.display, &v).unwrap();
+        let (primitive_type, polygon_mode) = match shape_style {
+            ShapeStyle::Fill => (PrimitiveType::TriangleFan, PolygonMode::Fill),
+            ShapeStyle::Line => (PrimitiveType::LineLoop, PolygonMode::Line),
+        };
         Self {
-            pos,
-            direction,
             vertex_buffer,
-            indices: NoIndices(PrimitiveType::LineLoop),
+            indices: NoIndices(primitive_type),
+            polygon_mode,
         }
     }
 }
 
 #[derive(Copy, Clone, Debug)]
-struct ImgVertex {
+pub struct ImgVertex {
     position: [f32; 2],
     tex_coords: [f32; 2],
     color: [f32; 3],
@@ -245,15 +380,17 @@ implement_vertex!(ImgVertex, position, tex_coords, color, tint);
 /// to work.  Or just exporting as a 24-bit PNG might work.
 #[derive(Debug)]
 pub struct Img {
-    pub pos: Vec2,
-    pub direction: f32,
-    pub scale: f32,
     vertex_buffer: VertexBuffer<ImgVertex>,
     index_buffer: IndexBuffer<u16>,
     texture: CompressedTexture2d,
-    affine: [[f32; 4]; 4],
-    affine_cache: (Vec2, f32, f32),
 }
+
+impl Drawable for Img {
+    fn get_shader_items(&self) -> DrawBundle {
+        DrawBundle::Img(&self.vertex_buffer, &self.index_buffer, &self.texture)
+    }
+}
+
 
 impl Img {
     /// Create a new image.  `filename` is relative to the root of the project you are running from.
@@ -261,9 +398,6 @@ impl Img {
     /// `soldier.png` in it, then your filename would be `media/soldier.png`.
     pub fn new(
         window: &Window,
-        pos: Vec2,
-        direction: f32,
-        scale: f32,
         color: Option<Color>,
         filename: &str,
     ) -> Self {
@@ -321,26 +455,10 @@ impl Img {
         )
             .unwrap();
         Self {
-            pos,
-            direction,
-            scale,
             vertex_buffer,
             index_buffer,
             texture,
-            affine: [[0., 0., 0., 0.], [0., 0., 0., 0.], [0., 0., 0., 0.], [0., 0., 0., 0.]],
-            affine_cache: (glm::vec2(std::f32::NAN, std::f32::NAN), std::f32::NAN, std::f32::NAN),
         }
-    }
-    fn get_affine(&mut self) -> [[f32; 4]; 4] {
-        if self.affine_cache == (self.pos, self.direction, self.scale) {
-            return self.affine;
-        }
-        let translated = glm::translation(&glm::vec2_to_vec3(&self.pos));
-        let rotated = glm::rotate(&translated, self.direction, &glm::vec3(0.0f32, 0., 1.));
-        let scaled = glm::scale(&rotated, &glm::vec3(self.scale, self.scale, self.scale));
-        self.affine_cache = (self.pos, self.direction, self.scale);
-        self.affine = scaled.try_into().unwrap();
-        self.affine
     }
 }
 
@@ -493,88 +611,6 @@ impl Window {
         self.target = Some(self.display.draw());
         if let Some(ref mut target) = self.target {
             target.clear_color(0.0, 0.0, 0.0, 1.0);
-        }
-    }
-
-    /// You must call `.drawstart()` before calling this method.  `draw_shape()` will draw your
-    /// shape to the current off-screen framebuffer.  After the first time a given shape value is
-    /// drawn it stays on the GPU and during subsequent calls it only sends updated
-    /// position/rotation, which is super efficient, so don't destroy and recreate shapes every
-    /// frame! Draw calls draw to the framebuffer in the order that they occur, so the last shape
-    /// you draw will be on top.
-    pub fn draw_shape(&mut self, shape: &Shape) {
-        if let Some(ref mut target) = self.target {
-            let uniforms = uniform! {
-                        // CAUTION: The inner arrays are COLUMNS not ROWS (left to right actually is top to bottom)
-                            matrix: [
-                                [shape.direction.cos() as f32, shape.direction.sin() as f32, 0.0, 0.0],
-                                [-shape.direction.sin() as f32, shape.direction.cos() as f32, 0.0, 0.0],
-                                [0.0, 0.0, 1.0, 0.0],
-                                [shape.pos.x, shape.pos.y, 0.0, 1.0f32],
-                            ]
-            // Failed attempt at adding scaling into the mix
-            //                let sx = 1.0f32;
-            //                let sy = 1.0f32;
-            //                matrix: [
-            //                    [sx*shape.direction.cos() as f32, sx*shape.direction.sin() as f32, 0.0, 0.0],
-            //                    [-sy * shape.direction.sin() as f32, sy *shape.direction.cos() as f32, 0.0, 0.0],
-            //                    [0.0, 0.0, 1.0, 0.0],
-            //                    [shape.pos.x*shape.direction.cos()-shape.pos.y*shape.direction.sin(), shape.pos.x*shape.direction.sin()+shape.pos.y*shape.direction.cos(), 0.0, 1.0f32],
-            //                ]
-                        };
-
-            // These options don't seem to have any effect at all :-(
-            let draw_parameters = DrawParameters {
-                blend: Blend::alpha_blending(),
-                line_width: Some(5.0),
-                point_size: Some(5.0),
-                smooth: Some(Smooth::Nicest),
-                ..Default::default()
-            };
-
-            target
-                .draw(
-                    &shape.vertex_buffer,
-                    &shape.indices,
-                    &self.shape_program,
-                    &uniforms,
-                    &draw_parameters,
-                )
-                .unwrap();
-        }
-    }
-
-    /// You must call `.drawstart()` before calling this method.  `draw()` will draw your
-    /// image to the current off-screen framebuffer.  After the first time a given image value is
-    /// drawn it stays on the GPU and during subsequent calls it only sends updated
-    /// position/rotation, which is super efficient, so don't destroy and recreate images every
-    /// frame! Draw calls draw to the framebuffer in the order that they occur, so the last image
-    /// you draw will be on top.
-    pub fn draw(&mut self, img: &mut Img) {
-        if let Some(ref mut target) = self.target {
-            let uniforms = uniform! {
-                matrix: img.get_affine(),
-                tex: &img.texture
-            };
-
-            // These options don't seem to have any effect at all :-(
-            let draw_parameters = DrawParameters {
-                blend: Blend::alpha_blending(),
-                line_width: Some(5.0),
-                point_size: Some(5.0),
-                smooth: Some(Smooth::Nicest),
-                ..Default::default()
-            };
-
-            target
-                .draw(
-                    &img.vertex_buffer,
-                    &img.index_buffer,
-                    &self.img_program,
-                    &uniforms,
-                    &draw_parameters,
-                )
-                .unwrap();
         }
     }
 
