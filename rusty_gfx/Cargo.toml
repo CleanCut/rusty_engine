@@ -1,6 +1,6 @@
 [package]
 name = "rusty_gfx"
-version = "0.6.0"
+version = "0.7.0"
 authors = ["Nathan Stocks <nathan@agileperception.com>"]
 edition = "2018"
 description = "Create windows, display graphics, handle input events (keyboard, mouse, etc.). Part of the rusty_engine game engine."

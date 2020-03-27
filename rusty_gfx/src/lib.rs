@@ -1,71 +1,69 @@
 //! The OpenGL window is (-1.0, -1.0) in the bottom left to (1.0, 1.0) in the top right.
 
-use glium::{glutin::{
-    dpi::{LogicalSize, PhysicalPosition},
-    event::{ElementState, Event, MouseButton, VirtualKeyCode, WindowEvent},
-    event_loop::{ControlFlow, EventLoop},
-    platform::desktop::EventLoopExtDesktop,
-    window::WindowBuilder,
-    ContextBuilder,
-}, implement_vertex, index::{NoIndices, PrimitiveType}, program::ProgramCreationInput, texture::{CompressedTexture2d, RawImage2d}, uniform, Blend, Display, DrawParameters, Frame, IndexBuffer, Program, Smooth, Surface, VertexBuffer, PolygonMode};
-use rand::prelude::Rng;
+// EXTERNAL
+use glium::{
+    glutin::{
+        dpi::{LogicalSize, PhysicalPosition},
+        event::{
+            ElementState as GLElementState, Event as GLEvent, MouseButton as GLMouseButton,
+            VirtualKeyCode as GLVirtualKeyCode, WindowEvent as GLWindowEvent,
+        },
+        event_loop::{ControlFlow, EventLoop},
+        platform::desktop::EventLoopExtDesktop,
+        window::WindowBuilder,
+        ContextBuilder,
+    },
+    implement_vertex,
+    index::{NoIndices, PrimitiveType},
+    program::ProgramCreationInput,
+    texture::{CompressedTexture2d, RawImage2d},
+    uniform, Blend, Display, DrawParameters, Frame, IndexBuffer, PolygonMode, Program, Smooth,
+    Surface, VertexBuffer,
+};
 use serde::{Deserialize, Serialize};
+use std::convert::TryInto;
 use std::f64::consts::PI;
 use std::hash::{Hash, Hasher};
 
+// WORKSPACE
 use rusty_core::glm::{self, Vec2};
-use std::convert::TryInto;
 
+// EXPORT
+pub mod util;
 pub mod prelude {
+    pub use crate::util::*;
     pub use crate::{GameEvent, Window};
-}
-
-pub fn clamp_vec_to_magnitude(v: &mut Vec2, magnitude: f32) {
-    if v.magnitude() > magnitude {
-        v.data = (v.normalize() * magnitude).data;
-    }
-}
-
-pub fn angle_facing(v1: &Vec2, v2: &Vec2) -> f32 {
-    (v2.data[1] - v1.data[1]).atan2(v2.data[0] - v1.data[0])
-}
-
-pub fn new_in_square<T: Rng>(dimension: f32, rng: &mut T) -> Vec2 {
-    Vec2::new(
-        rng.gen_range(-dimension, dimension),
-        rng.gen_range(-dimension, dimension),
-    )
 }
 
 /// A color with 32-bit float parts from `[0.0, 1.0]` suitable for OpenGL.
 #[derive(Copy, Clone, Debug, Deserialize, Serialize)]
-pub struct Color {
-    /// Red
-    pub r: f32,
-    /// Green
-    pub g: f32,
-    /// Blue
-    pub b: f32,
-}
+pub struct Color([f32; 3]);
 
 impl Color {
-    /// Slightly simpler way to create a color
+    /// Red, Green, Blue! Values should be in the range `[0.0, 1.0]`
     pub fn new(r: f32, g: f32, b: f32) -> Self {
-        Self { r, g, b }
+        Self([r, g, b])
+    }
+}
+
+/// So converting back and forth between `Color` and `[f32; 3]` is easy.
+impl From<Color> for [f32; 3] {
+    fn from(color: Color) -> Self {
+        color.0
     }
 }
 
 impl Hash for Color {
     fn hash<H: Hasher>(&self, state: &mut H) {
-        (self.r as u32).hash(state);
-        (self.g as u32).hash(state);
-        (self.b as u32).hash(state);
+        (self.0[0] as u32).hash(state);
+        (self.0[1] as u32).hash(state);
+        (self.0[2] as u32).hash(state);
     }
 }
 
 impl PartialEq for Color {
     fn eq(&self, other: &Self) -> bool {
-        (self.r == other.r) && (self.g == other.g) && (self.b == other.b)
+        (self.0[0] == other.0[0]) && (self.0[1] == other.0[1]) && (self.0[2] == other.0[2])
     }
 }
 
@@ -127,7 +125,11 @@ pub enum ShapeStyle {
 }
 
 pub enum DrawBundle<'a> {
-    Img(&'a VertexBuffer<ImgVertex>, &'a IndexBuffer<u16>, &'a CompressedTexture2d),
+    Img(
+        &'a VertexBuffer<ImgVertex>,
+        &'a IndexBuffer<u16>,
+        &'a CompressedTexture2d,
+    ),
     Shape(&'a VertexBuffer<ShapeVertex>, &'a NoIndices, PolygonMode),
 }
 
@@ -157,11 +159,19 @@ impl Sprite {
             pos,
             direction,
             scale,
-            affine: [[0., 0., 0., 0.], [0., 0., 0., 0.], [0., 0., 0., 0.], [0., 0., 0., 0.]],
-            affine_cache: (glm::vec2(std::f32::NAN, std::f32::NAN), std::f32::NAN, std::f32::NAN),
+            affine: [
+                [0., 0., 0., 0.],
+                [0., 0., 0., 0.],
+                [0., 0., 0., 0.],
+                [0., 0., 0., 0.],
+            ],
+            affine_cache: (
+                glm::vec2(std::f32::NAN, std::f32::NAN),
+                std::f32::NAN,
+                std::f32::NAN,
+            ),
             drawable: Box::new(Img::new(&window, color, filename)),
         }
-
     }
     pub fn new_circle(
         window: &Window,
@@ -176,8 +186,17 @@ impl Sprite {
             pos,
             direction,
             scale,
-            affine: [[0., 0., 0., 0.], [0., 0., 0., 0.], [0., 0., 0., 0.], [0., 0., 0., 0.]],
-            affine_cache: (glm::vec2(std::f32::NAN, std::f32::NAN), std::f32::NAN, std::f32::NAN),
+            affine: [
+                [0., 0., 0., 0.],
+                [0., 0., 0., 0.],
+                [0., 0., 0., 0.],
+                [0., 0., 0., 0.],
+            ],
+            affine_cache: (
+                glm::vec2(std::f32::NAN, std::f32::NAN),
+                std::f32::NAN,
+                std::f32::NAN,
+            ),
             drawable: Box::new(Shape::new_circle(&window, radius, color, shape_style)),
         }
     }
@@ -195,9 +214,24 @@ impl Sprite {
             pos,
             direction,
             scale,
-            affine: [[0., 0., 0., 0.], [0., 0., 0., 0.], [0., 0., 0., 0.], [0., 0., 0., 0.]],
-            affine_cache: (glm::vec2(std::f32::NAN, std::f32::NAN), std::f32::NAN, std::f32::NAN),
-            drawable: Box::new(Shape::new_rectangle(&window, width, height, color, shape_style)),
+            affine: [
+                [0., 0., 0., 0.],
+                [0., 0., 0., 0.],
+                [0., 0., 0., 0.],
+                [0., 0., 0., 0.],
+            ],
+            affine_cache: (
+                glm::vec2(std::f32::NAN, std::f32::NAN),
+                std::f32::NAN,
+                std::f32::NAN,
+            ),
+            drawable: Box::new(Shape::new_rectangle(
+                &window,
+                width,
+                height,
+                color,
+                shape_style,
+            )),
         }
     }
     /// You must call a `Window`'s `.drawstart()` before calling this method.  `draw()` will draw your
@@ -227,7 +261,6 @@ impl Sprite {
 
                     let draw_parameters = DrawParameters {
                         blend: Blend::alpha_blending(),
-//                        smooth: Some(Smooth::Nicest),
                         ..Default::default()
                     };
 
@@ -243,8 +276,8 @@ impl Sprite {
                 }
                 DrawBundle::Shape(vertex_buffer, indices, polygon_mode) => {
                     let uniforms = uniform! {
-                            matrix: affine,
-                        };
+                        matrix: affine,
+                    };
 
                     let draw_parameters = DrawParameters {
                         blend: Blend::alpha_blending(),
@@ -261,7 +294,7 @@ impl Sprite {
                             &draw_parameters,
                         )
                         .unwrap();
-                },
+                }
             }
         }
     }
@@ -303,21 +336,23 @@ impl Shape {
             &vec![
                 ShapeVertex {
                     position: (glm::vec2(width * 0.5, height * 0.5)).into(),
-                    color: [color.r, color.g, color.b],
+                    color: color.into(),
                 },
                 ShapeVertex {
                     position: (glm::vec2(width * 0.5, -height * 0.5)).into(),
-                    color: [color.r, color.g, color.b],
+                    color: color.into(),
                 },
                 ShapeVertex {
                     position: (glm::vec2(-width * 0.5, -height * 0.5)).into(),
-                    color: [color.r, color.g, color.b],
+                    color: color.into(),
                 },
                 ShapeVertex {
                     position: (glm::vec2(-width * 0.5, height * 0.5)).into(),
-                    color: [color.r, color.g, color.b],
+                    color: color.into(),
                 },
-            ]).unwrap();
+            ],
+        )
+        .unwrap();
         let (primitive_type, polygon_mode) = match shape_style {
             ShapeStyle::Fill => (PrimitiveType::TriangleFan, PolygonMode::Fill),
             ShapeStyle::Line => (PrimitiveType::LineLoop, PolygonMode::Line),
@@ -329,23 +364,17 @@ impl Shape {
         }
     }
     /// Create a solid circle with a stripe that always faces `direction`.
-    pub fn new_circle(
-        window: &Window,
-        radius: f32,
-        color: Color,
-        shape_style: ShapeStyle,
-    ) -> Self {
+    pub fn new_circle(window: &Window, radius: f32, color: Color, shape_style: ShapeStyle) -> Self {
         let num_vertices = 63;
         let mut v = Vec::<ShapeVertex>::with_capacity(num_vertices + 1);
         for x in 0..=num_vertices {
             let inner: f64 = 2.0 * PI / num_vertices as f64 * x as f64;
             v.push(ShapeVertex {
                 position: [inner.cos() as f32 * radius, inner.sin() as f32 * radius],
-                color: [color.r, color.g, color.b],
+                color: color.into(),
             });
         }
-        let vertex_buffer =
-            VertexBuffer::new(&window.display, &v).unwrap();
+        let vertex_buffer = VertexBuffer::new(&window.display, &v).unwrap();
         let (primitive_type, polygon_mode) = match shape_style {
             ShapeStyle::Fill => (PrimitiveType::TriangleFan, PolygonMode::Fill),
             ShapeStyle::Line => (PrimitiveType::LineLoop, PolygonMode::Line),
@@ -391,16 +420,11 @@ impl Drawable for Img {
     }
 }
 
-
 impl Img {
     /// Create a new image.  `filename` is relative to the root of the project you are running from.
     /// For example, if you created a `media` subdirectory in the root of your project and then put
     /// `soldier.png` in it, then your filename would be `media/soldier.png`.
-    pub fn new(
-        window: &Window,
-        color: Option<Color>,
-        filename: &str,
-    ) -> Self {
+    pub fn new(window: &Window, color: Option<Color>, filename: &str) -> Self {
         let file = std::fs::File::open(filename).unwrap();
         let reader = std::io::BufReader::new(file);
         let image = image::load(reader, image::PNG).unwrap().to_rgba();
@@ -418,42 +442,42 @@ impl Img {
         let scale_x = image_dimensions.0 as f32 / pixels_per_game_unit / 16.;
         let scale_y = image_dimensions.1 as f32 / pixels_per_game_unit / 16.;
 
-        let vertex_buffer =
-            VertexBuffer::new(
-                &window.display,
-                &[
-                    ImgVertex {
-                        position: [-scale_x, -scale_y],
-                        tex_coords: [0.0, 0.0],
-                        color: [color.r, color.g, color.b],
-                        tint,
-                    },
-                    ImgVertex {
-                        position: [-scale_x, scale_y],
-                        tex_coords: [0.0, 1.0],
-                        color: [color.r, color.g, color.b],
-                        tint,
-                    },
-                    ImgVertex {
-                        position: [scale_x, scale_y],
-                        tex_coords: [1.0, 1.0],
-                        color: [color.r, color.g, color.b],
-                        tint,
-                    },
-                    ImgVertex {
-                        position: [scale_x, -scale_y],
-                        tex_coords: [1.0, 0.0],
-                        color: [color.r, color.g, color.b],
-                        tint,
-                    },
-                ],
-            ).unwrap();
+        let vertex_buffer = VertexBuffer::new(
+            &window.display,
+            &[
+                ImgVertex {
+                    position: [-scale_x, -scale_y],
+                    tex_coords: [0.0, 0.0],
+                    color: color.into(),
+                    tint,
+                },
+                ImgVertex {
+                    position: [-scale_x, scale_y],
+                    tex_coords: [0.0, 1.0],
+                    color: color.into(),
+                    tint,
+                },
+                ImgVertex {
+                    position: [scale_x, scale_y],
+                    tex_coords: [1.0, 1.0],
+                    color: color.into(),
+                    tint,
+                },
+                ImgVertex {
+                    position: [scale_x, -scale_y],
+                    tex_coords: [1.0, 0.0],
+                    color: color.into(),
+                    tint,
+                },
+            ],
+        )
+        .unwrap();
         let index_buffer = IndexBuffer::new(
             &window.display,
             PrimitiveType::TriangleStrip,
             &[1 as u16, 2, 0, 3],
         )
-            .unwrap();
+        .unwrap();
         Self {
             vertex_buffer,
             index_buffer,
@@ -542,7 +566,7 @@ impl Window {
                 uses_point_size: true,
             },
         )
-            .unwrap();
+        .unwrap();
 
         // For drawing images
         let vertex_shader_img = r#"
@@ -592,7 +616,7 @@ impl Window {
                 uses_point_size: true,
             },
         )
-            .unwrap();
+        .unwrap();
 
         Self {
             event_loop,
@@ -632,24 +656,24 @@ impl Window {
         let mut events = Vec::<GameEvent>::new();
         self.event_loop.run_return(|ev, _, control_flow| {
             *control_flow = ControlFlow::Exit;
-            if let Event::WindowEvent { event, .. } = ev {
+            if let GLEvent::WindowEvent { event, .. } = ev {
                 match event {
                     // Time to close the app?
-                    WindowEvent::CloseRequested => events.push(GameEvent::Quit),
+                    GLWindowEvent::CloseRequested => events.push(GameEvent::Quit),
                     // Mouse moved
-                    WindowEvent::CursorMoved { position, .. } => {
+                    GLWindowEvent::CursorMoved { position, .. } => {
                         let mouse_pos = screen_to_opengl(position);
                         events.push(GameEvent::MouseMoved {
                             position: mouse_pos,
                         });
                     }
                     // Keyboard button
-                    WindowEvent::KeyboardInput { input, .. } => {
+                    GLWindowEvent::KeyboardInput { input, .. } => {
                         let button_state = match input.state {
-                            ElementState::Pressed => ButtonState::Pressed,
-                            ElementState::Released => ButtonState::Released,
+                            GLElementState::Pressed => ButtonState::Pressed,
+                            GLElementState::Released => ButtonState::Released,
                         };
-                        use VirtualKeyCode::*;
+                        use GLVirtualKeyCode::*;
                         if let Some(vkey) = input.virtual_keycode {
                             match vkey {
                                 W | Up | Comma => events.push(GameEvent::Button {
@@ -682,7 +706,7 @@ impl Window {
                                     button_value: ButtonValue::Action3,
                                 }),
                                 // Equals covers the +/= key.
-                                Equals => events.push( GameEvent::Button {
+                                Equals => events.push(GameEvent::Button {
                                     button_state,
                                     button_value: ButtonValue::Increase,
                                 }),
@@ -695,18 +719,20 @@ impl Window {
                             }
                         }
                     }
-                    WindowEvent::MouseInput { state, button, .. } => {
+                    GLWindowEvent::MouseInput { state, button, .. } => {
                         let button_state = match state {
-                            ElementState::Pressed => ButtonState::Pressed,
-                            ElementState::Released => ButtonState::Released,
+                            GLElementState::Pressed => ButtonState::Pressed,
+                            GLElementState::Released => ButtonState::Released,
                         };
                         events.push(GameEvent::Button {
                             button_state,
                             button_value: {
                                 match button {
-                                    MouseButton::Left => ButtonValue::Action1,
-                                    MouseButton::Right => ButtonValue::Action2,
-                                    MouseButton::Middle | MouseButton::Other(_) => ButtonValue::Action3,
+                                    GLMouseButton::Left => ButtonValue::Action1,
+                                    GLMouseButton::Right => ButtonValue::Action2,
+                                    GLMouseButton::Middle | GLMouseButton::Other(_) => {
+                                        ButtonValue::Action3
+                                    }
                                 }
                             },
                         });
@@ -718,7 +744,6 @@ impl Window {
         events
     }
 }
-
 
 #[cfg(test)]
 mod tests {
