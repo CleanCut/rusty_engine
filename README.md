@@ -5,7 +5,7 @@ simple to use as possible so game engine concepts don't get in the way of learni
 
 [Questions], [bug reports], and contributions are most welcome!
 
-If you would like to support this project, please [sponsor] me. 💖
+If you would like to support this project, please star this repository and [sponsor](https://github.com/sponsors/CleanCut) me. 💖
 
 ## Features
 
@@ -53,4 +53,3 @@ See [license/APACHE](license/APACHE) and [license/MIT](license/MIT).
 [Ultimate Rust Crash Course]: https://agileperception.com/ultimate_rust_crash_course
 [bug reports]: https://github.com/CleanCut/rusty_engine/issues/new
 [rendy]: https://github.com/amethyst/rendy
-[sponsor]: https://github.com/sponsors/CleanCut
