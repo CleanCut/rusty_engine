@@ -53,4 +53,4 @@ See [license/APACHE](license/APACHE) and [license/MIT](license/MIT).
 [Ultimate Rust Crash Course]: https://agileperception.com/ultimate_rust_crash_course
 [bug reports]: https://github.com/CleanCut/rusty_engine/issues/new
 [rendy]: https://github.com/amethyst/rendy
-[sponsoring]: https://github.com/sponsors/CleanCut
+[sponsor]: https://github.com/sponsors/CleanCut
