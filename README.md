@@ -3,9 +3,9 @@
 Rusty Engine is a fun, cross-platform game engine written in Rust. The primary goal is to be as
 simple to use as possible so game engine concepts don't get in the way of learning Rust.
 
-[Questions], [bug reports], and contributions are most welcome.
+[Questions], [bug reports], and contributions are most welcome!
 
-If you find this project useful, please consider [sponsoring] me!
+If you would like to support this project, please [sponsor] me. 💖
 
 ## Features
 
