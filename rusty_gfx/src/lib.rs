@@ -20,103 +20,23 @@ use glium::{
     uniform, Blend, Display, DrawParameters, Frame, IndexBuffer, PolygonMode, Program, Smooth,
     Surface, VertexBuffer,
 };
-use serde::{Deserialize, Serialize};
-use std::convert::TryInto;
 use std::f64::consts::PI;
-use std::hash::{Hash, Hasher};
 
-// WORKSPACE
+// RUSTY
+use crate::color::Color;
+use crate::event::*;
 use rusty_core::glm::{self, Vec2};
+use rusty_core::prelude::Transform;
 
 // EXPORT
+pub mod color;
+pub mod event;
 pub mod util;
 pub mod prelude {
+    pub use crate::color::*;
+    pub use crate::event::*;
     pub use crate::util::*;
-    pub use crate::{GameEvent, Window};
-}
-
-/// A color with 32-bit float parts from `[0.0, 1.0]` suitable for OpenGL.
-#[derive(Copy, Clone, Debug, Deserialize, Serialize)]
-pub struct Color([f32; 3]);
-
-impl Color {
-    /// Red, Green, Blue! Values should be in the range `[0.0, 1.0]`
-    pub fn new(r: f32, g: f32, b: f32) -> Self {
-        Self([r, g, b])
-    }
-}
-
-/// So converting back and forth between `Color` and `[f32; 3]` is easy.
-impl From<Color> for [f32; 3] {
-    fn from(color: Color) -> Self {
-        color.0
-    }
-}
-
-impl Hash for Color {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        (self.0[0] as u32).hash(state);
-        (self.0[1] as u32).hash(state);
-        (self.0[2] as u32).hash(state);
-    }
-}
-
-impl PartialEq for Color {
-    fn eq(&self, other: &Self) -> bool {
-        (self.0[0] == other.0[0]) && (self.0[1] == other.0[1]) && (self.0[2] == other.0[2])
-    }
-}
-
-/// Abstracted button values you may receive (arrow keys and WASD keys combined into directions, for
-/// example)
-#[derive(Copy, Clone, Debug, Deserialize, Serialize, PartialEq)]
-pub enum ButtonValue {
-    /// An abstracted button that combines: Arrow Up, W, Comma (Dvorak)
-    Up,
-    /// An abstracted button that combines: Arrow Down, S, O (Dvorak)
-    Down,
-    /// An abstracted button that combines: Arrow Left, A
-    Left,
-    /// An abstracted button that combines: Arrow Right, D, E (Dvorak)
-    Right,
-    /// An abstracted button that combines: Left Mouse Button, Space Bar, Backspace
-    Action1,
-    /// An abstracted button that combines: Right Mouse Button, Enter, Return
-    Action2,
-    /// An abstracted button that combines: Any other Mouse Button, Tab
-    Action3,
-    /// An abstracted button that combines: =/+ key
-    Increase,
-    /// An abstracted button that combines: -/_ key
-    Decrease,
-}
-
-/// Whether a button was pressed or released
-#[derive(Copy, Clone, Debug, Deserialize, Serialize, PartialEq)]
-pub enum ButtonState {
-    /// A button was just pressed
-    Pressed,
-    /// A button was just released
-    Released,
-}
-
-/// `GameEvent` represents game events caused by a user, such as the mouse moving around, buttons
-/// being pushed, or the window being closed.
-#[derive(Copy, Clone, Debug, Deserialize, Serialize, PartialEq)]
-pub enum GameEvent {
-    /// The user pressed Escape or closed the window. We should quit the game.
-    Quit,
-    /// Indicates the current position the mouse has moved to.  The mouse is now at this location in
-    /// OpenGL coordinates.  Note that on some operating systems this event will fire even if the
-    /// cursor is outside the bounds of the window.
-    MouseMoved { position: Vec2 },
-    /// Indicates that a button with variant `ButtonValue` has been either pressed or released
-    /// (variant of `ButtonState`).  Note that both mouse buttons and keyboard buttons are
-    /// abstracted and collected together into a few logical game buttons.
-    Button {
-        button_value: ButtonValue,
-        button_state: ButtonState,
-    },
+    pub use crate::{Sprite, Window};
 }
 
 pub enum ShapeStyle {
@@ -124,7 +44,7 @@ pub enum ShapeStyle {
     Line,
 }
 
-pub enum DrawBundle<'a> {
+pub enum ThingToDraw<'a> {
     Img(
         &'a VertexBuffer<ImgVertex>,
         &'a IndexBuffer<u16>,
@@ -134,72 +54,15 @@ pub enum DrawBundle<'a> {
 }
 
 pub trait Drawable {
-    fn get_shader_items(&self) -> DrawBundle;
+    fn get_shader_items(&self) -> ThingToDraw;
 }
 
 pub struct Sprite {
-    pub pos: Vec2,
-    pub direction: f32,
-    pub scale: f32,
-    affine: [[f32; 4]; 4],
-    affine_cache: (Vec2, f32, f32),
+    pub transform: Transform,
     drawable: Box<dyn Drawable>,
 }
 
 impl Sprite {
-    pub fn new_image(
-        window: &Window,
-        pos: Vec2,
-        direction: f32,
-        scale: f32,
-        color: Option<Color>,
-        filename: &str,
-    ) -> Self {
-        Self {
-            pos,
-            direction,
-            scale,
-            affine: [
-                [0., 0., 0., 0.],
-                [0., 0., 0., 0.],
-                [0., 0., 0., 0.],
-                [0., 0., 0., 0.],
-            ],
-            affine_cache: (
-                glm::vec2(std::f32::NAN, std::f32::NAN),
-                std::f32::NAN,
-                std::f32::NAN,
-            ),
-            drawable: Box::new(Img::new(&window, color, filename)),
-        }
-    }
-    pub fn new_circle(
-        window: &Window,
-        pos: Vec2,
-        direction: f32,
-        scale: f32,
-        radius: f32,
-        color: Color,
-        shape_style: ShapeStyle,
-    ) -> Self {
-        Self {
-            pos,
-            direction,
-            scale,
-            affine: [
-                [0., 0., 0., 0.],
-                [0., 0., 0., 0.],
-                [0., 0., 0., 0.],
-                [0., 0., 0., 0.],
-            ],
-            affine_cache: (
-                glm::vec2(std::f32::NAN, std::f32::NAN),
-                std::f32::NAN,
-                std::f32::NAN,
-            ),
-            drawable: Box::new(Shape::new_circle(&window, radius, color, shape_style)),
-        }
-    }
     pub fn new_rectangle(
         window: &Window,
         pos: Vec2,
@@ -210,28 +73,48 @@ impl Sprite {
         color: Color,
         shape_style: ShapeStyle,
     ) -> Self {
+        Self::with_drawable_at(
+            Shape::new_rectangle(&window, width, height, color, shape_style),
+            Transform::at(pos, direction, scale),
+        )
+    }
+    pub fn new_image(
+        window: &Window,
+        pos: Vec2,
+        direction: f32,
+        scale: f32,
+        tint: Option<Color>,
+        filename: &str,
+    ) -> Self {
+        Self::with_drawable_at(
+            Img::new(window, tint, filename),
+            Transform::at(pos, direction, scale),
+        )
+    }
+    pub fn new_circle(
+        window: &Window,
+        pos: Vec2,
+        direction: f32,
+        scale: f32,
+        radius: f32,
+        color: Color,
+        shape_style: ShapeStyle,
+    ) -> Self {
+        Self::with_drawable_at(
+            Shape::new_circle(&window, radius, color, shape_style),
+            Transform::at(pos, direction, scale),
+        )
+    }
+    pub fn with_drawable<T: 'static + Drawable>(drawable: T) -> Self {
         Self {
-            pos,
-            direction,
-            scale,
-            affine: [
-                [0., 0., 0., 0.],
-                [0., 0., 0., 0.],
-                [0., 0., 0., 0.],
-                [0., 0., 0., 0.],
-            ],
-            affine_cache: (
-                glm::vec2(std::f32::NAN, std::f32::NAN),
-                std::f32::NAN,
-                std::f32::NAN,
-            ),
-            drawable: Box::new(Shape::new_rectangle(
-                &window,
-                width,
-                height,
-                color,
-                shape_style,
-            )),
+            transform: Transform::new(),
+            drawable: Box::new(drawable),
+        }
+    }
+    pub fn with_drawable_at<T: 'static + Drawable>(drawable: T, transform: Transform) -> Self {
+        Self {
+            transform,
+            drawable: Box::new(drawable),
         }
     }
     /// You must call a `Window`'s `.drawstart()` before calling this method.  `draw()` will draw your
@@ -239,21 +122,13 @@ impl Sprite {
     /// drawn it stays on the GPU and during subsequent calls it only sends updated
     /// position/rotation, which is super efficient, so don't destroy and recreate images every
     /// frame! Draw calls draw to the framebuffer in the order that they occur, so the last image
+    /// is on top.
     pub fn draw(&mut self, window: &mut Window) {
         if let Some(ref mut target) = window.target {
-            let affine = if self.affine_cache == (self.pos, self.direction, self.scale) {
-                self.affine
-            } else {
-                let translated = glm::translation(&glm::vec2_to_vec3(&self.pos));
-                let rotated = glm::rotate(&translated, self.direction, &glm::vec3(0.0f32, 0., 1.));
-                let scaled = glm::scale(&rotated, &glm::vec3(self.scale, self.scale, self.scale));
-                self.affine_cache = (self.pos, self.direction, self.scale);
-                self.affine = scaled.try_into().unwrap();
-                self.affine
-            };
+            let affine = self.transform.get_affine();
 
             match self.drawable.get_shader_items() {
-                DrawBundle::Img(vertex_buffer, index_buffer, texture) => {
+                ThingToDraw::Img(vertex_buffer, index_buffer, texture) => {
                     let uniforms = uniform! {
                         matrix: affine,
                         tex: texture,
@@ -274,7 +149,7 @@ impl Sprite {
                         )
                         .unwrap();
                 }
-                DrawBundle::Shape(vertex_buffer, indices, polygon_mode) => {
+                ThingToDraw::Shape(vertex_buffer, indices, polygon_mode) => {
                     let uniforms = uniform! {
                         matrix: affine,
                     };
@@ -317,8 +192,8 @@ pub struct Shape {
 }
 
 impl Drawable for Shape {
-    fn get_shader_items(&self) -> DrawBundle {
-        DrawBundle::Shape(&self.vertex_buffer, &self.indices, self.polygon_mode)
+    fn get_shader_items(&self) -> ThingToDraw {
+        ThingToDraw::Shape(&self.vertex_buffer, &self.indices, self.polygon_mode)
     }
 }
 
@@ -391,11 +266,11 @@ impl Shape {
 pub struct ImgVertex {
     position: [f32; 2],
     tex_coords: [f32; 2],
-    color: [f32; 3],
-    tint: u8,
+    tint: [f32; 3],
+    should_tint: u8,
 }
 
-implement_vertex!(ImgVertex, position, tex_coords, color, tint);
+implement_vertex!(ImgVertex, position, tex_coords, tint, should_tint);
 
 /// An image that can be drawn using the `Window.draw()` method.  Currently only PNG format is
 /// supported.
@@ -415,8 +290,8 @@ pub struct Img {
 }
 
 impl Drawable for Img {
-    fn get_shader_items(&self) -> DrawBundle {
-        DrawBundle::Img(&self.vertex_buffer, &self.index_buffer, &self.texture)
+    fn get_shader_items(&self) -> ThingToDraw {
+        ThingToDraw::Img(&self.vertex_buffer, &self.index_buffer, &self.texture)
     }
 }
 
@@ -424,7 +299,7 @@ impl Img {
     /// Create a new image.  `filename` is relative to the root of the project you are running from.
     /// For example, if you created a `media` subdirectory in the root of your project and then put
     /// `soldier.png` in it, then your filename would be `media/soldier.png`.
-    pub fn new(window: &Window, color: Option<Color>, filename: &str) -> Self {
+    pub fn new(window: &Window, tint: Option<Color>, filename: &str) -> Self {
         let file = std::fs::File::open(filename).unwrap();
         let reader = std::io::BufReader::new(file);
         let image = image::load(reader, image::PNG).unwrap().to_rgba();
@@ -432,8 +307,8 @@ impl Img {
         let image = RawImage2d::from_raw_rgba_reversed(&image.into_raw(), image_dimensions);
         let texture = CompressedTexture2d::new(&window.display, image).unwrap();
 
-        let tint = if color.is_some() { 1 } else { 0 };
-        let color = color.unwrap_or_else(|| Color::new(1.0, 1.0, 1.0));
+        let should_tint = if tint.is_some() { 1 } else { 0 };
+        let tint = tint.unwrap_or_else(|| Color::new(1.0, 1.0, 1.0));
 
         // Size the image relative to the window - calculations assume a square window
         // Assuming 16 game units fit in the (1.0, 1.0) to (-1.0, -1.0) viewspace
@@ -448,26 +323,26 @@ impl Img {
                 ImgVertex {
                     position: [-scale_x, -scale_y],
                     tex_coords: [0.0, 0.0],
-                    color: color.into(),
-                    tint,
+                    tint: tint.into(),
+                    should_tint,
                 },
                 ImgVertex {
                     position: [-scale_x, scale_y],
                     tex_coords: [0.0, 1.0],
-                    color: color.into(),
-                    tint,
+                    tint: tint.into(),
+                    should_tint,
                 },
                 ImgVertex {
                     position: [scale_x, scale_y],
                     tex_coords: [1.0, 1.0],
-                    color: color.into(),
-                    tint,
+                    tint: tint.into(),
+                    should_tint,
                 },
                 ImgVertex {
                     position: [scale_x, -scale_y],
                     tex_coords: [1.0, 0.0],
-                    color: color.into(),
-                    tint,
+                    tint: tint.into(),
+                    should_tint,
                 },
             ],
         )
@@ -574,14 +449,14 @@ impl Window {
             uniform mat4 matrix;
             in vec2 position;
             in vec2 tex_coords;
-            in vec3 color;
-            in uint tint;
-            out vec3 v_color;
+            in vec3 tint;
+            in uint should_tint;
+            out vec3 v_tint;
             out vec2 v_tex_coords;
-            flat out uint u_tint;
+            flat out uint v_should_tint;
             void main() {
-                u_tint = tint;
-                v_color = color;
+                v_should_tint = should_tint;
+                v_tint = tint;
                 gl_Position = matrix * vec4(position, 0.0, 1.0);
                 v_tex_coords = tex_coords;
             }
@@ -591,14 +466,14 @@ impl Window {
             #version 140
             uniform sampler2D tex;
             in vec2 v_tex_coords;
-            in vec3 v_color;
-            flat in uint u_tint;
+            in vec3 v_tint;
+            flat in uint v_should_tint;
             out vec4 f_color;
             void main() {
-                if ((texture(tex, v_tex_coords).a < 0.9) || (u_tint == 0u)) {
+                if ((texture(tex, v_tex_coords).a < 0.9) || (v_should_tint == 0u)) {
                     f_color = texture(tex, v_tex_coords);
                 } else {
-                    f_color = mix(texture(tex, v_tex_coords), vec4(v_color, 1.0), 0.5);
+                    f_color = mix(texture(tex, v_tex_coords), vec4(v_tint, 1.0), 0.5);
                 }
             }
         "#;
