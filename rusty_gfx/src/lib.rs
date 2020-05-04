@@ -51,6 +51,7 @@ pub enum ThingToDraw<'a> {
         &'a CompressedTexture2d,
     ),
     Shape(&'a VertexBuffer<ShapeVertex>, &'a NoIndices, PolygonMode),
+    ShaderShape(&'a VertexBuffer<ShaderShapeVertex>, &'a NoIndices, &'a f32),
 }
 
 pub trait Drawable {
@@ -63,6 +64,19 @@ pub struct Sprite {
 }
 
 impl Sprite {
+    pub fn smooth_circle(
+        window: &Window,
+        pos: Vec2,
+        direction: f32,
+        scale: f32,
+        radius: f32,
+        color: Color,
+    ) -> Self {
+        Self::with_drawable_at(
+            ShaderShape::new_circle(window, radius, color),
+            Transform::at(pos, direction, scale),
+        )
+    }
     pub fn new_rectangle(
         window: &Window,
         pos: Vec2,
@@ -170,7 +184,76 @@ impl Sprite {
                         )
                         .unwrap();
                 }
+                ThingToDraw::ShaderShape(vertex_buffer, indices, local_scale) => {
+                    let uniforms = uniform! {
+                        matrix: affine,
+                        local_scale: *local_scale,
+                    };
+
+                    let draw_parameters = DrawParameters {
+                        blend: Blend::alpha_blending(),
+                        smooth: Some(Smooth::Nicest),
+                        ..Default::default()
+                    };
+                    target
+                        .draw(
+                            vertex_buffer,
+                            indices,
+                            &window.shader_shape_program,
+                            &uniforms,
+                            &draw_parameters,
+                        )
+                        .unwrap();
+                }
             }
+        }
+    }
+}
+
+#[derive(Copy, Clone, Debug)]
+pub struct ShaderShapeVertex {
+    position: [f32; 2],
+    color: [f32; 3],
+}
+implement_vertex!(ShaderShapeVertex, position, color);
+
+#[derive(Debug)]
+pub struct ShaderShape {
+    vertex_buffer: VertexBuffer<ShaderShapeVertex>,
+    indices: NoIndices,
+    local_scale: f32,
+}
+
+impl Drawable for ShaderShape {
+    fn get_shader_items(&self) -> ThingToDraw {
+        ThingToDraw::ShaderShape(&self.vertex_buffer, &self.indices, &self.local_scale)
+    }
+}
+
+impl ShaderShape {
+    pub fn new_circle(window: &Window, radius: f32, color: Color) -> Self {
+        let corner_a = Vec2::new(-6. / (2. * 3.0_f32.sqrt()), -1.0).scale(radius);
+        let corner_b = Vec2::new(-0., 2.).scale(radius);
+        let corner_c = Vec2::new(6. / (2. * 3.0_f32.sqrt()), -1.0).scale(radius);
+        let v = vec![
+            ShaderShapeVertex {
+                position: corner_a.into(),
+                color: color.into(),
+            },
+            ShaderShapeVertex {
+                position: corner_b.into(),
+                color: color.into(),
+            },
+            ShaderShapeVertex {
+                position: corner_c.into(),
+                color: color.into(),
+            },
+        ];
+        let vertex_buffer = VertexBuffer::new(&window.display, &v).unwrap();
+        Self {
+            vertex_buffer,
+            indices: NoIndices(PrimitiveType::TriangleStrip),
+            local_scale: radius,
         }
     }
 }
@@ -238,6 +321,7 @@ impl Shape {
             polygon_mode,
         }
     }
+
     /// Create a solid circle with a stripe that always faces `direction`.
     pub fn new_circle(window: &Window, radius: f32, color: Color, shape_style: ShapeStyle) -> Self {
         let num_vertices = 63;
@@ -367,6 +451,7 @@ pub struct Window {
     event_loop: EventLoop<()>,
     display: Display,
     shape_program: Program,
+    shader_shape_program: Program,
     img_program: Program,
     screen_to_opengl: Box<dyn Fn(PhysicalPosition<f64>) -> Vec2>,
     dimension: u32,
@@ -385,7 +470,7 @@ impl Window {
         let window = WindowBuilder::new()
             .with_inner_size(logical_size)
             .with_title(window_title);
-        let context = ContextBuilder::new();
+        let context = ContextBuilder::new(); // This is the place to enable multisampling and vsync if we want to
         let display = Display::new(window, context, &event_loop).unwrap();
 
         let current_monitor = display.gl_window().window().current_monitor();
@@ -436,6 +521,21 @@ impl Window {
                 tessellation_evaluation_shader: None,
                 geometry_shader: None,
                 fragment_shader: shape_fragment_shader,
+                transform_feedback_varyings: None,
+                outputs_srgb: true,
+                uses_point_size: true,
+            },
+        )
+        .unwrap();
+
+        let shader_circle_program = Program::new(
+            &display,
+            ProgramCreationInput::SourceCode {
+                vertex_shader: include_str!("shader/circle_solid_vertex.glsl"),
+                tessellation_control_shader: None,
+                tessellation_evaluation_shader: None,
+                geometry_shader: None,
+                fragment_shader: include_str!("shader/circle_solid_frag.glsl"),
                 transform_feedback_varyings: None,
                 outputs_srgb: true,
                 uses_point_size: true,
@@ -497,6 +597,7 @@ impl Window {
             event_loop,
             display,
             shape_program,
+            shader_shape_program: shader_circle_program,
             img_program,
             screen_to_opengl,
             dimension,

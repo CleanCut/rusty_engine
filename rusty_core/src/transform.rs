@@ -29,7 +29,7 @@ impl Transform {
         if self.affine_cache != (self.pos, self.direction, self.scale) {
             let translated = glm::translation(&glm::vec2_to_vec3(&self.pos));
             let rotated = glm::rotate(&translated, self.direction, &glm::vec3(0.0f32, 0., 1.));
-            let scaled = glm::scale(&rotated, &glm::vec3(self.scale, self.scale, self.scale));
+            let scaled = glm::scale(&rotated, &glm::vec3(self.scale, self.scale, 0.));
             self.affine_cache = (self.pos, self.direction, self.scale);
             self.affine = scaled.try_into().unwrap();
         }
