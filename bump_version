@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+VERSION=$1
+if [[ $VERSION == "" ]] ; then
+    echo "Usage: ./bump_version VERSION"
+    exit 2
+fi
+
+rg --vimgrep "rusty_.* version =|^version =" -g Cargo.toml \
+    | rg -v "rusty_audio|${VERSION}" \
+    | sed -e 's$Cargo\.toml$\./Cargo\.toml$'
