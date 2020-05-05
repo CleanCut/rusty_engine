@@ -1,11 +1,53 @@
-#!/usr/bin/env bash
+#!/usr/bin/env python3
 
-VERSION=$1
-if [[ $VERSION == "" ]] ; then
-    echo "Usage: ./bump_version VERSION"
-    exit 2
-fi
+import re
+import sys
 
-rg --vimgrep "rusty_.* version =|^version =" -g Cargo.toml \
-    | rg -v "rusty_audio|${VERSION}" \
-    | sed -e 's$Cargo\.toml$\./Cargo\.toml$'
+
+def usage(msg=None):
+    if msg:
+        print(msg)
+    print("Usage: ./bump_version [major|minor|patch]")
+    sys.exit(2)
+
+
+def get_versions(bump_level):
+    """
+    bump_level is one of: major, minor, patch
+
+    returns the current and new version of rusty_engine as a tuple of strings ("1.2.3", "2.0.0")
+    """
+    if bump_level not in ["major", "minor", "patch"]:
+        usage(f"{bump_level} is not a valid level")
+    cargo = open("Cargo.toml").read()
+    match = re.search('version = "(\d+)\.(\d+)\.(\d+)"', cargo)
+    current_version = tuple(int(x) for x in match.groups())
+    new_version = increment_version(current_version, bump_level)
+    return (
+        ".".join(str(x) for x in current_version),
+        ".".join(str(x) for x in new_version),
+    )
+
+
+def increment_version(version, level):
+    """
+    version is a tuple of three integers
+    
+    returns a new tuple of three integers
+    """
+    if level == "major":
+        return (version[0] + 1, 0, 0)
+    elif level == "minor":
+        return (version[0], version[1] + 1, 0)
+    else:
+        return (version[0], version[1], version[2] + 1)
+
+
+if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        usage()
+    bump_level = sys.argv[1]
+    current_version, new_version = get_versions(bump_level)
+    print(f"Bumping from {current_version} to {new_version}")
+
+# rg --no-heading "rusty_.* version =|^version =" -g Cargo.toml | rg -v "rusty_audio|0.10.0"
