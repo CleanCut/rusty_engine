@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import re
+import subprocess
 import sys
 
 
@@ -43,11 +44,32 @@ def increment_version(version, level):
         return (version[0], version[1], version[2] + 1)
 
 
+def write_versions(current_version, new_version):
+    files = (
+        subprocess.check_output(
+            f"""rg --no-heading 'rusty_.* version = "{current_version}"|^version = "{current_version}"' -g Cargo.toml -l | rg -v rusty_audio""",
+            shell=True,
+        )
+        .decode("utf8")
+        .split()
+    )
+    for file in files:
+        fh = open(file)
+        lines = fh.read().split("\n")
+        fh.close()
+        fh = open(file, "w")
+        for line in lines:
+            if line.startswith("version =") or (
+                line.startswith("rusty_") and not line.startswith("rusty_audio")
+            ):
+                line = line.replace(current_version, new_version)
+            fh.write(line + "\n")
+
+
 if __name__ == "__main__":
     if len(sys.argv) != 2:
         usage()
     bump_level = sys.argv[1]
     current_version, new_version = get_versions(bump_level)
     print(f"Bumping from {current_version} to {new_version}")
-
-# rg --no-heading "rusty_.* version =|^version =" -g Cargo.toml | rg -v "rusty_audio|0.10.0"
+    write_versions(current_version, new_version)
