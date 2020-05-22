@@ -66,7 +66,7 @@ def publish():
     subprocess.check_call(
         f'git tag {version} -m "Tagging a release version"', shell=True
     )
-    subprocess.check_call("git push --tags origin HEAD")
+    subprocess.check_call("git push --tags origin HEAD", shell=True)
     crates = ["rusty_core", "rusty_audio", "rusty_gfx", "rusty_engine"]
     # for crate in crates:
     #     sanity_check(crate)
