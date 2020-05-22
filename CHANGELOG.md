@@ -1,3 +1,12 @@
+# Rusty Engine 0.10.0
+## 2020-05-21
+
+- Added a directional `ButtonProcessor` for [r_circlegauntlet](https://github.com/cleancut/r_circlegauntlet)
+
+# Rusty Engine 0.2.0 - 0.9.0
+
+- Rapid, messy development.
+
 # Rusty Engine 0.1.0
 ## 2020-03-15
 
