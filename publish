@@ -18,6 +18,7 @@ def get_version(cargo_toml):
     version = subprocess.check_output(
         f"""rg '^version = "(.*)"$' {cargo_toml} -r '$1'""", shell=True
     )
+    return version.decode("utf8").strip()
 
 
 def publish_crate(crate):
@@ -25,6 +26,7 @@ def publish_crate(crate):
     Returns True/False based on whether the operation successful. The version having been previously 
     published counts as successful.
     """
+    print(f"Beginning publish for {crate}")
     cargo_toml = get_cargo(crate)
     version = get_version(cargo_toml)
     path = "./"
@@ -37,24 +39,26 @@ def publish_crate(crate):
         stderr=subprocess.PIPE,
     )
     while True:
-        output = process.stdout.readline()  # I don't think cargo sends anything here...
-        errput = process.stderr.readline()
+        output = process.stdout.readline().decode(
+            "utf8"
+        )  # I don't think cargo sends anything here...
+        errput = process.stderr.readline().decode("utf8")
         returncode = process.poll()
         if output == "" and errput == "" and returncode is not None:
             if returncode != 0:
                 print(f"FATAL: failed to publish {crate}")
                 sys.exit(3)
         if output and not quiet:
-            print(output)
+            print(output, end="", flush=True)
         if errput and not quiet:
-            print(errput)
-        if errput.contains("crate version") and errput.contains("is already uploaded"):
+            print(errput, end="", flush=True)
+        if "crate version" in errput and "is already uploaded" in errput:
             return True
 
 
 def publish():
     subprocess.check_call("git status", shell=True)
-    print("\nIs everything committed?  (Ctrl-C if not!) ")
+    print("\nIs everything committed?  (Ctrl-C if not! Enter to continue.) ")
     input()
     version = get_version(get_cargo("rusty_engine"))
     already_tagged_cmd = f"git show-ref --verify --quiet refs/tags/{version}"
@@ -63,9 +67,16 @@ def publish():
             f"Version {version} has a tag. If you really want to try to release it, add --force"
         )
         sys.exit(2)
-    subprocess.check_call(
-        f'git tag {version} -m "Tagging a release version"', shell=True
-    )
+    try:
+        subprocess.check_call(
+            f'git tag {version} -m "Tagging a release version"', shell=True
+        )
+    except Exception as e:
+        if force:
+            print("Ignoring tag creation error due to --force")
+        else:
+            raise e
+
     subprocess.check_call("git push --tags origin HEAD", shell=True)
     crates = ["rusty_core", "rusty_audio", "rusty_gfx", "rusty_engine"]
     # for crate in crates:
