@@ -78,7 +78,7 @@ def publish():
             raise e
 
     subprocess.check_call("git push --tags origin HEAD", shell=True)
-    crates = ["rusty_core", "rusty_audio", "rusty_gfx", "rusty_engine"]
+    crates = ["rusty_core", "rusty_audio", "rusty_gfx", "rusty_time", "rusty_engine"]
     # for crate in crates:
     #     sanity_check(crate)
     for crate in crates:

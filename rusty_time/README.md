@@ -1,4 +1,4 @@
-# `rusty_core`
+# `rusty_time`
 
 This crate is part of [`rusty_engine`].
 
