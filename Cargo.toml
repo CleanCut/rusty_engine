@@ -1,6 +1,6 @@
 [package]
 name = "rusty_engine"
-version = "0.10.0"
+version = "0.11.0"
 authors = ["Nathan Stocks <nathan@agileperception.com>"]
 description = "A fun way to learn Rust using a simple 2D game engine."
 edition = "2018"
@@ -17,13 +17,16 @@ license = "MIT OR Apache-2.0"
 members = [
     "rusty_audio",
     "rusty_core",
-    "rusty_gfx"
+    "rusty_gfx",
+    "rusty_time"
 ]
 
 [dependencies]
 rusty_audio = { path = "rusty_audio", version = "1.1.4" }
-rusty_core = { path = "rusty_core", version = "0.10.0" }
-rusty_gfx = { path = "rusty_gfx", version = "0.10.0" }
+rusty_core = { path = "rusty_core", version = "0.11.0" }
+rusty_gfx = { path = "rusty_gfx", version = "0.11.0" }
+rusty_time = { path = "rusty_time", version = "0.11.0" }
+
 
 
 
