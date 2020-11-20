@@ -20,10 +20,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     continue-on-error: ${{ matrix.toolchain == 'nightly' }}
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         os: [macos-latest, windows-latest, ubuntu-latest]
-        toolchain: [stable, beta, nightly]
+        toolchain: [stable]
         include:
         - os: macos-latest
           MACOS: true
