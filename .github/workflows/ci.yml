@@ -35,7 +35,7 @@ jobs:
       - name: install linux deps
         run: |
           sudo apt update
-          sudo apt install gcc pkg-config openssl libasound2-dev cmake build-essential python3 libfreetype6-dev libexpat1-dev libxcb-composite0-dev libssl-dev libx11-dev pulseaudio
+          sudo apt install libasound2-dev pkg-config
         if: contains(matrix.os, 'ubuntu')
 
       - name: install ${{ matrix.toolchain }} toolchain
@@ -59,33 +59,6 @@ jobs:
       - run: cargo clippy --features=${{matrix.FEATURES}} --workspace
         if: matrix.toolchain == 'stable'
 
-      - name: clean clippy-generated amethyst libs
-        # Remove the clippy-generated amethyst files.
-        # They mess up `mdbook test` later on for some reason
-        run: rm -rf ./target/debug/deps/libamethyst*
-        if: matrix.toolchain == 'stable' && matrix.os == 'ubuntu-latest'
-
       - run: cargo test --workspace --features=${{matrix.FEATURES}}
         env:
           MACOS: ${{ matrix.MACOS }} # Used by some tests
-
-      - name: install mdbook on stable, ubuntu-latest
-        uses: peaceiris/actions-mdbook@v1
-        with:
-          mdbook-version: 'latest'
-        if: matrix.toolchain == 'stable' && matrix.os == 'ubuntu-latest'
-
-      # Should be working, but postponing until after we go live with GitHub Actions
-      # - name: install mdbook-linkcheck on stable, ubuntu-latest
-      #   env:
-      #     LINKCHECK_URL: https://github.com/Michael-F-Bryan/mdbook-linkcheck/releases/download/v0.7.0/mdbook-linkcheck-v0.7.0-x86_64-unknown-linux-gnu.tar.gz
-      #   run: |
-      #     curl -L ${{ env.LINKCHECK_URL }} | tar -C ~/.cargo/bin -xzf -
-      #     echo -e "\n\n[output.linkcheck]" >> book/book.toml ## PROBABLY REMOVE THIS IN FAVOR OF ALWAYS HAVING IT AS OPTIONAL IN THE CONFIG
-      #   if: matrix.toolchain == 'stable' && matrix.os == 'ubuntu-latest'
-
-      - run: mdbook build book
-        if: matrix.toolchain == 'stable' && matrix.os == 'ubuntu-latest'
-
-      - run: mdbook test -L ./target/debug/deps book
-        if: matrix.toolchain == 'stable' && matrix.os == 'ubuntu-latest'
