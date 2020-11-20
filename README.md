@@ -35,7 +35,7 @@ sudo yum install -y alsa-lib-devel
 **Debian/Ubuntu**
 
 ```bash
-sudo apt install libasound2-dev
+sudo apt install libasound2-dev pkg-config
 ```
 
 ## Contribution
