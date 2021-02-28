@@ -1,20 +1,16 @@
 name: CI
 
 on:
-  push:
-    branches:
-      - master
   pull_request:
-    branches:
-      - "**"
+  push:
+    branches: [main, master]
 
 env:
-  RUSTFLAGS: -Cdebuginfo=0
+  RUSTFLAGS: "-C debuginfo=0 -D warnings"
   CARGO_TERM_COLOR: always
   CARGO_INCREMENTAL: 0
 
 jobs:
-
   tests:
     name: Tests
     runs-on: ${{ matrix.os }}
@@ -23,12 +19,12 @@ jobs:
       fail-fast: false
       matrix:
         os: [macos-latest, windows-latest, ubuntu-latest]
-        toolchain: [stable]
+        toolchain: [stable, beta, nightly]
         include:
-        - os: macos-latest
-          MACOS: true
-        - os: windows-latest
-        - os: ubuntu-latest
+          - os: macos-latest
+            MACOS: true
+          - os: windows-latest
+          - os: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
 
@@ -48,16 +44,16 @@ jobs:
           override: true
 
       - run: rustup component add clippy
-        if: matrix.toolchain == 'stable'
+        if: matrix.toolchain == 'stable' && matrix.os == 'ubuntu-latest'
+
+      - run: cargo clippy --features=${{matrix.FEATURES}} --workspace
+        if: matrix.toolchain == 'stable' && matrix.os == 'ubuntu-latest'
 
       - run: rustup component add rustfmt
         if: matrix.toolchain == 'stable' && matrix.os == 'ubuntu-latest'
 
       - run: cargo fmt --all -- --check
         if: matrix.toolchain == 'stable' && matrix.os == 'ubuntu-latest'
-
-      - run: cargo clippy --features=${{matrix.FEATURES}} --workspace
-        if: matrix.toolchain == 'stable'
 
       - run: cargo test --workspace --features=${{matrix.FEATURES}}
         env:
