@@ -28,7 +28,7 @@ pub mod prelude {
 /// formats are: MP3, WAV, Vorbis and Flac.
 #[derive(Default)]
 pub struct Audio {
-    clips: Option<HashMap<&'static str, Buffered<Decoder<Cursor<Vec<u8>>>>>>,
+    clips: HashMap<&'static str, Buffered<Decoder<Cursor<Vec<u8>>>>>,
     channels: Vec<Sink>,
     current_channel: usize,
 }
@@ -44,13 +44,13 @@ impl Audio {
                 channels.push(Sink::new(&endpoint))
             }
             Self {
-                clips: Some(clips),
+                clips,
                 channels,
                 current_channel: 0,
             }
         } else {
             Self {
-                clips: None,
+                clips: HashMap::new(),
                 channels: Vec::new(),
                 current_channel: 0,
             }
@@ -61,7 +61,7 @@ impl Audio {
     /// you will refer to this clip as when you need to play it.  Files known to be supported by the
     /// underlying library (rodio) at the time of this writing are MP3, WAV, Vorbis and Flac.
     pub fn add(&mut self, name: &'static str, path: &str) {
-        if let Some(clips) = &mut self.clips {
+        if !self.clips.is_empty() {
             let mut file_vec: Vec<u8> = Vec::new();
             File::open(path)
                 .expect("Couldn't find audio file to add.")
@@ -83,14 +83,14 @@ impl Audio {
                 #[allow(clippy::drop_copy)]
                 drop(i);
             }
-            clips.insert(name, buffered);
+            self.clips.insert(name, buffered);
         }
     }
     /// Play an audio clip that has already been loaded.  `name` is the name you chose when you
     /// added the clip to the `Audio` system. If you forgot to load the clip first, this will crash.
     pub fn play(&mut self, name: &str) {
-        if let Some(clips) = &mut self.clips {
-            let buffer = clips.get(name).expect("No clip by that name.").clone();
+        if !self.clips.is_empty() {
+            let buffer = self.clips.get(name).expect("No clip by that name.").clone();
             self.channels[self.current_channel].append(buffer);
             self.current_channel += 1;
             if self.current_channel >= self.channels.len() {
