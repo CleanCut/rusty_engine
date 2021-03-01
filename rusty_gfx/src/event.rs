@@ -61,6 +61,12 @@ impl ButtonProcessor {
     }
 }
 
+impl Default for ButtonProcessor {
+    fn default() -> Self {
+        ButtonProcessor::new()
+    }
+}
+
 /// Abstracted button values you may receive (arrow keys and WASD keys combined into directions, for
 /// example)
 #[derive(Copy, Clone, Debug, Deserialize, Serialize, PartialEq)]

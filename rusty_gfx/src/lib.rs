@@ -77,6 +77,7 @@ impl Sprite {
             Transform::at(pos, direction, scale),
         )
     }
+    #[allow(clippy::clippy::too_many_arguments)]
     pub fn new_rectangle(
         window: &Window,
         pos: Vec2,
@@ -291,7 +292,7 @@ impl Shape {
     ) -> Self {
         let vertex_buffer = VertexBuffer::new(
             &window.display,
-            &vec![
+            &[
                 ShapeVertex {
                     position: (glm::vec2(width * 0.5, height * 0.5)).into(),
                     color: color.into(),
@@ -431,12 +432,8 @@ impl Img {
             ],
         )
         .unwrap();
-        let index_buffer = IndexBuffer::new(
-            &window.display,
-            PrimitiveType::TriangleStrip,
-            &[1 as u16, 2, 0, 3],
-        )
-        .unwrap();
+        let index_buffer =
+            IndexBuffer::new(&window.display, PrimitiveType::TriangleStrip, &[1, 2, 0, 3]).unwrap();
         Self {
             vertex_buffer,
             index_buffer,
