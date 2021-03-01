@@ -5,20 +5,18 @@ simple to use as possible so game engine concepts don't get in the way of learni
 
 [Questions], [bug reports], and contributions are most welcome!
 
-If you would like to support this project, please star this repository and [sponsor](https://github.com/sponsors/CleanCut) me. 💖
+If you would like to support this project, please star this repository and consider [sponsoring me] on GitHub. 💖
 
 ## Features
 
-- 4-channel audio system supporting MP3, WAV, Vorbis and Flac.
-- Keyboard, mouse, and window input events.
-- OpenGL backend via glium.
+See [this issue](https://github.com/CleanCut/rusty_engine/issues/9) for details about currently-supported features.
 
-## Aspirational Plans
+## Courses
 
-- Companion course ([Ultimate Rust Crash Course]) with project walkthrough videos (the course
-  exists, it just doesn't have project walkthrough videos yet)
-- Switch to Vulkan/Metal via [rendy] before OpenGL stops working on macOS.
-- A user guide
+I plan to integrate using this game engine into some of my courses. If you 
+
+- [Ultimate Rust Crash Course]
+- As-yet-unnamed 3 day course on O'Reilly online.
 
 ### Audio Dependencies on Linux
 
@@ -48,8 +46,13 @@ Distributed under the terms of both the MIT license and the Apache License (Vers
 
 See [license/APACHE](license/APACHE) and [license/MIT](license/MIT).
 
+## Sponsor
+
+If you like Rusty Engine, please consider [sponsoring me] on GitHub. 💖
+
 [CPAL]: https://github.com/RustAudio/cpal
 [Questions]: https://github.com/CleanCut/rusty_engine/issues/new
 [Ultimate Rust Crash Course]: https://agileperception.com/ultimate_rust_crash_course
 [bug reports]: https://github.com/CleanCut/rusty_engine/issues/new
 [rendy]: https://github.com/amethyst/rendy
+[sponsoring me]: https://github.com/sponsors/CleanCut
