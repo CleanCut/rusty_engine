@@ -43,16 +43,10 @@ jobs:
           # Don't use a 'components:' entry--we don't need them with beta/nightly, plus nightly often doesn't have them
           override: true
 
-      - run: rustup component add clippy
-        if: matrix.toolchain == 'stable' && matrix.os == 'ubuntu-latest'
-
-      - run: cargo clippy --workspace
-        if: matrix.toolchain == 'stable' && matrix.os == 'ubuntu-latest'
-
-      - run: rustup component add rustfmt
-        if: matrix.toolchain == 'stable' && matrix.os == 'ubuntu-latest'
-
-      - run: cargo fmt --all -- --check
+      - run: |
+          rustup component add clippy rustfmt
+          cargo clippy --workspace
+          cargo fmt --all -- --check
         if: matrix.toolchain == 'stable' && matrix.os == 'ubuntu-latest'
 
       - run: cargo test --workspace --all-targets --all-features
