@@ -1,6 +1,6 @@
 [package]
 name = "rusty_time"
-version = "0.11.0"
+version = "0.11.1"
 authors = ["Nathan Stocks <nathan.stocks@gmail.com>"]
 edition = "2018"
 description = "Time utilities for simple games, part of `rusty_engine`"
@@ -12,5 +12,3 @@ license = "MIT OR Apache-2.0"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-
-
