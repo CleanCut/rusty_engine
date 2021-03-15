@@ -1,30 +1,13 @@
-# Rusty Engine 0.10.0
-## 2020-05-21
+<!-- next-header -->
 
-- Added a directional `ButtonProcessor` for [r_circlegauntlet](https://github.com/cleancut/r_circlegauntlet)
+## [Unreleased] - ReleaseDate
 
-# Rusty Engine 0.2.0 - 0.9.0
+### Changed
 
-- Rapid, messy development.
+- Gutted the entire project and started over by wrapping [Bevy] with a simple interface for beginners to use.
 
-# Rusty Engine 0.1.0
-## 2020-03-15
+## 0.0.1 - 0.11.0
 
-### rusty_audio 1.1.3
+- Rapid, messy development based on gfx via `glium`, sound via `rusty_audio`, timing via `rusty_time`, and custom logic for everything else.  This approach never reached a very usable state.
 
-- Moved `rusty_audio` to the `rusty_engine` workspace and re-exported it as `audio`
-
-### rusty_core 0.1.0
-
-- Created inside the `rusty_engine` workspace as a place for common functionality and external 
-  re-exports. Re-exported it as `core`.
-
-### rusty_gfx 0.4.1
-
-- Moved `rusty_gfx` to the `rusty_engine` workspace and re-exported it as `gfx`
-
-# Versions before 0.1.0
-## 2020-03-14
-
-- Placeholder versions - save the project name, start adding rusty_audio, rusty_gfx, etc. to the
-  engine in workspaces.
+[Bevy]: https://bevyengine.org

@@ -2,7 +2,7 @@
 name = "rusty_engine"
 version = "0.11.0"
 authors = ["Nathan Stocks <nathan@agileperception.com>"]
-description = "A fun way to learn Rust using a simple 2D game engine."
+description = "Learn Rust with a simple, cross-platform, 2D game engine. "
 edition = "2018"
 homepage = "https://github.com/CleanCut/rusty_engine"
 repository = "https://github.com/CleanCut/rusty_engine"
@@ -13,11 +13,4 @@ license = "MIT OR Apache-2.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[workspace]
-members = ["rusty_audio", "rusty_core", "rusty_gfx", "rusty_time"]
-
 [dependencies]
-rusty_audio = { path = "rusty_audio", version = "1.1.5" }
-rusty_core = { path = "rusty_core", version = "0.11.0" }
-rusty_gfx = { path = "rusty_gfx", version = "0.11.0" }
-rusty_time = { path = "rusty_time", version = "0.11.0" }
