@@ -5,7 +5,7 @@ simple to use as possible so game engine concepts don't get in the way of learni
 
 [Questions], [bug reports], and contributions are most welcome!
 
-If you would like to support this project, please star this repository and consider [sponsoring me] on GitHub. 💖
+If you would like to support this project consider [sponsoring me] on GitHub. 💖
 
 ## Features
 
