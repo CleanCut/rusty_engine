@@ -1,4 +1,4 @@
+.vscode
 **/*.rs.bk
 **/target
 Cargo.lock
-userguide/book
