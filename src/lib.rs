@@ -27,7 +27,8 @@ impl Game {
         app_builder
             .add_plugins(DefaultPlugins)
             .add_system(exit_on_esc_system.system())
-            .add_system(actor_system.system());
+            .add_system(actor_system.system())
+            .add_system(actor_spawner.system());
         Self {
             app_builder,
             actors: HashMap::default(),
@@ -48,33 +49,55 @@ impl Game {
     }
 
     pub fn run(&mut self) {
+        let world = self.app_builder.world_mut();
+        world
+            .spawn()
+            .insert_bundle(OrthographicCameraBundle::new_2d());
         for (_name, actor) in self.actors.drain() {
-            self.app_builder
-                .world_mut()
-                .spawn()
-                .insert_bundle((actor, Transform::default()));
+            world.spawn().insert(actor);
         }
         self.app_builder.run();
     }
 }
 
+fn actor_spawner(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
+    new_actor_query: Query<(Entity, &Actor), Without<Transform>>,
+) {
+    for (entity, actor) in new_actor_query.iter() {
+        println!("Spawning {}", actor.name);
+        let transform = Transform::from_translation(actor.translation.extend(0.0));
+        let texture_handle = asset_server.load(actor.filename.as_str());
+        commands.entity(entity).despawn();
+        commands.spawn_bundle(SpriteBundle {
+            material: materials.add(texture_handle.into()),
+            transform,
+            ..Default::default()
+        });
+    }
+}
+
 fn actor_system(mut actor_query: Query<(&mut Actor, &mut Transform)>) {
     for (mut actor, mut transform) in actor_query.iter_mut() {
-        println!("doing it! {:?}", actor);
         // Perform the user-specified logic on the Actor, which has a bunch of proxy data
         for logic in LOGICS.lock().unwrap().iter() {
             logic(&mut actor);
         }
         // Transfer any changes to the proxies over to the real components
         transform.translation = actor.translation.extend(0.0);
-        println!("did it! {:?}", transform.translation);
     }
 }
 
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug)]
 pub struct Actor {
     // must be unique
     pub name: String,
+    // preset
+    pub preset: Option<ActorPreset>,
+    // filename
+    pub filename: String,
     // Where you are
     pub translation: Vec2,
     // Direction you face in degrees. 0 - right. 90 - up. 180 - left. 270 - down.
@@ -85,6 +108,21 @@ pub struct Actor {
     pub collision: bool,
     // Relative to translation
     pub collider: Collider,
+}
+
+impl Default for Actor {
+    fn default() -> Self {
+        Self {
+            name: String::default(),
+            preset: None,
+            filename: String::default(),
+            translation: Vec2::default(),
+            rotation: f32::default(),
+            scale: 1.0,
+            collision: true,
+            collider: Collider::default(),
+        }
+    }
 }
 
 impl Actor {
@@ -98,6 +136,7 @@ impl Actor {
     }
 }
 
+#[derive(Clone, Debug)]
 pub enum ActorPreset {
     RacingBarrelBlue,
     RacingBarrelRed,
@@ -123,34 +162,35 @@ pub enum ActorPreset {
 
 impl ActorPreset {
     pub fn build(self, name: String) -> Actor {
-        let (_filename, collider): (&str, Collider) = match self {
-            _ => ("a", Collider::new(-1.0, 1.0, 1.0, -1.0)),
-            //ActorPreset::RacingBarrelBlue => ("a", Collider::new(-1.0, 1.0, 1.0, -1.0)),
-            // ActorPreset::RacingBarrelRed => {}
-            // ActorPreset::RacingBarrierRed => {}
-            // ActorPreset::RacingBarrierWhite => {}
-            // ActorPreset::RacingCarBlack => {}
-            // ActorPreset::RacingCarBlue => {}
-            // ActorPreset::RacingCarGreen => {}
-            // ActorPreset::RacingCarRed => {}
-            // ActorPreset::RacingCarYellow => {}
-            // ActorPreset::RacingConeStraight => {}
-            // ActorPreset::RollingBallBlue => {}
-            // ActorPreset::RollingBallBlueAlt => {}
-            // ActorPreset::RollingBallRed => {}
-            // ActorPreset::RollingBallRedAlt => {}
-            // ActorPreset::RollingBlockCorner => {}
-            // ActorPreset::RollingBlockNarrow => {}
-            // ActorPreset::RollingBlockSmall => {}
-            // ActorPreset::RollingBlockSquare => {}
-            // ActorPreset::RollingHoleEnd => {}
-            // ActorPreset::RollingHoleStart => {}
+        let (filename, _): (&str, i32) = match self {
+            ActorPreset::RacingBarrelBlue => ("sprite/racing/barrel_blue.png", 0),
+            ActorPreset::RacingBarrelRed => ("sprite/racing/barrel_red.png", 0),
+            ActorPreset::RacingBarrierRed => ("sprite/racing/barrier_red.png", 0),
+            ActorPreset::RacingBarrierWhite => ("sprite/racing/barrier_white.png", 0),
+            ActorPreset::RacingCarBlack => ("sprite/racing/car_black.png", 0),
+            ActorPreset::RacingCarBlue => ("sprite/racing/car_blue.png", 0),
+            ActorPreset::RacingCarGreen => ("sprite/racing/car_green.png", 0),
+            ActorPreset::RacingCarRed => ("sprite/racing/car_red.png", 0),
+            ActorPreset::RacingCarYellow => ("sprite/racing/car_yellow.png", 0),
+            ActorPreset::RacingConeStraight => ("sprite/racing/cone_straight.png", 0),
+            ActorPreset::RollingBallBlue => ("sprite/rolling/ball_blue.png", 0),
+            ActorPreset::RollingBallBlueAlt => ("sprite/rolling/ball_blue_alt.png", 0),
+            ActorPreset::RollingBallRed => ("sprite/rolling/ball_red.png", 0),
+            ActorPreset::RollingBallRedAlt => ("sprite/rolling/ball_red_alt.png", 0),
+            ActorPreset::RollingBlockCorner => ("sprite/rolling/block_corner.png", 0),
+            ActorPreset::RollingBlockNarrow => ("sprite/rolling/block_narrow.png", 0),
+            ActorPreset::RollingBlockSmall => ("sprite/rolling/block_small.png", 0),
+            ActorPreset::RollingBlockSquare => ("sprite/rolling/block_square.png", 0),
+            ActorPreset::RollingHoleEnd => ("sprite/rolling/hole_end.png", 0),
+            ActorPreset::RollingHoleStart => ("sprite/rolling/hole_start.png", 0),
         };
+
+        let filename = filename.to_string();
 
         Actor {
             name,
-            collision: true,
-            collider,
+            preset: Some(self),
+            filename,
             ..Default::default()
         }
     }
