@@ -2,7 +2,8 @@
 use rusty_engine::prelude::*;
 
 fn logic(actor: &mut Actor) {
-    println!("Processing logic for {}", actor.name);
+    //println!("Processing logic for {}", actor.name);
+    actor.translation.x += 0.1;
 }
 
 fn main() {

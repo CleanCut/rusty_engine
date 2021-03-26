@@ -70,8 +70,7 @@ fn actor_spawner(
         println!("Spawning {}", actor.name);
         let transform = Transform::from_translation(actor.translation.extend(0.0));
         let texture_handle = asset_server.load(actor.filename.as_str());
-        commands.entity(entity).despawn();
-        commands.spawn_bundle(SpriteBundle {
+        commands.entity(entity).insert_bundle(SpriteBundle {
             material: materials.add(texture_handle.into()),
             transform,
             ..Default::default()
