@@ -1,7 +1,7 @@
 # Rusty Engine
 
-Rusty Engine is a fun, cross-platform game engine written in Rust. The primary goal is to be as
-simple to use as possible so game engine concepts don't get in the way of learning Rust.
+Rusty Engine is a simple, 2D game engine for those who are learning Rust. Create simple
+prototypes using straightforward Rust code, without any advanced game engine concepts.
 
 [Questions], [bug reports], and contributions are most welcome!
 
@@ -13,7 +13,7 @@ See [this issue](https://github.com/CleanCut/rusty_engine/issues/9) for details 
 
 ## Courses
 
-I plan to integrate using this game engine into some of my courses. If you 
+I plan to integrate using this game engine into some of my learning courses:
 
 - [Ultimate Rust Crash Course]
 - As-yet-unnamed 3 day course on O'Reilly online.
