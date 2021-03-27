@@ -1,11 +1,6 @@
 //
 use rusty_engine::prelude::*;
 
-fn logic(actor: &mut Actor) {
-    //println!("Processing logic for {}", actor.name);
-    actor.translation.x += 0.1;
-}
-
 fn main() {
     // A Game represents the entire game, the entire program that rusty_engine is aware of.
     // By default the game will spawn an empty window, and exit upon Esc or closing of the window.
@@ -57,8 +52,6 @@ fn main() {
                 .set_translation(Vec2::new(x as f32, (-y) as f32));
         }
     }
-
-    game.add_logic(logic);
 
     game.run();
 }
