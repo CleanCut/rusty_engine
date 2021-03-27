@@ -13,7 +13,7 @@ impl Plugin for ActorPlugin {
     }
 }
 
-pub type LogicFunction = fn(&mut Actor);
+pub type LogicFunction = fn(&mut Actor, &Time);
 
 // TODO: Find a way to connect outside logic with the Bevy system in a more elegant way if possible
 lazy_static! {
@@ -37,11 +37,11 @@ fn actor_spawner(
     }
 }
 
-fn actor_sync(mut actor_query: Query<(&mut Actor, &mut Transform)>) {
+fn actor_sync(time: Res<Time>, mut actor_query: Query<(&mut Actor, &mut Transform)>) {
     for (mut actor, mut transform) in actor_query.iter_mut() {
         // Perform the user-specified logic on the Actor, which has a bunch of proxy data
         for logic in LOGICS.lock().unwrap().iter() {
-            logic(&mut actor);
+            logic(&mut actor, &time);
         }
         // Transfer any changes to the proxies over to the real components
         transform.translation = actor.translation.extend(0.0);

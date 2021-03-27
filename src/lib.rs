@@ -5,7 +5,10 @@ pub mod prelude {
         consts::*,
         Game,
     };
-    pub use bevy::{self, prelude::Vec2};
+    pub use bevy::{
+        self,
+        prelude::{Time, Vec2},
+    };
 }
 
 pub mod actor;
