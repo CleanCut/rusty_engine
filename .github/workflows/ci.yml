@@ -28,11 +28,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: install linux deps
-        run: |
-          sudo apt update
-          sudo apt install libasound2-dev pkg-config
-        if: contains(matrix.os, 'ubuntu')
+      - name: Install Linux deps alsa and udev
+        run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev
+        if: runner.os == 'linux'
 
       - name: install ${{ matrix.toolchain }} toolchain
         id: install_toolchain
