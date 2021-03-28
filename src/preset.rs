@@ -25,10 +25,10 @@ pub enum ActorPreset {
 }
 
 impl ActorPreset {
-    pub fn build(self, name: String) -> Actor {
+    pub fn build(self, label: String) -> Actor {
         let filename = self.filename();
         Actor {
-            name,
+            label,
             preset: Some(self),
             filename,
             ..Default::default()

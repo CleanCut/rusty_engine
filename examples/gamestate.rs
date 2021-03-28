@@ -24,7 +24,7 @@ fn main() {
 }
 
 fn logic(game_state: &mut GameState, actor: &mut Actor, time: &Time) {
-    if actor.name == "Race Car" {
+    if actor.label == "Race Car" {
         let turning_mut_ref = game_state.bool_map.get_mut("turning").unwrap();
         // gain another life every time the timer goes off
         if game_state

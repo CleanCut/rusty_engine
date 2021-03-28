@@ -58,8 +58,8 @@ fn actor_sync(
 
 #[derive(Clone, Debug)]
 pub struct Actor {
-    // must be unique
-    pub name: String,
+    // a way to identify an actor
+    pub label: String,
     // preset
     pub preset: Option<ActorPreset>,
     // filename
@@ -81,7 +81,7 @@ pub struct Actor {
 impl Default for Actor {
     fn default() -> Self {
         Self {
-            name: String::default(),
+            label: String::default(),
             preset: None,
             filename: String::default(),
             translation: Vec2::default(),
@@ -95,7 +95,7 @@ impl Default for Actor {
 
 impl Actor {
     pub fn set_name(&mut self, name: String) -> &mut Self {
-        self.name = name;
+        self.label = name;
         self
     }
     pub fn set_preset(&mut self, preset: ActorPreset) -> &mut Self {

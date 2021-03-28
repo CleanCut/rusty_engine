@@ -27,15 +27,14 @@ fn main() {
         ActorPreset::RollingHoleStart,
     ];
 
-    let mut presets_iter = variants.into_iter().enumerate().peekable();
+    let mut presets_iter = variants.into_iter().peekable();
     'outer: for y in (-265..=400).step_by(175) {
         for x in (-550..=550).step_by(275) {
             if presets_iter.peek().is_none() {
                 break 'outer;
             }
-            let (i, preset) = presets_iter.next().unwrap();
-            let name: String = "preset".to_string() + i.to_string().as_str();
-            game.add_actor(name, preset)
+            let preset = presets_iter.next().unwrap();
+            game.add_actor("preset".into(), preset)
                 .set_translation(Vec2::new(x as f32, (-y) as f32));
         }
     }

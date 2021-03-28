@@ -28,7 +28,7 @@ use bevy::{input::system::exit_on_esc_system, prelude::*};
 /// By default the game will spawn an empty window, and exit upon Esc or closing of the window.
 #[derive(Default)]
 pub struct Game {
-    actors: HashMap<String, Actor>,
+    actors: Vec<Actor>,
     app_builder: AppBuilder,
     game_state: GameState,
 }
@@ -43,17 +43,15 @@ impl Game {
 
         Self {
             app_builder,
-            actors: HashMap::default(),
+            actors: Vec::default(),
             game_state: GameState::default(),
         }
     }
 
-    pub fn add_actor(&mut self, name: String, preset: ActorPreset) -> &mut Actor {
-        if self.actors.contains_key(&name) {
-            panic!("An actor named \"{}\" already exists!", name);
-        }
-        self.actors.insert(name.clone(), preset.build(name.clone()));
-        self.actors.get_mut(&name).unwrap() // Unwrap: Can't crash because we just inserted the actor
+    pub fn add_actor(&mut self, label: String, preset: ActorPreset) -> &mut Actor {
+        self.actors.push(preset.build(label));
+        // Unwrap: Can't crash because we just inserted the actor
+        self.actors.last_mut().unwrap()
     }
 
     pub fn add_logic(&mut self, logic: LogicFunction) {
@@ -70,7 +68,7 @@ impl Game {
         world
             .spawn()
             .insert_bundle(OrthographicCameraBundle::new_2d());
-        for (_name, actor) in self.actors.drain() {
+        for actor in self.actors.drain(..) {
             world.spawn().insert(actor);
         }
         let game_state = std::mem::take(&mut self.game_state);
