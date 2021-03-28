@@ -24,6 +24,8 @@ use crate::actor::{Actor, ActorPlugin, LogicFunction, LOGICS};
 use crate::preset::ActorPreset;
 use bevy::{input::system::exit_on_esc_system, prelude::*};
 
+/// A [`Game`] represents the entire game, the entire program that Rusty Engine is aware of.
+/// By default the game will spawn an empty window, and exit upon Esc or closing of the window.
 #[derive(Default)]
 pub struct Game {
     actors: HashMap<String, Actor>,
