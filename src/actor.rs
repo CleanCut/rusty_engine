@@ -37,7 +37,11 @@ fn actor_spawner(
     }
 }
 
-fn actor_sync(time: Res<Time>, mut actor_query: Query<(&mut Actor, &mut Transform)>) {
+fn actor_sync(
+    game_state: ResMut<T>, // todo: AAArgh. How do we make this the same type as in Game<T>???
+    time: Res<Time>,
+    mut actor_query: Query<(&mut Actor, &mut Transform)>,
+) {
     for (mut actor, mut transform) in actor_query.iter_mut() {
         // Perform the user-specified logic on the Actor, which has a bunch of proxy data
         for logic in LOGICS.lock().unwrap().iter() {

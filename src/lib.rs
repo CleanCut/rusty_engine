@@ -24,13 +24,20 @@ use crate::actor::{Actor, ActorPlugin, ActorPreset, LogicFunction, LOGICS};
 use bevy::{input::system::exit_on_esc_system, prelude::*, utils::HashMap};
 
 #[derive(Default)]
-pub struct Game {
+pub struct Game<T>
+where
+    T: Default + Sync + Send + 'static,
+{
     actors: HashMap<String, Actor>,
     app_builder: AppBuilder,
+    game_state: T,
 }
 
-impl Game {
-    pub fn new() -> Self {
+impl<T> Game<T>
+where
+    T: Default + Sync + Send,
+{
+    pub fn new(game_state: T) -> Self {
         let mut app_builder = App::build();
         app_builder
             .add_plugins(DefaultPlugins)
@@ -40,6 +47,7 @@ impl Game {
         Self {
             app_builder,
             actors: HashMap::default(),
+            game_state,
         }
     }
 
@@ -64,6 +72,8 @@ impl Game {
         for (_name, actor) in self.actors.drain() {
             world.spawn().insert(actor);
         }
+        let game_state = std::mem::take(&mut self.game_state);
+        self.app_builder.insert_resource(game_state);
         self.app_builder.run();
     }
 }

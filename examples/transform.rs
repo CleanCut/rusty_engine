@@ -2,7 +2,7 @@
 use rusty_engine::prelude::*;
 
 fn main() {
-    let mut game = Game::new();
+    let mut game = Game::new(());
 
     game.add_actor("Race Car".to_string(), ActorPreset::RacingCarGreen)
         .set_translation(Vec2::new(0.0, 0.0))
