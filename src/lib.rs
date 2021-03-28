@@ -18,9 +18,11 @@ pub mod consts {
 pub mod physics;
 pub mod preset;
 
+use std::collections::HashMap;
+
 use crate::actor::{Actor, ActorPlugin, LogicFunction, LOGICS};
 use crate::preset::ActorPreset;
-use bevy::{input::system::exit_on_esc_system, prelude::*, utils::HashMap};
+use bevy::{input::system::exit_on_esc_system, prelude::*};
 
 #[derive(Default)]
 pub struct Game {
@@ -75,46 +77,20 @@ impl Game {
     }
 }
 
+#[derive(Default)]
 pub struct GameState {
-    pub bools: Vec<bool>,
-    pub i32s: Vec<i32>,
-    pub u32s: Vec<u32>,
-    pub strings: Vec<String>,
-    pub timers: Vec<Timer>,
-}
-
-impl Default for GameState {
-    fn default() -> Self {
-        Self {
-            bools: vec![
-                false, false, false, false, false, false, false, false, false, false,
-            ],
-            i32s: vec![0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            u32s: vec![0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            strings: vec![
-                "".into(),
-                "".into(),
-                "".into(),
-                "".into(),
-                "".into(),
-                "".into(),
-                "".into(),
-                "".into(),
-                "".into(),
-                "".into(),
-            ],
-            timers: vec![
-                Timer::default(),
-                Timer::default(),
-                Timer::default(),
-                Timer::default(),
-                Timer::default(),
-                Timer::default(),
-                Timer::default(),
-                Timer::default(),
-                Timer::default(),
-                Timer::default(),
-            ],
-        }
-    }
+    pub bool_map: HashMap<String, bool>,
+    pub i32_map: HashMap<String, i32>,
+    pub u8_map: HashMap<String, u8>,
+    pub u32_map: HashMap<String, u32>,
+    pub usize_map: HashMap<String, usize>,
+    pub string_map: HashMap<String, String>,
+    pub timer_map: HashMap<String, Timer>,
+    pub bool_vec: Vec<bool>,
+    pub i32_vec: Vec<i32>,
+    pub u8_vec: Vec<u8>,
+    pub u32_vec: Vec<u32>,
+    pub usize_vec: Vec<usize>,
+    pub string_vec: Vec<String>,
+    pub timer_vec: Vec<Timer>,
 }

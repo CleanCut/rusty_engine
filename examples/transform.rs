@@ -14,7 +14,7 @@ fn main() {
     game.run();
 }
 
-fn logic(game_state: &mut GameState, actor: &mut Actor, time: &Time) {
+fn logic(_game_state: &mut GameState, actor: &mut Actor, time: &Time) {
     use std::f64::consts::TAU;
     match time.seconds_since_startup() {
         x if x % (3.0 * TAU) < TAU => {
