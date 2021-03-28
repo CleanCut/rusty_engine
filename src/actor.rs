@@ -1,7 +1,9 @@
-use std::sync::Mutex;
-
+use crate::physics::Collider;
+use crate::preset::ActorPreset;
+use crate::GameState;
 use bevy::prelude::*;
 use lazy_static::lazy_static;
+use std::sync::Mutex;
 
 #[derive(Default)]
 pub struct ActorPlugin {}
@@ -13,7 +15,7 @@ impl Plugin for ActorPlugin {
     }
 }
 
-pub type LogicFunction = fn(&mut Actor, &Time);
+pub type LogicFunction = fn(&mut GameState, &mut Actor, &Time);
 
 // TODO: Find a way to connect outside logic with the Bevy system in a more elegant way if possible
 lazy_static! {
@@ -38,14 +40,14 @@ fn actor_spawner(
 }
 
 fn actor_sync(
-    game_state: ResMut<T>, // todo: AAArgh. How do we make this the same type as in Game<T>???
+    mut game_state: ResMut<GameState>, // todo: AAArgh. How do we make this the same type as in Game<T>???
     time: Res<Time>,
     mut actor_query: Query<(&mut Actor, &mut Transform)>,
 ) {
     for (mut actor, mut transform) in actor_query.iter_mut() {
         // Perform the user-specified logic on the Actor, which has a bunch of proxy data
         for logic in LOGICS.lock().unwrap().iter() {
-            logic(&mut actor, &time);
+            logic(&mut game_state, &mut actor, &time);
         }
         // Transfer any changes to the proxies over to the real components
         transform.translation = actor.translation.extend(0.0);
@@ -90,12 +92,16 @@ impl Default for Actor {
 }
 
 impl Actor {
-    pub fn set_translation(&mut self, translation: Vec2) -> &mut Self {
-        self.translation = translation;
+    pub fn set_name(&mut self, name: String) -> &mut Self {
+        self.name = name;
         self
     }
-    pub fn set_collision(&mut self, value: bool) -> &mut Self {
-        self.collision = value;
+    pub fn set_preset(&mut self, preset: ActorPreset) -> &mut Self {
+        self.preset = Some(preset);
+        self
+    }
+    pub fn set_translation(&mut self, translation: Vec2) -> &mut Self {
+        self.translation = translation;
         self
     }
     pub fn set_rotation(&mut self, rotation: f32) -> &mut Self {
@@ -106,79 +112,12 @@ impl Actor {
         self.scale = scale;
         self
     }
-}
-
-#[derive(Clone, Debug)]
-pub enum ActorPreset {
-    RacingBarrelBlue,
-    RacingBarrelRed,
-    RacingBarrierRed,
-    RacingBarrierWhite,
-    RacingCarBlack,
-    RacingCarBlue,
-    RacingCarGreen,
-    RacingCarRed,
-    RacingCarYellow,
-    RacingConeStraight,
-    RollingBallBlue,
-    RollingBallBlueAlt,
-    RollingBallRed,
-    RollingBallRedAlt,
-    RollingBlockCorner,
-    RollingBlockNarrow,
-    RollingBlockSmall,
-    RollingBlockSquare,
-    RollingHoleEnd,
-    RollingHoleStart,
-}
-
-impl ActorPreset {
-    pub fn build(self, name: String) -> Actor {
-        let (filename, _): (&str, i32) = match self {
-            ActorPreset::RacingBarrelBlue => ("sprite/racing/barrel_blue.png", 0),
-            ActorPreset::RacingBarrelRed => ("sprite/racing/barrel_red.png", 0),
-            ActorPreset::RacingBarrierRed => ("sprite/racing/barrier_red.png", 0),
-            ActorPreset::RacingBarrierWhite => ("sprite/racing/barrier_white.png", 0),
-            ActorPreset::RacingCarBlack => ("sprite/racing/car_black.png", 0),
-            ActorPreset::RacingCarBlue => ("sprite/racing/car_blue.png", 0),
-            ActorPreset::RacingCarGreen => ("sprite/racing/car_green.png", 0),
-            ActorPreset::RacingCarRed => ("sprite/racing/car_red.png", 0),
-            ActorPreset::RacingCarYellow => ("sprite/racing/car_yellow.png", 0),
-            ActorPreset::RacingConeStraight => ("sprite/racing/cone_straight.png", 0),
-            ActorPreset::RollingBallBlue => ("sprite/rolling/ball_blue.png", 0),
-            ActorPreset::RollingBallBlueAlt => ("sprite/rolling/ball_blue_alt.png", 0),
-            ActorPreset::RollingBallRed => ("sprite/rolling/ball_red.png", 0),
-            ActorPreset::RollingBallRedAlt => ("sprite/rolling/ball_red_alt.png", 0),
-            ActorPreset::RollingBlockCorner => ("sprite/rolling/block_corner.png", 0),
-            ActorPreset::RollingBlockNarrow => ("sprite/rolling/block_narrow.png", 0),
-            ActorPreset::RollingBlockSmall => ("sprite/rolling/block_small.png", 0),
-            ActorPreset::RollingBlockSquare => ("sprite/rolling/block_square.png", 0),
-            ActorPreset::RollingHoleEnd => ("sprite/rolling/hole_end.png", 0),
-            ActorPreset::RollingHoleStart => ("sprite/rolling/hole_start.png", 0),
-        };
-
-        let filename = filename.to_string();
-
-        Actor {
-            name,
-            preset: Some(self),
-            filename,
-            ..Default::default()
-        }
+    pub fn set_collision(&mut self, value: bool) -> &mut Self {
+        self.collision = value;
+        self
     }
-}
-
-#[derive(Clone, Debug, Default)]
-pub struct Collider {
-    pub topleft: Vec2,
-    pub bottomright: Vec2,
-}
-
-impl Collider {
-    fn new(tlx: f32, tly: f32, brx: f32, bry: f32) -> Self {
-        Self {
-            topleft: Vec2::new(tlx, tly),
-            bottomright: Vec2::new(brx, bry),
-        }
+    pub fn set_collider(&mut self, collider: Collider) -> &mut Self {
+        self.collider = collider;
+        self
     }
 }

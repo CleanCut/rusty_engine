@@ -2,7 +2,7 @@
 use rusty_engine::prelude::*;
 
 fn main() {
-    let mut game = Game::new(());
+    let mut game = Game::new();
 
     game.add_actor("Race Car".to_string(), ActorPreset::RacingCarGreen)
         .set_translation(Vec2::new(0.0, 0.0))
@@ -14,7 +14,7 @@ fn main() {
     game.run();
 }
 
-fn logic(actor: &mut Actor, time: &Time) {
+fn logic(game_state: &mut GameState, actor: &mut Actor, time: &Time) {
     use std::f64::consts::TAU;
     match time.seconds_since_startup() {
         x if x % (3.0 * TAU) < TAU => {
