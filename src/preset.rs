@@ -1,6 +1,7 @@
 use crate::actor::Actor;
+use std::array::IntoIter;
 
-#[derive(Clone, Debug)]
+#[derive(Copy, Clone, Debug)]
 pub enum ActorPreset {
     RacingBarrelBlue,
     RacingBarrelRed,
@@ -58,5 +59,30 @@ impl ActorPreset {
             ActorPreset::RollingHoleStart => "sprite/rolling/hole_start.png",
         }
         .into()
+    }
+    pub fn iterator() -> IntoIter<ActorPreset, 20> {
+        static PRESETS: [ActorPreset; 20] = [
+            ActorPreset::RacingBarrelBlue,
+            ActorPreset::RacingBarrelRed,
+            ActorPreset::RacingBarrierRed,
+            ActorPreset::RacingBarrierWhite,
+            ActorPreset::RacingCarBlack,
+            ActorPreset::RacingCarBlue,
+            ActorPreset::RacingCarGreen,
+            ActorPreset::RacingCarRed,
+            ActorPreset::RacingCarYellow,
+            ActorPreset::RacingConeStraight,
+            ActorPreset::RollingBallBlueAlt,
+            ActorPreset::RollingBallBlue,
+            ActorPreset::RollingBallRedAlt,
+            ActorPreset::RollingBallRed,
+            ActorPreset::RollingBlockCorner,
+            ActorPreset::RollingBlockNarrow,
+            ActorPreset::RollingBlockSmall,
+            ActorPreset::RollingBlockSquare,
+            ActorPreset::RollingHoleEnd,
+            ActorPreset::RollingHoleStart,
+        ];
+        std::array::IntoIter::new(PRESETS)
     }
 }

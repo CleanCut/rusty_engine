@@ -1,6 +1,6 @@
+use crate::game::GameState;
 use crate::physics::Collider;
 use crate::preset::ActorPreset;
-use crate::GameState;
 use bevy::prelude::*;
 use lazy_static::lazy_static;
 use std::sync::Mutex;
@@ -40,7 +40,7 @@ fn actor_spawner(
 }
 
 fn actor_sync(
-    mut game_state: ResMut<GameState>, // todo: AAArgh. How do we make this the same type as in Game<T>???
+    mut game_state: ResMut<GameState>,
     time: Res<Time>,
     mut actor_query: Query<(&mut Actor, &mut Transform)>,
 ) {
@@ -50,7 +50,7 @@ fn actor_sync(
             logic(&mut game_state, &mut actor, &time);
         }
         // Transfer any changes to the proxies over to the real components
-        transform.translation = actor.translation.extend(0.0);
+        transform.translation = actor.translation.extend(actor.layer);
         transform.rotation = Quat::from_axis_angle(Vec3::Z, actor.rotation);
         transform.scale = Vec3::splat(actor.scale);
     }
@@ -64,8 +64,10 @@ pub struct Actor {
     pub preset: Option<ActorPreset>,
     // filename
     pub filename: String,
-    // Where you are
+    // Where you are. Positive x is right. Positive y is up.
     pub translation: Vec2,
+    // Depth of the sprite. 0.0 (back) to 999.0 (front)
+    pub layer: f32,
     // Direction you face in radians. See constants UP, DOWN, LEFT, RIGHT
     pub rotation: f32,
     // 1.0 is "normal"
@@ -85,6 +87,7 @@ impl Default for Actor {
             preset: None,
             filename: String::default(),
             translation: Vec2::default(),
+            layer: f32::default(),
             rotation: f32::default(),
             scale: 1.0,
             collision: true,
@@ -104,6 +107,10 @@ impl Actor {
     }
     pub fn set_translation(&mut self, translation: Vec2) -> &mut Self {
         self.translation = translation;
+        self
+    }
+    pub fn set_layer(&mut self, layer: f32) -> &mut Self {
+        self.layer = layer;
         self
     }
     pub fn set_rotation(&mut self, rotation: f32) -> &mut Self {
