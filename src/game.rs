@@ -1,8 +1,19 @@
 // Used locally
-use crate::actor::{Actor, ActorPlugin, LogicFunction, LOGICS};
-use crate::preset::ActorPreset;
+use crate::{
+    actor::{Actor, ActorLogicFunction, ActorPlugin, ACTOR_LOGIC_FUNCTIONS},
+    audio::AudioPlugin,
+};
+use crate::{prelude::AudioManager, preset::ActorPreset};
 use bevy::{input::system::exit_on_esc_system, prelude::*};
-use std::collections::HashMap;
+use lazy_static::lazy_static;
+use std::{collections::HashMap, sync::Mutex};
+
+pub type GameLogicFunction = fn(&mut GameState, &Time);
+
+// TODO: Find a way to connect outside logic with the Bevy system in a more elegant way if possible
+lazy_static! {
+    pub(crate) static ref GAME_LOGIC_FUNCTIONS: Mutex<Vec<GameLogicFunction>> = Mutex::new(vec![]);
+}
 
 /// A [`Game`] represents the entire game, the entire program that Rusty Engine is aware of.
 /// By default the game will spawn an empty window, and exit upon Esc or closing of the window.
@@ -18,9 +29,13 @@ impl Game {
     pub fn new() -> Self {
         let mut app_builder = App::build();
         app_builder
-            .add_plugins(DefaultPlugins)
+            .add_plugins_with(DefaultPlugins, |group| {
+                group.disable::<bevy::audio::AudioPlugin>()
+            })
             .add_system(exit_on_esc_system.system())
-            .add_plugin(ActorPlugin::default());
+            .add_plugin(ActorPlugin::default())
+            .add_plugin(AudioPlugin)
+            .add_system(game_logic_system.system());
 
         Self {
             app_builder,
@@ -35,9 +50,14 @@ impl Game {
         self.actors.last_mut().unwrap()
     }
 
-    pub fn add_logic(&mut self, logic: LogicFunction) {
+    pub fn add_logic(&self, func: ActorLogicFunction) {
         // Unwrap: The only way this could crash is for another thread to take the lock and crash.
-        LOGICS.lock().unwrap().push(logic);
+        ACTOR_LOGIC_FUNCTIONS.lock().unwrap().push(func);
+    }
+
+    pub fn add_game_logic(&self, func: GameLogicFunction) {
+        // Unwrap: The only way this could crash is for another thread to take the lock and crash.
+        GAME_LOGIC_FUNCTIONS.lock().unwrap().push(func);
     }
 
     pub fn game_state_mut(&mut self) -> &mut GameState {
@@ -58,8 +78,16 @@ impl Game {
     }
 }
 
+fn game_logic_system(mut game_state: ResMut<GameState>, time: Res<Time>) {
+    // Unwrap: We're the only system that uses GAME_LOGIC_FUNCTIONS after the game is run
+    for func in GAME_LOGIC_FUNCTIONS.lock().unwrap().iter() {
+        func(&mut game_state, &time);
+    }
+}
+
 #[derive(Default)]
 pub struct GameState {
+    // Empty collections for users
     pub bool_map: HashMap<String, bool>,
     pub i32_map: HashMap<String, i32>,
     pub u8_map: HashMap<String, u8>,
@@ -74,4 +102,6 @@ pub struct GameState {
     pub usize_vec: Vec<usize>,
     pub string_vec: Vec<String>,
     pub timer_vec: Vec<Timer>,
+    // Built-in stuff
+    pub audio_manager: AudioManager,
 }

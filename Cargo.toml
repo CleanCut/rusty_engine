@@ -18,3 +18,8 @@ bevy = { git = "https://github.com/bevyengine/bevy", rev = "47004dfcb415a049e4c6
 #bevy = { git = "https://github.com/bevyengine/bevy", branch = "main" }
 #bevy = "0.4"
 lazy_static = "1.4"
+
+# -- for audio --
+rodio = "0.13"
+parking_lot = "0.11.0"
+anyhow = "1.0"

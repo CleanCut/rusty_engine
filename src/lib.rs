@@ -12,6 +12,7 @@
 //! for more information.
 
 pub mod actor;
+pub mod audio;
 pub mod consts;
 pub mod game;
 pub mod physics;
@@ -21,6 +22,7 @@ pub mod preset;
 pub mod prelude {
     pub use crate::{
         actor::Actor,
+        audio::prelude::*,
         consts::*,
         game::{Game, GameState},
         preset::ActorPreset,

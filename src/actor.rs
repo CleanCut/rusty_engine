@@ -1,9 +1,10 @@
+use std::sync::Mutex;
+
 use crate::game::GameState;
 use crate::physics::Collider;
 use crate::preset::ActorPreset;
 use bevy::prelude::*;
 use lazy_static::lazy_static;
-use std::sync::Mutex;
 
 #[derive(Default)]
 pub struct ActorPlugin {}
@@ -15,11 +16,12 @@ impl Plugin for ActorPlugin {
     }
 }
 
-pub type LogicFunction = fn(&mut GameState, &mut Actor, &Time);
+pub type ActorLogicFunction = fn(&mut GameState, &mut Actor, &Time);
 
 // TODO: Find a way to connect outside logic with the Bevy system in a more elegant way if possible
 lazy_static! {
-    pub(crate) static ref LOGICS: Mutex<Vec<LogicFunction>> = Mutex::new(vec![]);
+    pub(crate) static ref ACTOR_LOGIC_FUNCTIONS: Mutex<Vec<ActorLogicFunction>> =
+        Mutex::new(vec![]);
 }
 
 fn actor_spawner(
@@ -46,8 +48,9 @@ fn actor_sync(
 ) {
     for (mut actor, mut transform) in actor_query.iter_mut() {
         // Perform the user-specified logic on the Actor, which has a bunch of proxy data
-        for logic in LOGICS.lock().unwrap().iter() {
-            logic(&mut game_state, &mut actor, &time);
+        // Unwrap: We're the only system that uses ACTOR_LOGIC_FUNCTIONS after the game runs.
+        for func in ACTOR_LOGIC_FUNCTIONS.lock().unwrap().iter() {
+            func(&mut game_state, &mut actor, &time);
         }
         // Transfer any changes to the proxies over to the real components
         transform.translation = actor.translation.extend(actor.layer);
