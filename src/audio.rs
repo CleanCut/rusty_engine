@@ -1,11 +1,13 @@
-use bevy::prelude::{AssetServer, Res, ResMut};
-
-use crate::prelude::{Audio, GameState};
+use crate::prelude::GameState;
+use bevy::prelude::*;
+use bevy_kira_audio::{Audio, AudioChannel};
+use std::array::IntoIter;
 
 #[derive(Default)]
 pub struct AudioManager {
     sfx_queue: Vec<SfxPreset>,
     music_queue: Vec<MusicPreset>,
+    playing: AudioChannel,
 }
 
 impl AudioManager {
@@ -17,6 +19,16 @@ impl AudioManager {
     }
 }
 
+#[derive(Default)]
+pub struct AudioManagerPlugin;
+
+impl Plugin for AudioManagerPlugin {
+    fn build(&self, app: &mut bevy::prelude::AppBuilder) {
+        app.add_system(queue_managed_audio_system.system());
+    }
+}
+
+#[derive(Copy, Clone, Debug)]
 pub enum SfxPreset {
     Click,
     Confirmation1,
@@ -41,7 +53,7 @@ pub enum SfxPreset {
 impl SfxPreset {
     fn to_path(self) -> &'static str {
         match self {
-            SfxPreset::Click => "audio/sfx/audio/sfx/click.ogg",
+            SfxPreset::Click => "audio/sfx/click.ogg",
             SfxPreset::Confirmation1 => "audio/sfx/confirmation1.ogg",
             SfxPreset::Confirmation2 => "audio/sfx/confirmation2.ogg",
             SfxPreset::Congratulations => "audio/sfx/congratulations.ogg",
@@ -61,8 +73,33 @@ impl SfxPreset {
             SfxPreset::Tones2 => "audio/sfx/tones2.ogg",
         }
     }
+
+    pub fn variant_iter() -> IntoIter<SfxPreset, 18> {
+        static SFX_PRESETS: [SfxPreset; 18] = [
+            SfxPreset::Click,
+            SfxPreset::Confirmation1,
+            SfxPreset::Confirmation2,
+            SfxPreset::Congratulations,
+            SfxPreset::Forcefield1,
+            SfxPreset::Forcefield2,
+            SfxPreset::Impact1,
+            SfxPreset::Impact2,
+            SfxPreset::Impact3,
+            SfxPreset::Jingle1,
+            SfxPreset::Jingle2,
+            SfxPreset::Jingle3,
+            SfxPreset::Minimize1,
+            SfxPreset::Minimize2,
+            SfxPreset::Switch1,
+            SfxPreset::Switch2,
+            SfxPreset::Tones1,
+            SfxPreset::Tones2,
+        ];
+        IntoIter::new(SFX_PRESETS)
+    }
 }
 
+#[derive(Copy, Clone, Debug)]
 pub enum MusicPreset {
     ArcadeFantasy,
     Classy8Bit,
@@ -79,6 +116,16 @@ impl MusicPreset {
             MusicPreset::WhimsicalPopsicle => "audio/music/Whimsical Popsicle.oga",
         }
     }
+
+    pub fn variant_iter() -> IntoIter<MusicPreset, 4> {
+        static MUSIC_PRESETS: [MusicPreset; 4] = [
+            MusicPreset::ArcadeFantasy,
+            MusicPreset::Classy8Bit,
+            MusicPreset::MysteriousMagic,
+            MusicPreset::WhimsicalPopsicle,
+        ];
+        IntoIter::new(MUSIC_PRESETS)
+    }
 }
 
 pub fn queue_managed_audio_system(
@@ -88,10 +135,16 @@ pub fn queue_managed_audio_system(
 ) {
     for sfx in game_state.audio_manager.sfx_queue.drain(..) {
         let sfx_handle = asset_server.load(sfx.to_path());
-        audio.play_sfx(sfx_handle);
+        audio.play(sfx_handle);
     }
+    let playing = game_state.audio_manager.playing.clone();
+    let mut new_playing = playing.clone();
     for music in game_state.audio_manager.music_queue.drain(..) {
-        let music_handle = asset_server.load(music.to_path());
-        audio.play_music(music_handle);
+        let music_path = music.to_path();
+        let music_handle = asset_server.load(music_path);
+        audio.stop_channel(&playing);
+        new_playing = AudioChannel::new(music_path.into());
+        audio.play_looped_in_channel(music_handle, &new_playing);
     }
+    game_state.audio_manager.playing = new_playing;
 }

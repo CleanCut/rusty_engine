@@ -2,12 +2,11 @@ use std::sync::Mutex;
 
 use crate::game::GameState;
 use crate::physics::Collider;
-use crate::preset::ActorPreset;
 use bevy::prelude::*;
 use lazy_static::lazy_static;
 
 #[derive(Default)]
-pub struct ActorPlugin {}
+pub struct ActorPlugin;
 
 impl Plugin for ActorPlugin {
     fn build(&self, app: &mut AppBuilder) {
@@ -131,5 +130,93 @@ impl Actor {
     pub fn set_collider(&mut self, collider: Collider) -> &mut Self {
         self.collider = collider;
         self
+    }
+}
+
+use std::array::IntoIter;
+
+#[derive(Copy, Clone, Debug)]
+pub enum ActorPreset {
+    RacingBarrelBlue,
+    RacingBarrelRed,
+    RacingBarrierRed,
+    RacingBarrierWhite,
+    RacingCarBlack,
+    RacingCarBlue,
+    RacingCarGreen,
+    RacingCarRed,
+    RacingCarYellow,
+    RacingConeStraight,
+    RollingBallBlue,
+    RollingBallBlueAlt,
+    RollingBallRed,
+    RollingBallRedAlt,
+    RollingBlockCorner,
+    RollingBlockNarrow,
+    RollingBlockSmall,
+    RollingBlockSquare,
+    RollingHoleEnd,
+    RollingHoleStart,
+}
+
+impl ActorPreset {
+    pub fn build(self, label: String) -> Actor {
+        let filename = self.filename();
+        Actor {
+            label,
+            preset: Some(self),
+            filename,
+            ..Default::default()
+        }
+    }
+    pub fn filename(&self) -> String {
+        match self {
+            ActorPreset::RacingBarrelBlue => "sprite/racing/barrel_blue.png",
+            ActorPreset::RacingBarrelRed => "sprite/racing/barrel_red.png",
+            ActorPreset::RacingBarrierRed => "sprite/racing/barrier_red.png",
+            ActorPreset::RacingBarrierWhite => "sprite/racing/barrier_white.png",
+            ActorPreset::RacingCarBlack => "sprite/racing/car_black.png",
+            ActorPreset::RacingCarBlue => "sprite/racing/car_blue.png",
+            ActorPreset::RacingCarGreen => "sprite/racing/car_green.png",
+            ActorPreset::RacingCarRed => "sprite/racing/car_red.png",
+            ActorPreset::RacingCarYellow => "sprite/racing/car_yellow.png",
+            ActorPreset::RacingConeStraight => "sprite/racing/cone_straight.png",
+            ActorPreset::RollingBallBlue => "sprite/rolling/ball_blue.png",
+            ActorPreset::RollingBallBlueAlt => "sprite/rolling/ball_blue_alt.png",
+            ActorPreset::RollingBallRed => "sprite/rolling/ball_red.png",
+            ActorPreset::RollingBallRedAlt => "sprite/rolling/ball_red_alt.png",
+            ActorPreset::RollingBlockCorner => "sprite/rolling/block_corner.png",
+            ActorPreset::RollingBlockNarrow => "sprite/rolling/block_narrow.png",
+            ActorPreset::RollingBlockSmall => "sprite/rolling/block_small.png",
+            ActorPreset::RollingBlockSquare => "sprite/rolling/block_square.png",
+            ActorPreset::RollingHoleEnd => "sprite/rolling/hole_end.png",
+            ActorPreset::RollingHoleStart => "sprite/rolling/hole_start.png",
+        }
+        .into()
+    }
+    pub fn variant_iter() -> IntoIter<ActorPreset, 20> {
+        static PRESETS: [ActorPreset; 20] = [
+            ActorPreset::RacingBarrelBlue,
+            ActorPreset::RacingBarrelRed,
+            ActorPreset::RacingBarrierRed,
+            ActorPreset::RacingBarrierWhite,
+            ActorPreset::RacingCarBlack,
+            ActorPreset::RacingCarBlue,
+            ActorPreset::RacingCarGreen,
+            ActorPreset::RacingCarRed,
+            ActorPreset::RacingCarYellow,
+            ActorPreset::RacingConeStraight,
+            ActorPreset::RollingBallBlueAlt,
+            ActorPreset::RollingBallBlue,
+            ActorPreset::RollingBallRedAlt,
+            ActorPreset::RollingBallRed,
+            ActorPreset::RollingBlockCorner,
+            ActorPreset::RollingBlockNarrow,
+            ActorPreset::RollingBlockSmall,
+            ActorPreset::RollingBlockSquare,
+            ActorPreset::RollingHoleEnd,
+            ActorPreset::RollingHoleStart,
+        ];
+        std::array::IntoIter::new(PRESETS)
     }
 }

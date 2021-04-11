@@ -1,10 +1,11 @@
 // Used locally
 use crate::{
-    actor::{Actor, ActorLogicFunction, ActorPlugin, ACTOR_LOGIC_FUNCTIONS},
-    audio::AudioPlugin,
+    actor::{Actor, ActorLogicFunction, ActorPlugin, ActorPreset, ACTOR_LOGIC_FUNCTIONS},
+    audio::AudioManager,
+    prelude::AudioManagerPlugin,
 };
-use crate::{prelude::AudioManager, preset::ActorPreset};
-use bevy::{input::system::exit_on_esc_system, prelude::*};
+use bevy::{app::AppExit, input::system::exit_on_esc_system, prelude::*};
+use bevy_kira_audio::*;
 use lazy_static::lazy_static;
 use std::{collections::HashMap, sync::Mutex};
 
@@ -33,8 +34,10 @@ impl Game {
                 group.disable::<bevy::audio::AudioPlugin>()
             })
             .add_system(exit_on_esc_system.system())
-            .add_plugin(ActorPlugin::default())
+            .add_plugin(ActorPlugin)
             .add_plugin(AudioPlugin)
+            .add_plugin(AudioManagerPlugin)
+            //.insert_resource(ReportExecutionOrderAmbiguities)
             .add_system(game_logic_system.system());
 
         Self {
@@ -78,10 +81,18 @@ impl Game {
     }
 }
 
-fn game_logic_system(mut game_state: ResMut<GameState>, time: Res<Time>) {
+fn game_logic_system(
+    mut game_state: ResMut<GameState>,
+    time: Res<Time>,
+    mut app_exit_events: EventWriter<AppExit>,
+) {
     // Unwrap: We're the only system that uses GAME_LOGIC_FUNCTIONS after the game is run
     for func in GAME_LOGIC_FUNCTIONS.lock().unwrap().iter() {
         func(&mut game_state, &time);
+    }
+
+    if game_state.should_exit {
+        app_exit_events.send(AppExit);
     }
 }
 
@@ -104,4 +115,12 @@ pub struct GameState {
     pub timer_vec: Vec<Timer>,
     // Built-in stuff
     pub audio_manager: AudioManager,
+    // Used by internal methods
+    should_exit: bool,
+}
+
+impl GameState {
+    pub fn exit(&mut self) {
+        self.should_exit = true;
+    }
 }

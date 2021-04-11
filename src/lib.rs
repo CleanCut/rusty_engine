@@ -16,17 +16,10 @@ pub mod audio;
 pub mod consts;
 pub mod game;
 pub mod physics;
-pub mod preset;
 
 // Public prelude
 pub mod prelude {
-    pub use crate::{
-        actor::Actor,
-        audio::prelude::*,
-        consts::*,
-        game::{Game, GameState},
-        preset::ActorPreset,
-    };
+    pub use crate::{actor::*, audio::*, consts::*, game::*};
     pub use bevy::{
         self,
         prelude::{Time, Timer, Vec2},

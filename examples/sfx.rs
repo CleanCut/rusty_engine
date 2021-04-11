@@ -3,10 +3,15 @@ use rusty_engine::prelude::*;
 fn main() {
     let mut game = Game::new();
 
-    // Play sound effects every time the timer runs out
-    game.game_state_mut()
-        .timer_map
-        .insert("sfx timer".into(), Timer::from_seconds(2.0, true));
+    for (i, _sfx) in SfxPreset::variant_iter().enumerate() {
+        game.game_state_mut()
+            .timer_vec
+            .push(Timer::from_seconds((i as f32) * 2.0, false));
+    }
+    game.game_state_mut().timer_map.insert(
+        "quit_timer".into(),
+        Timer::from_seconds((SfxPreset::variant_iter().len() as f32) * 2.0 + 3.0, false),
+    );
 
     game.add_game_logic(logic);
 
@@ -14,14 +19,22 @@ fn main() {
 }
 
 fn logic(game_state: &mut GameState, time: &Time) {
-    // gain another life every time the timer goes off
+    for (i, timer) in game_state.timer_vec.iter_mut().enumerate() {
+        // gain another life every time the timer goes off
+        if timer.tick(time.delta()).just_finished() {
+            let sfx = SfxPreset::variant_iter().nth(i).unwrap();
+            println!("Playing {:?}", sfx);
+            game_state.audio_manager.play_sfx(sfx);
+        }
+    }
     if game_state
         .timer_map
-        .get_mut("sfx timer")
+        .get_mut("quit_timer")
         .unwrap()
         .tick(time.delta())
         .just_finished()
     {
-        game_state.audio_manager.play_sfx(SfxPreset::Confirmation1);
+        println!("All done!");
+        game_state.exit();
     }
 }
