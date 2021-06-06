@@ -195,7 +195,7 @@ impl ActorPreset {
         .into()
     }
     pub fn variant_iter() -> IntoIter<ActorPreset, 20> {
-        static PRESETS: [ActorPreset; 20] = [
+        static ACTOR_PRESETS: [ActorPreset; 20] = [
             ActorPreset::RacingBarrelBlue,
             ActorPreset::RacingBarrelRed,
             ActorPreset::RacingBarrierRed,
@@ -217,6 +217,6 @@ impl ActorPreset {
             ActorPreset::RollingHoleEnd,
             ActorPreset::RollingHoleStart,
         ];
-        std::array::IntoIter::new(PRESETS)
+        std::array::IntoIter::new(ACTOR_PRESETS)
     }
 }
