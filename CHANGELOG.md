@@ -4,8 +4,9 @@
 
 ### Changed
 
-- Gutted the entire project and started over by wrapping [Bevy] with a simple interface for beginners to use.
-- Implemented the following features: GameState, Actors w/Transform handling, Sprites w/asset pack, audio sfx/music with asset pack, timer utility.
+- Gut the entire project and started over by wrapping [Bevy] with a simple interface for beginners to use.
+- Implement the following features: GameState, Actors w/Transform handling, Sprites w/asset pack, audio sfx/music with asset pack, timer utility.
+- Add a release config and release doc
 
 ## 0.0.1 - [0.11.0]
 
