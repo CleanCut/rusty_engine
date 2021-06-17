@@ -54,11 +54,12 @@ See [license/APACHE](license/APACHE) and [license/MIT](license/MIT).
 
 ## Sponsor
 
-If you like Rusty Engine, please consider [sponsoring me] on GitHub. 💖
+If you like Rusty Engine, please consider sponsoring me [on GitHub] or [on Patreon]. 💖
 
 [CPAL]: https://github.com/RustAudio/cpal
 [Questions]: https://github.com/CleanCut/rusty_engine/issues/new
 [Ultimate Rust Crash Course]: https://agileperception.com/ultimate_rust_crash_course
 [bug reports]: https://github.com/CleanCut/rusty_engine/issues/new
 [rendy]: https://github.com/amethyst/rendy
-[sponsoring me]: https://github.com/sponsors/CleanCut
+[on GitHub]: https://github.com/sponsors/CleanCut
+[on Patreon]: https://patreon.com/nathanstocks
