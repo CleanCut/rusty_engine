@@ -18,16 +18,14 @@ lazy_static! {
 
 /// A [`Game`] represents the entire game, the entire program that Rusty Engine is aware of.
 /// By default the game will spawn an empty window, and exit upon Esc or closing of the window.
-#[derive(Default)]
 pub struct Game {
     actors: Vec<Actor>,
     app_builder: AppBuilder,
     game_state: GameState,
 }
 
-impl Game {
-    /// Create an empty [`Game`] with an empty [`GameState`] and an empty vector of [`Actor`]s
-    pub fn new() -> Self {
+impl Default for Game {
+    fn default() -> Self {
         let mut app_builder = App::build();
         app_builder
             .add_plugins_with(DefaultPlugins, |group| {
@@ -45,6 +43,13 @@ impl Game {
             actors: Vec::default(),
             game_state: GameState::default(),
         }
+    }
+}
+
+impl Game {
+    /// Create an empty [`Game`] with an empty [`GameState`] and an empty vector of [`Actor`]s
+    pub fn new() -> Self {
+        Default::default()
     }
 
     pub fn add_actor(&mut self, label: String, preset: ActorPreset) -> &mut Actor {
