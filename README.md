@@ -1,11 +1,8 @@
 # Rusty Engine
 
-Rusty Engine is a simple, 2D game engine for those who are learning Rust. Create simple
-prototypes using straightforward Rust code, without any advanced game engine concepts.
+Rusty Engine is a simple, 2D game engine for those who are learning Rust. Create simple prototypes using straightforward Rust code, without any advanced game engine concepts.  Rusty engine is a simplification wrapper over [Bevy], which is what I encourage folks to use directly for their more serious game engine needs.
 
 [Questions], [bug reports], and contributions are most welcome!
-
-If you would like to support this project consider [sponsoring me] on GitHub. 💖
 
 ## Features
 
@@ -54,7 +51,7 @@ See [license/APACHE](license/APACHE) and [license/MIT](license/MIT).
 
 ## Sponsor
 
-If you like Rusty Engine, please consider sponsoring me [on GitHub] or [on Patreon]. 💖
+If you like Rusty Engine, please sponsor me [on GitHub] or [on Patreon]. 💖
 
 [CPAL]: https://github.com/RustAudio/cpal
 [Questions]: https://github.com/CleanCut/rusty_engine/issues/new
@@ -63,3 +60,4 @@ If you like Rusty Engine, please consider sponsoring me [on GitHub] or [on Patre
 [rendy]: https://github.com/amethyst/rendy
 [on GitHub]: https://github.com/sponsors/CleanCut
 [on Patreon]: https://patreon.com/nathanstocks
+[Bevy]: https://bevyengine.org/
