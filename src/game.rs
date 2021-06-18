@@ -2,8 +2,8 @@
 use crate::{
     actor::{Actor, ActorLogicFunction, ActorPlugin, ActorPreset, ACTOR_LOGIC_FUNCTIONS},
     audio::AudioManager,
-    mouse::{MouseEvents, MousePlugin},
-    prelude::AudioManagerPlugin,
+    mouse::{CursorMoved, MouseButtonInput, MouseMotion, MousePlugin, MouseWheel},
+    prelude::{AudioManagerPlugin, KeyboardInput, KeyboardPlugin},
 };
 use bevy::{app::AppExit, input::system::exit_on_esc_system, prelude::*};
 use bevy_kira_audio::*;
@@ -36,6 +36,7 @@ impl Default for Game {
             .add_plugin(ActorPlugin)
             .add_plugin(AudioPlugin)
             .add_plugin(AudioManagerPlugin)
+            .add_plugin(KeyboardPlugin)
             .add_plugin(MousePlugin)
             //.insert_resource(ReportExecutionOrderAmbiguities)
             .add_system(game_logic_system.system())
@@ -108,8 +109,13 @@ pub struct GameState {
     pub timer_vec: Vec<Timer>,
     // Built-in stuff
     pub audio_manager: AudioManager,
-    pub mouse_events: MouseEvents,
     pub screen_dimensions: Vec2,
+    // Updated every frame
+    pub mouse_button_events: Vec<MouseButtonInput>,
+    pub cursor_moved_events: Vec<CursorMoved>,
+    pub mouse_motion_events: Vec<MouseMotion>,
+    pub mouse_wheel_events: Vec<MouseWheel>,
+    pub keyboard_events: Vec<KeyboardInput>,
     // Used by internal methods
     should_exit: bool,
 }

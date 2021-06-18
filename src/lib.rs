@@ -15,12 +15,13 @@ pub mod actor;
 pub mod audio;
 pub mod consts;
 pub mod game;
+pub mod keyboard;
 pub mod mouse;
 pub mod physics;
 
 // Public prelude
 pub mod prelude {
-    pub use crate::{actor::*, audio::*, consts::*, game::*, mouse::*};
+    pub use crate::{actor::*, audio::*, consts::*, game::*, keyboard::*, mouse::*};
     pub use bevy::{
         self,
         prelude::{Time, Timer, Vec2},

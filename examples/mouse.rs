@@ -16,20 +16,13 @@ fn main() {
     game.add_actor("mover".into(), ActorPreset::RollingHoleStart)
         .set_translation(ANCHOR_SPOT.into());
 
-    // Use a timer to tell when to change state
-    game.game_state_mut().timer_map.insert(
-        "change_state".into(),
-        Timer::from_seconds(std::f32::consts::FRAC_PI_2, true),
-    );
-
     game.add_logic(logic);
-
     game.run();
 }
 
 fn logic(game_state: &mut GameState, actor: &mut Actor, _time: &Time) {
     if actor.label == "Race Car" {
-        for mouse_button_input in game_state.mouse_events.button_events() {
+        for mouse_button_input in &game_state.mouse_button_events {
             if mouse_button_input.state != ElementState::Pressed {
                 break;
             }
@@ -39,10 +32,10 @@ fn logic(game_state: &mut GameState, actor: &mut Actor, _time: &Time) {
                 _ => {}
             }
         }
-        for cursor_moved in game_state.mouse_events.cursor_moved_events() {
+        for cursor_moved in &game_state.cursor_moved_events {
             actor.set_translation(cursor_moved.position);
         }
-        for mouse_wheel in game_state.mouse_events.mouse_wheel_events() {
+        for mouse_wheel in &game_state.mouse_wheel_events {
             if mouse_wheel.y > 0.0 {
                 actor.scale *= 1.1;
             } else {
@@ -54,7 +47,7 @@ fn logic(game_state: &mut GameState, actor: &mut Actor, _time: &Time) {
 
     if actor.label == "mover" {
         let mut moved = false;
-        for mouse_motion in game_state.mouse_events.mouse_motion_events() {
+        for mouse_motion in &game_state.mouse_motion_events {
             actor.translation.x = ANCHOR_SPOT.0 + mouse_motion.delta.x;
             actor.translation.y = ANCHOR_SPOT.1 - mouse_motion.delta.y;
             moved = true;
