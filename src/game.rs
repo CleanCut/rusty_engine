@@ -2,6 +2,7 @@
 use crate::{
     actor::{Actor, ActorLogicFunction, ActorPlugin, ActorPreset, ACTOR_LOGIC_FUNCTIONS},
     audio::AudioManager,
+    mouse::{MouseEvents, MousePlugin},
     prelude::AudioManagerPlugin,
 };
 use bevy::{app::AppExit, input::system::exit_on_esc_system, prelude::*};
@@ -35,8 +36,10 @@ impl Default for Game {
             .add_plugin(ActorPlugin)
             .add_plugin(AudioPlugin)
             .add_plugin(AudioManagerPlugin)
+            .add_plugin(MousePlugin)
             //.insert_resource(ReportExecutionOrderAmbiguities)
-            .add_system(game_logic_system.system());
+            .add_system(game_logic_system.system())
+            .add_startup_system(setup.system());
 
         Self {
             app_builder,
@@ -86,22 +89,7 @@ impl Game {
     }
 }
 
-fn game_logic_system(
-    mut game_state: ResMut<GameState>,
-    time: Res<Time>,
-    mut app_exit_events: EventWriter<AppExit>,
-) {
-    // Unwrap: We're the only system that uses GAME_LOGIC_FUNCTIONS after the game is run
-    for func in GAME_LOGIC_FUNCTIONS.lock().unwrap().iter() {
-        func(&mut game_state, &time);
-    }
-
-    if game_state.should_exit {
-        app_exit_events.send(AppExit);
-    }
-}
-
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct GameState {
     // Empty collections for users
     pub bool_map: HashMap<String, bool>,
@@ -120,6 +108,8 @@ pub struct GameState {
     pub timer_vec: Vec<Timer>,
     // Built-in stuff
     pub audio_manager: AudioManager,
+    pub mouse_events: MouseEvents,
+    pub screen_dimensions: Vec2,
     // Used by internal methods
     should_exit: bool,
 }
@@ -127,5 +117,28 @@ pub struct GameState {
 impl GameState {
     pub fn exit(&mut self) {
         self.should_exit = true;
+    }
+}
+
+// startup system
+fn setup(windows: Res<Windows>, mut game_state: ResMut<GameState>) {
+    // Unwrap: If we can't access the primary window...there's no point to running Rusty Engine
+    let window = windows.get_primary().unwrap();
+    game_state.screen_dimensions = Vec2::new(window.width(), window.height());
+}
+
+// system
+fn game_logic_system(
+    mut game_state: ResMut<GameState>,
+    time: Res<Time>,
+    mut app_exit_events: EventWriter<AppExit>,
+) {
+    // Unwrap: We're the only system that uses GAME_LOGIC_FUNCTIONS after the game is run
+    for func in GAME_LOGIC_FUNCTIONS.lock().unwrap().iter() {
+        func(&mut game_state, &time);
+    }
+
+    if game_state.should_exit {
+        app_exit_events.send(AppExit);
     }
 }

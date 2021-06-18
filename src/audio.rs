@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use bevy_kira_audio::{Audio, AudioChannel};
 use std::array::IntoIter;
 
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct AudioManager {
     sfx_queue: Vec<SfxPreset>,
     music_queue: Vec<MusicPreset>,
