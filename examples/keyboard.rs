@@ -1,7 +1,5 @@
 use rusty_engine::prelude::*;
 
-const ANCHOR_SPOT: (f32, f32) = (0.0, -200.0);
-
 fn main() {
     let mut game = Game::new();
 
