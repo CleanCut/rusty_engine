@@ -16,12 +16,11 @@ fn main() {
     game.add_actor("mover".into(), ActorPreset::RollingHoleStart)
         .set_translation(ANCHOR_SPOT.into());
 
-    game.add_logic(logic);
-    game.run();
+    game.run(logic);
 }
 
-fn logic(game_state: &mut GameState, actor: &mut Actor, _time: &Time) {
-    if actor.label == "Race Car" {
+fn logic(game_state: &mut GameState, _time: &Time) {
+    if let Some(actor) = game_state.actors.get_mut("Race Car") {
         for mouse_button_input in &game_state.mouse_button_events {
             if mouse_button_input.state != ElementState::Pressed {
                 break;
@@ -45,7 +44,7 @@ fn logic(game_state: &mut GameState, actor: &mut Actor, _time: &Time) {
         }
     }
 
-    if actor.label == "mover" {
+    if let Some(actor) = game_state.actors.get_mut("mover") {
         let mut moved = false;
         for mouse_motion in &game_state.mouse_motion_events {
             actor.translation.x = ANCHOR_SPOT.0 + mouse_motion.delta.x;

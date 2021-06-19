@@ -20,7 +20,6 @@ lazy_static! {
 /// A [`Game`] represents the entire game, the entire program that Rusty Engine is aware of.
 /// By default the game will spawn an empty window, and exit upon Esc or closing of the window.
 pub struct Game {
-    actors: Vec<Actor>,
     app_builder: AppBuilder,
     game_state: GameState,
 }
@@ -44,7 +43,6 @@ impl Default for Game {
 
         Self {
             app_builder,
-            actors: Vec::default(),
             game_state: GameState::default(),
         }
     }
@@ -57,9 +55,11 @@ impl Game {
     }
 
     pub fn add_actor(&mut self, label: String, preset: ActorPreset) -> &mut Actor {
-        self.actors.push(preset.build(label));
+        self.game_state
+            .actors
+            .insert(label.clone(), preset.build(label.clone()));
         // Unwrap: Can't crash because we just inserted the actor
-        self.actors.last_mut().unwrap()
+        self.game_state.actors.get_mut(&label).unwrap()
     }
 
     pub fn add_logic(&self, func: ActorLogicFunction) {
@@ -76,13 +76,15 @@ impl Game {
         &mut self.game_state
     }
 
-    pub fn run(&mut self) {
+    pub fn run(&mut self, func: GameLogicFunction) {
+        // Unwrap: The only way this could crash is for another thread to take the lock and crash.
+        GAME_LOGIC_FUNCTIONS.lock().unwrap().push(func);
         let world = self.app_builder.world_mut();
         world
             .spawn()
             .insert_bundle(OrthographicCameraBundle::new_2d());
-        for actor in self.actors.drain(..) {
-            world.spawn().insert(actor);
+        for actor in self.game_state.actors.values() {
+            world.spawn().insert(actor.clone());
         }
         let game_state = std::mem::take(&mut self.game_state);
         self.app_builder.insert_resource(game_state);
@@ -111,6 +113,7 @@ pub struct GameState {
     pub audio_manager: AudioManager,
     pub screen_dimensions: Vec2,
     // Updated every frame
+    pub actors: HashMap<String, Actor>,
     pub mouse_button_events: Vec<MouseButtonInput>,
     pub cursor_moved_events: Vec<CursorMoved>,
     pub mouse_motion_events: Vec<MouseMotion>,
@@ -138,11 +141,44 @@ fn game_logic_sync(
     mut game_state: ResMut<GameState>,
     time: Res<Time>,
     mut app_exit_events: EventWriter<AppExit>,
+    mut actor_query: Query<(&mut Actor, &mut Transform)>,
 ) {
+    // TODO: Transfer any changes to the Bevy components by the physics system over to the Actors
+    // for (mut actor, mut transform) in actor_query.iter_mut() {
+    //     actor.translation = Vec2::from(transform.translation);
+    //     actor.layer = transform.translation.z;
+    //     // transform.rotation = Quat::from_axis_angle(Vec3::Z, actor.rotation);
+    //     actor.rotation = ???
+    //     actor.scale = transform.scale.x;
+    // }
+
+    // Copy all actors over to the game_state to give to users
+    game_state.actors.clear();
+    for (actor, _) in actor_query.iter_mut() {
+        let _ = game_state
+            .actors
+            .insert(actor.label.clone(), (*actor).clone());
+    }
+
+    // Perform all the user's game logic for this frame
     // Unwrap: We're the only system that uses GAME_LOGIC_FUNCTIONS after the game is run
     for func in GAME_LOGIC_FUNCTIONS.lock().unwrap().iter() {
         func(&mut game_state, &time);
     }
+
+    // Transfer any changes in the user's Actor copies to the Bevy Actor and Transform components
+    for (mut actor, mut transform) in actor_query.iter_mut() {
+        if let Some(actor_copy) = game_state.actors.remove(&actor.label) {
+            *actor = actor_copy;
+            transform.translation = actor.translation.extend(actor.layer);
+            transform.rotation = Quat::from_axis_angle(Vec3::Z, actor.rotation);
+            transform.scale = Vec3::splat(actor.scale);
+        } else {
+            // TODO: Remove Bevy entity corresponding to missing Actor
+        }
+    }
+
+    // TODO: Add Bevy components for any new actors remaining in game_state.actors
 
     if game_state.should_exit {
         app_exit_events.send(AppExit);

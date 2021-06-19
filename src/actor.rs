@@ -10,18 +10,7 @@ pub struct ActorPlugin;
 
 impl Plugin for ActorPlugin {
     fn build(&self, app: &mut AppBuilder) {
-        app.add_system(
-            actor_spawner
-                .system()
-                .label("actor_spawner")
-                .before("game_logic_sync"),
-        )
-        .add_system(
-            actor_sync
-                .system()
-                .after("actor_spawner")
-                .before("game_logic_sync"),
-        );
+        app.add_system(actor_spawner.system().before("game_logic_sync"));
     }
 }
 
@@ -47,24 +36,6 @@ fn actor_spawner(
             transform,
             ..Default::default()
         });
-    }
-}
-
-fn actor_sync(
-    mut game_state: ResMut<GameState>,
-    time: Res<Time>,
-    mut actor_query: Query<(&mut Actor, &mut Transform)>,
-) {
-    for (mut actor, mut transform) in actor_query.iter_mut() {
-        // Perform the user-specified logic on the Actor, which has a bunch of proxy data
-        // Unwrap: We're the only system that uses ACTOR_LOGIC_FUNCTIONS after the game runs.
-        for func in ACTOR_LOGIC_FUNCTIONS.lock().unwrap().iter() {
-            func(&mut game_state, &mut actor, &time);
-        }
-        // Transfer any changes to the proxies over to the real components
-        transform.translation = actor.translation.extend(actor.layer);
-        transform.rotation = Quat::from_axis_angle(Vec3::Z, actor.rotation);
-        transform.scale = Vec3::splat(actor.scale);
     }
 }
 
