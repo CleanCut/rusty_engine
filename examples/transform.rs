@@ -5,7 +5,7 @@ use std::f64::consts::TAU;
 fn main() {
     let mut game = Game::new();
 
-    let mut race_car = game.add_actor("Race Car".to_string(), ActorPreset::RacingCarGreen);
+    let mut race_car = game.add_actor("Race Car", ActorPreset::RacingCarGreen);
     race_car.translation = Vec2::new(0.0, 0.0);
     race_car.rotation = UP;
     race_car.scale = 1.0;
