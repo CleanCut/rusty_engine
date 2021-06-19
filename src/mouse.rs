@@ -1,5 +1,5 @@
 use crate::prelude::GameState;
-use bevy::prelude::{EventReader, IntoSystem, Plugin, ResMut};
+use bevy::prelude::*;
 
 // Re-export some Bevy types to use
 pub use bevy::{
@@ -14,7 +14,7 @@ pub struct MousePlugin;
 
 impl Plugin for MousePlugin {
     fn build(&self, app: &mut bevy::prelude::AppBuilder) {
-        app.add_system(sync_mouse_input.system());
+        app.add_system(sync_mouse_input.system().before("game_logic_sync"));
     }
 }
 

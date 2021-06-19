@@ -34,12 +34,12 @@ impl Default for Game {
             })
             .add_system(exit_on_esc_system.system())
             .add_plugin(ActorPlugin)
-            .add_plugin(AudioPlugin)
+            .add_plugin(AudioPlugin) // kira_bevy_audio
             .add_plugin(AudioManagerPlugin)
             .add_plugin(KeyboardPlugin)
             .add_plugin(MousePlugin)
             //.insert_resource(ReportExecutionOrderAmbiguities)
-            .add_system(game_logic_system.system())
+            .add_system(game_logic_sync.system().label("game_logic_sync"))
             .add_startup_system(setup.system());
 
         Self {
@@ -134,7 +134,7 @@ fn setup(windows: Res<Windows>, mut game_state: ResMut<GameState>) {
 }
 
 // system
-fn game_logic_system(
+fn game_logic_sync(
     mut game_state: ResMut<GameState>,
     time: Res<Time>,
     mut app_exit_events: EventWriter<AppExit>,

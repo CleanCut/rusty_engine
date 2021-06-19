@@ -10,8 +10,18 @@ pub struct ActorPlugin;
 
 impl Plugin for ActorPlugin {
     fn build(&self, app: &mut AppBuilder) {
-        app.add_system(actor_spawner.system())
-            .add_system(actor_sync.system());
+        app.add_system(
+            actor_spawner
+                .system()
+                .label("actor_spawner")
+                .before("game_logic_sync"),
+        )
+        .add_system(
+            actor_sync
+                .system()
+                .after("actor_spawner")
+                .before("game_logic_sync"),
+        );
     }
 }
 

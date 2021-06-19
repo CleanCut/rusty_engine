@@ -1,5 +1,5 @@
 use crate::prelude::GameState;
-use bevy::prelude::{EventReader, IntoSystem, Plugin, ResMut};
+use bevy::prelude::*;
 
 // Re-export some Bevy types to use
 pub use bevy::input::keyboard::{KeyCode, KeyboardInput};
@@ -8,7 +8,7 @@ pub struct KeyboardPlugin;
 
 impl Plugin for KeyboardPlugin {
     fn build(&self, app: &mut bevy::prelude::AppBuilder) {
-        app.add_system(sync_keyboard_input.system());
+        app.add_system(sync_keyboard_input.system().before("game_logic_sync"));
     }
 }
 
