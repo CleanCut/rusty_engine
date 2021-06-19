@@ -17,6 +17,7 @@ pub mod consts;
 pub mod game;
 pub mod keyboard;
 pub mod mouse;
+pub mod text_actor;
 
 // Public prelude
 pub mod prelude {
