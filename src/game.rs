@@ -30,11 +30,14 @@ impl Default for Game {
     fn default() -> Self {
         let mut app_builder = App::build();
         app_builder
+            // Built-in or External Plugins
             .add_plugins_with(DefaultPlugins, |group| {
                 group.disable::<bevy::audio::AudioPlugin>()
             })
             .add_system(exit_on_esc_system.system())
             .add_plugin(AudioPlugin) // kira_bevy_audio
+            .add_plugin(RapierPhysicsPlugin::<NoUserData>::default())
+            // Rusty Engine Plugins
             .add_plugin(AudioManagerPlugin)
             .add_plugin(KeyboardPlugin)
             .add_plugin(MousePlugin)
@@ -211,12 +214,13 @@ fn game_logic_sync(
     mut game_state: ResMut<GameState>,
     time: Res<Time>,
     mut app_exit_events: EventWriter<AppExit>,
+    mut intersection_events: EventReader<IntersectionEvent>,
     // mut actor_query: Query<(&mut Actor, &mut Transform)>,
     // mut text_actor_query: Query<(&mut TextActor, &mut Transform)>,
     mut query_set: QuerySet<(
         Query<&Actor>,
         Query<&TextActor>,
-        Query<(Entity, &mut Actor, &mut Transform)>,
+        Query<(Entity, &mut Actor, &mut Transform, &mut ColliderPosition)>,
         Query<(Entity, &mut TextActor, &mut Transform, &mut Text)>,
     )>,
 ) {
@@ -251,17 +255,23 @@ fn game_logic_sync(
             .insert(text_actor.label.clone(), (*text_actor).clone());
     }
 
+    // Copy all intersection_events over to the game_state to give to users
+    for ie in intersection_events.iter() {
+        println!("IE: {:?}", ie);
+    }
+
     // Perform all the user's game logic for this frame
     // Unwrap: Can't crash, we're the only thread using the lock, so it can't be poisoned.
     for func in GAME_LOGIC_FUNCTIONS.lock().unwrap().iter() {
         func(&mut game_state);
     }
 
-    // Transfer any changes in the user's Actor copies to the Bevy Actor and Transform components
-    for (entity, mut actor, mut transform) in query_set.q2_mut().iter_mut() {
+    // Transfer any changes in the user's Actor copies to the Bevy Actor, Transform, and ColliderPosition components
+    for (entity, mut actor, mut transform, mut collider_position) in query_set.q2_mut().iter_mut() {
         if let Some(actor_copy) = game_state.actors.remove(&actor.label) {
             *actor = actor_copy;
             *transform = actor.bevy_transform();
+            *collider_position = (actor.translation, actor.rotation).into();
         } else {
             commands.entity(entity).despawn();
         }
@@ -295,6 +305,8 @@ fn game_logic_sync(
     }
 }
 
+use bevy_rapier2d::prelude::*;
+
 // helper function: Add Bevy components for all the actors in game_state.actors
 fn add_actors(
     commands: &mut Commands,
@@ -308,11 +320,22 @@ fn add_actors(
         // transform.scale = Vec3::splat(actor.scale);
         let transform = actor.bevy_transform();
         let texture_handle = asset_server.load(actor.filename.as_str());
-        commands.spawn().insert(actor).insert_bundle(SpriteBundle {
-            material: materials.add(texture_handle.into()),
-            transform,
-            ..Default::default()
-        });
+        let position = (actor.translation, actor.rotation).into();
+        commands
+            .spawn()
+            .insert(actor)
+            .insert_bundle(SpriteBundle {
+                material: materials.add(texture_handle.into()),
+                transform,
+                ..Default::default()
+            })
+            .insert_bundle(ColliderBundle {
+                shape: ColliderShape::ball(100.0),
+                collider_type: ColliderType::Sensor,
+                position,
+                flags: (ActiveEvents::INTERSECTION_EVENTS | ActiveEvents::CONTACT_EVENTS).into(),
+                ..Default::default()
+            });
     }
 }
 
