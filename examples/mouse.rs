@@ -8,18 +8,21 @@ fn main() {
     game.add_actor("Race Car".into(), ActorPreset::RacingCarGreen)
         .set_translation(Vec2::new(0.0, 0.0))
         .set_rotation(UP)
-        .set_scale(1.0);
+        .set_scale(1.0)
+        .set_layer(2.0);
 
     game.add_actor("anchor".into(), ActorPreset::RollingHoleEnd)
-        .set_translation(ANCHOR_SPOT.into());
+        .set_translation(ANCHOR_SPOT.into())
+        .set_layer(0.0);
 
     game.add_actor("mover".into(), ActorPreset::RollingHoleStart)
-        .set_translation(ANCHOR_SPOT.into());
+        .set_translation(ANCHOR_SPOT.into())
+        .set_layer(1.0);
 
     game.run(logic);
 }
 
-fn logic(game_state: &mut GameState, _time: &Time) {
+fn logic(game_state: &mut GameState) {
     if let Some(actor) = game_state.actors.get_mut("Race Car") {
         for mouse_button_input in &game_state.mouse_button_events {
             if mouse_button_input.state != ElementState::Pressed {

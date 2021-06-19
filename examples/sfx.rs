@@ -13,15 +13,13 @@ fn main() {
         Timer::from_seconds((SfxPreset::variant_iter().len() as f32) * 2.0 + 3.0, false),
     );
 
-    game.add_game_logic(logic);
-
-    game.run();
+    game.run(logic);
 }
 
-fn logic(game_state: &mut GameState, time: &Time) {
+fn logic(game_state: &mut GameState) {
     for (i, timer) in game_state.timer_vec.iter_mut().enumerate() {
         // gain another life every time the timer goes off
-        if timer.tick(time.delta()).just_finished() {
+        if timer.tick(game_state.delta).just_finished() {
             let sfx = SfxPreset::variant_iter().nth(i).unwrap();
             println!("Playing {:?}", sfx);
             game_state.audio_manager.play_sfx(sfx);
@@ -31,7 +29,7 @@ fn logic(game_state: &mut GameState, time: &Time) {
         .timer_map
         .get_mut("quit_timer")
         .unwrap()
-        .tick(time.delta())
+        .tick(game_state.delta)
         .just_finished()
     {
         println!("All done!");

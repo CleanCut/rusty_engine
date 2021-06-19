@@ -1,6 +1,5 @@
-// Used locally
 use crate::{
-    actor::{Actor, ActorLogicFunction, ActorPlugin, ActorPreset, ACTOR_LOGIC_FUNCTIONS},
+    actor::{Actor, ActorPreset},
     audio::AudioManager,
     mouse::{CursorMoved, MouseButtonInput, MouseMotion, MousePlugin, MouseWheel},
     prelude::{AudioManagerPlugin, KeyboardInput, KeyboardPlugin},
@@ -8,17 +7,19 @@ use crate::{
 use bevy::{app::AppExit, input::system::exit_on_esc_system, prelude::*};
 use bevy_kira_audio::*;
 use lazy_static::lazy_static;
-use std::{collections::HashMap, sync::Mutex};
+use std::{collections::HashMap, sync::Mutex, time::Duration};
 
-pub type GameLogicFunction = fn(&mut GameState, &Time);
+pub type GameLogicFunction = fn(&mut GameState);
 
 // TODO: Find a way to connect outside logic with the Bevy system in a more elegant way if possible
 lazy_static! {
     pub(crate) static ref GAME_LOGIC_FUNCTIONS: Mutex<Vec<GameLogicFunction>> = Mutex::new(vec![]);
 }
 
-/// A [`Game`] represents the entire game, the entire program that Rusty Engine is aware of.
+/// A [`Game`] represents the entire game and its data.
 /// By default the game will spawn an empty window, and exit upon Esc or closing of the window.
+/// Under the hood, Rusty Engine syncs the game data to Bevy to power most of the underlying
+/// functionality.
 pub struct Game {
     app_builder: AppBuilder,
     game_state: GameState,
@@ -32,7 +33,6 @@ impl Default for Game {
                 group.disable::<bevy::audio::AudioPlugin>()
             })
             .add_system(exit_on_esc_system.system())
-            .add_plugin(ActorPlugin)
             .add_plugin(AudioPlugin) // kira_bevy_audio
             .add_plugin(AudioManagerPlugin)
             .add_plugin(KeyboardPlugin)
@@ -62,16 +62,6 @@ impl Game {
         self.game_state.actors.get_mut(&label).unwrap()
     }
 
-    pub fn add_logic(&self, func: ActorLogicFunction) {
-        // Unwrap: The only way this could crash is for another thread to take the lock and crash.
-        ACTOR_LOGIC_FUNCTIONS.lock().unwrap().push(func);
-    }
-
-    pub fn add_game_logic(&self, func: GameLogicFunction) {
-        // Unwrap: The only way this could crash is for another thread to take the lock and crash.
-        GAME_LOGIC_FUNCTIONS.lock().unwrap().push(func);
-    }
-
     pub fn game_state_mut(&mut self) -> &mut GameState {
         &mut self.game_state
     }
@@ -83,9 +73,6 @@ impl Game {
         world
             .spawn()
             .insert_bundle(OrthographicCameraBundle::new_2d());
-        for actor in self.game_state.actors.values() {
-            world.spawn().insert(actor.clone());
-        }
         let game_state = std::mem::take(&mut self.game_state);
         self.app_builder.insert_resource(game_state);
         self.app_builder.run();
@@ -119,6 +106,10 @@ pub struct GameState {
     pub mouse_motion_events: Vec<MouseMotion>,
     pub mouse_wheel_events: Vec<MouseWheel>,
     pub keyboard_events: Vec<KeyboardInput>,
+    pub delta: Duration,
+    pub delta_seconds: f32,
+    pub time_since_startup: Duration,
+    pub seconds_since_startup: f64,
     // Used by internal methods
     should_exit: bool,
 }
@@ -129,20 +120,35 @@ impl GameState {
     }
 }
 
-// startup system
-fn setup(windows: Res<Windows>, mut game_state: ResMut<GameState>) {
+// startup system - grab window settings, initialize all the starting actors
+fn setup(
+    commands: Commands,
+    asset_server: Res<AssetServer>,
+    materials: ResMut<Assets<ColorMaterial>>,
+    windows: Res<Windows>,
+    mut game_state: ResMut<GameState>,
+) {
     // Unwrap: If we can't access the primary window...there's no point to running Rusty Engine
     let window = windows.get_primary().unwrap();
     game_state.screen_dimensions = Vec2::new(window.width(), window.height());
+    add_actors(commands, asset_server, materials, &mut game_state)
 }
 
-// system
+// system - the magic that connects Rusty Engine to Bevy, frame by frame
 fn game_logic_sync(
+    commands: Commands,
+    asset_server: Res<AssetServer>,
+    materials: ResMut<Assets<ColorMaterial>>,
     mut game_state: ResMut<GameState>,
     time: Res<Time>,
     mut app_exit_events: EventWriter<AppExit>,
     mut actor_query: Query<(&mut Actor, &mut Transform)>,
 ) {
+    game_state.delta = time.delta();
+    game_state.delta_seconds = time.delta_seconds();
+    game_state.time_since_startup = time.time_since_startup();
+    game_state.seconds_since_startup = time.seconds_since_startup();
+
     // TODO: Transfer any changes to the Bevy components by the physics system over to the Actors
     // for (mut actor, mut transform) in actor_query.iter_mut() {
     //     actor.translation = Vec2::from(transform.translation);
@@ -163,7 +169,7 @@ fn game_logic_sync(
     // Perform all the user's game logic for this frame
     // Unwrap: We're the only system that uses GAME_LOGIC_FUNCTIONS after the game is run
     for func in GAME_LOGIC_FUNCTIONS.lock().unwrap().iter() {
-        func(&mut game_state, &time);
+        func(&mut game_state);
     }
 
     // Transfer any changes in the user's Actor copies to the Bevy Actor and Transform components
@@ -178,9 +184,28 @@ fn game_logic_sync(
         }
     }
 
-    // TODO: Add Bevy components for any new actors remaining in game_state.actors
+    // Add Bevy components for any new actors remaining in game_state.actors
+    add_actors(commands, asset_server, materials, &mut game_state);
 
     if game_state.should_exit {
         app_exit_events.send(AppExit);
+    }
+}
+
+// helper function: Add Bevy components for all the actors in game_state.actors
+fn add_actors(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
+    game_state: &mut GameState,
+) {
+    for (_, actor) in game_state.actors.drain() {
+        let transform = Transform::from_translation(actor.translation.extend(0.0));
+        let texture_handle = asset_server.load(actor.filename.as_str());
+        commands.spawn().insert(actor).insert_bundle(SpriteBundle {
+            material: materials.add(texture_handle.into()),
+            transform,
+            ..Default::default()
+        });
     }
 }

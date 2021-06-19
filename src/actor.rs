@@ -1,43 +1,5 @@
-use std::sync::Mutex;
-
-use crate::game::GameState;
 use crate::physics::Collider;
 use bevy::prelude::*;
-use lazy_static::lazy_static;
-
-#[derive(Default)]
-pub struct ActorPlugin;
-
-impl Plugin for ActorPlugin {
-    fn build(&self, app: &mut AppBuilder) {
-        app.add_system(actor_spawner.system().before("game_logic_sync"));
-    }
-}
-
-pub type ActorLogicFunction = fn(&mut GameState, &mut Actor, &Time);
-
-// TODO: Find a way to connect outside logic with the Bevy system in a more elegant way if possible
-lazy_static! {
-    pub(crate) static ref ACTOR_LOGIC_FUNCTIONS: Mutex<Vec<ActorLogicFunction>> =
-        Mutex::new(vec![]);
-}
-
-fn actor_spawner(
-    mut commands: Commands,
-    asset_server: Res<AssetServer>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
-    new_actor_query: Query<(Entity, &Actor), Without<Transform>>,
-) {
-    for (entity, actor) in new_actor_query.iter() {
-        let transform = Transform::from_translation(actor.translation.extend(0.0));
-        let texture_handle = asset_server.load(actor.filename.as_str());
-        commands.entity(entity).insert_bundle(SpriteBundle {
-            material: materials.add(texture_handle.into()),
-            transform,
-            ..Default::default()
-        });
-    }
-}
 
 #[derive(Clone, Debug)]
 pub struct Actor {

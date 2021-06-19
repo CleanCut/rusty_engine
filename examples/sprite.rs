@@ -34,10 +34,10 @@ fn main() {
                 break 'outer;
             }
             let actor_preset = actor_presets_iter.next().unwrap();
-            game.add_actor("preset".into(), actor_preset)
+            game.add_actor(format!("{:?}", actor_preset), actor_preset)
                 .set_translation(Vec2::new(x as f32, (-y) as f32));
         }
     }
 
-    game.run();
+    game.run(|_| {});
 }

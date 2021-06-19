@@ -3,14 +3,13 @@ use rusty_engine::prelude::*;
 fn main() {
     println!("Note: If you are not running with `--release`, it may take several seconds for each song to load.");
     let mut game = Game::new();
-    game.add_game_logic(logic);
     game.game_state_mut()
         .timer_map
         .insert("music change timer".into(), Timer::from_seconds(30.0, true));
-    game.run();
+    game.run(logic);
 }
 
-fn logic(game_state: &mut GameState, time: &Time) {
+fn logic(game_state: &mut GameState) {
     // gain another life every time the timer goes off
     if game_state.bool_map.get("music started").is_none() {
         println!("Playing MysteriousMagic for about 30 seconds.");
@@ -23,7 +22,7 @@ fn logic(game_state: &mut GameState, time: &Time) {
         .timer_map
         .get_mut("music change timer")
         .unwrap()
-        .tick(time.delta())
+        .tick(game_state.delta)
         .just_finished()
     {
         if game_state.bool_map.get("music changed").is_none() {

@@ -18,27 +18,25 @@ fn main() {
         .bool_map
         .insert("turning".into(), false);
 
-    game.add_logic(logic);
-
-    game.run();
+    game.run(logic);
 }
 
-fn logic(game_state: &mut GameState, actor: &mut Actor, time: &Time) {
-    if actor.label == "Race Car" {
+fn logic(game_state: &mut GameState) {
+    if let Some(actor) = game_state.actors.get_mut("Race Car") {
         let turning_mut_ref = game_state.bool_map.get_mut("turning").unwrap();
         // gain another life every time the timer goes off
         if game_state
             .timer_map
             .get_mut("change_state")
             .unwrap()
-            .tick(time.delta())
+            .tick(game_state.delta)
             .just_finished()
         {
             *turning_mut_ref = !*turning_mut_ref;
         }
         // Rotate the player
         if *turning_mut_ref {
-            actor.rotation += time.delta_seconds() * 3.0;
+            actor.rotation += game_state.delta_seconds * 3.0;
         }
     }
 }
