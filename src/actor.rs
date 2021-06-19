@@ -70,23 +70,24 @@ fn actor_sync(
 
 #[derive(Clone, Debug)]
 pub struct Actor {
-    // a way to identify an actor
+    /// READONLY: A way to identify an actor.
     pub label: String,
-    // preset
+    /// READONLY: Which preset was used to create this actor
     pub preset: Option<ActorPreset>,
-    // filename
+    /// READONLY: File used for this actor's sprite
     pub filename: String,
-    // Where you are. Positive x is right. Positive y is up.
+    /// SYNCED: Where you are in 2D game space. Positive x is right. Positive y is up. (0.0, 0.0) is the
+    /// center of the screen.
     pub translation: Vec2,
-    // Depth of the sprite. 0.0 (back) to 999.0 (front)
+    /// SYNCED: Depth of the sprite. 0.0 (back) to 999.0 (front)
     pub layer: f32,
-    // Direction you face in radians. See constants UP, DOWN, LEFT, RIGHT
+    /// SYNCED: Direction you face in radians. See constants UP, DOWN, LEFT, RIGHT
     pub rotation: f32,
-    // 1.0 is "normal"
+    /// SYNCED: 1.0 is the normal 100%
     pub scale: f32,
-    // Whether or not to calculate collisions
+    /// TODO: Whether or not to calculate collisions
     pub collision: bool,
-    // Relative to translation
+    /// TODO: Relative to translation
     pub collider: Collider,
 }
 
