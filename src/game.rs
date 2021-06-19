@@ -7,6 +7,7 @@ use crate::{
 };
 use bevy::{app::AppExit, input::system::exit_on_esc_system, prelude::*};
 use bevy_kira_audio::*;
+use bevy_rapier2d::prelude::*;
 use lazy_static::lazy_static;
 use std::{collections::HashMap, sync::Mutex, time::Duration};
 
@@ -43,6 +44,7 @@ impl Default for Game {
             .add_plugin(MousePlugin)
             //.insert_resource(ReportExecutionOrderAmbiguities)
             .add_system(game_logic_sync.system().label("game_logic_sync"))
+            .add_system_to_stage(CoreStage::PostUpdate, display_events.system())
             .add_startup_system(setup.system());
 
         Self {
@@ -197,7 +199,10 @@ fn setup(
     materials: ResMut<Assets<ColorMaterial>>,
     windows: Res<Windows>,
     mut game_state: ResMut<GameState>,
+    mut rapier_configuration: ResMut<RapierConfiguration>,
 ) {
+    rapier_configuration.scale = 10.0;
+    println!("scale: {:?}", rapier_configuration.scale);
     // Unwrap: If we can't access the primary window...there's no point to running Rusty Engine
     let window = windows.get_primary().unwrap();
     game_state.screen_dimensions = Vec2::new(window.width(), window.height());
@@ -220,7 +225,7 @@ fn game_logic_sync(
     mut query_set: QuerySet<(
         Query<&Actor>,
         Query<&TextActor>,
-        Query<(Entity, &mut Actor, &mut Transform, &mut ColliderPosition)>,
+        Query<(Entity, &mut Actor, &mut Transform, &mut RigidBodyPosition)>,
         Query<(Entity, &mut TextActor, &mut Transform, &mut Text)>,
     )>,
 ) {
@@ -256,9 +261,9 @@ fn game_logic_sync(
     }
 
     // Copy all intersection_events over to the game_state to give to users
-    for ie in intersection_events.iter() {
-        println!("IE: {:?}", ie);
-    }
+    // for ie in intersection_events.iter() {
+    //     println!("IE: {:?}", ie);
+    // }
 
     // Perform all the user's game logic for this frame
     // Unwrap: Can't crash, we're the only thread using the lock, so it can't be poisoned.
@@ -267,11 +272,14 @@ fn game_logic_sync(
     }
 
     // Transfer any changes in the user's Actor copies to the Bevy Actor, Transform, and ColliderPosition components
-    for (entity, mut actor, mut transform, mut collider_position) in query_set.q2_mut().iter_mut() {
+    for (entity, mut actor, mut transform, mut rigid_body_position) in query_set.q2_mut().iter_mut()
+    {
         if let Some(actor_copy) = game_state.actors.remove(&actor.label) {
             *actor = actor_copy;
-            *transform = actor.bevy_transform();
-            *collider_position = (actor.translation, actor.rotation).into();
+            //*transform = actor.bevy_transform();
+            transform.scale = actor.bevy_scale();
+            rigid_body_position.next_position = (actor.translation * 0.1, actor.rotation).into();
+            //println!("{:?}", (*rigid_body_position).position);
         } else {
             commands.entity(entity).despawn();
         }
@@ -305,8 +313,6 @@ fn game_logic_sync(
     }
 }
 
-use bevy_rapier2d::prelude::*;
-
 // helper function: Add Bevy components for all the actors in game_state.actors
 fn add_actors(
     commands: &mut Commands,
@@ -320,7 +326,8 @@ fn add_actors(
         // transform.scale = Vec3::splat(actor.scale);
         let transform = actor.bevy_transform();
         let texture_handle = asset_server.load(actor.filename.as_str());
-        let position = (actor.translation, actor.rotation).into();
+        let position = (actor.translation * 0.1, actor.rotation).into();
+        let label = actor.label.clone();
         commands
             .spawn()
             .insert(actor)
@@ -329,13 +336,31 @@ fn add_actors(
                 transform,
                 ..Default::default()
             })
-            .insert_bundle(ColliderBundle {
-                shape: ColliderShape::ball(100.0),
-                collider_type: ColliderType::Sensor,
+            .insert_bundle(RigidBodyBundle {
+                forces: RigidBodyForces {
+                    gravity_scale: 0.0,
+                    ..Default::default()
+                },
+                body_type: if label == "Race Car" {
+                    RigidBodyType::KinematicPositionBased
+                } else {
+                    RigidBodyType::Dynamic
+                },
                 position,
+                // activation: RigidBodyActivation::cannot_sleep(),
+                // ccd: RigidBodyCcd {
+                //     ccd_enabled: true,
+                //     ..Default::default()
+                // },
+                ..Default::default()
+            })
+            .insert_bundle(ColliderBundle {
+                shape: ColliderShape::cuboid(3.0, 3.0),
+                // collider_type: ColliderType::Sensor,
                 flags: (ActiveEvents::INTERSECTION_EVENTS | ActiveEvents::CONTACT_EVENTS).into(),
                 ..Default::default()
-            });
+            })
+            .insert(ColliderPositionSync::Discrete);
     }
 }
 
@@ -368,5 +393,18 @@ fn add_text_actors(
                 transform,
                 ..Default::default()
             });
+    }
+}
+
+fn display_events(
+    mut intersection_events: EventReader<IntersectionEvent>,
+    mut contact_events: EventReader<ContactEvent>,
+) {
+    for intersection_event in intersection_events.iter() {
+        println!("Received intersection event: {:?}", intersection_event);
+    }
+
+    for contact_event in contact_events.iter() {
+        println!("Received contact event: {:?}", contact_event);
     }
 }

@@ -42,6 +42,9 @@ impl Actor {
         transform.scale = Vec3::splat(self.scale);
         transform
     }
+    pub(crate) fn bevy_scale(&self) -> Vec3 {
+        Vec3::splat(self.scale)
+    }
 }
 
 use std::array::IntoIter;

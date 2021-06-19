@@ -7,7 +7,7 @@ fn main() {
     race_car.translation = Vec2::new(0.0, 0.0);
     race_car.rotation = UP;
     race_car.scale = 1.0;
-    race_car.layer = 2.0;
+    //race_car.layer = 2.0;
 
     let mut actor_presets_iter = ActorPreset::variant_iter().peekable();
     'outer: for y in (-265..=400).step_by(175) {
