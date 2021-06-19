@@ -35,33 +35,6 @@ impl Default for Actor {
     }
 }
 
-impl Actor {
-    pub fn set_name(&mut self, name: String) -> &mut Self {
-        self.label = name;
-        self
-    }
-    pub fn set_preset(&mut self, preset: ActorPreset) -> &mut Self {
-        self.preset = Some(preset);
-        self
-    }
-    pub fn set_translation(&mut self, translation: Vec2) -> &mut Self {
-        self.translation = translation;
-        self
-    }
-    pub fn set_layer(&mut self, layer: f32) -> &mut Self {
-        self.layer = layer;
-        self
-    }
-    pub fn set_rotation(&mut self, rotation: f32) -> &mut Self {
-        self.rotation = rotation;
-        self
-    }
-    pub fn set_scale(&mut self, scale: f32) -> &mut Self {
-        self.scale = scale;
-        self
-    }
-}
-
 use std::array::IntoIter;
 
 #[derive(Copy, Clone, Debug)]

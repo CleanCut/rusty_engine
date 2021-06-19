@@ -54,6 +54,7 @@ impl Game {
         Default::default()
     }
 
+    #[must_use]
     pub fn add_actor(&mut self, label: String, preset: ActorPreset) -> &mut Actor {
         self.game_state
             .actors

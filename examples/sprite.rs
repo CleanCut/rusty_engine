@@ -34,8 +34,8 @@ fn main() {
                 break 'outer;
             }
             let actor_preset = actor_presets_iter.next().unwrap();
-            game.add_actor(format!("{:?}", actor_preset), actor_preset)
-                .set_translation(Vec2::new(x as f32, (-y) as f32));
+            let mut actor = game.add_actor(format!("{:?}", actor_preset), actor_preset);
+            actor.translation = Vec2::new(x as f32, (-y) as f32);
         }
     }
 

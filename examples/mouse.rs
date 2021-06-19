@@ -5,19 +5,19 @@ const ANCHOR_SPOT: (f32, f32) = (0.0, -200.0);
 fn main() {
     let mut game = Game::new();
 
-    game.add_actor("Race Car".into(), ActorPreset::RacingCarGreen)
-        .set_translation(Vec2::new(0.0, 0.0))
-        .set_rotation(UP)
-        .set_scale(1.0)
-        .set_layer(2.0);
+    let mut race_car = game.add_actor("Race Car".into(), ActorPreset::RacingCarGreen);
+    race_car.translation = Vec2::new(0.0, 0.0);
+    race_car.rotation = UP;
+    race_car.scale = 1.0;
+    race_car.layer = 2.0;
 
-    game.add_actor("anchor".into(), ActorPreset::RollingHoleEnd)
-        .set_translation(ANCHOR_SPOT.into())
-        .set_layer(0.0);
+    let mut anchor = game.add_actor("anchor".into(), ActorPreset::RollingHoleEnd);
+    anchor.translation = ANCHOR_SPOT.into();
+    anchor.layer = 0.0;
 
-    game.add_actor("mover".into(), ActorPreset::RollingHoleStart)
-        .set_translation(ANCHOR_SPOT.into())
-        .set_layer(1.0);
+    let mut mover = game.add_actor("mover".into(), ActorPreset::RollingHoleStart);
+    mover.translation = ANCHOR_SPOT.into();
+    mover.layer = 1.0;
 
     game.run(logic);
 }
@@ -35,7 +35,7 @@ fn logic(game_state: &mut GameState) {
             }
         }
         for cursor_moved in &game_state.cursor_moved_events {
-            actor.set_translation(cursor_moved.position);
+            actor.translation = cursor_moved.position;
         }
         for mouse_wheel in &game_state.mouse_wheel_events {
             if mouse_wheel.y > 0.0 {
@@ -55,7 +55,7 @@ fn logic(game_state: &mut GameState) {
             moved = true;
         }
         if !moved {
-            actor.set_translation(actor.translation.lerp(Vec2::from(ANCHOR_SPOT), 0.05));
+            actor.translation = actor.translation.lerp(Vec2::from(ANCHOR_SPOT), 0.05);
         }
     }
 }
