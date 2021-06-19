@@ -214,6 +214,8 @@ fn game_logic_sync(
     // mut actor_query: Query<(&mut Actor, &mut Transform)>,
     // mut text_actor_query: Query<(&mut TextActor, &mut Transform)>,
     mut query_set: QuerySet<(
+        Query<&Actor>,
+        Query<&TextActor>,
         Query<(Entity, &mut Actor, &mut Transform)>,
         Query<(Entity, &mut TextActor, &mut Transform, &mut Text)>,
     )>,
@@ -235,7 +237,7 @@ fn game_logic_sync(
 
     // Copy all actors over to the game_state to give to users
     game_state.actors.clear();
-    for (_, actor, _) in query_set.q0_mut().iter_mut() {
+    for actor in query_set.q0().iter() {
         let _ = game_state
             .actors
             .insert(actor.label.clone(), (*actor).clone());
@@ -243,7 +245,7 @@ fn game_logic_sync(
 
     // Copy all text_actors over to the game_state to give to users
     game_state.text_actors.clear();
-    for (_, text_actor, _, _) in query_set.q1_mut().iter_mut() {
+    for text_actor in query_set.q1().iter() {
         let _ = game_state
             .text_actors
             .insert(text_actor.label.clone(), (*text_actor).clone());
@@ -256,7 +258,7 @@ fn game_logic_sync(
     }
 
     // Transfer any changes in the user's Actor copies to the Bevy Actor and Transform components
-    for (entity, mut actor, mut transform) in query_set.q0_mut().iter_mut() {
+    for (entity, mut actor, mut transform) in query_set.q2_mut().iter_mut() {
         if let Some(actor_copy) = game_state.actors.remove(&actor.label) {
             *actor = actor_copy;
             *transform = actor.bevy_transform();
@@ -266,7 +268,7 @@ fn game_logic_sync(
     }
 
     // Transfer any changes in the user's TextActor copies to the Bevy TextActor and Transform components
-    for (entity, mut text_actor, mut transform, mut text) in query_set.q1_mut().iter_mut() {
+    for (entity, mut text_actor, mut transform, mut text) in query_set.q3_mut().iter_mut() {
         if let Some(text_actor_copy) = game_state.text_actors.remove(&text_actor.label) {
             *text_actor = text_actor_copy;
             *transform = text_actor.bevy_transform();
