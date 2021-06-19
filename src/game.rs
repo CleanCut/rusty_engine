@@ -120,25 +120,17 @@ impl Game {
     /// any variables.
     ///
     /// ```no_run
-    /// use rusty_engine::prelude::*;
-    ///
-    /// fn main() {
-    ///     let mut game = Game::new();
-    ///     game.run(|game_state| {
-    ///         println!("This game has been running for: {:.2}", game_state.seconds_since_startup);
-    ///     });
-    /// }
+    /// let mut game = Game::new();
+    /// game.run(|game_state| {
+    ///     println!("This game has been running for: {:.2}", game_state.seconds_since_startup);
+    /// });
     /// ```
     ///
     /// If you don't want to do anything, you can use the closure `|_| {}`
     ///
     /// ```no_run
-    /// use rusty_engine::prelude::*;
-    ///
-    /// fn main() {
-    ///     let mut game = Game::new();
-    ///     game.run(|_| {});
-    /// }
+    /// let mut game = Game::new();
+    /// game.run(|_| {});
     /// ```
     pub fn run(&mut self, func: GameLogicFunction) {
         // Unwrap: Can't crash, we're the only thread using the lock, so it can't be poisoned.
@@ -211,6 +203,7 @@ fn setup(
 }
 
 // system - the magic that connects Rusty Engine to Bevy, frame by frame
+#[allow(clippy::type_complexity)]
 fn game_logic_sync(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
@@ -280,6 +273,7 @@ fn game_logic_sync(
             if text_actor.text != text.sections[0].value {
                 text.sections[0].value = text_actor.text.clone();
             }
+            #[allow(clippy::float_cmp)]
             if text_actor.font_size != text.sections[0].style.font_size {
                 text.sections[0].style.font_size = text_actor.font_size;
             }
