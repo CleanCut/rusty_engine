@@ -2,7 +2,7 @@ use crate::{
     actor::{Actor, ActorPreset},
     audio::AudioManager,
     mouse::{CursorMoved, MouseButtonInput, MouseMotion, MousePlugin, MouseWheel},
-    prelude::{AudioManagerPlugin, KeyboardInput, KeyboardPlugin},
+    prelude::{AudioManagerPlugin, KeyboardInput, KeyboardPlugin, PhysicsPlugin},
     text_actor::TextActor,
 };
 use bevy::{app::AppExit, input::system::exit_on_esc_system, prelude::*};
@@ -30,14 +30,18 @@ impl Default for Game {
     fn default() -> Self {
         let mut app_builder = App::build();
         app_builder
+            // Built-ins
             .add_plugins_with(DefaultPlugins, |group| {
                 group.disable::<bevy::audio::AudioPlugin>()
             })
             .add_system(exit_on_esc_system.system())
+            // External Plugins
             .add_plugin(AudioPlugin) // kira_bevy_audio
+            // Rusty Engine Plugins
             .add_plugin(AudioManagerPlugin)
             .add_plugin(KeyboardPlugin)
             .add_plugin(MousePlugin)
+            .add_plugin(PhysicsPlugin)
             //.insert_resource(ReportExecutionOrderAmbiguities)
             .add_system(game_logic_sync.system().label("game_logic_sync"))
             .add_startup_system(setup.system());

@@ -22,7 +22,9 @@ pub mod text_actor;
 
 // Public prelude
 pub mod prelude {
-    pub use crate::{actor::*, audio::*, consts::*, game::*, keyboard::*, mouse::*};
+    pub use crate::{
+        actor::*, audio::*, consts::*, game::*, keyboard::*, mouse::*, physics::*, text_actor::*,
+    };
     pub use bevy::{
         self,
         prelude::{Time, Timer, Vec2},
