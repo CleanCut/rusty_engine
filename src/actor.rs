@@ -1,3 +1,4 @@
+use crate::physics::Collider;
 use bevy::prelude::*;
 
 #[derive(Clone, Debug)]
@@ -17,6 +18,10 @@ pub struct Actor {
     pub rotation: f32,
     /// SYNCED: 1.0 is the normal 100%
     pub scale: f32,
+    /// TODO: Whether or not to calculate collisions
+    pub collision: bool,
+    /// TODO: Relative to translation
+    pub collider: Collider,
 }
 
 /// An [`Actor`] is the basic abstraction for something that can be seen and interacted with.
@@ -31,6 +36,8 @@ impl Default for Actor {
             layer: f32::default(),
             rotation: f32::default(),
             scale: 1.0,
+            collision: true,
+            collider: Collider::default(),
         }
     }
 }
@@ -41,6 +48,14 @@ impl Actor {
         transform.rotation = Quat::from_axis_angle(Vec3::Z, self.rotation);
         transform.scale = Vec3::splat(self.scale);
         transform
+    }
+    pub fn set_collision(&mut self, value: bool) -> &mut Self {
+        self.collision = value;
+        self
+    }
+    pub fn set_collider(&mut self, collider: Collider) -> &mut Self {
+        self.collider = collider;
+        self
     }
 }
 
