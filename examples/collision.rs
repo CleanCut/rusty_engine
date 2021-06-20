@@ -6,32 +6,48 @@ fn main() {
     let mut race_car = game.add_actor("Race Car", ActorPreset::RacingCarGreen);
     race_car.translation = Vec2::new(0.0, 0.0);
     race_car.rotation = UP;
+    race_car.layer = 100.0;
     race_car.scale = 1.0;
     race_car.collision = true;
     race_car.collider = Collider::rect(Vec2::new(-60.0, 35.0), Vec2::new(60.0, -35.0));
     // race_car.collider = Collider::circle(15.0);
 
-    let mut actor_presets_iter = ActorPreset::variant_iter().peekable();
-    'outer: for y in (-265..=400).step_by(175) {
-        for x in (-550..=550).step_by(275) {
-            if actor_presets_iter.peek().is_none() {
-                break 'outer;
-            }
-            let actor_preset = actor_presets_iter.next().unwrap();
-            let mut actor = game.add_actor(format!("{:?}", actor_preset), actor_preset);
-            actor.translation = Vec2::new(x as f32, (-y) as f32);
-            actor.collision = true;
-            // actor.collider = Collider::circle(15.0);
-            actor.collider = Collider::rect(Vec2::new(-28.0, 28.0), Vec2::new(28.0, -28.0));
-            break;
-        }
-        break;
-    }
+    let mut actor = game.add_actor("bluebarrel1", ActorPreset::RacingBarrelBlue);
+    actor.translation = Vec2::new(-400.0, 200.0);
+    actor.collision = true;
+    // actor.collider = Collider::circle(15.0);
+    actor.collider = Collider::rect(Vec2::new(-28.0, 28.0), Vec2::new(28.0, -28.0));
+
+    let mut actor = game.add_actor("redbarrel1", ActorPreset::RacingBarrelRed);
+    actor.translation = Vec2::new(400.0, 200.0);
+    actor.collision = true;
+    // actor.collider = Collider::circle(15.0);
+    actor.collider = Collider::rect(Vec2::new(-28.0, 28.0), Vec2::new(28.0, -28.0));
+
+    let mut actor = game.add_actor("bluebarrel2", ActorPreset::RacingBarrelBlue);
+    actor.translation = Vec2::new(400.0, -200.0);
+    actor.collision = true;
+    // actor.collider = Collider::circle(15.0);
+    actor.collider = Collider::rect(Vec2::new(-28.0, 28.0), Vec2::new(28.0, -28.0));
+
+    let mut actor = game.add_actor("redbarrel2", ActorPreset::RacingBarrelRed);
+    actor.translation = Vec2::new(-400.0, -200.0);
+    actor.collision = true;
+    // actor.collider = Collider::circle(15.0);
+    actor.collider = Collider::rect(Vec2::new(-28.0, 28.0), Vec2::new(28.0, -28.0));
 
     game.run(logic);
 }
 
 fn logic(game_state: &mut GameState) {
+    for event in game_state.collision_events.drain(..) {
+        println!("{:?}", event);
+        match event.state {
+            CollisionState::Begin => game_state.audio_manager.play_sfx(SfxPreset::Click),
+            CollisionState::End => game_state.audio_manager.play_sfx(SfxPreset::Switch1),
+        }
+    }
+
     if let Some(actor) = game_state.actors.get_mut("Race Car") {
         for mouse_button_input in &game_state.mouse_button_events {
             if mouse_button_input.state != ElementState::Pressed {

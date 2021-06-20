@@ -1,25 +1,45 @@
-use std::collections::HashSet;
-
+use crate::actor::Actor;
 use bevy::prelude::*;
-
-use crate::{actor::Actor, prelude::GameState};
+use std::collections::HashSet;
 
 pub struct PhysicsPlugin;
 
 impl Plugin for PhysicsPlugin {
     fn build(&self, app: &mut AppBuilder) {
-        app.add_system(collision_detection.system());
+        app.add_event::<CollisionEvent>()
+            .add_system(collision_detection.system());
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct CollisionEvent {
+    pub state: CollisionState,
+    pub pair: CollisionPair,
+}
+
+#[derive(Debug, Clone)]
+pub enum CollisionState {
+    Begin,
+    End,
+}
+
+#[derive(Debug, Default, Eq, Hash, Clone)]
+pub struct CollisionPair(String, String);
+
+impl PartialEq for CollisionPair {
+    fn eq(&self, other: &Self) -> bool {
+        ((self.0 == other.0) && (self.1 == other.1)) || ((self.0 == other.1) && (self.1 == other.0))
     }
 }
 
 fn collision_detection(
     mut existing_collisions: Local<HashSet<CollisionPair>>,
-    mut game_state: ResMut<GameState>,
-    query: Query<(&Actor, &Transform)>,
+    mut collision_events: EventWriter<CollisionEvent>,
+    query: Query<&Actor>,
 ) {
     let mut current_collisions = HashSet::<CollisionPair>::new();
-    'outer: for (actor1, transform1) in query.iter().filter(|(a, _)| a.collision) {
-        for (actor2, transform2) in query.iter().filter(|(a, _)| a.collision) {
+    'outer: for actor1 in query.iter().filter(|a| a.collision) {
+        for actor2 in query.iter().filter(|a| a.collision) {
             if actor1.label == actor2.label {
                 // We only need to compare one half of the matrix triangle
                 continue 'outer;
@@ -30,17 +50,33 @@ fn collision_detection(
             }
         }
     }
-    // if !current_collisions.is_empty() {
-    println!("{:?}", current_collisions);
-    // }
-}
 
-#[derive(Debug, Default, Eq, Hash)]
-struct CollisionPair(String, String);
+    let beginning_collisions: Vec<_> = current_collisions
+        .difference(&existing_collisions)
+        .map(|x| x.clone())
+        .collect();
 
-impl PartialEq for CollisionPair {
-    fn eq(&self, other: &Self) -> bool {
-        ((self.0 == other.0) && (self.1 == other.1)) || ((self.0 == other.1) && (self.1 == other.0))
+    collision_events.send_batch(beginning_collisions.iter().map(|p| CollisionEvent {
+        state: CollisionState::Begin,
+        pair: p.clone(),
+    }));
+
+    for beginning_collision in beginning_collisions {
+        existing_collisions.insert(beginning_collision);
+    }
+
+    let ending_collisions: Vec<_> = existing_collisions
+        .difference(&current_collisions)
+        .map(|x| x.clone())
+        .collect();
+
+    collision_events.send_batch(ending_collisions.iter().map(|p| CollisionEvent {
+        state: CollisionState::End,
+        pair: p.clone(),
+    }));
+
+    for ending_collision in ending_collisions {
+        let _ = existing_collisions.remove(&ending_collision);
     }
 }
 

@@ -2,7 +2,7 @@ use crate::{
     actor::{Actor, ActorPreset},
     audio::AudioManager,
     mouse::{CursorMoved, MouseButtonInput, MouseMotion, MousePlugin, MouseWheel},
-    prelude::{AudioManagerPlugin, KeyboardInput, KeyboardPlugin, PhysicsPlugin},
+    prelude::{AudioManagerPlugin, CollisionEvent, KeyboardInput, KeyboardPlugin, PhysicsPlugin},
     text_actor::TextActor,
 };
 use bevy::{app::AppExit, input::system::exit_on_esc_system, prelude::*};
@@ -172,6 +172,7 @@ pub struct GameState {
     // Updated every frame
     pub actors: HashMap<String, Actor>,
     pub text_actors: HashMap<String, TextActor>,
+    pub collision_events: Vec<CollisionEvent>,
     pub mouse_button_events: Vec<MouseButtonInput>,
     pub cursor_moved_events: Vec<CursorMoved>,
     pub mouse_motion_events: Vec<MouseMotion>,
@@ -215,6 +216,7 @@ fn game_logic_sync(
     mut game_state: ResMut<GameState>,
     time: Res<Time>,
     mut app_exit_events: EventWriter<AppExit>,
+    mut collision_events: EventReader<CollisionEvent>,
     // mut actor_query: Query<(&mut Actor, &mut Transform)>,
     // mut text_actor_query: Query<(&mut TextActor, &mut Transform)>,
     mut query_set: QuerySet<(
@@ -238,6 +240,12 @@ fn game_logic_sync(
     //     actor.rotation = ???
     //     actor.scale = transform.scale.x;
     // }
+
+    // Copy all collision events over to the game_state to give to users
+    game_state.collision_events.clear();
+    for collision_event in collision_events.iter() {
+        game_state.collision_events.push(collision_event.clone());
+    }
 
     // Copy all actors over to the game_state to give to users
     game_state.actors.clear();
