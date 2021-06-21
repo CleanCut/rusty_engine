@@ -1,41 +1,37 @@
 # Rusty Engine
 
-Rusty Engine is a simple, 2D game engine for those who are learning Rust. Create simple prototypes using straightforward Rust code, without any advanced game engine concepts.  Rusty engine is a simplification wrapper over [Bevy], which is what I encourage folks to use directly for their more serious game engine needs.
+Rusty Engine is a simple, 2D game engine for those who are learning Rust. Create simple game prototypes using straightforward Rust code without any advanced game engine concepts! It works on macOS, Linux, and Windows. Rusty Engine is a simplification wrapper over [Bevy], which I encourage you to use directly for more serious game engine needs.
 
 [Questions], [bug reports], and contributions are most welcome!
 
 ## Features
 
-See [this issue](https://github.com/CleanCut/rusty_engine/issues/9) for details about currently-supported features.
+- Sprites (2D images)
+  - Includes 2 built-in asset packs
+- Audio (music & sound effects)
+  - Includes 2 built-in asset packs
+- Collision detection
+- Text
+  - Includes 2 built-in fonts
+- Input handling (keyboard, mouse)
+- Timers
 
 ## Courses
 
-I plan to integrate using this game engine into some of my learning courses:
+I teach courses which use this game engine:
 
-- [Ultimate Rust Crash Course]
-- As-yet-unnamed 3 day course on O'Reilly online.
+- `Ultimate Rust 2: Intermediate Concepts` on Udemy, etc. Coming soon!
+- [Rust in 3 Weeks](https://agileperception.com) conducted live on O'Reilly Online.
 
-### Audio Dependencies on Linux
+### Linux Dependencies (Including WSL 2)
 
-Audio should work out-of-the-box on macOS, Windows, iOS, and emscripten.  For Linux, the
-downstream package for actually _playing_ sound ([CPAL]) requires
-the *Alsa* development libraries to be installed.
+If you are using Linux, or Windows Subsystem for Linux 2, please visit Bevy's [Installing Linux Dependencies](https://github.com/bevyengine/bevy/blob/main/docs/linux_dependencies.md) page and follow the instructions to install needed dependencies.
 
-**CentOS**
-
-```bash
-sudo yum install -y alsa-lib-devel
-```
-
-**Debian/Ubuntu**
-
-```bash
-sudo apt install libasound2-dev pkg-config
 ```
 
 ## Contribution
 
-All contributions are assumed to be dual-licensed under MIT/Apache-2.
+All software contributions are assumed to be dual-licensed under MIT/Apache-2.  All asset contributions must be under licenses compatible with the software license, and explain their license(s) in a `README.md` file in the same directory as the source files.
 
 ## Asset Licenses
 
