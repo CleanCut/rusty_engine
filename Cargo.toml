@@ -1,14 +1,14 @@
 [package]
 name = "rusty_engine"
 version = "0.13.0"
-authors = ["Nathan Stocks <nathan@agileperception.com>"]
+authors = [ "Nathan Stocks <nathan@agileperception.com>" ]
 description = "Learn Rust with a simple, cross-platform, 2D game engine."
 edition = "2018"
 homepage = "https://github.com/CleanCut/rusty_engine"
 repository = "https://github.com/CleanCut/rusty_engine"
 readme = "README.md"
-keywords = ["game", "engine", "graphics", "audio", "rusty"]
-categories = ["game-engines"]
+keywords = [ "game", "engine", "graphics", "audio", "rusty" ]
+categories = [ "game-engines" ]
 license = "MIT OR Apache-2.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -16,7 +16,7 @@ license = "MIT OR Apache-2.0"
 [dependencies]
 #bevy = { git = "https://github.com/bevyengine/bevy", rev = "47004dfcb415a049e4c6e68fdf56c26de72f51a1" }
 #bevy = { git = "https://github.com/bevyengine/bevy", branch = "main" }
-bevy = { version = "0.5", default-features = false, features = [
+bevy = { version="0.5", default-features=false, features=[
     #"bevy_audio"
     "bevy_dynamic_plugin",
     "bevy_gilrs",
@@ -31,8 +31,8 @@ bevy = { version = "0.5", default-features = false, features = [
 ] }
 lazy_static = "1.4"
 
-# -- for audio --
-parking_lot = "0.11.0"
-anyhow = "1.0"
+bevy_kira_audio = { version="0.5.0", features=[ "flac", "mp3", "ogg", "wav" ] }
+log = "0.4"
 
-bevy_kira_audio = { version = "0.5.0", features = ["flac", "mp3", "ogg", "wav"] }
+[dev-dependencies]
+env_logger = "0.8"
