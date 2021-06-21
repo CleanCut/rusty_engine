@@ -48,7 +48,7 @@ See [license/APACHE](license/APACHE) and [license/MIT](license/MIT).
 If you like Rusty Engine, please sponsor me [on GitHub] or [on Patreon]. 💖
 
 [CPAL]: https://github.com/RustAudio/cpal
-[Questions]: https://github.com/CleanCut/rusty_engine/issues/new
+[Questions]: https://github.com/CleanCut/rusty_engine/discussions
 [Ultimate Rust Crash Course]: https://agileperception.com/ultimate_rust_crash_course
 [bug reports]: https://github.com/CleanCut/rusty_engine/issues/new
 [rendy]: https://github.com/amethyst/rendy
