@@ -101,7 +101,6 @@ impl SfxPreset {
 
 #[derive(Copy, Clone, Debug)]
 pub enum MusicPreset {
-    ArcadeFantasy,
     Classy8Bit,
     MysteriousMagic,
     WhimsicalPopsicle,
@@ -110,16 +109,14 @@ pub enum MusicPreset {
 impl MusicPreset {
     fn to_path(self) -> &'static str {
         match self {
-            MusicPreset::ArcadeFantasy => "audio/music/Arcade Fantasy.oga",
             MusicPreset::Classy8Bit => "audio/music/Classy 8-Bit.oga",
             MusicPreset::MysteriousMagic => "audio/music/Mysterious Magic.oga",
             MusicPreset::WhimsicalPopsicle => "audio/music/Whimsical Popsicle.oga",
         }
     }
 
-    pub fn variant_iter() -> IntoIter<MusicPreset, 4> {
-        static MUSIC_PRESETS: [MusicPreset; 4] = [
-            MusicPreset::ArcadeFantasy,
+    pub fn variant_iter() -> IntoIter<MusicPreset, 3> {
+        static MUSIC_PRESETS: [MusicPreset; 3] = [
             MusicPreset::Classy8Bit,
             MusicPreset::MysteriousMagic,
             MusicPreset::WhimsicalPopsicle,
