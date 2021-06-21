@@ -1,6 +1,10 @@
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Added
+
+- All the basic [features for 1.0](https://github.com/CleanCut/rusty_engine/issues/9)
+- This release is to test the remaining 1.0 functionality, but not all the documentation and scenarios are written, so we're not quite ready for 1.0.
 
 ## [0.12.0] - 2021-06-16
 
