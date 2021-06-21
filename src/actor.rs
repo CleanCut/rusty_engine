@@ -36,7 +36,7 @@ impl Default for Actor {
             layer: f32::default(),
             rotation: f32::default(),
             scale: 1.0,
-            collision: true,
+            collision: false,
             collider: Collider::default(),
         }
     }
@@ -88,13 +88,120 @@ pub enum ActorPreset {
 impl ActorPreset {
     pub fn build(self, label: String) -> Actor {
         let filename = self.filename();
+        let collider = self.collider();
         Actor {
             label,
             preset: Some(self),
             filename,
+            collider,
             ..Default::default()
         }
     }
+
+    pub fn collider(&self) -> Collider {
+        match self {
+            ActorPreset::RacingBarrelBlue => Collider::circle(28.0),
+            ActorPreset::RacingBarrelRed => Collider::circle(28.0),
+            ActorPreset::RacingBarrierRed => {
+                Collider::rect(Vec2::new(-105.0, 31.0), Vec2::new(105.0, -31.0))
+            }
+            ActorPreset::RacingBarrierWhite => {
+                Collider::rect(Vec2::new(-105.0, 31.0), Vec2::new(105.0, -31.0))
+            }
+            ActorPreset::RacingCarBlack => Collider::poly(&[
+                (-59., 28.),
+                (-58., 31.),
+                (-54., 34.),
+                (51., 34.),
+                (56., 31.5),
+                (58.5, 28.5),
+                (58.5, -26.),
+                (57.5, -29.5),
+                (52.5, -33.5),
+                (-54.5, -33.5),
+                (-59., -29.),
+            ]),
+            ActorPreset::RacingCarBlue => Collider::poly(&[
+                (-59., 28.),
+                (-58., 31.),
+                (-54., 34.),
+                (51., 34.),
+                (56., 31.5),
+                (58.5, 28.5),
+                (58.5, -26.),
+                (57.5, -29.5),
+                (52.5, -33.5),
+                (-54.5, -33.5),
+                (-59., -29.),
+            ]),
+            ActorPreset::RacingCarGreen => Collider::poly(&[
+                (-59., 28.),
+                (-58., 31.),
+                (-54., 34.),
+                (51., 34.),
+                (56., 31.5),
+                (58.5, 28.5),
+                (58.5, -26.),
+                (57.5, -29.5),
+                (52.5, -33.5),
+                (-54.5, -33.5),
+                (-59., -29.),
+            ]),
+            ActorPreset::RacingCarRed => Collider::poly(&[
+                (-59., 28.),
+                (-58., 31.),
+                (-54., 34.),
+                (51., 34.),
+                (56., 31.5),
+                (58.5, 28.5),
+                (58.5, -26.),
+                (57.5, -29.5),
+                (52.5, -33.5),
+                (-54.5, -33.5),
+                (-59., -29.),
+            ]),
+            ActorPreset::RacingCarYellow => Collider::poly(&[
+                (-59., 28.),
+                (-58., 31.),
+                (-54., 34.),
+                (51., 34.),
+                (56., 31.5),
+                (58.5, 28.5),
+                (58.5, -26.),
+                (57.5, -29.5),
+                (52.5, -33.5),
+                (-54.5, -33.5),
+                (-59., -29.),
+            ]),
+            ActorPreset::RacingConeStraight => {
+                Collider::rect(Vec2::new(-22.0, 22.0), Vec2::new(22.0, -22.0))
+            }
+            ActorPreset::RollingBallBlue => Collider::circle(18.0),
+            ActorPreset::RollingBallBlueAlt => Collider::circle(18.0),
+            ActorPreset::RollingBallRed => Collider::circle(18.0),
+            ActorPreset::RollingBallRedAlt => Collider::circle(18.0),
+            ActorPreset::RollingBlockCorner => Collider::poly(&[
+                (-64., 61.),
+                (-64.0, 64.),
+                (-56., 64.),
+                (64., -56.),
+                (64., -61.),
+                (61., -64.),
+                (-62., -64.),
+                (-64., -62.),
+            ]),
+            ActorPreset::RollingBlockNarrow => Collider::rect((-64., 16.), (64., -16.)),
+            ActorPreset::RollingBlockSmall => {
+                Collider::rect(Vec2::new(-16.0, 16.0), Vec2::new(16.0, -16.0))
+            }
+            ActorPreset::RollingBlockSquare => {
+                Collider::rect(Vec2::new(-32.0, 32.0), Vec2::new(32.0, -32.0))
+            }
+            ActorPreset::RollingHoleEnd => Collider::circle(18.0),
+            ActorPreset::RollingHoleStart => Collider::circle(24.0),
+        }
+    }
+
     pub fn filename(&self) -> String {
         match self {
             ActorPreset::RacingBarrelBlue => "sprite/racing/barrel_blue.png",
@@ -120,6 +227,7 @@ impl ActorPreset {
         }
         .into()
     }
+
     pub fn variant_iter() -> IntoIter<ActorPreset, 20> {
         static ACTOR_PRESETS: [ActorPreset; 20] = [
             ActorPreset::RacingBarrelBlue,

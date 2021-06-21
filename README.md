@@ -25,7 +25,7 @@ I teach courses which use this game engine:
 
 ### Linux Dependencies (Including WSL 2)
 
-If you are using Linux, or Windows Subsystem for Linux 2, please visit Bevy's [Installing Linux Dependencies](https://github.com/bevyengine/bevy/blob/main/docs/linux_dependencies.md) page and follow the instructions to install needed dependencies.
+If you are using Linux or Windows Subsystem for Linux 2, please visit Bevy's [Installing Linux Dependencies](https://github.com/bevyengine/bevy/blob/main/docs/linux_dependencies.md) page and follow the instructions to install needed dependencies.
 
 ## Contribution
 
