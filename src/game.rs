@@ -8,9 +8,11 @@ use crate::{
 use bevy::{app::AppExit, input::system::exit_on_esc_system, prelude::*};
 use bevy_kira_audio::*;
 use lazy_static::lazy_static;
+use log::info;
 use std::{collections::HashMap, sync::Mutex, time::Duration};
 
 pub type GameLogicFunction = fn(&mut GameState);
+pub use bevy::window::{WindowDescriptor, WindowMode, WindowResizeConstraints};
 
 // TODO: Find a way to connect outside logic with the Bevy system in a more elegant way if possible
 lazy_static! {
@@ -24,31 +26,17 @@ lazy_static! {
 pub struct Game {
     app_builder: AppBuilder,
     game_state: GameState,
+    window_descriptor: Option<WindowDescriptor>,
 }
 
 impl Default for Game {
     fn default() -> Self {
         let mut app_builder = App::build();
-        app_builder
-            // Built-ins
-            .add_plugins_with(DefaultPlugins, |group| {
-                group.disable::<bevy::audio::AudioPlugin>()
-            })
-            .add_system(exit_on_esc_system.system())
-            // External Plugins
-            .add_plugin(AudioPlugin) // kira_bevy_audio
-            // Rusty Engine Plugins
-            .add_plugin(AudioManagerPlugin)
-            .add_plugin(KeyboardPlugin)
-            .add_plugin(MousePlugin)
-            .add_plugin(PhysicsPlugin)
-            //.insert_resource(ReportExecutionOrderAmbiguities)
-            .add_system(game_logic_sync.system().label("game_logic_sync"))
-            .add_startup_system(setup.system());
 
         Self {
             app_builder,
             game_state: GameState::default(),
+            window_descriptor: None,
         }
     }
 }
@@ -98,6 +86,13 @@ impl Game {
         &mut self.game_state
     }
 
+    /// Use this to set properties of the native OS window before running the game
+    pub fn window_descriptor(&mut self, window_descriptor: WindowDescriptor) -> &mut Self {
+        self.window_descriptor = Some(window_descriptor);
+        println!("window descriptor is: {:?}", self.window_descriptor);
+        self
+    }
+
     /// Start the game. This method never returns.  [`GameLogicFunction`] should be a function or
     /// closure which accepts one parameter, a `&mut GameState` and returns nothing.
     ///
@@ -137,6 +132,29 @@ impl Game {
     /// game.run(|_| {});
     /// ```
     pub fn run(&mut self, func: GameLogicFunction) {
+        println!("out");
+        if let Some(window_descriptor) = self.window_descriptor.clone() {
+            println!("in");
+            println!("{:?}", window_descriptor);
+            self.app_builder
+                .insert_resource::<WindowDescriptor>(window_descriptor);
+        }
+        self.app_builder
+            // Built-ins
+            .add_plugins_with(DefaultPlugins, |group| {
+                group.disable::<bevy::audio::AudioPlugin>()
+            })
+            .add_system(exit_on_esc_system.system())
+            // External Plugins
+            .add_plugin(AudioPlugin) // kira_bevy_audio
+            // Rusty Engine Plugins
+            .add_plugin(AudioManagerPlugin)
+            .add_plugin(KeyboardPlugin)
+            .add_plugin(MousePlugin)
+            .add_plugin(PhysicsPlugin)
+            //.insert_resource(ReportExecutionOrderAmbiguities)
+            .add_system(game_logic_sync.system().label("game_logic_sync"))
+            .add_startup_system(setup.system());
         // Unwrap: Can't crash, we're the only thread using the lock, so it can't be poisoned.
         GAME_LOGIC_FUNCTIONS.lock().unwrap().push(func);
         let world = self.app_builder.world_mut();
@@ -203,6 +221,7 @@ fn setup(
     // Unwrap: If we can't access the primary window...there's no point to running Rusty Engine
     let window = windows.get_primary().unwrap();
     game_state.screen_dimensions = Vec2::new(window.width(), window.height());
+    info!("Window dimensions: {}", game_state.screen_dimensions);
     add_actors(&mut commands, &asset_server, materials, &mut game_state);
     add_text_actors(&mut commands, &asset_server, &mut game_state);
 }
