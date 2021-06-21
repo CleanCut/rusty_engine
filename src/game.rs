@@ -86,8 +86,10 @@ impl Game {
         &mut self.game_state
     }
 
-    /// Use this to set properties of the native OS window before running the game
-    pub fn window_descriptor(&mut self, window_descriptor: WindowDescriptor) -> &mut Self {
+    /// Use this to set properties of the native OS window before running the game. See the
+    /// [window](https://github.com/CleanCut/rusty_engine/blob/main/examples/window.rs) example for
+    /// more information.
+    pub fn window_settings(&mut self, window_descriptor: WindowDescriptor) -> &mut Self {
         self.window_descriptor = Some(window_descriptor);
         println!("window descriptor is: {:?}", self.window_descriptor);
         self

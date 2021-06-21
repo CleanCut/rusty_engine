@@ -2,7 +2,7 @@ use rusty_engine::prelude::*;
 
 fn main() {
     let mut game = Game::new();
-    game.window_descriptor(WindowDescriptor {
+    game.window_settings(WindowDescriptor {
         width: 800.0,
         height: 200.0,
         resize_constraints: WindowResizeConstraints {
