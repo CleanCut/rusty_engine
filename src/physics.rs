@@ -134,7 +134,7 @@ impl Collider {
     fn relative_to(&self, actor: &Actor) -> Vec<Vec2> {
         self.rotated(actor.rotation)
             .iter()
-            .map(|&v| v + actor.translation)
+            .map(|&v| v * actor.scale + actor.translation) // scale & translation
             .collect()
     }
     pub fn colliding(actor1: &Actor, actor2: &Actor) -> bool {
