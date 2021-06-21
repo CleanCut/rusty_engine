@@ -6,4 +6,25 @@ Race your car (or cars) down the road.  Your car (or cars) are on the left side 
 
 This scenario can be extended to 2 players.
 
-1. Create your project and add `rusty_engine` as a dependency in your `Cargo.toml`
+## Common Setup
+
+1. Follow the instructions in the [Common Setup]() section of the scenarios readme to set up the skeleton of the project.
+
+## Game Initialization
+
+In your `// setup goes here` section of `main()`...
+
+1. Create an actor using the `.add_actor()` method of `Game`
+  1. Label it `"player1"`
+  1. Use the preset `ActorPreset::RacingCarBlue`
+  1. Set its translation so it is near the left side of the screen.
+1. Create 
+
+
+## Gameplay Logic
+
+In your `game_logic(...)` function...
+
+1. Use 
+
+

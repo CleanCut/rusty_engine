@@ -6,4 +6,18 @@ You are at a carnival booth. Cars float across the back of the booth, occasional
 
 This scenario can be extended to 2 players.
 
-1. Create your project and add `rusty_engine` as a dependency in your `Cargo.toml`
+## Common Setup
+
+1. Follow the instructions in the [Common Setup]() section of the scenarios readme to set up the skeleton of the project.
+
+## Game Initialization
+
+In your `// setup goes here` section of `main()`...
+
+1.
+
+## Gameplay Logic
+
+In your `game_logic(...)` function...
+
+1. 
