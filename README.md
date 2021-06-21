@@ -31,7 +31,7 @@ If you are using Linux or Windows Subsystem for Linux 2, please visit Bevy's [In
 
 ```toml
 # In your [dependencies] section of Cargo.toml
-rusty_engine = "0.12.0"
+rusty_engine = "0.13.0"
 ```
 
 See also the [code examples]() and the [API documentation](https://docs.rs/rusty_engine/latest/rusty_engine/)

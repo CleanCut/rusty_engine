@@ -1,6 +1,8 @@
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [0.13.0] - 2021-06-21
+
 ### Added
 
 - All the basic [features for 1.0](https://github.com/CleanCut/rusty_engine/issues/9)
@@ -20,6 +22,7 @@
 
 [Bevy]: https://bevyengine.org
 <!-- next-url -->
-[Unreleased]: https://github.com/assert-rs/predicates-rs/compare/v0.12.0...HEAD
+[Unreleased]: https://github.com/assert-rs/predicates-rs/compare/v0.13.0...HEAD
+[0.13.0]: https://github.com/assert-rs/predicates-rs/compare/v0.12.0...v0.13.0
 [0.12.0]: https://github.com/cleancut/rusty_engine/compare/v0.11.0...v0.12.0
 [0.11.0]: https://github.com/cleancut/rusty_engine/compare/v0.10.0...v0.11.0
