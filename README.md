@@ -6,6 +6,8 @@ Rusty Engine is a simple, 2D game engine for those who are learning Rust. Create
 
 [Questions], [bug reports], and contributions are most welcome!
 
+https://user-images.githubusercontent.com/5838512/122880590-651bae00-d2f7-11eb-8e5c-4810b3777828.mp4
+
 ## Features
 
 - Sprites (2D images)
