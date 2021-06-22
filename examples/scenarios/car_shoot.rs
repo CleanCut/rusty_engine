@@ -23,6 +23,13 @@ fn main() {
         .audio_manager
         .play_music(MusicPreset::Classy8Bit, 0.1);
 
+    // Marbles left
+    for i in 0..3 {
+        game.game_state_mut()
+            .string_vec
+            .push(format!("marble{}", i));
+    }
+
     // Cars left in level
     for i in 0..25 {
         game.game_state_mut().u32_vec.push(i);
@@ -33,7 +40,6 @@ fn main() {
     game.run(game_logic);
 }
 
-const MAX_MARBLES: usize = 3;
 const MARBLE_SPEED: f32 = 600.0;
 const CAR_SPEED: f32 = 300.0;
 
@@ -45,20 +51,12 @@ fn game_logic(game_state: &mut GameState) {
     }
 
     // Shoot marbles!
-    let num_marbles = game_state
-        .actors
-        .keys()
-        .filter(|a| a.starts_with("marble"))
-        .count();
-    if num_marbles < MAX_MARBLES {
-        for event in game_state.mouse_button_events.clone() {
-            if !matches!(event.state, ElementState::Pressed) {
-                continue;
-            }
-            // Choose a number unlikely to collide
-            let i: u64 = thread_rng().gen_range(0..1000000000);
-            let label = format!("marble{}", i);
-            // Create the marble
+    for event in game_state.mouse_button_events.clone() {
+        if !matches!(event.state, ElementState::Pressed) {
+            continue;
+        }
+        // Create the marble
+        if let Some(label) = game_state.string_vec.pop() {
             let player_x = game_state.actors.get_mut("player").unwrap().translation.x;
             let marble = game_state.add_actor(label, RollingBallBlue);
             marble.translation.y = -275.0;
@@ -87,6 +85,9 @@ fn game_logic(game_state: &mut GameState) {
     }
     for label in labels_to_delete {
         game_state.actors.remove(&label);
+        if label.starts_with("marble") {
+            game_state.string_vec.push(label);
+        }
     }
 
     // Move cars across the screen
@@ -144,6 +145,12 @@ fn game_logic(game_state: &mut GameState) {
         }
         game_state.actors.remove(&event.pair.0);
         game_state.actors.remove(&event.pair.1);
+        if event.pair.0.starts_with("marble") {
+            game_state.string_vec.push(event.pair.0);
+        }
+        if event.pair.1.starts_with("marble") {
+            game_state.string_vec.push(event.pair.1);
+        }
         game_state.audio_manager.play_sfx(SfxPreset::Confirmation1);
     }
 }
