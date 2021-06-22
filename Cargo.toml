@@ -36,3 +36,7 @@ log = "0.4"
 
 [dev-dependencies]
 env_logger = "0.8"
+
+[[example]]
+name = "road_race"
+path = "examples/scenarios/road_race.rs"
