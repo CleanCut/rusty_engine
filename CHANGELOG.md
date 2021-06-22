@@ -1,6 +1,8 @@
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [1.0.2] - 2021-06-22
+
 ### Changes
 
 - Added Car Shoot reference implementation (still needs a scenario writeup)
@@ -49,7 +51,8 @@
 
 [Bevy]: https://bevyengine.org
 <!-- next-url -->
-[Unreleased]: https://github.com/assert-rs/predicates-rs/compare/v1.0.1...HEAD
+[Unreleased]: https://github.com/assert-rs/predicates-rs/compare/v1.0.2...HEAD
+[1.0.2]: https://github.com/assert-rs/predicates-rs/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/assert-rs/predicates-rs/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/assert-rs/predicates-rs/compare/v0.13.0...v1.0.0
 [0.13.0]: https://github.com/assert-rs/predicates-rs/compare/v0.12.0...v0.13.0
