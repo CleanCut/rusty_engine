@@ -65,7 +65,8 @@ Make it so you can move the player up and down
 
 // Direction player1 is moving vertically. 1 is up, 0 is not moving, -1 is down.
 let direction = game_state.i32_map.entry("direction".into()).or_insert(0);
-// Respond to keyboard events and set the deriction
+
+// Respond to keyboard events and set the direction
 for event in game_state.keyboard_events.drain(..) {
     match event.state {
         ElementState::Pressed => {
@@ -158,8 +159,145 @@ for actor in game_state.actors.values_mut() {
 }
 ```
 
-Now it's
-1. 
+Now it's time to add some obstacles. Interesting obstacles will be in random locations, so first we need to:
+1. Add `rand` to the `[dependencies]` section of `Cargo.toml`
+1. In `main.rs` add `use rand::prelude::*` to the top of your file.  While we're adding `use` statements, go ahead and add `use ActorPreset::*;` as well since we'll be using a bunch of presets.
+1. In the `main()` function, in your `// setup goes here` section:
+1. Make a vactor of some `ActorPreset` variants to use as obstacles.
+    * `let obstacle_presets = vec![RacingBarrelBlue, RacingBarrelRed, RacingConeStraight];`
+    * You can add more variants than that, depending how challenging you would like the game to be.
+1. Loop through the presets, enumerating them so you have their index.
+    * `for (i, preset) in obstacle_presets.into_iter().enumerate() { }`
+    1. For each preset:
+        1. Add an actor with that preset and a label that starts with `"obstacle"`, and ends with `i`. (Use the `format!()` macro to construct the label string).
+        1. Set the actor's `layer` to `50.0` so that the obstacle will be on top of road lines, but underneath the player.
+        1. set the actor's `collision` to `true` so that it will generate collision events with the race car.
+        1. Set the `x` location to a random value between `800.0` and `1600.0` using `thread_rng()`
+        * `actor.translation.x = thread_rng().gen_range(800.0..1600.0);`
+        1. Do the same for `y`, only between `-300.0` and `300.0`
+
+```rust
+// in main()
+let obstacle_presets = vec![RacingBarrelBlue, RacingBarrelRed, RacingConeStraight];
+for (i, preset) in obstacle_presets.into_iter().enumerate() {
+    let actor = game.add_actor(format!("obstacle{}", i), preset);
+    actor.layer = 50.0;
+    actor.collision = true;
+    actor.translation.x = thread_rng().gen_range(800.0..1600.0);
+    actor.translation.y = thread_rng().gen_range(-300.0..300.0);
+}
+```
+
+The obstacles need to move!  In the `game_logic()` function:
+1. Inside the same loop that moves the road lines, add another `if` expression that does the following if the actor's `label` starts with `"obstacle"`:
+    1. Updates the actor's `translation.x` the same as we did with the road lines
+    1. If the `translation.x` value is less than `-800.0`, then set both the `x` and `y` values to new random values in the same ranges as before (you can copy-and-paste the same lines setting random values as in the last section)
+1. Try it out! Obstacles should now appear, which the race car can avoid.
+
+```rust
+if actor.label.starts_with("obstacle") {
+    actor.translation.x -= ROAD_SPEED * game_state.delta_seconds;
+    if actor.translation.x < -800.0 {
+        actor.translation.x = thread_rng().gen_range(800.0..1600.0);
+        actor.translation.y = thread_rng().gen_range(-300.0..300.0);
+    }
+}
+```
+
+The race car is currently invincible. Before we can fix that, the car needs to have health to lose!
+1. In `main()`, insert a `"health_amount"` key into the `u8_map` with the value `5`. This is where we will store the amount of health for the player.
+1. Then add a `TextActor` using the `add_text_actor()` method with the label `"health_message"` and the text `"Health: 5"`.
+    * Set the text actor's `translation` to `Vec2::new(550.0, 320.0)`
+    * `TextActor`s are very similar to `Actor`s, only instead of a sprite and collisions, `TextActor`s have text to render and a font size to adjust.  Both of them have a `label` to retrieve them by and a `translation` for placement.
+
+```rust
+// in main()
+
+// Create the health amount and health message
+game.game_state_mut()
+    .u8_map
+    .insert("health_amount".into(), 5);
+let health_message = game.add_text_actor("health_message", "Health: 5");
+health_message.translation = Vec2::new(550.0, 320.0);
+```
+
+Now we can actually lose health! At **_the top_** of the `game_logic()` function we are going to handle the case when we've _already_ lost by effectively pausing the game:
+1. Get a mutable reference to the health message text actor we created above.
+    * `let health_amount = game_state.u8_map.get_mut("health_amount").unwrap();`
+1. If `*health_amount` is zero, then return from the function.
+    * This effectively halts the game, and whatever is on the screen will just sit there.
+
+```rust
+/// at the *top* of game_logic()
+
+// Pause if we have already lost
+let health_amount = game_state.u8_map.get_mut("health_amount").unwrap();
+if *health_amount == 0 {
+    return;
+}
+```
+
+Now we need to actually handle the health.  At **_the bottom_** of the `game_logic()` function we'll finally deal with collisions:
+1. Get a mutable reference to the health message we created
+    * `let health_message = game_state.text_actors.get_mut("health_message").unwrap();`
+1. Loop through all the `collision_events`.
+    1. Ignore events (by doing a `continue` in the for loop) that contain "player1" in the collision pair or where the event state is the ending of a collision.
+        * `if !event.pair.contains("player1") || event.state.is_end() { continue; }`
+    1. If `*health_amount` is greater than `0` (we don't want to try to subtract from an unsigned number without checking first)
+        1. Subtract `1` from `*health_amount`
+        1. Set `health_message` to the string "Health: {}", where "{}" is the value of `*health-amount`.
+        1. Use the `audio_manager` to play `SfxPreset::Impact3`
+1. Try it!  The game should mostly work, just with a sort of odd, frozen ending, with music still playing.
+
+```rust
+// Deal with collisions
+let health_message = game_state.text_actors.get_mut("health_message").unwrap();
+for event in game_state.collision_events.drain(..) {
+    // We don't care if obstacles collide with each other or collisions end
+    if !event.pair.contains("player1") || event.state.is_end() {
+        continue;
+    }
+    if *health_amount > 0 {
+        *health_amount -= 1;
+        health_message.text = format!("Health: {}", *health_amount);
+        game_state.audio_manager.play_sfx(SfxPreset::Impact3);
+    }
+}
+```
+
+Also, let's not let the player cheat by driving completely off the screen to avoid obstacles! In the `game_logic()` function:
+1. Find the place where we get the mutable reference to `player1` and move him up or down.
+1. Right after the logic where you've moved `player1`, but while you still have access to the mutable reference to `player1`:
+    1. If the player's `translation.y` value is greater than `360.0` or lower than `-360.0`, then set `*health_amount` to `0`
+
+```rust
+if player1.translation.y < -360.0 || player1.translation.y > 360.0 {
+    *health_amount = 0;
+}
+```
+
+Finally, at the very end of the `game_logic()` function we can do a bit of cleanup if we just lost.
+1. If `*health_amount` is `0`
+    1. Create a text actor, and set its text to `"Game Over"`
+    1. Using the mutable reference from creating the text actor, set its `font_size` to `128.0` (if this crashes on your system, reduce the font size to a smaller number)
+    1. Use the `audio_manager` to stop the music.
+    1. Use the `audio_manager` to play `SfxPreset::Jingle3` (it's a sad sound)
+1. Try it!
+
+```rust
+if *health_amount == 0 {
+    let game_over = game_state.add_text_actor("game over", "Game Over");
+    game_over.font_size = 128.0;
+    game_state.audio_manager.stop_music();
+    game_state.audio_manager.play_sfx(SfxPreset::Jingle3);
+}
+```
+
+That's it! You've done it!  At this point you should have a fully-functional game prototype.  Feel free to continue changing things and having some fun.  I have included a list of challenge ideas to get you thinking about other things you could do.
+
+# Troubleshooting
+
+Having trouble getting the scenario above to work?  Check out the [reference implementation](https://github.com/CleanCut/rusty_engine/blob/main/examples/scenarios/road_race.rs)
 
 # Challenges
 
@@ -176,4 +314,14 @@ Now it's
     * Hazard A: Oil Slick - car is unable to control movement
     * Hazard B: Anti-Powerup - hitting the anti-powerup causes a new type of obstacle to appear
     * Hazard C: Afterburners - road speed increases
+* Polish
+    * Make the car turn (rotate) smoothly instead of suddenly, and have the speed the car moves in the y direction vary proportianally to how much the car is rotated.
+    * Randomize the rotation of the obstacles
+    * Add support for driving the car via mouse input
+    * Add controls to change or turn off the music
+    * Add text indicators of things that happen (collisions, powerups, etc.)
+    * Add the ability to pause and resume the game
+    * Collect points for every obstacle that you pass, display the score in the corner during the game, add an end screen showing the final score.
+    * Instead of ignoring obstacles that collide with each other, take one of the colliding items and set it to a new random starting position.
+    * Make it so you can't hit the same obstacle twice
 
