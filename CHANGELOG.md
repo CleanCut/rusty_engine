@@ -1,6 +1,11 @@
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixed
+
+- Fixed a bug in the `Hash` trait implementation for `CollisionPair`
+- Fixed clippy warnings
+
 ## [1.0.0] - 2021-06-22
 
 ### Everything
