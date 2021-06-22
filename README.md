@@ -53,7 +53,7 @@ use rusty_engine::prelude::*;
 fn main() {
     let mut game = Game::new();
     // Use `game` to initialize starting state.
-    let race_car: &mut Actor = game.add_actor("race car", ActorPreset::RacingCarRed);
+    let race_car: &mut Actor = game.add_actor("race car", ActorPreset::RacingCarYellow);
     race_car.translation = Vec2::new(-100.0, -100.0);
     race_car.rotation = NORTH_EAST;
     race_car.scale = 2.0;
@@ -67,6 +67,9 @@ fn game_logic(game_state: &mut GameState) {
 }
 
 ```
+
+<img width="1392" alt="Screen Shot 2021-06-22 at 1 10 04 AM" src="https://user-images.githubusercontent.com/5838512/122879972-b5ded700-d2f6-11eb-9066-99d5b56fcd3a.png">
+
 
 See also the [game scenarios](https://github.com/CleanCut/rusty_engine/tree/main/scenarios), [code examples](https://github.com/CleanCut/rusty_engine/tree/main/examples) and the [API documentation](https://docs.rs/rusty_engine/latest/rusty_engine/)
 
