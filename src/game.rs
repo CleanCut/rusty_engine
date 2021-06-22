@@ -26,7 +26,7 @@ lazy_static! {
 pub struct Game {
     app_builder: AppBuilder,
     game_state: GameState,
-    window_descriptor: Option<WindowDescriptor>,
+    window_descriptor: WindowDescriptor,
 }
 
 impl Default for Game {
@@ -34,7 +34,10 @@ impl Default for Game {
         Self {
             app_builder: App::build(),
             game_state: GameState::default(),
-            window_descriptor: None,
+            window_descriptor: WindowDescriptor {
+                title: "Rusty Engine".into(),
+                ..Default::default()
+            },
         }
     }
 }
@@ -88,7 +91,7 @@ impl Game {
     /// [window](https://github.com/CleanCut/rusty_engine/blob/main/examples/window.rs) example for
     /// more information.
     pub fn window_settings(&mut self, window_descriptor: WindowDescriptor) -> &mut Self {
-        self.window_descriptor = Some(window_descriptor);
+        self.window_descriptor = window_descriptor;
         debug!("window descriptor is: {:?}", self.window_descriptor);
         self
     }
@@ -132,10 +135,8 @@ impl Game {
     /// game.run(|_| {});
     /// ```
     pub fn run(&mut self, func: GameLogicFunction) {
-        if let Some(window_descriptor) = self.window_descriptor.clone() {
-            self.app_builder
-                .insert_resource::<WindowDescriptor>(window_descriptor);
-        }
+        self.app_builder
+            .insert_resource::<WindowDescriptor>(self.window_descriptor.clone());
         self.app_builder
             // Built-ins
             .add_plugins_with(DefaultPlugins, |group| {
