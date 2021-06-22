@@ -11,6 +11,7 @@
 - Improved `GameState` and `CollisionState` by adding some methods
 - Made volume configurable when starting to play music
 - Made a way to stop playing music
+- Added instructions for how to download assets
 
 ## [0.13.0] - 2021-06-21
 

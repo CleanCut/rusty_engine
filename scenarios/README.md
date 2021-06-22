@@ -6,7 +6,17 @@ Here are some interesting scenarios that you can use to walk through building a 
 
 All scenarios assume you've followed the basic setup below.  All scenarios assume default window width and height. If your screen is too small to accomodate a `1280 x 720` window or if you [customized the window settings](https://github.com/bevyengine/bevy/blob/main/examples/window/window_settings.rs) then you may have to adapt the translation coordinates and other numerical variables in the scenario to account for the difference.
 
-1. Create your project. Give it a fun name!
+First, create your project and download the `rusty_engine` assets
+1. Create your project with `cargo new somename`. Replace `somename` with a fun name!
+1. Download the asset packs. I can think of 3 easy ways to do this:
+    1. Clone the `rusty_engine` repository and copy the `assets/` directory over to your own project
+    1. Download a [zip file](https://github.com/CleanCut/rusty_engine/archive/refs/heads/main.zip) or [tarball](https://github.com/CleanCut/rusty_engine/archive/refs/heads/main.tar.gz) of the `rusty_engine` repository, extract it, and copy the `assets/` directory over to your own project.
+    1. On a posix compatible shell, run this command inside your project directory:
+```shell
+curl -L https://github.com/CleanCut/rusty_engine/archive/refs/heads/main.tar.gz | tar -zxv --strip-components=1 rusty_engine-main/assets
+```
+
+Next, set up the skeleton of your project:
 1. Add `rusty_engine` as a dependency in your `Cargo.toml`
     1. Forgot the latest version number?  You can always peek at [the `rusty_engine` page on Crates.io](https://crates.io/crates/rusty_engine)
     1. It's recommended to leave off the "patch" version number, ie use version number`6.7` not `6.7.8`.
@@ -22,12 +32,12 @@ Now you're ready to proceed with your scenario!
 
 ## Scenarios...
 
-- [Cannon Practice](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/cannon_practice.md)
-- [Car Invaders](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/car_invaders.md)
-- [Car Shoot](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/car_shoot.md)
-- [Driver's Ed](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/drivers_ed.md)
-- [Labrinth](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/labrinth.md)
-- [Road Race](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/road_race.md) - Easy
+1. [Road Race](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/road_race.md) - Easy
+1. [Cannon Practice](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/cannon_practice.md)
+1. [Car Invaders](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/car_invaders.md)
+1. [Car Shoot](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/car_shoot.md)
+1. [Driver's Ed](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/drivers_ed.md)
+1. [Labrinth](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/labrinth.md)
 
 **Difficulty Levels**
 - Easy - Most of the code is included. Lots of details.  Straightforward implementation.
