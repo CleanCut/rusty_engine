@@ -40,8 +40,6 @@ Make it so you can move the player up and down
         * `let direction: &mut i32 = game_state.i32_map.entry("direction".into()).or_insert(0);`
         * Now we can use `*direction` to read or write our direction integer.
     1. `1` means up (positive `y` direction). `0` means not moving up or down. `-1` means down (negative `y` direction)
-    1. Try it! If you hard-code a direction (`*direction = 1;`) you should see the car move off of the screen.
-        * Don't forget to remove the hard-coded direction when you are done testing!
  1. Time for keyboard input! We will move the car up and down with the arrow keys (or you can pick some other keys)
     1. Add a `for` loop that loops over all the keyboard events using `.drain(..)`, which empties out the `Vec` but doesn't consume it.  (We couldn't consume that vector even if we wanted to because we don't own it!)
         * `for event in game_state.keyboard_events.drain(..) {  }`
