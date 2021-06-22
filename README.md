@@ -68,6 +68,8 @@ fn game_logic(game_state: &mut GameState) {
 
 ```
 
+Run your game with `cargo run --release`!
+
 <img width="1392" alt="Screen Shot 2021-06-22 at 1 10 04 AM" src="https://user-images.githubusercontent.com/5838512/122879972-b5ded700-d2f6-11eb-9066-99d5b56fcd3a.png">
 
 
