@@ -1,6 +1,10 @@
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Changes
+
+- Fixed an incompatibility with Rust versions `< 1.53.0`
+
 ## [1.0.2] - 2021-06-22
 
 ### Changes

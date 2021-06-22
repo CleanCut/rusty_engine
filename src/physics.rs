@@ -202,7 +202,7 @@ impl Collider {
             let poly2 = actor2.collider.relative_to(actor2);
             // Polygon intersection algorithm adapted from
             // https://stackoverflow.com/questions/10962379/how-to-check-intersection-between-2-rotated-rectangles
-            for poly in [poly1.clone(), poly2.clone()] {
+            for poly in vec![poly1.clone(), poly2.clone()] {
                 for (idx, &p1) in poly.iter().enumerate() {
                     let p2 = poly[(idx + 1) % poly.len()];
                     let normal = Vec2::new(p2.y - p1.y, p1.x - p2.x);
