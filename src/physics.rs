@@ -1,6 +1,6 @@
 use crate::actor::Actor;
 use bevy::prelude::*;
-use std::collections::HashSet;
+use std::{collections::HashSet, hash::Hash};
 
 pub struct PhysicsPlugin;
 
@@ -38,8 +38,15 @@ impl CollisionState {
     }
 }
 
-#[derive(Debug, Default, Eq, Hash, Clone)]
+#[derive(Debug, Default, Eq, Clone)]
 pub struct CollisionPair(String, String);
+
+impl CollisionPair {
+    pub fn contains<T: Into<String>>(&self, label: T) -> bool {
+        let label = label.into();
+        (self.0 == label) || (self.1 == label)
+    }
+}
 
 impl PartialEq for CollisionPair {
     fn eq(&self, other: &Self) -> bool {
@@ -47,10 +54,17 @@ impl PartialEq for CollisionPair {
     }
 }
 
-impl CollisionPair {
-    pub fn contains<T: Into<String>>(&self, label: T) -> bool {
-        let label = label.into();
-        (self.0 == label) || (self.1 == label)
+impl Hash for CollisionPair {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        // Make sure we return the same hash no matter which position the same two strings might be
+        // in (so we match our PartialEq implementation)
+        if self.0 < self.1 {
+            self.0.hash(state);
+            self.1.hash(state);
+        } else {
+            self.1.hash(state);
+            self.0.hash(state);
+        }
     }
 }
 
@@ -75,7 +89,7 @@ fn collision_detection(
 
     let beginning_collisions: Vec<_> = current_collisions
         .difference(&existing_collisions)
-        .map(|x| x.clone())
+        .cloned()
         .collect();
 
     collision_events.send_batch(beginning_collisions.iter().map(|p| CollisionEvent {
@@ -89,7 +103,7 @@ fn collision_detection(
 
     let ending_collisions: Vec<_> = existing_collisions
         .difference(&current_collisions)
-        .map(|x| x.clone())
+        .cloned()
         .collect();
 
     collision_events.send_batch(ending_collisions.iter().map(|p| CollisionEvent {
@@ -126,7 +140,7 @@ impl Collider {
         ])
     }
     pub fn poly<T: Into<Vec2> + Copy>(points: &[T]) -> Self {
-        Self::Poly(points.into_iter().map(|&x| x.into()).collect())
+        Self::Poly(points.iter().map(|&x| x.into()).collect())
     }
     pub fn circle_custom(radius: f32, vertices: usize) -> Self {
         let mut points = vec![];
@@ -143,10 +157,7 @@ impl Collider {
         Self::circle_custom(radius, 16)
     }
     pub fn is_poly(&self) -> bool {
-        match self {
-            Self::Poly(_) => true,
-            _ => false,
-        }
+        matches!(self, Self::Poly(_))
     }
     fn rotated(&self, rotation: f32) -> Vec<Vec2> {
         let mut rotated_points = Vec::new();

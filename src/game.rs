@@ -256,7 +256,7 @@ fn setup(
 }
 
 // system - the magic that connects Rusty Engine to Bevy, frame by frame
-#[allow(clippy::type_complexity)]
+#[allow(clippy::type_complexity, clippy::too_many_arguments)]
 fn game_logic_sync(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
