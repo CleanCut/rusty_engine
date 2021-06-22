@@ -23,11 +23,11 @@ I teach courses which use this game engine:
 - `Ultimate Rust 2: Intermediate Concepts` on Udemy, etc. Coming soon!
 - [Rust in 3 Weeks](https://agileperception.com) conducted live on O'Reilly Online.
 
-### Linux Dependencies (Including WSL 2)
+## Linux Dependencies (Including WSL 2)
 
 If you are using Linux or Windows Subsystem for Linux 2, please visit Bevy's [Installing Linux Dependencies](https://github.com/bevyengine/bevy/blob/main/docs/linux_dependencies.md) page and follow the instructions to install needed dependencies.
 
-### Using Rusty Engine
+## Example
 
 Download the asset packs (unless you don't want to use any assets). I can think of 3 easy ways to do this:
 1. Clone the `rusty_engine` repository and copy/move the `assets/` directory over to your own project
