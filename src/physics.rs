@@ -17,10 +17,25 @@ pub struct CollisionEvent {
     pub pair: CollisionPair,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub enum CollisionState {
     Begin,
     End,
+}
+
+impl CollisionState {
+    pub fn is_begin(&self) -> bool {
+        match self {
+            CollisionState::Begin => true,
+            CollisionState::End => false,
+        }
+    }
+    pub fn is_end(&self) -> bool {
+        match self {
+            CollisionState::Begin => false,
+            CollisionState::End => true,
+        }
+    }
 }
 
 #[derive(Debug, Default, Eq, Hash, Clone)]
@@ -29,6 +44,13 @@ pub struct CollisionPair(String, String);
 impl PartialEq for CollisionPair {
     fn eq(&self, other: &Self) -> bool {
         ((self.0 == other.0) && (self.1 == other.1)) || ((self.0 == other.1) && (self.1 == other.0))
+    }
+}
+
+impl CollisionPair {
+    pub fn contains<T: Into<String>>(&self, label: T) -> bool {
+        let label = label.into();
+        (self.0 == label) || (self.1 == label)
     }
 }
 

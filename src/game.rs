@@ -205,6 +205,37 @@ impl GameState {
     pub fn exit(&mut self) {
         self.should_exit = true;
     }
+
+    #[must_use]
+    /// Add an [`Actor`]. Use the `&mut Actor` that is returned to set the translation, rotation,
+    /// etc. Attempting to add two actors with the same label will crash.
+    pub fn add_actor<T: Into<String>>(&mut self, label: T, preset: ActorPreset) -> &mut Actor {
+        let label = label.into();
+        self.actors
+            .insert(label.clone(), preset.build(label.clone()));
+        // Unwrap: Can't crash because we just inserted the actor
+        self.actors.get_mut(&label).unwrap()
+    }
+
+    #[must_use]
+    /// Add a [`TextActor`]. Use the `&mut TextActor` that is returned to set the translation,
+    /// rotation, etc. Attempting to add two text actors with the same label will crash.
+    pub fn add_text_actor<T, S>(&mut self, label: T, text: S) -> &mut TextActor
+    where
+        T: Into<String>,
+        S: Into<String>,
+    {
+        let label = label.into();
+        let text = text.into();
+        let text_actor = TextActor {
+            label: label.clone(),
+            text,
+            ..Default::default()
+        };
+        self.text_actors.insert(label.clone(), text_actor);
+        // Unwrap: Can't crash because we just inserted the actor
+        self.text_actors.get_mut(&label).unwrap()
+    }
 }
 
 // startup system - grab window settings, initialize all the starting actors
