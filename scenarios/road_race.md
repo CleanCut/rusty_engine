@@ -16,17 +16,17 @@ This scenario can be extended to 2 players.
 In your `// setup goes here` section of `main()`...
 
 1. Create an actor using the `.add_actor()` method of `Game`  (`.add_actor()` returns a mutable reference to the actor you can use to access its fields)
-  * Label it `"player1"`
-  * Use the preset `ActorPreset::RacingCarBlue`
-  * `let player1 = game.add_actor("player1", ActorPreset::RacingCarBlue);`
+   1. Label it `"player1"`
+   1. Use the preset `ActorPreset::RacingCarBlue`
+   * `let player1 = game.add_actor("player1", ActorPreset::RacingCarBlue);`
 1. Set the following attributes on the `player1` actor via the mutable reference:
-  * Set `translation.x` to `-500.0` so the car will be near the left side of the screen
-    * `player1.translation.x = -500.0;`
-  * Set the player's `layer` to `100.0` so it will be on top of other sprites by default (higher layers are rendered on top of lower layers)
-    * `player1.layer = 100.0;`
-  * Set the player's `collision` to `true` so that `player1` will detect collisions with other actors.
+   1. Set `translation.x` to `-500.0` so the car will be near the left side of the screen
+      * `player1.translation.x = -500.0;`
+   1. Set the player's `layer` to `100.0` so it will be on top of other sprites by default (higher layers are rendered on top of lower layers)
+      * `player1.layer = 100.0;`
+   1. Set the player's `collision` to `true` so that `player1` will detect collisions with other actors.
 1. Play some music in the background of the game if you like!  The recommended music for this scenario is `MusicPreset::WhimsicalPopsicle` at 20% volume.
-  * `game.game_state_mut().audio_manager.play_music(MusicPreset::WhimsicalPopsicle, 0.2);`
+   * `game.game_state_mut().audio_manager.play_music(MusicPreset::WhimsicalPopsicle, 0.2);`
 1. Try it! You should hear your music and see a blue race car on the left side of the screen.
 
 ## Gameplay Logic
