@@ -1,8 +1,12 @@
+If you like Rusty Engine, please sponsor me [on GitHub] or [on Patreon], or [take one of my courses](https://agileperception.com). 💖
+
 # Rusty Engine
 
 Rusty Engine is a simple, 2D game engine for those who are learning Rust. Create simple game prototypes using straightforward Rust code without any advanced game engine concepts! It works on macOS, Linux, and Windows. Rusty Engine is a simplification wrapper over [Bevy], which I encourage you to use directly for more serious game engine needs.
 
 [Questions], [bug reports], and contributions are most welcome!
+
+https://user-images.githubusercontent.com/5838512/122880590-651bae00-d2f7-11eb-8e5c-4810b3777828.mp4
 
 ## Features
 
@@ -23,11 +27,11 @@ I teach courses which use this game engine:
 - `Ultimate Rust 2: Intermediate Concepts` on Udemy, etc. Coming soon!
 - [Rust in 3 Weeks](https://agileperception.com) conducted live on O'Reilly Online.
 
-### Linux Dependencies (Including WSL 2)
+## Linux Dependencies (Including WSL 2)
 
 If you are using Linux or Windows Subsystem for Linux 2, please visit Bevy's [Installing Linux Dependencies](https://github.com/bevyengine/bevy/blob/main/docs/linux_dependencies.md) page and follow the instructions to install needed dependencies.
 
-### Using Rusty Engine
+## Example
 
 Download the asset packs (unless you don't want to use any assets). I can think of 3 easy ways to do this:
 1. Clone the `rusty_engine` repository and copy/move the `assets/` directory over to your own project
@@ -53,7 +57,7 @@ use rusty_engine::prelude::*;
 fn main() {
     let mut game = Game::new();
     // Use `game` to initialize starting state.
-    let race_car: &mut Actor = game.add_actor("race car", ActorPreset::RacingCarRed);
+    let race_car: &mut Actor = game.add_actor("race car", ActorPreset::RacingCarYellow);
     race_car.translation = Vec2::new(-100.0, -100.0);
     race_car.rotation = NORTH_EAST;
     race_car.scale = 2.0;
@@ -67,6 +71,11 @@ fn game_logic(game_state: &mut GameState) {
 }
 
 ```
+
+Run your game with `cargo run --release`!
+
+<img width="1392" alt="Screen Shot 2021-06-22 at 1 10 04 AM" src="https://user-images.githubusercontent.com/5838512/122879972-b5ded700-d2f6-11eb-9066-99d5b56fcd3a.png">
+
 
 See also the [game scenarios](https://github.com/CleanCut/rusty_engine/tree/main/scenarios), [code examples](https://github.com/CleanCut/rusty_engine/tree/main/examples) and the [API documentation](https://docs.rs/rusty_engine/latest/rusty_engine/)
 
@@ -85,10 +94,6 @@ One notable exception is some of the music files, which are under a different li
 Distributed under the terms of both the MIT license and the Apache License (Version 2.0).
 
 See [license/APACHE](license/APACHE) and [license/MIT](license/MIT).
-
-## Sponsor
-
-If you like Rusty Engine, please sponsor me [on GitHub] or [on Patreon]. 💖
 
 [CPAL]: https://github.com/RustAudio/cpal
 [Questions]: https://github.com/CleanCut/rusty_engine/discussions
