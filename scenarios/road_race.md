@@ -16,15 +16,15 @@ This scenario can be extended to 2 players.
 In your `// setup goes here` section of `main()`...
 
 1. Create an actor using the `.add_actor()` method of `Game`  (`.add_actor()` returns a mutable reference to the actor you can use to access its fields)
-  1. Label it `"player1"`
-  1. Use the preset `ActorPreset::RacingCarBlue`
+  * Label it `"player1"`
+  * Use the preset `ActorPreset::RacingCarBlue`
   * `let player1 = game.add_actor("player1", ActorPreset::RacingCarBlue);`
 1. Set the following attributes on the `player1` actor via the mutable reference:
-  1. Set `translation.x` to `-500.0` so the car will be near the left side of the screen
+  * Set `translation.x` to `-500.0` so the car will be near the left side of the screen
     * `player1.translation.x = -500.0;`
-  1. Set the player's `layer` to `100.0` so it will be on top of other sprites by default (higher layers are rendered on top of lower layers)
+  * Set the player's `layer` to `100.0` so it will be on top of other sprites by default (higher layers are rendered on top of lower layers)
     * `player1.layer = 100.0;`
-  1. Set the player's `collision` to `true` so that `player1` will detect collisions with other actors.
+  * Set the player's `collision` to `true` so that `player1` will detect collisions with other actors.
 1. Play some music in the background of the game if you like!  The recommended music for this scenario is `MusicPreset::WhimsicalPopsicle` at 20% volume.
   * `game.game_state_mut().audio_manager.play_music(MusicPreset::WhimsicalPopsicle, 0.2);`
 1. Try it! You should hear your music and see a blue race car on the left side of the screen.
@@ -117,20 +117,13 @@ if let Some(player1) = game_state.actors.get_mut("player1") {
 }
 ```
 
-1. It doesn't really look like the car is driving down a road, yet. Let's fix that by adding painted lines on the road. Back up in the `main()` function in the `// setup goes here` section:
-  1. Loop 10 times: `for i in 0..10 { }`, and each time through the loop:
-    1. Add an actor with the label `roadline{}` (substitute in `i` for the curly braces), and preset `ActorPreset::RacingBarrierWhite` and set:
-    1. the `scale` to `0.1`
-    1. the `translation.x` to `-600.0 + 150.0 * i as f32`, where `i` is the index number of the road line.
-  1. Add a constant near the top of your `main.rs` file called `ROAD_SPEED` and set it to `400.0`. This represents the speed our car is moving horizontally (even though it's "the road" that we're going to move)
-    * `const ROAD_SPEED: f32 = 400.0;`
-1. Back at the bottom of `game_logic()`
-  1. Loop through all the `actors` HashMap values with `actors.values_mut()` using a mutable reference, and:
-    1. If the `actor.label` starts with `"player1"`, then:
-      * Subtract `ROAD_SPEED * game_state.delta_seconds` from `translation.x`
-    1. If the actor's `translation.x` is less than `-675.0` (meaning it has gone off the left side of the screen) then add `1500.0` to it  (moving it off the right side of the screen), so it can rush across the screen again.
-
-
+It doesn't really look like the car is driving down a road, yet. Let's fix that by adding painted lines on the road. Back up in the `main()` function in the `// setup goes here` section:
+1. Loop 10 times: `for i in 0..10 { }`, and each time through the loop:
+  1. Add an actor with the label `roadline{}` (substitute in `i` for the curly braces), and preset `ActorPreset::RacingBarrierWhite` and set:
+  1. the `scale` to `0.1`
+  1. the `translation.x` to `-600.0 + 150.0 * i as f32`, where `i` is the index number of the road line.
+1. Add a constant near the top of your `main.rs` file called `ROAD_SPEED` and set it to `400.0`. This represents the speed our car is moving horizontally (even though it's "the road" that we're going to move)
+  * `const ROAD_SPEED: f32 = 400.0;`
 
 ```rust
 // In main()
@@ -142,6 +135,14 @@ for i in 0..10 {
     roadline.translation.x = -600.0 + 150.0 * i as f32;
 }
 ```
+
+
+Now we need to make them move (yes, the lines will move, not the car).  Back at the bottom of the `game_logic()` function:
+1. Loop through all the `actors` HashMap values with `actors.values_mut()` using a mutable reference, and:
+  1. If the `actor.label` starts with `"player1"`, then:
+    * Subtract `ROAD_SPEED * game_state.delta_seconds` from `translation.x`
+  1. If the actor's `translation.x` is less than `-675.0` (meaning it has gone off the left side of the sreen) then add `1500.0` to it  (moving it off the right side of the screen), so it cn rush across the screen again.
+
 
 ```rust
 // In game_logic()
@@ -156,6 +157,9 @@ for actor in game_state.actors.values_mut() {
     }
 }
 ```
+
+Now it's
+1. 
 
 # Challenges
 
