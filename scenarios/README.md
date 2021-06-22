@@ -33,9 +33,12 @@ Now you're ready to proceed with your scenario!
 ## Scenarios...
 
 1. [Road Race](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/road_race.md) - Easy
+
+...and the rest of the scenarios only have a summary so far.
+
 1. [Cannon Practice](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/cannon_practice.md)
 1. [Car Invaders](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/car_invaders.md)
-1. [Car Shoot](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/car_shoot.md)
+1. [Car Shoot](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/car_shoot.md) ... though this one does have a reference implementation!
 1. [Driver's Ed](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/drivers_ed.md)
 1. [Labrinth](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/labrinth.md)
 

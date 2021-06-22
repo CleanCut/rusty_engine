@@ -39,12 +39,22 @@ impl CollisionState {
 }
 
 #[derive(Debug, Default, Eq, Clone)]
-pub struct CollisionPair(String, String);
+pub struct CollisionPair(pub String, pub String);
 
 impl CollisionPair {
-    pub fn contains<T: Into<String>>(&self, label: T) -> bool {
+    pub fn either_contains<T: Into<String>>(&self, label: T) -> bool {
         let label = label.into();
         (self.0 == label) || (self.1 == label)
+    }
+    pub fn either_starts_with<T: Into<String>>(&self, label: T) -> bool {
+        let label = label.into();
+        self.0.starts_with(&label) || self.1.starts_with(&label)
+    }
+    pub fn one_starts_with<T: Into<String>>(&self, label: T) -> bool {
+        let label = label.into();
+        let a_matches = self.0.starts_with(&label);
+        let b_matches = self.1.starts_with(&label);
+        (a_matches && !b_matches) || (!a_matches && b_matches)
     }
 }
 

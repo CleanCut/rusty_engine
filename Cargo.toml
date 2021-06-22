@@ -38,5 +38,9 @@ env_logger = "0.8"
 rand = "0.8"
 
 [[example]]
+name = "car_shoot"
+path = "examples/scenarios/car_shoot.rs"
+
+[[example]]
 name = "road_race"
 path = "examples/scenarios/road_race.rs"

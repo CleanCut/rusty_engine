@@ -242,7 +242,7 @@ Now we need to actually handle the health.  At **_the bottom_** of the `game_log
     * `let health_message = game_state.text_actors.get_mut("health_message").unwrap();`
 1. Loop through all the `collision_events`.
     1. Ignore events (by doing a `continue` in the for loop) that contain "player1" in the collision pair or where the event state is the ending of a collision.
-        * `if !event.pair.contains("player1") || event.state.is_end() { continue; }`
+        * `if !event.pair.either_contains("player1") || event.state.is_end() { continue; }`
     1. If `*health_amount` is greater than `0` (we don't want to try to subtract from an unsigned number without checking first)
         1. Subtract `1` from `*health_amount`
         1. Set `health_message` to the string "Health: {}", where "{}" is the value of `*health-amount`.
@@ -254,7 +254,7 @@ Now we need to actually handle the health.  At **_the bottom_** of the `game_log
 let health_message = game_state.text_actors.get_mut("health_message").unwrap();
 for event in game_state.collision_events.drain(..) {
     // We don't care if obstacles collide with each other or collisions end
-    if !event.pair.contains("player1") || event.state.is_end() {
+    if !event.pair.either_contains("player1") || event.state.is_end() {
         continue;
     }
     if *health_amount > 0 {

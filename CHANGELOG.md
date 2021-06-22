@@ -1,16 +1,22 @@
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Changes
+
+- Added Car Shoot reference implementation (still needs a scenario writeup)
+- Added some helper methods to `CollisionPair`
+- Fixed `CollisionPair` tuple members not being `pub`
+
 ## [1.0.1] - 2021-06-22
 
-### Fixed
+### Changes
 
 - Fixed a bug in the `Hash` trait implementation for `CollisionPair`
 - Fixed clippy warnings
 
 ## [1.0.0] - 2021-06-22
 
-### Everything
+### Changes
 
 - Created some game scenarios (only Road Racer is fully complete)
 - Created Road Racer reference example
@@ -24,14 +30,14 @@
 
 ## [0.13.0] - 2021-06-21
 
-### Added
+### Changes
 
 - All the basic [features for 1.0](https://github.com/CleanCut/rusty_engine/issues/9)
 - This release is to test the remaining 1.0 functionality, but not all the documentation and scenarios are written, so we're not quite ready for 1.0.
 
 ## [0.12.0] - 2021-06-16
 
-### Changed
+### Changes
 
 - Gut the entire project and started over by wrapping [Bevy] with a simple interface for beginners to use.
 - Implement the following features: GameState, Actors w/Transform handling, Sprites w/asset pack, audio sfx/music with asset pack, timer utility.

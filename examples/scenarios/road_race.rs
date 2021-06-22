@@ -119,7 +119,7 @@ fn game_logic(game_state: &mut GameState) {
     let health_message = game_state.text_actors.get_mut("health_message").unwrap();
     for event in game_state.collision_events.drain(..) {
         // We don't care if obstacles collide with each other or collisions end
-        if !event.pair.contains("player1") || event.state.is_end() {
+        if !event.pair.either_contains("player1") || event.state.is_end() {
             continue;
         }
         if *health_amount > 0 {
