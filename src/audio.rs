@@ -6,7 +6,7 @@ use std::array::IntoIter;
 #[derive(Debug, Default)]
 pub struct AudioManager {
     sfx_queue: Vec<SfxPreset>,
-    music_queue: Vec<MusicPreset>,
+    music_queue: Vec<(MusicPreset, f32)>,
     playing: AudioChannel,
 }
 
@@ -14,8 +14,10 @@ impl AudioManager {
     pub fn play_sfx(&mut self, sfx_preset: SfxPreset) {
         self.sfx_queue.push(sfx_preset);
     }
-    pub fn play_music(&mut self, music_preset: MusicPreset) {
-        self.music_queue.push(music_preset);
+    /// Play looping music. `volume` ranges from `0.0` to `1.0`
+    pub fn play_music(&mut self, music_preset: MusicPreset, volume: f32) {
+        self.music_queue
+            .push((music_preset, volume.clamp(0.0, 1.0)));
     }
 }
 
@@ -136,11 +138,12 @@ pub fn queue_managed_audio_system(
     }
     let playing = game_state.audio_manager.playing.clone();
     let mut new_playing = playing.clone();
-    for music in game_state.audio_manager.music_queue.drain(..) {
+    for (music, volume) in game_state.audio_manager.music_queue.drain(..) {
         let music_path = music.to_path();
         let music_handle = asset_server.load(music_path);
         audio.stop_channel(&playing);
         new_playing = AudioChannel::new(music_path.into());
+        audio.set_volume_in_channel(volume, &new_playing);
         audio.play_looped_in_channel(music_handle, &new_playing);
     }
     game_state.audio_manager.playing = new_playing;

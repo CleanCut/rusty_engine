@@ -8,7 +8,7 @@ use crate::{
 use bevy::{app::AppExit, input::system::exit_on_esc_system, prelude::*};
 use bevy_kira_audio::*;
 use lazy_static::lazy_static;
-use log::info;
+use log::{debug, info};
 use std::{collections::HashMap, sync::Mutex, time::Duration};
 
 pub type GameLogicFunction = fn(&mut GameState);
@@ -31,10 +31,8 @@ pub struct Game {
 
 impl Default for Game {
     fn default() -> Self {
-        let mut app_builder = App::build();
-
         Self {
-            app_builder,
+            app_builder: App::build(),
             game_state: GameState::default(),
             window_descriptor: None,
         }
@@ -91,7 +89,7 @@ impl Game {
     /// more information.
     pub fn window_settings(&mut self, window_descriptor: WindowDescriptor) -> &mut Self {
         self.window_descriptor = Some(window_descriptor);
-        println!("window descriptor is: {:?}", self.window_descriptor);
+        debug!("window descriptor is: {:?}", self.window_descriptor);
         self
     }
 
@@ -134,10 +132,7 @@ impl Game {
     /// game.run(|_| {});
     /// ```
     pub fn run(&mut self, func: GameLogicFunction) {
-        println!("out");
         if let Some(window_descriptor) = self.window_descriptor.clone() {
-            println!("in");
-            println!("{:?}", window_descriptor);
             self.app_builder
                 .insert_resource::<WindowDescriptor>(window_descriptor);
         }
@@ -154,7 +149,7 @@ impl Game {
             .add_plugin(KeyboardPlugin)
             .add_plugin(MousePlugin)
             .add_plugin(PhysicsPlugin)
-            //.insert_resource(ReportExecutionOrderAmbiguities)
+            //.insert_resource(ReportExecutionOrderAmbiguities) // for debugging
             .add_system(game_logic_sync.system().label("game_logic_sync"))
             .add_startup_system(setup.system());
         // Unwrap: Can't crash, we're the only thread using the lock, so it can't be poisoned.
