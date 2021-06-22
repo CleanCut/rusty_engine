@@ -1,6 +1,17 @@
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Everything
+
+- Created some game scenarios (only Road Racer is fully complete)
+- Created Road Racer reference example
+- Added ability to configure window settings
+- Set default window title
+- Overhauled readme
+- Improved `GameState` and `CollisionState` by adding some methods
+- Made volume configurable when starting to play music
+- Made a way to stop playing music
+
 ## [0.13.0] - 2021-06-21
 
 ### Added
