@@ -1,6 +1,8 @@
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [1.0.1] - 2021-06-22
+
 ### Fixed
 
 - Fixed a bug in the `Hash` trait implementation for `CollisionPair`
@@ -41,7 +43,8 @@
 
 [Bevy]: https://bevyengine.org
 <!-- next-url -->
-[Unreleased]: https://github.com/assert-rs/predicates-rs/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/assert-rs/predicates-rs/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/assert-rs/predicates-rs/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/assert-rs/predicates-rs/compare/v0.13.0...v1.0.0
 [0.13.0]: https://github.com/assert-rs/predicates-rs/compare/v0.12.0...v0.13.0
 [0.12.0]: https://github.com/cleancut/rusty_engine/compare/v0.11.0...v0.12.0
