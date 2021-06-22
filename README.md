@@ -29,12 +29,40 @@ If you are using Linux or Windows Subsystem for Linux 2, please visit Bevy's [In
 
 ### Using Rusty Engine
 
+1. Download the asset packs (unless you don't want to use any assets):
+    * Clone the `rusty_engine` repository and copy/move the `assets/` directory over to your own project
+    * Download a [zip file](https://github.com/CleanCut/rusty_engine/archive/refs/heads/main.zip) or [tarball](https://github.com/CleanCut/rusty_engine/archive/refs/heads/main.tar.gz) of the `rusty_engine` repository, extract it, and copy/move the `assets/` directory over to your own project.
+    * On a posix compatible shell, run this command inside your project directory:
+        * `curl -L https://github.com/CleanCut/rusty_engine/archive/refs/heads/main.tar.gz | tar -zxv --strip-components=1 rusty_engine-main/assets`
+1. Add `rusty_engine` as a dependency
 ```toml
 # In your [dependencies] section of Cargo.toml
 rusty_engine = "0.13.0"
 ```
+1. Have fun!
+```rust
+// In main.rs
+use rusty_engine::prelude::*;
 
-See also the [code examples]() and the [API documentation](https://docs.rs/rusty_engine/latest/rusty_engine/)
+fn main() {
+    let mut game = Game::new();
+    // Use `game` to initialize starting state.
+    let race_car: &mut Actor = game.add_actor("race car", ActorPreset::RacingCarRed);
+    race_car.translation = Vec2::new(-100.0, -100.0);
+    race_car.rotation = NORTH_EAST;
+    race_car.scale = 2.0;
+    // Then do `game.run()` to start the game.
+    game.run(game_logic);
+}
+
+// This function is called once per frame
+fn game_logic(game_state: &mut GameState) {
+    // Your game logic goes here
+}
+
+```
+
+See also the [game scenarios](https://github.com/CleanCut/rusty_engine/tree/main/scenarios), [code examples](https://github.com/CleanCut/rusty_engine/tree/main/examples) and the [API documentation](https://docs.rs/rusty_engine/latest/rusty_engine/)
 
 ## Contribution
 

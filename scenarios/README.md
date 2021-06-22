@@ -22,12 +22,12 @@ Now you're ready to proceed with your scenario!
 
 ## Scenarios...
 
-- [Cannon Practice](https://github.com/CleanCut/rusty_engine/tree/main/doc/scenarios/cannon_practice.md)
-- [Car Invaders](https://github.com/CleanCut/rusty_engine/tree/main/doc/scenarios/car_invaders.md)
-- [Car Shoot](https://github.com/CleanCut/rusty_engine/tree/main/doc/scenarios/car_shoot.md)
-- [Driver's Ed](https://github.com/CleanCut/rusty_engine/tree/main/doc/scenarios/drivers_ed.md)
-- [Labrinth](https://github.com/CleanCut/rusty_engine/tree/main/doc/scenarios/labrinth.md)
-- [Road Race](https://github.com/CleanCut/rusty_engine/tree/main/doc/scenarios/road_race.md) - Easy
+- [Cannon Practice](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/cannon_practice.md)
+- [Car Invaders](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/car_invaders.md)
+- [Car Shoot](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/car_shoot.md)
+- [Driver's Ed](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/drivers_ed.md)
+- [Labrinth](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/labrinth.md)
+- [Road Race](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/road_race.md) - Easy
 
 **Difficulty Levels**
 - Easy - Most of the code is included. Lots of details.  Straightforward implementation.
