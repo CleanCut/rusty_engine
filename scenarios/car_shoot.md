@@ -21,3 +21,17 @@ In your `// setup goes here` section of `main()`...
 In your `game_logic(...)` function...
 
 1. 
+
+# Challenges
+
+* Keep track of points, display the points in a corner of the screen
+* Different types of marbles
+* Limited ammount of marbles
+* Powerups! Powerups float across like cars
+    * Spread-fire
+    * Rapid-fire
+    * Explosion - clear the screen
+* Make the movement of the cars more interesting - have them drive in curvy motions
+* Smart black cars - black cars sometimes slow down or speed up so a shot will miss them
+* Armored cars - Green cars take two marbles to take down
+
