@@ -57,11 +57,11 @@
 
 [Bevy]: https://bevyengine.org
 <!-- next-url -->
-[Unreleased]: https://github.com/assert-rs/predicates-rs/compare/v1.0.3...HEAD
-[1.0.3]: https://github.com/assert-rs/predicates-rs/compare/v1.0.2...v1.0.3
-[1.0.2]: https://github.com/assert-rs/predicates-rs/compare/v1.0.1...v1.0.2
-[1.0.1]: https://github.com/assert-rs/predicates-rs/compare/v1.0.0...v1.0.1
-[1.0.0]: https://github.com/assert-rs/predicates-rs/compare/v0.13.0...v1.0.0
-[0.13.0]: https://github.com/assert-rs/predicates-rs/compare/v0.12.0...v0.13.0
+[Unreleased]: https://github.com/CleanCut/rusty_engine/compare/v1.0.3...HEAD
+[1.0.3]: https://github.com/CleanCut/rusty_engine/compare/v1.0.2...v1.0.3
+[1.0.2]: https://github.com/CleanCut/rusty_engine/compare/v1.0.1...v1.0.2
+[1.0.1]: https://github.com/CleanCut/rusty_engine/compare/v1.0.0...v1.0.1
+[1.0.0]: https://github.com/CleanCut/rusty_engine/compare/v0.13.0...v1.0.0
+[0.13.0]: https://github.com/CleanCut/rusty_engine/compare/v0.12.0...v0.13.0
 [0.12.0]: https://github.com/cleancut/rusty_engine/compare/v0.11.0...v0.12.0
 [0.11.0]: https://github.com/cleancut/rusty_engine/compare/v0.10.0...v0.11.0
