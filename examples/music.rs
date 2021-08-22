@@ -16,7 +16,9 @@ fn main() {
 fn logic(game_state: &mut GameState) {
     // gain another life every time the timer goes off
     if game_state.bool_map.get("music started").is_none() {
-        println!("Playing MysteriousMagic for about 30 seconds.");
+        let note1 =
+            game_state.add_text_actor("note1", "Playing MysteriousMagic for about 30 seconds.");
+        note1.translation.y = -100.0;
         game_state.bool_map.insert("music started".into(), true);
         game_state
             .audio_manager

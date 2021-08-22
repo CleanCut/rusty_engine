@@ -90,7 +90,7 @@ fn collision_detection(
                 // We only need to compare one half of the matrix triangle
                 continue 'outer;
             }
-            if Collider::colliding(&actor1, &actor2) {
+            if Collider::colliding(actor1, actor2) {
                 current_collisions
                     .insert(CollisionPair(actor1.label.clone(), actor2.label.clone()));
             }
