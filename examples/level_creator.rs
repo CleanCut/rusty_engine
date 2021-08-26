@@ -194,8 +194,7 @@ fn logic(game_state: &mut GameState) {
         let mut new_actor = new_preset.build(new_label.clone());
 
         *current_label = new_label;
-        new_actor.layer = *next_layer;
-        *next_layer += 0.01;
+        new_actor.layer = MAX_LAYER;
         new_actor.translation = old_actor.translation;
         new_actor.rotation = old_actor.rotation;
         new_actor.scale = old_actor.scale;
