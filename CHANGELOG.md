@@ -1,6 +1,8 @@
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+- Improve documentation in the `actor` module
+
 ## [1.1.3] - 2021-08-26
 
 - level_creator: enable collision in generated code

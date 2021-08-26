@@ -1,6 +1,8 @@
 use crate::physics::Collider;
 use bevy::prelude::*;
 
+/// An [`Actor`] is the basic abstraction for something that can be seen and interacted with.
+/// Players, obstacles, etc. are all actors.
 #[derive(Clone, Debug)]
 pub struct Actor {
     /// READONLY: A way to identify an actor.
@@ -18,14 +20,12 @@ pub struct Actor {
     pub rotation: f32,
     /// SYNCED: 1.0 is the normal 100%
     pub scale: f32,
-    /// TODO: Whether or not to calculate collisions
+    /// Whether or not to calculate collisions
     pub collision: bool,
-    /// TODO: Relative to translation
+    /// Relative to translation
     pub collider: Collider,
 }
 
-/// An [`Actor`] is the basic abstraction for something that can be seen and interacted with.
-/// Players, obstacles, etc. are all actors.
 impl Default for Actor {
     fn default() -> Self {
         Self {
@@ -61,6 +61,7 @@ impl Actor {
 
 use std::array::IntoIter;
 
+/// Actor presets that contain a sprite in the asset pack and have a predetermined collider
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum ActorPreset {
     RacingBarrelBlue,
@@ -86,6 +87,8 @@ pub enum ActorPreset {
 }
 
 impl ActorPreset {
+    /// Build an actor from a string describing the preset. Useful when "loading" things from a text
+    /// file. When writing code from scratch, you should prefer [`ActorPreset::build`].
     pub fn build_from_name(preset_name: String, label: String) -> Actor {
         use ActorPreset::*;
         match preset_name.as_str() {
@@ -117,6 +120,8 @@ impl ActorPreset {
         .build(label)
     }
 
+    /// Build a usable actor from this preset. This is called for you if you use
+    /// [`GameState::add_actor`].
     pub fn build(self, label: String) -> Actor {
         let filename = self.filename();
         let collider = self.collider();
@@ -129,6 +134,8 @@ impl ActorPreset {
         }
     }
 
+    /// Retrieve the collider for a preset. You don't usually need to call this yourself, as the
+    /// `.build*` methods will call it for you.
     pub fn collider(&self) -> Collider {
         match self {
             ActorPreset::RacingBarrelBlue => Collider::circle(28.0),
@@ -233,6 +240,8 @@ impl ActorPreset {
         }
     }
 
+    /// Retrieve the asset filename. You probably won't need this method, as it is called internally
+    /// by the `.build*` methods
     pub fn filename(&self) -> String {
         match self {
             ActorPreset::RacingBarrelBlue => "sprite/racing/barrel_blue.png",
@@ -259,6 +268,8 @@ impl ActorPreset {
         .into()
     }
 
+    /// An iterator that iterates through presets. Mostly useful for things like level builders
+    /// when you want to be able to rotate something through each preset.
     pub fn variant_iter() -> IntoIter<ActorPreset, 20> {
         static ACTOR_PRESETS: [ActorPreset; 20] = [
             ActorPreset::RacingBarrelBlue,
@@ -300,10 +311,12 @@ impl ActorPreset {
         ActorPreset::variant_iter().nth(new_index).unwrap()
     }
 
+    /// Just get the next actor preset in the list, without dealing with an iterator
     pub fn next(&self) -> ActorPreset {
         self.shifted_by(-1)
     }
 
+    /// Just get the previous actor preset in the list, without dealing with an iterator
     pub fn prev(&self) -> ActorPreset {
         self.shifted_by(1)
     }
