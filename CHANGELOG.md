@@ -1,6 +1,8 @@
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [1.1.1] - 2021-08-25
+
 ## [1.1.0] - 2021-08-25
 
 ### Changes
@@ -69,7 +71,8 @@
 
 [Bevy]: https://bevyengine.org
 <!-- next-url -->
-[Unreleased]: https://github.com/CleanCut/rusty_engine/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/CleanCut/rusty_engine/compare/v1.1.1...HEAD
+[1.1.1]: https://github.com/CleanCut/rusty_engine/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/CleanCut/rusty_engine/compare/v1.0.3...v1.1.0
 [1.0.3]: https://github.com/CleanCut/rusty_engine/compare/v1.0.2...v1.0.3
 [1.0.2]: https://github.com/CleanCut/rusty_engine/compare/v1.0.1...v1.0.2
