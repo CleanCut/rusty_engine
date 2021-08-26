@@ -13,5 +13,6 @@ fn main() {
         layer += 1.0;
     }
 
+    // We don't do anything after game setup, so our game logic can be an empty closure
     game.run(|_| {});
 }
