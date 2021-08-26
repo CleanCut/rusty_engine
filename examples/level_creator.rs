@@ -112,7 +112,7 @@ fn logic(game_state: &mut GameState) {
                 continue;
             }
             println!(
-                "    let a = game.game_state_mut().add_actor(\"{}\", ActorPreset::{:?}); a.translation = Vec2::new({:.1}, {:.1}); a.rotation = {:.8}; a.scale = {:.8}; a.layer = {:.8};",
+                "    let a = game.game_state_mut().add_actor(\"{}\", ActorPreset::{:?}); a.translation = Vec2::new({:.1}, {:.1}); a.rotation = {:.8}; a.scale = {:.8}; a.layer = {:.8}; a.collision = true;",
                 actor.label,
                 actor.preset.unwrap(),
                 actor.translation.x,
