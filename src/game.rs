@@ -122,6 +122,7 @@ impl Game {
     /// any variables.
     ///
     /// ```no_run
+    /// # use rusty_engine::prelude::*;
     /// let mut game = Game::new();
     /// game.run(|game_state| {
     ///     println!("This game has been running for: {:.2}", game_state.seconds_since_startup);
@@ -131,6 +132,7 @@ impl Game {
     /// If you don't want to do anything, you can use the closure `|_| {}`
     ///
     /// ```no_run
+    /// # use rusty_engine::prelude::*;
     /// let mut game = Game::new();
     /// game.run(|_| {});
     /// ```
