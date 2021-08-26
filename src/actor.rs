@@ -61,7 +61,7 @@ impl Actor {
 
 use std::array::IntoIter;
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub enum ActorPreset {
     RacingBarrelBlue,
     RacingBarrelRed,
@@ -86,6 +86,37 @@ pub enum ActorPreset {
 }
 
 impl ActorPreset {
+    pub fn build_from_name(preset_name: String, label: String) -> Actor {
+        use ActorPreset::*;
+        match preset_name.as_str() {
+            "RacingBarrelBlue" => RacingBarrelBlue,
+            "RacingBarrelRed" => RacingBarrelRed,
+            "RacingBarrierRed" => RacingBarrierRed,
+            "RacingBarrierWhite" => RacingBarrierWhite,
+            "RacingCarBlack" => RacingCarBlack,
+            "RacingCarBlue" => RacingCarBlue,
+            "RacingCarGreen" => RacingCarGreen,
+            "RacingCarRed" => RacingCarRed,
+            "RacingCarYellow" => RacingCarYellow,
+            "RacingConeStraight" => RacingConeStraight,
+            "RollingBallBlue" => RollingBallBlue,
+            "RollingBallBlueAlt" => RollingBallBlueAlt,
+            "RollingBallRed" => RollingBallRed,
+            "RollingBallRedAlt" => RollingBallRedAlt,
+            "RollingBlockCorner" => RollingBlockCorner,
+            "RollingBlockNarrow" => RollingBlockNarrow,
+            "RollingBlockSmall" => RollingBlockSmall,
+            "RollingBlockSquare" => RollingBlockSquare,
+            "RollingHoleEnd" => RollingHoleEnd,
+            "RollingHoleStart" => RollingHoleStart,
+            _ => panic!(
+                "Cannot find preset named {}, does it need to be added to the list?",
+                preset_name
+            ),
+        }
+        .build(label)
+    }
+
     pub fn build(self, label: String) -> Actor {
         let filename = self.filename();
         let collider = self.collider();
@@ -252,5 +283,28 @@ impl ActorPreset {
             ActorPreset::RollingHoleStart,
         ];
         std::array::IntoIter::new(ACTOR_PRESETS)
+    }
+
+    fn shifted_by(&self, amount: isize) -> ActorPreset {
+        let len = ActorPreset::variant_iter().len();
+        let index = ActorPreset::variant_iter()
+            .enumerate()
+            .find(|(_, a)| *a == *self)
+            .unwrap()
+            .0;
+        let mut new_index_isize = index as isize + amount;
+        while new_index_isize < 0 {
+            new_index_isize += len as isize;
+        }
+        let new_index = (new_index_isize as usize) % len;
+        ActorPreset::variant_iter().nth(new_index).unwrap()
+    }
+
+    pub fn next(&self) -> ActorPreset {
+        self.shifted_by(-1)
+    }
+
+    pub fn prev(&self) -> ActorPreset {
+        self.shifted_by(1)
     }
 }

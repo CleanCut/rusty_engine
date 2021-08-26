@@ -36,6 +36,7 @@ fn main() {
         RollingBlockSquare,
         RollingBlockSmall,
     ];
+
     for (i, preset) in obstacle_presets.into_iter().enumerate() {
         let actor = game.add_actor(format!("obstacle{}", i), preset);
         actor.layer = 50.0;

@@ -16,7 +16,7 @@ license = "MIT OR Apache-2.0"
 [dependencies]
 #bevy = { git = "https://github.com/bevyengine/bevy", rev = "47004dfcb415a049e4c6e68fdf56c26de72f51a1" }
 #bevy = { git = "https://github.com/bevyengine/bevy", branch = "main" }
-bevy = { version="0.5", default-features=false, features=[
+bevy = { version = "0.5", default-features = false, features = [
     #"bevy_audio"
     "bevy_dynamic_plugin",
     "bevy_gilrs",
@@ -29,12 +29,17 @@ bevy = { version="0.5", default-features=false, features=[
     "mp3",
     "x11",
 ] }
-bevy_kira_audio = { version="0.5.0", features=[ "flac", "mp3", "ogg", "wav" ] }
+bevy_kira_audio = { version = "0.5.0", features = [
+    "flac",
+    "mp3",
+    "ogg",
+    "wav",
+] }
 lazy_static = "1.4"
 log = "0.4"
 
 [dev-dependencies]
-env_logger = "0.8"
+env_logger = "0.9"
 rand = "0.8"
 
 [[example]]

@@ -1,6 +1,16 @@
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Changes
+
+- Bump `env_logger` to `0.9`
+- Add `level_creator` example. Try it out with `cargo run --release --example level_creator`
+- `ActorPreset` gained several new abilities:
+  - It now implements the `PartialEq` trait
+  - `.build_from_name()` allows building a preset from a string
+  - `.prev()` and `.next()` allow iterating over presets based on the current preset
+- `GameState` gained `f32_map` and `f32_vec` fields for storing `f32` values
+
 ## [1.0.3] - 2021-06-22
 
 ### Changes

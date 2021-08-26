@@ -169,6 +169,7 @@ impl Game {
 pub struct GameState {
     // Empty collections for users
     pub bool_map: HashMap<String, bool>,
+    pub f32_map: HashMap<String, f32>,
     pub i32_map: HashMap<String, i32>,
     pub u8_map: HashMap<String, u8>,
     pub u32_map: HashMap<String, u32>,
@@ -176,6 +177,7 @@ pub struct GameState {
     pub string_map: HashMap<String, String>,
     pub timer_map: HashMap<String, Timer>,
     pub bool_vec: Vec<bool>,
+    pub f32_vec: Vec<f32>,
     pub i32_vec: Vec<i32>,
     pub u8_vec: Vec<u8>,
     pub u32_vec: Vec<u32>,
