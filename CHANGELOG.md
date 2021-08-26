@@ -3,9 +3,15 @@
 
 ## [1.1.3] - 2021-08-26
 
+- level_creator: enable collision in generated code
+
 ## [1.1.2] - 2021-08-26
 
+- level_creator: have current actor on top of placed actors
+
 ## [1.1.1] - 2021-08-25
+
+- level_creator: Start the actors at normal scale
 
 ## [1.1.0] - 2021-08-25
 
