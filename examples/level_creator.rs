@@ -33,7 +33,7 @@ Mouse location - Choose translation (location) of actor
     let initial_label = "0".to_string();
     game.game_state_mut().string_vec.push(initial_label.clone());
     let mut curr_actor = game.add_actor(initial_label, ActorPreset::RacingCarRed);
-    curr_actor.scale = 0.5;
+    //curr_actor.scale = 0.5;
     curr_actor.layer = MAX_LAYER;
 
     // Use a bool to track whether or not the shift key is currently pressed
