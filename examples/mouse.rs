@@ -34,7 +34,7 @@ fn logic(game_state: &mut GameState) {
                 _ => {}
             }
         }
-        for cursor_moved in &game_state.cursor_moved_events {
+        for cursor_moved in &game_state.mouse_location_events {
             actor.translation = cursor_moved.position;
         }
         for mouse_wheel in &game_state.mouse_wheel_events {

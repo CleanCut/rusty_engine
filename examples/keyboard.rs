@@ -1,3 +1,5 @@
+use std::f32::consts::PI;
+
 use rusty_engine::prelude::*;
 
 fn main() {
@@ -16,38 +18,47 @@ fn main() {
 }
 
 fn logic(game_state: &mut GameState) {
+    // Compute how fast we should move, rotate, and scale
+    let move_amount = 200.0 * game_state.delta_f32;
+    let rotation_amount = PI * game_state.delta_f32;
+    let scale_amount = 1.0 * game_state.delta_f32;
+
     // Get the race car actor
     let race_car = game_state.actors.get_mut("Race Car").unwrap();
 
-    // Loop through any keyboard input that hasn't been processed this frame
-    for keyboard_input in &game_state.keyboard_events {
-        if let KeyboardInput {
-            scan_code: _,
-            key_code: Some(key_code),
-            state: ElementState::Pressed,
-        } = keyboard_input
-        {
-            // Handle various keypresses. The extra keys are for the Dvorak keyboard layout. ;-)
-            match key_code {
-                KeyCode::A | KeyCode::Left => race_car.translation.x -= 10.0,
-                KeyCode::D | KeyCode::Right | KeyCode::E => race_car.translation.x += 10.0,
-                KeyCode::O | KeyCode::Down | KeyCode::S => race_car.translation.y -= 10.0,
-                KeyCode::W | KeyCode::Up | KeyCode::Comma => race_car.translation.y += 10.0,
-                KeyCode::Z | KeyCode::Semicolon => race_car.rotation += std::f32::consts::FRAC_PI_4,
-                KeyCode::C | KeyCode::J => race_car.rotation -= std::f32::consts::FRAC_PI_4,
-                KeyCode::Plus | KeyCode::Equals => race_car.scale *= 1.1,
-                KeyCode::Minus | KeyCode::Underline => race_car.scale *= 0.9,
-                _ => {}
-            }
-
-            // Clamp the scale to a certain range so the scaling is reasonable
-            race_car.scale = race_car.scale.clamp(0.1, 3.0);
-
-            // Clamp the translation so that the car stays on the screen
-            race_car.translation = race_car.translation.clamp(
-                -game_state.screen_dimensions * 0.5,
-                game_state.screen_dimensions * 0.5,
-            );
-        }
+    // Handle keyboard input
+    let ks = &mut game_state.keyboard_state;
+    if ks.any_pressed(&[KeyCode::A, KeyCode::Left]) {
+        race_car.translation.x -= move_amount;
     }
+    if ks.any_pressed(&[KeyCode::D, KeyCode::Right, KeyCode::E]) {
+        race_car.translation.x += move_amount;
+    }
+    if ks.any_pressed(&[KeyCode::O, KeyCode::Down, KeyCode::S]) {
+        race_car.translation.y -= move_amount;
+    }
+    if ks.any_pressed(&[KeyCode::W, KeyCode::Up, KeyCode::Comma]) {
+        race_car.translation.y += move_amount;
+    }
+    if ks.any_pressed(&[KeyCode::Z, KeyCode::Semicolon]) {
+        race_car.rotation += rotation_amount;
+    }
+    if ks.any_pressed(&[KeyCode::C, KeyCode::J]) {
+        race_car.rotation -= rotation_amount;
+    }
+    if ks.any_pressed(&[KeyCode::Plus, KeyCode::Equals]) {
+        race_car.scale *= 1.0 + scale_amount;
+    }
+    if ks.any_pressed(&[KeyCode::Minus, KeyCode::Underline]) {
+        race_car.scale *= 1.0 - scale_amount;
+    }
+
+    // Clamp the scale to a certain range so the scaling is reasonable
+    race_car.scale = race_car.scale.clamp(0.1, 3.0);
+
+    // Clamp the translation so that the car stays on the screen
+    race_car.translation = race_car.translation.clamp(
+        -game_state.screen_dimensions * 0.5,
+        game_state.screen_dimensions * 0.5,
+    );
 }

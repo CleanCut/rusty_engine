@@ -14,9 +14,9 @@ fn main() {
 
     let mut msg3 = game.add_text_actor(
         "msg3",
-        "Changing font size is expensive, but it can be done.",
+        "Changing font size re-renders the text smoothly at a different size,\nbut using this technique for animation is both jittery (character kerning) and expensive.",
     );
-    msg3.font_size = 20.0;
+    msg3.font_size = 35.0;
     msg3.translation = Vec2::new(0.0, 150.0);
 
     game.game_state_mut()
@@ -29,13 +29,13 @@ fn game_logic(game_state: &mut GameState) {
     let timer = game_state.timer_vec.get_mut(0).unwrap();
     if timer.tick(game_state.delta).just_finished() {
         let mut fps = game_state.text_actors.get_mut("fps").unwrap();
-        fps.text = format!("FPS: {:.1}", 1.0 / game_state.delta_seconds);
+        fps.text = format!("FPS: {:.1}", 1.0 / game_state.delta_f32);
     }
 
     let msg2 = game_state.text_actors.get_mut("msg2").unwrap();
-    msg2.translation.x = 75.0 * (game_state.seconds_since_startup * 0.5).sin() as f32;
-    msg2.translation.y = 75.0 * (game_state.seconds_since_startup * 0.5).cos() as f32 - 200.0;
+    msg2.translation.x = 75.0 * (game_state.time_since_startup_f64 * 0.5).sin() as f32;
+    msg2.translation.y = 75.0 * (game_state.time_since_startup_f64 * 0.5).cos() as f32 - 200.0;
 
     let msg3 = game_state.text_actors.get_mut("msg3").unwrap();
-    msg3.font_size = 10.0 * (game_state.seconds_since_startup * 0.5).cos() as f32 + 20.0;
+    msg3.font_size = 10.0 * (game_state.time_since_startup_f64 * 0.5).cos() as f32 + 20.0;
 }

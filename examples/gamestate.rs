@@ -31,7 +31,7 @@ fn logic(game_state: &mut GameState) {
 
     // Rotate the player
     if *turning {
-        race_car.rotation += game_state.delta_seconds * 3.0;
+        race_car.rotation += game_state.delta_f32 * 3.0;
         // If the player rotated all the way around, reset direction, stop turning
         // TAU == (2 * PI), which is exactly one rotation in radians
         if race_car.rotation > TAU {

@@ -2,14 +2,17 @@ use crate::{
     actor::{Actor, ActorPreset},
     audio::AudioManager,
     mouse::{CursorMoved, MouseButtonInput, MouseMotion, MousePlugin, MouseWheel},
-    prelude::{AudioManagerPlugin, CollisionEvent, KeyboardInput, KeyboardPlugin, PhysicsPlugin},
+    prelude::{
+        AudioManagerPlugin, CollisionEvent, KeyboardInput, KeyboardPlugin, KeyboardState,
+        PhysicsPlugin,
+    },
     text_actor::TextActor,
 };
-use bevy::{app::AppExit, input::system::exit_on_esc_system, prelude::*};
+use bevy::{app::AppExit, input::system::exit_on_esc_system, prelude::*, utils::HashMap};
 use bevy_kira_audio::*;
 use lazy_static::lazy_static;
 use log::{debug, info};
-use std::{collections::HashMap, sync::Mutex, time::Duration};
+use std::{sync::Mutex, time::Duration};
 
 pub type GameLogicFunction = fn(&mut GameState);
 pub use bevy::window::{WindowDescriptor, WindowMode, WindowResizeConstraints};
@@ -109,7 +112,7 @@ impl Game {
     /// use rusty_engine::prelude::*;
     ///
     /// fn game_logic(game_state: &mut GameState) {
-    ///     println!("This game has been running for: {:.2}", game_state.seconds_since_startup);
+    ///     println!("This game has been running for: {:.2}", game_state.time_since_startup_f64);
     /// }
     ///
     /// fn main() {
@@ -125,7 +128,7 @@ impl Game {
     /// # use rusty_engine::prelude::*;
     /// let mut game = Game::new();
     /// game.run(|game_state| {
-    ///     println!("This game has been running for: {:.2}", game_state.seconds_since_startup);
+    ///     println!("This game has been running for: {:.2}", game_state.time_since_startup_f64);
     /// });
     /// ```
     ///
@@ -167,41 +170,120 @@ impl Game {
     }
 }
 
+/// GameState is the primary way that you will interact with Rusty Engine. Every frame this struct
+/// is provided to the "game logic" function or closure that you provided to [`Game::run`]. The
+/// fields in this struct are divided into two groups:
+///
+/// 1. `USER` fields
+///
+/// These fields are only used by you, the developer of the game, and are persistent across frames.
+///
+/// The names of the fields in this first group begin with the name of the type you can store (e.g.
+/// `f32`), and end in either `_vec` or `_map` to indicate that the field is a vector or hash map,
+/// respectively. All hash map keys are [`String`]s. These fields are intended for you to use if you
+/// need to carry state across frames. For example, in one frame you may add a bunch of message
+/// strings to `.string_vec`, and then in later frames you may take these strings and render
+/// messages in the game once the player has had time to read them. Rusty Engine won't touch
+/// anything in these fields, so how you use them is completely up to you.
+///
+/// 2. `SYNCED` fields.
+///
+/// These fields are marked with `SYNCED`. These fields are shared between you and the engine. Each
+/// frame Rusty Engine will populate these fields, then provide them to the user's game logic
+/// function, and then examine any changes the user made and take action on what changed. This is
+/// your primary way to interact with the engine.
+///
+/// 3. `INFO` fields
+///
+/// INFO fields are provided as fresh, readable information to you each. Since information in these
+/// fields are overwritten every frame, any changes are ignored. This makes it convenient to ////
+/// you can feel free to, e.g. consume all the events out of the `.mouse_butten_events` vector.
 #[derive(Default, Debug)]
 pub struct GameState {
     // Empty collections for users
+    /// USER -- hash map of [`String`] to [`bool`]
     pub bool_map: HashMap<String, bool>,
+    /// USER -- hash map of [`String`] to [`f32`]
     pub f32_map: HashMap<String, f32>,
+    /// USER -- hash map of [`String`] to [`i32`]
     pub i32_map: HashMap<String, i32>,
+    /// USER -- hash map of [`String`] to [`u8`]
     pub u8_map: HashMap<String, u8>,
+    /// USER -- hash map of [`String`] to [`u32`]
     pub u32_map: HashMap<String, u32>,
+    /// USER -- hash map of [`String`] to [`usize`]
     pub usize_map: HashMap<String, usize>,
+    /// USER -- hash map of [`String`] to [`String`]
     pub string_map: HashMap<String, String>,
+    /// USER -- hash map of [`String`] to [`Timer`]
     pub timer_map: HashMap<String, Timer>,
+    /// USER -- hash map of [`String`] to [`Vec2`]
+    pub vec2_map: HashMap<String, Vec2>,
+    /// USER -- vector of [`bool`]
     pub bool_vec: Vec<bool>,
+    /// USER -- vector of [`f32`]
     pub f32_vec: Vec<f32>,
+    /// USER -- vector of [`i32`]
     pub i32_vec: Vec<i32>,
+    /// USER -- vector of [`u8`]
     pub u8_vec: Vec<u8>,
+    /// USER -- vector of [`u32`]
     pub u32_vec: Vec<u32>,
+    /// USER -- vector of [`usize`]
     pub usize_vec: Vec<usize>,
+    /// USER -- vector of [`String`]
     pub string_vec: Vec<String>,
+    /// USER -- vector of [`Timer`]
     pub timer_vec: Vec<Timer>,
-    // Built-in stuff
-    pub audio_manager: AudioManager,
-    pub screen_dimensions: Vec2,
-    // Updated every frame
+    /// USER -- vector of [`Vec2`]
+    pub vec2_vec: Vec<Vec2>,
+    /// SYNCED - The state of all actors this frame
     pub actors: HashMap<String, Actor>,
+    /// SYNCED - The state of all text actors this frame
     pub text_actors: HashMap<String, TextActor>,
+    /// INFO - All the collision events that occurred this frame. For collisions to be generated
+    /// between actors, both actors must have [`Actor.collision`] set to `true`. Collision events
+    /// are generated when two actors' colliders begin or end overlapping in 2D space.
     pub collision_events: Vec<CollisionEvent>,
+    /// INFO - All the mouse button events that occurred this frame.
     pub mouse_button_events: Vec<MouseButtonInput>,
-    pub cursor_moved_events: Vec<CursorMoved>,
+    /// INFO - All the mouse location events that occurred this frame. The events are Bevy
+    /// [`CursorMoved`] structs, but despite the name they represent the _location_ of the mouse
+    /// during this frame.
+    pub mouse_location_events: Vec<CursorMoved>,
+    /// INFO - All the mouse motion events that occurred this frame. These represent the relative
+    /// movements of the mouse, not the location of the mouse.
     pub mouse_motion_events: Vec<MouseMotion>,
+    /// INFO - All the mouse wheel events that occurred this frame.
     pub mouse_wheel_events: Vec<MouseWheel>,
-    pub keyboard_events: Vec<KeyboardInput>,
+    /// INFO - All the keyboard input events. These are text-processor-like events. If you are
+    /// looking for keyboard events to control movement in a game character, you should use
+    /// [`GameState::keyboard_state`] instead. For example, one pressed event will fire when you
+    /// start holding down a key, and then after a short delay additional pressed events will occur
+    /// at the same rate that additional letters would show up in a word processor. When the key is
+    /// finally released, a single released event is emitted.
+    pub keyboard_input_events: Vec<KeyboardInput>,
+    /// INFO - The current state of all the keys on the keyboard. Use this to control movement in
+    /// your games!  A [`KeyboardState`] has helper methods you should use to query the state of
+    /// specific [`KeyCode`]s.
+    pub keyboard_state: KeyboardState,
+    /// INFO - The delta time (time between frames) for the current frame as a [`Duration`], perfect
+    /// for use with [`Timer`]s
     pub delta: Duration,
-    pub delta_seconds: f32,
+    /// INFO - The delta time (time between frames) for the current frame as an [`f32`], perfect for
+    /// use in math with other `f32`'s. A cheap and quick way to approximate smooth movement
+    /// (velocity, accelleration, etc.) is to multiply it by `delta_f32`.
+    pub delta_f32: f32,
+    /// INFO - The amount of time the game has been running since startup as a [`Duration`]
     pub time_since_startup: Duration,
-    pub seconds_since_startup: f64,
+    /// INFO - The amount of time the game has been running as an [`f64`]. This needs to be an f64,
+    /// since it gets to be large enough that an f32 would lose precision. For best results, do your
+    /// math on the `f64` and get it to a smaller value _before_ casting it to an `f32`.
+    pub time_since_startup_f64: f64,
+    /// A struct with methods to play sound effects and music
+    pub audio_manager: AudioManager,
+    /// INFO - Screen dimensions in pixels
+    pub screen_dimensions: Vec2,
     // Used by internal methods
     should_exit: bool,
 }
@@ -266,6 +348,7 @@ fn game_logic_sync(
     asset_server: Res<AssetServer>,
     materials: ResMut<Assets<ColorMaterial>>,
     mut game_state: ResMut<GameState>,
+    keyboard_state: Res<KeyboardState>,
     time: Res<Time>,
     mut app_exit_events: EventWriter<AppExit>,
     mut collision_events: EventReader<CollisionEvent>,
@@ -280,9 +363,9 @@ fn game_logic_sync(
 ) {
     // Update this frame's timing info
     game_state.delta = time.delta();
-    game_state.delta_seconds = time.delta_seconds();
+    game_state.delta_f32 = time.delta_seconds();
     game_state.time_since_startup = time.time_since_startup();
-    game_state.seconds_since_startup = time.seconds_since_startup();
+    game_state.time_since_startup_f64 = time.seconds_since_startup();
 
     // TODO: Transfer any changes to the Bevy components by the physics system over to the Actors
     // for (mut actor, mut transform) in actor_query.iter_mut() {
@@ -292,6 +375,9 @@ fn game_logic_sync(
     //     actor.rotation = ???
     //     actor.scale = transform.scale.x;
     // }
+
+    // Copy keyboard state over to game_state to give to users
+    game_state.keyboard_state = keyboard_state.clone();
 
     // Copy all collision events over to the game_state to give to users
     game_state.collision_events.clear();

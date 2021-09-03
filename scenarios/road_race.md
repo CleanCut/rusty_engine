@@ -86,8 +86,8 @@ for event in game_state.keyboard_events.drain(..) {
     1. Use an `if let` pattern to get a mutable reference to the `player1` actor.
         * `if let Some(player1) = game_state.actors.get_mut("player1") { }`
     1. Inside the `if let` block, use an `if` expression to move the player up if `*direction > 0`, or down if `*direction < 0`.
-        * Don't forget to multiply your `speed` by `delta_seconds`, the amount of time that elapsed since the last frame.
-        * For example, to move up you could do `player1.translation.y += speed * game_state.delta_seconds;`
+        * Don't forget to multiply your `speed` by `delta_f32`, the amount of time that elapsed since the last frame.
+        * For example, to move up you could do `player1.translation.y += speed * game_state.delta_f32;`
     1. Try it out!
 1. It would look better if the car turned when it was moving up or down. Let's set the car's rotation to a different value when it moves up down. `.rotation` is specified in radians, with `0.0` facing right, and `std::f32::consts::PI` facing left. See also `rusty_engine::consts`.
     1. Inside the `if` expression that moves the car up, add a line that sets the car's rotation slightly upwards.
@@ -105,10 +105,10 @@ for event in game_state.keyboard_events.drain(..) {
 let speed = 250.0;
 if let Some(player1) = game_state.actors.get_mut("player1") {
     if *direction > 0 {
-        player1.translation.y += speed * game_state.delta_seconds;
+        player1.translation.y += speed * game_state.delta_f32;
         player1.rotation = 0.15;
     } else if *direction < 0 {
-        player1.translation.y -= speed * game_state.delta_seconds;
+        player1.translation.y -= speed * game_state.delta_f32;
         player1.rotation = -0.15;
     } else {
         player1.rotation = 0.0;
@@ -139,7 +139,7 @@ for i in 0..10 {
 Now we need to make them move (yes, the lines will move, not the car).  Back at the bottom of the `game_logic()` function:
 1. Loop through all the `actors` HashMap values with `actors.values_mut()` using a mutable reference, and:
     1. If the `actor.label` starts with `"player1"`, then:
-       * Subtract `ROAD_SPEED * game_state.delta_seconds` from `translation.x`
+       * Subtract `ROAD_SPEED * game_state.delta_f32` from `translation.x`
     1. If the actor's `translation.x` is less than `-675.0` (meaning it has gone off the left side of the sreen) then add `1500.0` to it  (moving it off the right side of the screen), so it cn rush across the screen again.
 
 
@@ -149,7 +149,7 @@ Now we need to make them move (yes, the lines will move, not the car).  Back at 
 // Move road objects
 for actor in game_state.actors.values_mut() {
     if actor.label.starts_with("roadline") {
-        actor.translation.x -= ROAD_SPEED * game_state.delta_seconds;
+        actor.translation.x -= ROAD_SPEED * game_state.delta_f32;
         if actor.translation.x < -675.0 {
             actor.translation.x += 1500.0;
         }
@@ -194,7 +194,7 @@ The obstacles need to move!  In the `game_logic()` function:
 
 ```rust
 if actor.label.starts_with("obstacle") {
-    actor.translation.x -= ROAD_SPEED * game_state.delta_seconds;
+    actor.translation.x -= ROAD_SPEED * game_state.delta_f32;
     if actor.translation.x < -800.0 {
         actor.translation.x = thread_rng().gen_range(800.0..1600.0);
         actor.translation.y = thread_rng().gen_range(-300.0..300.0);

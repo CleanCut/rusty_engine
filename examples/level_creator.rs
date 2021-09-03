@@ -59,7 +59,7 @@ fn logic(game_state: &mut GameState) {
     let mut place_actor = false;
     let mut prev_preset = false;
     let mut next_preset = false;
-    for keyboard_input in &game_state.keyboard_events {
+    for keyboard_input in &game_state.keyboard_input_events {
         if let KeyboardInput {
             scan_code: _,
             key_code: Some(key_code),
@@ -145,7 +145,7 @@ fn logic(game_state: &mut GameState) {
         }
 
         // Handle translation via mouse location
-        for cursor_moved in &game_state.cursor_moved_events {
+        for cursor_moved in &game_state.mouse_location_events {
             actor.translation = cursor_moved.position;
         }
         // Handle rotation via mouse clicks

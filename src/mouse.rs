@@ -27,7 +27,7 @@ fn sync_mouse_input(
 ) {
     // Clear any events that weren't used last frame
     game_state.mouse_button_events.clear();
-    game_state.cursor_moved_events.clear();
+    game_state.mouse_location_events.clear();
     game_state.mouse_motion_events.clear();
     game_state.mouse_wheel_events.clear();
 
@@ -39,7 +39,7 @@ fn sync_mouse_input(
         let mut new_event = ev.clone();
         // Convert from screen space to game space
         new_event.position -= game_state.screen_dimensions * 0.5;
-        game_state.cursor_moved_events.push(new_event);
+        game_state.mouse_location_events.push(new_event);
     }
     for ev in mouse_motion_events.iter() {
         game_state.mouse_motion_events.push(ev.clone());

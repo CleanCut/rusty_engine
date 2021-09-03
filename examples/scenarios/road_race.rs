@@ -67,7 +67,7 @@ fn game_logic(game_state: &mut GameState) {
     let direction = game_state.i32_map.entry("direction".into()).or_insert(0);
 
     // Respond to keyboard events and set the direction
-    for event in game_state.keyboard_events.drain(..) {
+    for event in game_state.keyboard_input_events.drain(..) {
         match event.state {
             ElementState::Pressed => {
                 if let Some(key_code) = event.key_code {
@@ -86,10 +86,10 @@ fn game_logic(game_state: &mut GameState) {
     let speed = 250.0;
     if let Some(player1) = game_state.actors.get_mut("player1") {
         if *direction > 0 {
-            player1.translation.y += speed * game_state.delta_seconds;
+            player1.translation.y += speed * game_state.delta_f32;
             player1.rotation = 0.15;
         } else if *direction < 0 {
-            player1.translation.y -= speed * game_state.delta_seconds;
+            player1.translation.y -= speed * game_state.delta_f32;
             player1.rotation = -0.15;
         } else {
             player1.rotation = 0.0;
@@ -102,13 +102,13 @@ fn game_logic(game_state: &mut GameState) {
     // Move road objects
     for actor in game_state.actors.values_mut() {
         if actor.label.starts_with("roadline") {
-            actor.translation.x -= ROAD_SPEED * game_state.delta_seconds;
+            actor.translation.x -= ROAD_SPEED * game_state.delta_f32;
             if actor.translation.x < -675.0 {
                 actor.translation.x += 1500.0;
             }
         }
         if actor.label.starts_with("obstacle") {
-            actor.translation.x -= ROAD_SPEED * game_state.delta_seconds;
+            actor.translation.x -= ROAD_SPEED * game_state.delta_f32;
             if actor.translation.x < -800.0 {
                 actor.translation.x = thread_rng().gen_range(800.0..1600.0);
                 actor.translation.y = thread_rng().gen_range(-300.0..300.0);

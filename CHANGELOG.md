@@ -1,6 +1,28 @@
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### BREAKING CHANGES
+
+- Renamed `GameState.cursor_moved_events` to `GameState.mouse_location_events`
+- Renamed `GameState.keyboard_events` to `GameState.keyboard_input_events`
+- Renamed `Gamestate.delta_seconds` to `GameState.delta_f32`
+- Renamed `Gamestate.seconds_since_startup` to `GameState.time_since_startup_f64`
+
+
+### Other Changes
+
+- Added `GameState.keyboard_state` (and a new `KeyboardState` struct), to determine the current state of the keyboard. This should be preferred over other keyboard-related methods when dealing with character movement, etc.
+- Added an "Extreme Driver's Ed" scenario reference implementation (`cargo run --release --example extreme_drivers_ed`).
+- Documented `GameState`
+- Added `GameState.vec2_map` and `GameState.vec2_vec` as collections for the user to store state in.
+- Switched all instances of `std::collections::HashMap` to `bevy::utils::HashMap`.
+- Updated all examples to adjust for breaking changes, also:
+   - `keyboard`: use the new `KeyboardState` for smooth movement
+   - `mouse`: improved the explanations surrounding changing font size
+- Added now `level_creator` example to use as a rudimentary level creator (actually added in 1.1.0, but good to call out here)
+- 
+
+
 ## [1.1.4] - 2021-08-26
 
 - Improve documentation in the `actor` module

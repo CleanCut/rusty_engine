@@ -46,7 +46,7 @@ fn logic(game_state: &mut GameState) {
 
     if let Some(actor) = game_state.actors.get_mut("Player") {
         // Move the race car around with the mouse cursor
-        for cursor_moved in &game_state.cursor_moved_events {
+        for cursor_moved in &game_state.mouse_location_events {
             actor.translation = cursor_moved.position;
         }
 

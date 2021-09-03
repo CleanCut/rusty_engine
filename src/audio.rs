@@ -11,6 +11,7 @@ pub struct AudioManager {
 }
 
 impl AudioManager {
+    /// Play a sound
     pub fn play_sfx(&mut self, sfx_preset: SfxPreset) {
         self.sfx_queue.push(sfx_preset);
     }

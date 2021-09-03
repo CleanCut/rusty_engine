@@ -45,7 +45,7 @@ const CAR_SPEED: f32 = 300.0;
 
 fn game_logic(game_state: &mut GameState) {
     // Handle marble gun movement
-    for event in game_state.cursor_moved_events.drain(..) {
+    for event in game_state.mouse_location_events.drain(..) {
         let player = game_state.actors.get_mut("player").unwrap();
         player.translation.x = event.position.x;
     }
@@ -73,7 +73,7 @@ fn game_logic(game_state: &mut GameState) {
         .values_mut()
         .filter(|marble| marble.label.starts_with("marble"))
     {
-        marble.translation.y += MARBLE_SPEED * game_state.delta_seconds;
+        marble.translation.y += MARBLE_SPEED * game_state.delta_f32;
     }
 
     // Clean up actors that have gone off the screen
@@ -96,7 +96,7 @@ fn game_logic(game_state: &mut GameState) {
         .values_mut()
         .filter(|car| car.label.starts_with("car"))
     {
-        car.translation.x += CAR_SPEED * game_state.delta_seconds;
+        car.translation.x += CAR_SPEED * game_state.delta_f32;
     }
 
     // Spawn cars
