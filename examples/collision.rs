@@ -1,5 +1,7 @@
 use rusty_engine::prelude::*;
 
+const ROTATION_SPEED: f32 = 3.0;
+
 fn main() {
     let mut game = Game::new();
 
@@ -45,31 +47,25 @@ fn logic(game_state: &mut GameState) {
     }
 
     if let Some(actor) = game_state.actors.get_mut("Player") {
-        // Move the race car around with the mouse cursor
-        for cursor_moved in &game_state.mouse_location_events {
-            actor.translation = cursor_moved.position;
+        // Use the latest state of the mouse buttons to rotate the actor
+        let mut rotation_amount = 0.0;
+        if game_state.mouse_state.pressed(MouseButton::Left) {
+            rotation_amount += ROTATION_SPEED * game_state.delta_f32;
         }
+        if game_state.mouse_state.pressed(MouseButton::Right) {
+            rotation_amount -= ROTATION_SPEED * game_state.delta_f32;
+        }
+        actor.rotation += rotation_amount;
 
-        // Clicking a mouse button rotates the car
-        for mouse_button_input in &game_state.mouse_button_events {
-            if mouse_button_input.state != ElementState::Pressed {
-                break;
-            }
-            match mouse_button_input.button {
-                MouseButton::Left => actor.rotation += std::f32::consts::FRAC_PI_4,
-                MouseButton::Right => actor.rotation -= std::f32::consts::FRAC_PI_4,
-                _ => {}
-            }
+        // Use the latest state of the mouse wheel to scale the actor
+        if let Some(location) = game_state.mouse_state.location() {
+            actor.translation = location
         }
 
         // Mousewheel scales the car
         for mouse_wheel in &game_state.mouse_wheel_events {
-            if mouse_wheel.y > 0.0 {
-                actor.scale *= 1.1;
-            } else {
-                actor.scale *= 0.9;
-            }
-            actor.scale = actor.scale.clamp(0.1, 3.0);
+            actor.scale *= 1.0 + (0.05 * mouse_wheel.y);
+            actor.scale = actor.scale.clamp(0.1, 4.0);
         }
     }
 }
