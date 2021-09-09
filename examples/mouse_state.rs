@@ -36,7 +36,7 @@ fn main() {
 
 fn logic(game_state: &mut GameState) {
     if let Some(actor) = game_state.actors.get_mut("Race Car") {
-        // Use the latest state of the mouse buttons to power rotation
+        // Use the latest state of the mouse buttons to rotate the actor
         let mut rotation_amount = 0.0;
         if game_state.mouse_state.pressed(MouseButton::Left) {
             rotation_amount += ROTATION_SPEED * game_state.delta_f32;
@@ -46,32 +46,10 @@ fn logic(game_state: &mut GameState) {
         }
         actor.rotation += rotation_amount;
 
-        // If you wanted to process *all* mouse button events that occurred during the last frame,
-        // this is how you would do it. Instead of using current state to smoothly rotate, we're
-        // interpreting each click as an eigth of a rotation.
-        //
-        // for mouse_button_input in &game_state.mouse_button_events {
-        //     if mouse_button_input.state != ElementState::Pressed {
-        //         break;
-        //     }
-        //     match mouse_button_input.button {
-        //         MouseButton::Left => actor.rotation += std::f32::consts::FRAC_PI_4,
-        //         MouseButton::Right => actor.rotation -= std::f32::consts::FRAC_PI_4,
-        //         _ => {}
-        //     }
-        // }
-
+        // Use the latest state of the mouse wheel to scale the actor
         if let Some(location) = game_state.mouse_state.location() {
             actor.translation = location
         }
-
-        // If you wanted to process *all* the mouse locations that occurred during the last frame,
-        // this is how you would do it. This just loops through each location event, overwriting the
-        // previous ones...so this has the same effect as using the mouse state above.
-        //
-        // for cursor_moved in &game_state.mouse_location_events {
-        //     actor.translation = cursor_moved.position;
-        // }
 
         // Honestly, this is probably the one "state" thing that you should ignore in favor of
         // processing each event instead (see the mouse_events example), since you can then handle
@@ -81,15 +59,6 @@ fn logic(game_state: &mut GameState) {
         let wheel_direction = game_state.mouse_state.wheel().y;
         actor.scale *= 1.0 + (wheel_direction * 0.1);
         actor.scale = actor.scale.clamp(0.1, 4.0);
-
-        // for mouse_wheel in &game_state.mouse_wheel_events {
-        //     if mouse_wheel.y > 0.0 {
-        //         actor.scale *= 1.1;
-        //     } else {
-        //         actor.scale *= 0.9;
-        //     }
-        //     actor.scale = actor.scale.clamp(0.1, 3.0);
-        // }
     }
 
     // Offset the move indicator from the move indicator origin to visually represent the relative
