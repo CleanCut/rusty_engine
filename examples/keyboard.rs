@@ -28,28 +28,28 @@ fn logic(game_state: &mut GameState) {
 
     // Handle keyboard input
     let ks = &mut game_state.keyboard_state;
-    if ks.any_pressed(&[KeyCode::A, KeyCode::Left]) {
+    if ks.pressed_any(&[KeyCode::A, KeyCode::Left]) {
         race_car.translation.x -= move_amount;
     }
-    if ks.any_pressed(&[KeyCode::D, KeyCode::Right, KeyCode::E]) {
+    if ks.pressed_any(&[KeyCode::D, KeyCode::Right, KeyCode::E]) {
         race_car.translation.x += move_amount;
     }
-    if ks.any_pressed(&[KeyCode::O, KeyCode::Down, KeyCode::S]) {
+    if ks.pressed_any(&[KeyCode::O, KeyCode::Down, KeyCode::S]) {
         race_car.translation.y -= move_amount;
     }
-    if ks.any_pressed(&[KeyCode::W, KeyCode::Up, KeyCode::Comma]) {
+    if ks.pressed_any(&[KeyCode::W, KeyCode::Up, KeyCode::Comma]) {
         race_car.translation.y += move_amount;
     }
-    if ks.any_pressed(&[KeyCode::Z, KeyCode::Semicolon]) {
+    if ks.pressed_any(&[KeyCode::Z, KeyCode::Semicolon]) {
         race_car.rotation += rotation_amount;
     }
-    if ks.any_pressed(&[KeyCode::C, KeyCode::J]) {
+    if ks.pressed_any(&[KeyCode::C, KeyCode::J]) {
         race_car.rotation -= rotation_amount;
     }
-    if ks.any_pressed(&[KeyCode::Plus, KeyCode::Equals]) {
+    if ks.pressed_any(&[KeyCode::Plus, KeyCode::Equals]) {
         race_car.scale *= 1.0 + scale_amount;
     }
-    if ks.any_pressed(&[KeyCode::Minus, KeyCode::Underline]) {
+    if ks.pressed_any(&[KeyCode::Minus, KeyCode::Underline]) {
         race_car.scale *= 1.0 - scale_amount;
     }
 

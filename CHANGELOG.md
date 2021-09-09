@@ -11,15 +11,17 @@
 
 ### Other Changes
 
-- Added `GameState.keyboard_state` (and a new `KeyboardState` struct), to determine the current state of the keyboard. This should be preferred over other keyboard-related methods when dealing with character movement, etc.
+- Added `GameState::keyboard_state` (and a new `KeyboardState` struct), to determine the current state of the keyboard. This should be preferred over keyboard events when dealing with character movement, etc.
+- Added `GameState::mouse_state` (and a new `MouseState` struct), to determine the current state of the mouse. In most cases, this should be preferred over mouse methods when dealing with character movement, etc.
+- Added a new `MouseWheelState` struct to represent the state of the mouse wheel, which is a simplified representation of cumuluative mouse wheel events.
 - Added an "Extreme Driver's Ed" scenario reference implementation (`cargo run --release --example extreme_drivers_ed`).
 - Documented `GameState`
 - Added `GameState.vec2_map` and `GameState.vec2_vec` as collections for the user to store state in.
 - Switched all instances of `std::collections::HashMap` to `bevy::utils::HashMap`.
 - Updated all examples to adjust for breaking changes, also:
-   - `keyboard`: use the new `KeyboardState` for smooth movement
-   - `mouse`: improved the explanations surrounding changing font size
-- Added now `level_creator` example to use as a rudimentary level creator (actually added in 1.1.0, but good to call out here)
+   - The `keyboard` example has been renamed to `keyboard_events` to distinguish it from the new `keyboard_state` example which uses `KeyboardState` for smooth movement
+   - The `mouse` example has been renamed to `mouse_events` to distinguish it from the new `mouse_state` example which uses `MouseState` for smooth movement
+- Added now `level_creator` example to use as a rudimentary level creator (originally added in 1.1.0)
 - 
 
 

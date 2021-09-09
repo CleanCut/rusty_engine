@@ -27,7 +27,7 @@ fn sync_keyboard_events(
     }
 }
 
-/// Represents the state (pressed or not) of all keys during this frame.
+/// Represents the end-state of all keys during the last frame.
 #[derive(Clone, Debug, Default)]
 pub struct KeyboardState {
     this_frame: HashMap<KeyCode, bool>,
@@ -35,17 +35,19 @@ pub struct KeyboardState {
 }
 
 impl KeyboardState {
-    pub fn is_pressed(&self, key: KeyCode) -> bool {
+    pub fn pressed(&self, key: KeyCode) -> bool {
         *self.this_frame.get(&key).unwrap_or(&false)
     }
-    pub fn any_pressed(&self, key_codes: &[KeyCode]) -> bool {
-        key_codes.iter().any(|k| self.is_pressed(*k))
+    pub fn pressed_any(&self, key_codes: &[KeyCode]) -> bool {
+        key_codes.iter().any(|k| self.pressed(*k))
     }
     pub fn just_pressed(&self, key: KeyCode) -> bool {
-        *self.this_frame.get(&key).unwrap() && !*self.last_frame.get(&key).unwrap()
+        *self.this_frame.get(&key).unwrap_or(&false)
+            && !*self.last_frame.get(&key).unwrap_or(&false)
     }
     pub fn just_released(&self, key: KeyCode) -> bool {
-        !*self.this_frame.get(&key).unwrap() && *self.last_frame.get(&key).unwrap()
+        !*self.this_frame.get(&key).unwrap_or(&false)
+            && *self.last_frame.get(&key).unwrap_or(&false)
     }
 }
 

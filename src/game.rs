@@ -4,7 +4,7 @@ use crate::{
     mouse::{CursorMoved, MouseButtonInput, MouseMotion, MousePlugin, MouseWheel},
     prelude::{
         AudioManagerPlugin, CollisionEvent, KeyboardInput, KeyboardPlugin, KeyboardState,
-        PhysicsPlugin,
+        MouseState, PhysicsPlugin,
     },
     text_actor::TextActor,
 };
@@ -245,6 +245,9 @@ pub struct GameState {
     /// between actors, both actors must have [`Actor.collision`] set to `true`. Collision events
     /// are generated when two actors' colliders begin or end overlapping in 2D space.
     pub collision_events: Vec<CollisionEvent>,
+    /// INFO - The current state of mouse location and buttons. Useful for input handling that only
+    /// cares about the final state of the mouse each frame, and not the intermediate states.
+    pub mouse_state: MouseState,
     /// INFO - All the mouse button events that occurred this frame.
     pub mouse_button_events: Vec<MouseButtonInput>,
     /// INFO - All the mouse location events that occurred this frame. The events are Bevy
@@ -262,13 +265,13 @@ pub struct GameState {
     /// start holding down a key, and then after a short delay additional pressed events will occur
     /// at the same rate that additional letters would show up in a word processor. When the key is
     /// finally released, a single released event is emitted.
+    pub keyboard_state: KeyboardState,
+    /// INFO - The delta time (time between frames) for the current frame as a [`Duration`], perfect
+    /// for use with [`Timer`]s
     pub keyboard_input_events: Vec<KeyboardInput>,
     /// INFO - The current state of all the keys on the keyboard. Use this to control movement in
     /// your games!  A [`KeyboardState`] has helper methods you should use to query the state of
     /// specific [`KeyCode`]s.
-    pub keyboard_state: KeyboardState,
-    /// INFO - The delta time (time between frames) for the current frame as a [`Duration`], perfect
-    /// for use with [`Timer`]s
     pub delta: Duration,
     /// INFO - The delta time (time between frames) for the current frame as an [`f32`], perfect for
     /// use in math with other `f32`'s. A cheap and quick way to approximate smooth movement
@@ -349,6 +352,7 @@ fn game_logic_sync(
     materials: ResMut<Assets<ColorMaterial>>,
     mut game_state: ResMut<GameState>,
     keyboard_state: Res<KeyboardState>,
+    mouse_state: Res<MouseState>,
     time: Res<Time>,
     mut app_exit_events: EventWriter<AppExit>,
     mut collision_events: EventReader<CollisionEvent>,
@@ -378,6 +382,9 @@ fn game_logic_sync(
 
     // Copy keyboard state over to game_state to give to users
     game_state.keyboard_state = keyboard_state.clone();
+
+    // Copy mouse state over to game_state to give to users
+    game_state.mouse_state = mouse_state.clone();
 
     // Copy all collision events over to the game_state to give to users
     game_state.collision_events.clear();
