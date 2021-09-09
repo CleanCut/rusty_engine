@@ -59,12 +59,12 @@ fn logic(game_state: &mut GameState) {
     let mut place_actor = false;
     let mut prev_preset = false;
     let mut next_preset = false;
-    for keyboard_input in &game_state.keyboard_input_events {
+    for keyboard_event in &game_state.keyboard_events {
         if let KeyboardInput {
             scan_code: _,
             key_code: Some(key_code),
             state,
-        } = keyboard_input
+        } = keyboard_event
         {
             if *state == ElementState::Pressed {
                 match key_code {

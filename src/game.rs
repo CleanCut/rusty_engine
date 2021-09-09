@@ -268,7 +268,7 @@ pub struct GameState {
     pub keyboard_state: KeyboardState,
     /// INFO - The delta time (time between frames) for the current frame as a [`Duration`], perfect
     /// for use with [`Timer`]s
-    pub keyboard_input_events: Vec<KeyboardInput>,
+    pub keyboard_events: Vec<KeyboardInput>,
     /// INFO - The current state of all the keys on the keyboard. Use this to control movement in
     /// your games!  A [`KeyboardState`] has helper methods you should use to query the state of
     /// specific [`KeyCode`]s.

@@ -19,11 +19,11 @@ fn sync_keyboard_events(
     mut keyboard_input_events: EventReader<KeyboardInput>,
 ) {
     // Clear any events that weren't used last frame
-    game_state.keyboard_input_events.clear();
+    game_state.keyboard_events.clear();
 
     // Populate this frame's events
     for event in keyboard_input_events.iter() {
-        game_state.keyboard_input_events.push(event.clone());
+        game_state.keyboard_events.push(event.clone());
     }
 }
 

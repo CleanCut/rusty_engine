@@ -1105,12 +1105,12 @@ fn logic(game_state: &mut GameState) {
 
     // Get player keyboard input
     let player = game_state.actors.get_mut("player".into()).unwrap();
-    for keyboard_input in &game_state.keyboard_input_events {
+    for keyboard_event in &game_state.keyboard_events {
         if let KeyboardInput {
             scan_code: _,
             key_code: Some(key_code),
             state: ElementState::Pressed,
-        } = keyboard_input
+        } = keyboard_event
         {
             // Handle various keypresses. The extra keys are for the Dvorak keyboard layout. ;-)
             match key_code {

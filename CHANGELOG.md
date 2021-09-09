@@ -4,7 +4,6 @@
 ### BREAKING CHANGES
 
 - Renamed `GameState.cursor_moved_events` to `GameState.mouse_location_events`
-- Renamed `GameState.keyboard_events` to `GameState.keyboard_input_events`
 - Renamed `Gamestate.delta_seconds` to `GameState.delta_f32`
 - Renamed `Gamestate.seconds_since_startup` to `GameState.time_since_startup_f64`
 

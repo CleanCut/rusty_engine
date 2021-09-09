@@ -67,7 +67,7 @@ fn game_logic(game_state: &mut GameState) {
     let direction = game_state.i32_map.entry("direction".into()).or_insert(0);
 
     // Respond to keyboard events and set the direction
-    for event in game_state.keyboard_input_events.drain(..) {
+    for event in game_state.keyboard_events.drain(..) {
         match event.state {
             ElementState::Pressed => {
                 if let Some(key_code) = event.key_code {
