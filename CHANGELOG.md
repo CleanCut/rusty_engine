@@ -1,6 +1,8 @@
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [2.0.0] - 2021-09-09
+
 ### BREAKING CHANGES
 
 - Renamed `GameState.cursor_moved_events` to `GameState.mouse_location_events`
@@ -108,7 +110,8 @@
 
 [Bevy]: https://bevyengine.org
 <!-- next-url -->
-[Unreleased]: https://github.com/CleanCut/rusty_engine/compare/v1.1.4...HEAD
+[Unreleased]: https://github.com/CleanCut/rusty_engine/compare/v2.0.0...HEAD
+[2.0.0]: https://github.com/CleanCut/rusty_engine/compare/v1.1.4...v2.0.0
 [1.1.4]: https://github.com/CleanCut/rusty_engine/compare/v1.1.3...v1.1.4
 [1.1.3]: https://github.com/CleanCut/rusty_engine/compare/v1.1.2...v1.1.3
 [1.1.2]: https://github.com/CleanCut/rusty_engine/compare/v1.1.1...v1.1.2
