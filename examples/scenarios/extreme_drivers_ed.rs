@@ -1078,19 +1078,29 @@ fn main() {
     // stateful boolean indicating whether we won
     game.game_state_mut().bool_vec.push(false);
 
+    // Crashed
+    game.game_state_mut()
+        .bool_map
+        .insert("crashed".into(), false);
+
     // Velocity of player
     game.game_state_mut()
         .vec2_map
-        .insert("player".into(), Vec2::ZERO);
+        .insert("velocity".into(), Vec2::ZERO);
 
     game.run(logic);
 }
 
+const TURN_RATE: f32 = 3.0;
+const ACCELERATION_RATE: f32 = 100.0;
+
 fn logic(game_state: &mut GameState) {
-    let win = game_state.bool_vec.get_mut(0).unwrap();
+    let mut win = game_state.bool_vec.get(0).unwrap().clone();
+    let mut crashed = game_state.bool_map.get("crashed").unwrap().clone();
     let win_amount = game_state.u32_map.get_mut("win_amount").unwrap().clone();
     let score = game_state.u32_map.get_mut("score").unwrap();
     let score_text = game_state.text_actors.get_mut("score_text").unwrap();
+    let velocity = game_state.vec2_map.get_mut("velocity").unwrap();
 
     // if *win {
     //     for actor in game_state.actors.values_mut() {
@@ -1103,29 +1113,40 @@ fn logic(game_state: &mut GameState) {
     //     return;
     // }
 
-    // Get player keyboard input
+    if crashed {
+        return;
+    }
+
+    // Player movement
     let player = game_state.actors.get_mut("player".into()).unwrap();
-    for keyboard_event in &game_state.keyboard_events {
-        if let KeyboardInput {
-            scan_code: _,
-            key_code: Some(key_code),
-            state: ElementState::Pressed,
-        } = keyboard_event
-        {
-            // Handle various keypresses. The extra keys are for the Dvorak keyboard layout. ;-)
-            match key_code {
-                KeyCode::A | KeyCode::Left => player.translation.x -= 10.0,
-                KeyCode::D | KeyCode::Right | KeyCode::E => player.translation.x += 10.0,
-                KeyCode::O | KeyCode::Down | KeyCode::S => player.translation.y -= 10.0,
-                KeyCode::W | KeyCode::Up | KeyCode::Comma => player.translation.y += 10.0,
-                KeyCode::Z | KeyCode::Semicolon => player.rotation += std::f32::consts::FRAC_PI_4,
-                KeyCode::C | KeyCode::J => player.rotation -= std::f32::consts::FRAC_PI_4,
-                KeyCode::Plus | KeyCode::Equals => player.scale *= 1.1,
-                KeyCode::Minus | KeyCode::Underline => player.scale *= 0.9,
-                _ => {}
-            }
+    let mut acceleration = 0.0;
+    let mut rotation = 0.0;
+    // Nested scope so the bare KeyCode variants only show up here where we want to use them
+    {
+        use KeyCode::*;
+        // Acceleration input
+        if game_state.keyboard_state.pressed_any(&[W, Up, Comma]) {
+            acceleration += 1.0;
+        }
+        if game_state.keyboard_state.pressed_any(&[S, Down, O]) {
+            acceleration -= 1.0;
+        }
+        // Rotation/Turning input
+        if game_state.keyboard_state.pressed_any(&[A, Left]) {
+            rotation += 1.0;
+        }
+        if game_state.keyboard_state.pressed_any(&[D, Right, E]) {
+            rotation -= 1.0;
         }
     }
+    let mut velocity_magnitude = velocity.length();
+    velocity_magnitude += (acceleration * ACCELERATION_RATE) * game_state.delta_f32;
+    player.rotation += (rotation * TURN_RATE) * game_state.delta_f32;
+    *velocity = Vec2::new(
+        velocity_magnitude * player.rotation.cos(),
+        velocity_magnitude * player.rotation.sin(),
+    );
+    player.translation += *velocity * game_state.delta_f32;
 
     // Make the shinies...shinier
     for actor in game_state
@@ -1137,20 +1158,21 @@ fn logic(game_state: &mut GameState) {
     }
 
     // Don't do stuff past this point after we win
-    if *win {
+    if win {
         return;
     }
 
-    // Collect shinies
+    // Process collisions
     for event in game_state.collision_events.drain(..) {
         if !event.pair.either_contains("player") {
             // if it doesn't involve the player, we don't care
             continue;
         }
         if event.state.is_end() {
-            // we don't care about the player _ending_ a collision with a shiny
+            // we don't care about the player _ending_ a collision with anything
             continue;
         }
+        // Collect shinies!
         if event.pair.one_starts_with("shiny") {
             let shiny_label = if event.pair.0.starts_with("shiny") {
                 event.pair.0.clone()
@@ -1162,12 +1184,20 @@ fn logic(game_state: &mut GameState) {
             *score += 1;
             score_text.text = format!("Score: {}", score);
             if *score >= win_amount {
-                *win = true;
+                win = true;
+                *game_state.bool_vec.get_mut(0).unwrap() = true;
             }
+            continue;
         }
+
+        // Crash!
+        *game_state.bool_map.get_mut("crashed").unwrap() = true;
+        //game_state.add_text_actor("crashed", "You crashed. You fail. :-(");
+        game_state.audio_manager.play_sfx(SfxPreset::Jingle3);
+        game_state.audio_manager.stop_music();
     }
 
-    if *win {
+    if win {
         game_state
             .audio_manager
             .play_sfx(SfxPreset::Congratulations);
