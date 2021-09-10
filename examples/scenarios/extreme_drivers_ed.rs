@@ -1096,7 +1096,7 @@ const ACCELERATION_RATE: f32 = 100.0;
 
 fn logic(game_state: &mut GameState) {
     let mut win = game_state.bool_vec.get(0).unwrap().clone();
-    let mut crashed = game_state.bool_map.get("crashed").unwrap().clone();
+    let crashed = game_state.bool_map.get("crashed").unwrap().clone();
     let win_amount = game_state.u32_map.get_mut("win_amount").unwrap().clone();
     let score = game_state.u32_map.get_mut("score").unwrap();
     let score_text = game_state.text_actors.get_mut("score_text").unwrap();
