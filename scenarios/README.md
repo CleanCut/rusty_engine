@@ -30,15 +30,22 @@ Now you're ready to proceed with your scenario!
 
 **Remember to run your game in release mode for good performance! `cargo run --release`**
 
-## Scenarios (description, full instructions, reference code)
+## 1. Full Scenarios (description, full instructions, reference code)
+
+These scenarious are step-by-step tutorials which walk you through the entire creation process, and have reference code that you can look at if you get stuck.
+
 1. Road Race - [Instructions](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/road_race.md), [Reference Code](https://github.com/CleanCut/rusty_engine/blob/main/examples/scenarios/road_race.rs)
 
-## Scenarios (description, reference code)
+## 2. Partial Scenarios (description, reference code)
+
+These scenarios describe what sort of prototype to make, and then you mostly make it on your own. Reference code is available if you get stuck.
 
 1. Car Shoot - [Description](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/car_shoot.md), [Reference Code](https://github.com/CleanCut/rusty_engine/blob/main/examples/scenarios/road_race.rs)
 1. Driver's Ed - [Description](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/car_shoot.md), [Reference Code](https://github.com/CleanCut/rusty_engine/blob/main/examples/scenarios/extreme_drivers_ed.rs)
 
-## Scenarios (description only)
+## Scenario Prompts (description only)
+
+These scenarios describe what sort of prototype to make, and you make it completely on your own.
 
 1. [Cannon Practice](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/cannon_practice.md)
 1. [Car Invaders](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/car_invaders.md)
