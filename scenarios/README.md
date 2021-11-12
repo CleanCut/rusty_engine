@@ -2,7 +2,7 @@
 
 Here are some interesting scenarios that you can use to walk through building a working game prototype using Rusty Engine.  If you would like to contribute your own game scenario idea, please feel free to open a pull request!
 
-## Common Setup!
+## Common Setup! Do this first!
 
 All scenarios assume you've followed the basic setup below.  All scenarios assume default window width and height. If your screen is too small to accomodate a `1280 x 720` window or if you [customized the window settings](https://github.com/bevyengine/bevy/blob/main/examples/window/window_settings.rs) then you may have to adapt the translation coordinates and other numerical variables in the scenario to account for the difference.
 
@@ -30,19 +30,16 @@ Now you're ready to proceed with your scenario!
 
 **Remember to run your game in release mode for good performance! `cargo run --release`**
 
-## Scenarios...
+## Scenarios (description, full instructions, reference code)
+1. Road Race - [Instructions](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/road_race.md), [Reference Code](https://github.com/CleanCut/rusty_engine/blob/main/examples/scenarios/road_race.rs)
 
-1. [Road Race](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/road_race.md) - Easy
+## Scenarios (description, reference code)
 
-...and the rest of the scenarios only have a summary so far.
+1. Car Shoot - [Description](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/car_shoot.md), [Reference Code](https://github.com/CleanCut/rusty_engine/blob/main/examples/scenarios/road_race.rs)
+1. Driver's Ed - [Description](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/car_shoot.md), [Reference Code](https://github.com/CleanCut/rusty_engine/blob/main/examples/scenarios/extreme_drivers_ed.rs)
+
+## Scenarios (description only)
 
 1. [Cannon Practice](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/cannon_practice.md)
 1. [Car Invaders](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/car_invaders.md)
-1. [Car Shoot](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/car_shoot.md) ... though this one does have a reference implementation!
-1. [Driver's Ed](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/drivers_ed.md)
 1. [Labrinth](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/labrinth.md)
-
-**Difficulty Levels**
-- Easy - Most of the code is included. Lots of details.  Straightforward implementation.
-- Medium - Code examples for only the trickier bits, but still very detailed steps. Assumes you know Rusty Engine well enough to be able to figure out the basic code parts.
-- Hard - The scenario describes the logic, you write the code.
