@@ -9,7 +9,7 @@ fn main() {
     for (x, actor_preset) in (-300..=600).step_by(30).zip(preset_iterator) {
         let mut actor = game.add_actor(format!("{:?}", actor_preset), actor_preset);
         actor.translation = Vec2::new(x as f32, (-x) as f32);
-        actor.layer = layer;
+        actor.layer = layer; // 0.0 is the bottom (back) layer. 999.0 is the top (front) layer.
         layer += 1.0;
     }
 
