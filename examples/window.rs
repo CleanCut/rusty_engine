@@ -16,7 +16,7 @@ fn main() {
         resizable: true,
         decorations: false,
         cursor_visible: false,
-        ..Default::default()
+        ..Default::default() // for the rest of the options, see https://docs.rs/bevy/0.5.0/bevy/window/struct.WindowDescriptor.html
     });
     let _ = game.add_text_actor(
         "message",
