@@ -26,10 +26,10 @@ fn main() {
 
     let msg2 = game.add_text_actor(
         "instructions",
-        "Move the car around with your mouse.\nRotate it by holding left/right mouse buttons.\nScale it with the mousewheel.",
+        "Smooth Movement with Mouse State\n==============================\nMove the car around with your mouse.\nRotate it by holding left/right mouse buttons.\nScale it with the mousewheel.",
     );
     msg2.font_size = 30.0;
-    msg2.translation.y = 300.0;
+    msg2.translation.y = 275.0;
 
     game.run(logic);
 }
