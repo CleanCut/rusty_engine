@@ -3,27 +3,33 @@ use rusty_engine::prelude::*;
 const MAX_LAYER: f32 = 900.0;
 
 fn main() {
+    let mut game = Game::new();
+
     println!(
         "
-This is an example of how you could write a level creater. This example lets you place actors, and
+This example is a level creator that lets you place actors into a level, and then
 generate the code you can copy-and-paste into a main.rs file to recreate that level.
 
+Yes, it would be better to find a way to serialize/deserialize all the data to and
+from a save file. But I haven't taken the time to do that. Feel free to open a pull
+request contributing a nice feature like that! ;-)
+
 Controls
+
+Right / Left Click - Rotate actor by 45 degrees (add Shift to rotate by 1 degree)
+Mousewheel - Scale actor by 10% (add Shift to scale by 1 percent)
+Mouse location - Choose translation (location) of actor
+
+Space - Place actor
+Left/Up Arrow - Previous actor preset
+Right/Down Arrow - Next actor preset
 
 R - Reset actor to default scale & rotation
 S - Print out status of current actor
 Z - Print out Rust code of current level
 
-Left/Up - Previous actor preset
-Right/Down - Next actor preset
-
-Right / Left Click - Rotate actor by 45 degrees (add Shift to rotate by 1 degree)
-Mousewheel - Scale actor by 10% (add Shift to scale by 1 percent)
-Mouse location - Choose translation (location) of actor
 "
     );
-
-    let mut game = Game::new();
 
     // Use an incrementing index (converted to a string) for the unique label of the actors
     // Start at 1 since the hard-coded initial actor is 0
@@ -74,13 +80,13 @@ fn logic(game_state: &mut GameState) {
                     KeyCode::LShift | KeyCode::RShift => {
                         *shift_pressed = true;
                     }
-                    KeyCode::R => {
+                    KeyCode::R | KeyCode::P => {
                         reset = true;
                     }
-                    KeyCode::S => {
+                    KeyCode::S | KeyCode::O => {
                         print_status = true;
                     }
-                    KeyCode::Space | KeyCode::Delete => {
+                    KeyCode::Space | KeyCode::Back => {
                         place_actor = true;
                     }
                     KeyCode::Left | KeyCode::Up => {
