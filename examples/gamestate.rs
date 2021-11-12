@@ -2,6 +2,9 @@ use std::f32::consts::TAU;
 
 use rusty_engine::prelude::*;
 
+// There are LOTS of fields on the GameState struct that you can use. For more info, please see:
+// https://docs.rs/rusty_engine/latest/rusty_engine/game/struct.GameState.html
+
 fn main() {
     let mut game = Game::new();
     let _ = game.add_actor("Race Car", ActorPreset::RacingCarGreen);
