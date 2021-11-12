@@ -1,6 +1,8 @@
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+- Print out error and URL if assets directory is not present
+
 ## [2.0.0] - 2021-09-09
 
 ### BREAKING CHANGES

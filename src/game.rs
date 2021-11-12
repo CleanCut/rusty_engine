@@ -48,6 +48,10 @@ impl Default for Game {
 impl Game {
     /// Create an empty [`Game`] with an empty [`GameState`] and an empty vector of [`Actor`]s
     pub fn new() -> Self {
+        if std::fs::read_dir("assets").is_err() {
+            println!("FATAL: Could not find assets directory. Have you downloaded the assets?\nhttps://github.com/CleanCut/rusty_engine#you-must-download-the-assets-separately");
+            std::process::exit(1);
+        }
         Default::default()
     }
 
