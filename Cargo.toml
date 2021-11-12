@@ -1,9 +1,8 @@
 [package]
 name = "rusty_engine"
 version = "2.0.0"
-authors = [ "Nathan Stocks <nathan@agileperception.com>" ]
 description = "Learn Rust with a simple, cross-platform, 2D game engine."
-edition = "2018"
+edition = "2021"
 homepage = "https://github.com/CleanCut/rusty_engine"
 repository = "https://github.com/CleanCut/rusty_engine"
 readme = "README.md"
