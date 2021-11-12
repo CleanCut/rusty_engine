@@ -1,43 +1,35 @@
 //
 use rusty_engine::prelude::*;
-use std::f64::consts::TAU;
 
 fn main() {
     let mut game = Game::new();
 
-    let mut race_car = game.add_actor("Race Car", ActorPreset::RacingCarGreen);
-    race_car.translation = Vec2::new(0.0, 0.0);
-    race_car.rotation = UP;
-    race_car.scale = 1.0;
+    let mut car1 = game.add_actor("car1", ActorPreset::RacingCarRed);
+    car1.translation = Vec2::new(-300.0, 0.0);
+    car1.rotation = UP;
+    car1.scale = 1.0;
+
+    let mut car2 = game.add_actor("car2", ActorPreset::RacingCarGreen);
+    car2.translation = Vec2::new(0.0, 0.0);
+    car2.rotation = UP;
+    car2.scale = 1.0;
+
+    let mut car3 = game.add_actor("car3", ActorPreset::RacingCarBlue);
+    car3.translation = Vec2::new(300.0, 0.0);
+    car3.rotation = UP;
+    car3.scale = 1.0;
 
     game.run(logic);
 }
 
 fn logic(game_state: &mut GameState) {
-    for actor in &mut game_state.actors.values_mut() {
-        match game_state.time_since_startup_f64 {
-            x if x % (3.0 * TAU) < TAU => {
-                // reset scale and rotation
-                actor.scale = 1.0;
-                actor.rotation = UP;
-                // play with translation
-                actor.translation.x = (game_state.time_since_startup_f64.cos() * 100.0) as f32;
-                actor.translation.y = (game_state.time_since_startup_f64.sin() * 100.0) as f32;
-            }
-            x if x % (3.0 * TAU) < 2.0 * TAU => {
-                // reset translation and rotation
-                actor.translation = Vec2::ZERO;
-                actor.rotation = UP;
-                // play with scale
-                actor.scale = ((game_state.time_since_startup_f64 * 0.5).cos().abs() * 2.0) as f32;
-            }
-            _ => {
-                // reset translation and scale
-                actor.translation = Vec2::ZERO;
-                actor.scale = 1.0;
-                // play with rotation
-                actor.rotation = game_state.time_since_startup_f64 as f32;
-            }
-        }
-    }
+    let car1 = game_state.actors.get_mut("car1").unwrap();
+    car1.translation.x = -300.0 + (game_state.time_since_startup_f64.cos() * 100.0) as f32;
+    car1.translation.y = (game_state.time_since_startup_f64.sin() * 100.0) as f32;
+
+    let car2 = game_state.actors.get_mut("car2").unwrap();
+    car2.scale = ((game_state.time_since_startup_f64 * 0.5).cos().abs() * 2.0) as f32;
+
+    let car3 = game_state.actors.get_mut("car3").unwrap();
+    car3.rotation = game_state.time_since_startup_f64 as f32;
 }
