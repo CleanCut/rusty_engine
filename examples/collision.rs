@@ -5,6 +5,13 @@ const ROTATION_SPEED: f32 = 3.0;
 fn main() {
     let mut game = Game::new();
 
+    let msg2 = game.add_text_actor(
+        "instructions",
+        "Move the car around with your mouse. Rotate it by holding left/right mouse buttons. Scale it with the mousewheel.",
+    );
+    msg2.font_size = 20.0;
+    msg2.translation.y = 340.0;
+
     let mut race_car = game.add_actor("Player", ActorPreset::RacingCarGreen);
     race_car.translation = Vec2::new(0.0, 0.0);
     race_car.rotation = UP;
