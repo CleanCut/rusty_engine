@@ -126,6 +126,11 @@ fn collision_detection(
     }
 }
 
+/// The `Poly` variant needs to have coordinates that are:
+/// - relative to the center of the image, meaning the (0.0, 0.0) coordinate of a 64x64 png is (32, 32) in Photoshop
+/// - 1.0 of coordinate corresponds to 1 pixel
+/// - the polygon defined needs to be convex
+/// - the coordinates should go in a clockwise direction
 #[derive(Clone, Debug)]
 pub enum Collider {
     NoCollider,

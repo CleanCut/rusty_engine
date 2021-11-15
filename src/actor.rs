@@ -74,6 +74,11 @@ pub enum ActorPreset {
     RacingCarRed,
     RacingCarYellow,
     RacingConeStraight,
+    ParticleCloud,
+    ParticleExplosion,
+    ParticleFlash,
+    ParticlePoison,
+    ParticleSmoke,
     RollingBallBlue,
     RollingBallBlueAlt,
     RollingBallRed,
@@ -102,6 +107,11 @@ impl ActorPreset {
             "RacingCarRed" => RacingCarRed,
             "RacingCarYellow" => RacingCarYellow,
             "RacingConeStraight" => RacingConeStraight,
+            "ParticleCloud" => ParticleCloud,
+            "ParticleExplosion" => ParticleExplosion,
+            "ParticleFlash" => ParticleFlash,
+            "ParticlePoison" => ParticlePoison,
+            "ParticleSmoke" => ParticleSmoke,
             "RollingBallBlue" => RollingBallBlue,
             "RollingBallBlueAlt" => RollingBallBlueAlt,
             "RollingBallRed" => RollingBallRed,
@@ -214,6 +224,29 @@ impl ActorPreset {
             ActorPreset::RacingConeStraight => {
                 Collider::rect(Vec2::new(-22.0, 22.0), Vec2::new(22.0, -22.0))
             }
+            ActorPreset::ParticleCloud => Collider::poly(&[
+                (-120., 0.),
+                (-61., 95.),
+                (-14., 110.),
+                (35., 97.),
+                (106., 26.),
+                (94., -47.),
+                (40., -121.),
+                (-64., -88.),
+            ]),
+            ActorPreset::ParticleExplosion => Collider::poly(&[
+                (-178., 0.),
+                (-147., 107.),
+                (-75., 139.),
+                (32., 141.),
+                (170., 70.),
+                (189., -16.),
+                (14., -135.),
+                (-99., -139.),
+            ]),
+            // ActorPreset::ParticleFlash => Collider::poly(&[]),
+            // ActorPreset::ParticlePoison => Collider::poly(&[]),
+            // ActorPreset::ParticleSmoke => Collider::poly(&[]),
             ActorPreset::RollingBallBlue => Collider::circle(18.0),
             ActorPreset::RollingBallBlueAlt => Collider::circle(18.0),
             ActorPreset::RollingBallRed => Collider::circle(18.0),
@@ -254,6 +287,11 @@ impl ActorPreset {
             ActorPreset::RacingCarRed => "sprite/racing/car_red.png",
             ActorPreset::RacingCarYellow => "sprite/racing/car_yellow.png",
             ActorPreset::RacingConeStraight => "sprite/racing/cone_straight.png",
+            ActorPreset::ParticleCloud => "sprite/particle/cloud.png",
+            ActorPreset::ParticleExplosion => "sprite/particle/explosion.png",
+            ActorPreset::ParticleFlash => "sprite/particle/flash.png",
+            ActorPreset::ParticlePoison => "sprite/particle/poison.png",
+            ActorPreset::ParticleSmoke => "sprite/particle/smoke.png",
             ActorPreset::RollingBallBlue => "sprite/rolling/ball_blue.png",
             ActorPreset::RollingBallBlueAlt => "sprite/rolling/ball_blue_alt.png",
             ActorPreset::RollingBallRed => "sprite/rolling/ball_red.png",
@@ -270,8 +308,8 @@ impl ActorPreset {
 
     /// An iterator that iterates through presets. Mostly useful for things like level builders
     /// when you want to be able to rotate something through each preset.
-    pub fn variant_iter() -> IntoIter<ActorPreset, 20> {
-        static ACTOR_PRESETS: [ActorPreset; 20] = [
+    pub fn variant_iter() -> IntoIter<ActorPreset, 25> {
+        static ACTOR_PRESETS: [ActorPreset; 25] = [
             ActorPreset::RacingBarrelBlue,
             ActorPreset::RacingBarrelRed,
             ActorPreset::RacingBarrierRed,
@@ -282,6 +320,11 @@ impl ActorPreset {
             ActorPreset::RacingCarRed,
             ActorPreset::RacingCarYellow,
             ActorPreset::RacingConeStraight,
+            ActorPreset::ParticleCloud,
+            ActorPreset::ParticleExplosion,
+            ActorPreset::ParticleFlash,
+            ActorPreset::ParticlePoison,
+            ActorPreset::ParticleSmoke,
             ActorPreset::RollingBallBlueAlt,
             ActorPreset::RollingBallBlue,
             ActorPreset::RollingBallRedAlt,
