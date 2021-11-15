@@ -1,6 +1,8 @@
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [2.0.1] - 2021-11-15
+
 - Print out error and URL if assets directory is not present
 
 ## [2.0.0] - 2021-09-09
@@ -112,7 +114,8 @@
 
 [Bevy]: https://bevyengine.org
 <!-- next-url -->
-[Unreleased]: https://github.com/CleanCut/rusty_engine/compare/v2.0.0...HEAD
+[Unreleased]: https://github.com/CleanCut/rusty_engine/compare/v2.0.1...HEAD
+[2.0.1]: https://github.com/CleanCut/rusty_engine/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/CleanCut/rusty_engine/compare/v1.1.4...v2.0.0
 [1.1.4]: https://github.com/CleanCut/rusty_engine/compare/v1.1.3...v1.1.4
 [1.1.3]: https://github.com/CleanCut/rusty_engine/compare/v1.1.2...v1.1.3
