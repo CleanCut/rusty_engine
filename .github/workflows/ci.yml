@@ -41,7 +41,7 @@ jobs:
       SCCACHE_CACHE_SIZE: 2G
       SCCACHE_DIR: ${{ matrix.sccache-path }}
       SCCACHE_TARGET: ${{ matrix.sccache-download-target }}
-      LINK: https://github.com/mozilla/sccache/releases/download
+      URL_BASE: https://github.com/mozilla/sccache/releases/download
       SCCACHE_VERSION: v0.2.15
       # SCCACHE_RECACHE: 1 # Uncomment this to clear cache, then comment it back out
     steps:
@@ -64,7 +64,7 @@ jobs:
         run: |
           SCCACHE_FILE=sccache-$SCCACHE_VERSION-x86_64-$SCCACHE_TARGET
           mkdir -p $HOME/.local/bin
-          curl -L "$LINK/$SCCACHE_VERSION/$SCCACHE_FILE.tar.gz" | tar xz
+          curl -L "$URL_BASE/$SCCACHE_VERSION/$SCCACHE_FILE.tar.gz" | tar xz
           mv -f $SCCACHE_FILE/sccache $HOME/.local/bin/sccache
           chmod +x $HOME/.local/bin/sccache
           echo "$HOME/.local/bin" >> $GITHUB_PATH
