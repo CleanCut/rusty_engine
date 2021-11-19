@@ -1,6 +1,8 @@
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+- (meta) Improved CI times by using sccache together with GitHub Actions caching
+
 ## [2.0.1] - 2021-11-15
 
 - Print out error and URL if assets directory is not present
