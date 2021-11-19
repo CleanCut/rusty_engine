@@ -77,6 +77,7 @@ jobs:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
+            Cargo.lock
           key: ${{ runner.os }}-cargo-${{ matrix.toolchain }}-${{ hashFiles('**/Cargo.toml') }}
           restore-keys: |
             ${{ runner.os }}-cargo-${{ matrix.toolchain }}-
