@@ -27,16 +27,17 @@ jobs:
             sccache-path: /Users/runner/Library/Caches/Mozilla.sccache
             sccache-download-target: apple-darwin
             # This can be moved to the "env:" section below once sccache is also working on Windows
-            RUSTC_WRAPPER: sccache
+            rustc_wrapper: sccache
           - os: windows-latest
           - os: ubuntu-latest
             sccache-path: /home/runner/.cache/sccache
             sccache-download-target: unknown-linux-musl
             # This can be moved to the "env:" section below once sccache is also working on Windows
-            RUSTC_WRAPPER: sccache
+            rustc_wrapper: sccache
     env:
       RUST_BACKTRACE: full
       #RUSTC_WRAPPER: sccache  # Can't set this until we've got Windows working, too
+      RUSTC_WRAPPER: ${{ matrix.rustc_wrapper }}
       RUSTV: ${{ matrix.toolchain }}
       SCCACHE_CACHE_SIZE: 2G
       SCCACHE_DIR: ${{ matrix.sccache-path }}
