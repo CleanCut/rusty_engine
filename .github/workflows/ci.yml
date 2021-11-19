@@ -60,7 +60,7 @@ jobs:
           # Don't use a 'components:' entry--we don't need them with beta/nightly, plus nightly often doesn't have them
           override: true
 
-      - name: Install sccache (mac/linux)
+      - name: Install sccache
         run: |
           SCCACHE_FILE=sccache-$SCCACHE_VERSION-x86_64-$SCCACHE_TARGET
           mkdir -p $HOME/.local/bin
@@ -68,7 +68,7 @@ jobs:
           mv -f $SCCACHE_FILE/sccache $HOME/.local/bin/sccache
           chmod +x $HOME/.local/bin/sccache
           echo "$HOME/.local/bin" >> $GITHUB_PATH
-        if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'
+        if: matrix.os != 'windows-latest'
 
       - name: Fetch cargo registry cache
         uses: actions/cache@v2
@@ -80,6 +80,7 @@ jobs:
           key: ${{ runner.os }}-cargo-${{ matrix.toolchain }}-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
             ${{ runner.os }}-cargo-${{ matrix.toolchain }}-
+        if: matrix.os != 'windows-latest'
 
       - name: Fetch sccache cache
         uses: actions/cache@v2
@@ -89,9 +90,11 @@ jobs:
           key: ${{ runner.os }}-sccache-${{ matrix.toolchain }}-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
             ${{ runner.os }}-sccache-${{ matrix.toolchain }}-
+        if: matrix.os != 'windows-latest'
 
       - name: Start sccache server
         run: sccache --start-server
+        if: matrix.os != 'windows-latest'
 
       - name: rustfmt & clippy
         run: |
@@ -106,6 +109,8 @@ jobs:
 
       - name: Print sccache stats
         run: sccache --show-stats
-        
+        if: matrix.os != 'windows-latest'
+
       - name: Stop sccache server
         run: sccache --stop-server || true
+        if: matrix.os != 'windows-latest'
