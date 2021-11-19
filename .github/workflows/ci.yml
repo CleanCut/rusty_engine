@@ -36,7 +36,7 @@ jobs:
             rustc_wrapper: sccache
     env:
       RUST_BACKTRACE: full
-      #RUSTC_WRAPPER: sccache  # Can't set this until we've got Windows working, too
+      #RUSTC_WRAPPER: sccache  # Can't hard-code this until we've got Windows working, too
       RUSTC_WRAPPER: ${{ matrix.rustc_wrapper }}
       RUSTV: ${{ matrix.toolchain }}
       SCCACHE_CACHE_SIZE: 2G
