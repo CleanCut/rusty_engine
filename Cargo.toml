@@ -10,8 +10,6 @@ keywords = [ "game", "engine", "graphics", "audio", "rusty" ]
 categories = [ "game-engines" ]
 license = "MIT OR Apache-2.0"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
 #bevy = { git = "https://github.com/bevyengine/bevy", rev = "47004dfcb415a049e4c6e68fdf56c26de72f51a1" }
 #bevy = { git = "https://github.com/bevyengine/bevy", branch = "main" }
