@@ -78,8 +78,8 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
           key: ${{ runner.os }}-cargo-${{ matrix.toolchain }}-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-cargo-${{ matrix.toolchain }}-
+          # restore-keys: |
+          #   ${{ runner.os }}-cargo-${{ matrix.toolchain }}-
         if: matrix.os != 'windows-latest'
 
       - name: Fetch sccache cache
@@ -88,8 +88,8 @@ jobs:
         with:
           path: ${{ matrix.sccache-path }}
           key: ${{ runner.os }}-sccache-${{ matrix.toolchain }}-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-sccache-${{ matrix.toolchain }}-
+          # restore-keys: |
+          #   ${{ runner.os }}-sccache-${{ matrix.toolchain }}-
         if: matrix.os != 'windows-latest'
 
       - name: Start sccache server
