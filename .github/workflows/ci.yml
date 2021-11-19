@@ -108,10 +108,6 @@ jobs:
         env:
           MACOS: ${{ matrix.MACOS }} # Used by some tests
 
-      - name: Print sccache stats
-        run: sccache --show-stats
-        if: matrix.os != 'windows-latest'
-
       - name: Stop sccache server
         run: sccache --stop-server || true
         if: matrix.os != 'windows-latest'
