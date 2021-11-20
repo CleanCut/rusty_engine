@@ -5,15 +5,15 @@ use std::array::IntoIter;
 
 #[derive(Debug, Default)]
 pub struct AudioManager {
-    sfx_queue: Vec<SfxPreset>,
+    sfx_queue: Vec<(SfxPreset, f32)>,
     music_queue: Vec<Option<(MusicPreset, f32)>>,
     playing: AudioChannel,
 }
 
 impl AudioManager {
-    /// Play a sound
-    pub fn play_sfx(&mut self, sfx_preset: SfxPreset) {
-        self.sfx_queue.push(sfx_preset);
+    /// Play a sound, `volume` ranges from `0.0` to `1.0`.
+    pub fn play_sfx(&mut self, sfx_preset: SfxPreset, volume: f32) {
+        self.sfx_queue.push((sfx_preset, volume.clamp(0.0, 1.0)));
     }
     /// Play looping music. `volume` ranges from `0.0` to `1.0`.  Any music already playing will be
     /// stopped.
@@ -138,21 +138,26 @@ pub fn queue_managed_audio_system(
     audio: Res<Audio>,
     mut game_state: ResMut<GameState>,
 ) {
+    let mut playing = game_state.audio_manager.playing.clone();
     for sfx in game_state.audio_manager.sfx_queue.drain(..) {
-        let sfx_handle = asset_server.load(sfx.to_path());
-        audio.play(sfx_handle);
+        let effect = sfx.0;
+        let volume = sfx.1;
+        let sfx_path = effect.to_path();
+        let sfx_handle = asset_server.load(sfx_path);
+        playing = AudioChannel::new(sfx_path.into());
+        audio.set_volume_in_channel(volume, &playing);
+        audio.play_in_channel(sfx_handle, &playing);
     }
-    let playing = game_state.audio_manager.playing.clone();
-    let mut new_playing = playing.clone();
+    let mut playing_music = playing.clone();
     for item in game_state.audio_manager.music_queue.drain(..) {
         audio.stop_channel(&playing);
         if let Some((music, volume)) = item {
             let music_path = music.to_path();
             let music_handle = asset_server.load(music_path);
-            new_playing = AudioChannel::new(music_path.into());
-            audio.set_volume_in_channel(volume, &new_playing);
-            audio.play_looped_in_channel(music_handle, &new_playing);
+            playing_music = AudioChannel::new(music_path.into());
+            audio.set_volume_in_channel(volume, &playing_music);
+            audio.play_looped_in_channel(music_handle, &playing_music);
         }
     }
-    game_state.audio_manager.playing = new_playing;
+    game_state.audio_manager.playing = playing_music;
 }
