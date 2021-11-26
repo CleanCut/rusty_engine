@@ -63,7 +63,7 @@ fn game_logic(game_state: &mut GameState) {
             marble.translation.x = player_x;
             marble.layer = 5.0;
             marble.collision = true;
-            game_state.audio_manager.play_sfx(SfxPreset::Impact2);
+            game_state.audio_manager.play_sfx(SfxPreset::Impact2, 0.7);
         }
     }
 
@@ -151,6 +151,8 @@ fn game_logic(game_state: &mut GameState) {
         if event.pair.1.starts_with("marble") {
             game_state.string_vec.push(event.pair.1);
         }
-        game_state.audio_manager.play_sfx(SfxPreset::Confirmation1);
+        game_state
+            .audio_manager
+            .play_sfx(SfxPreset::Confirmation1, 0.5);
     }
 }

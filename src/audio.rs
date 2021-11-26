@@ -138,19 +138,21 @@ pub fn queue_managed_audio_system(
     audio: Res<Audio>,
     mut game_state: ResMut<GameState>,
 ) {
-    let mut playing = game_state.audio_manager.playing.clone();
-    for sfx in game_state.audio_manager.sfx_queue.drain(..) {
-        let effect = sfx.0;
-        let volume = sfx.1;
-        let sfx_path = effect.to_path();
+    for (sfx_preset, volume) in game_state.audio_manager.sfx_queue.drain(..) {
+        let sfx_path = sfx_preset.to_path();
         let sfx_handle = asset_server.load(sfx_path);
-        playing = AudioChannel::new(sfx_path.into());
-        audio.set_volume_in_channel(volume, &playing);
-        audio.play_in_channel(sfx_handle, &playing);
+        // To be able to set the volume of a sound effect, we need the channel it is being played
+        // in. We'll start by naively creating a new channel for every single sound effect. If this
+        // ends up being a performance or correctness problem, we'll need to circle back and do
+        // something more sophisticated (like keep a set number of channels around at different
+        // volumes).
+        let new_sfx_channel = AudioChannel::new(sfx_path.into());
+        audio.set_volume_in_channel(volume, &new_sfx_channel);
+        audio.play_in_channel(sfx_handle, &new_sfx_channel);
     }
-    let mut playing_music = playing.clone();
+    let mut playing_music = game_state.audio_manager.playing.clone();
     for item in game_state.audio_manager.music_queue.drain(..) {
-        audio.stop_channel(&playing);
+        audio.stop_channel(&playing_music);
         if let Some((music, volume)) = item {
             let music_path = music.to_path();
             let music_handle = asset_server.load(music_path);
