@@ -43,7 +43,8 @@ impl Default for Actor {
 }
 
 impl Actor {
-    pub(crate) fn bevy_transform(&self) -> Transform {
+    #[doc(hidden)]
+    pub fn bevy_transform(&self) -> Transform {
         let mut transform = Transform::from_translation(self.translation.extend(self.layer));
         transform.rotation = Quat::from_axis_angle(Vec3::Z, self.rotation);
         transform.scale = Vec3::splat(self.scale);

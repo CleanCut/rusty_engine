@@ -1,7 +1,10 @@
 use rand::prelude::*;
+use rusty_engine::game_stuff;
 use rusty_engine::prelude::{ActorPreset::*, *};
 
 const ROAD_SPEED: f32 = 400.0;
+
+game_stuff!(());
 
 fn main() {
     let mut game = Game::new();

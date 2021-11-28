@@ -1,178 +1,15 @@
 use crate::{
     actor::{Actor, ActorPreset},
     audio::AudioManager,
-    mouse::{CursorMoved, MouseButtonInput, MouseMotion, MousePlugin, MouseWheel},
-    prelude::{
-        AudioManagerPlugin, CollisionEvent, KeyboardInput, KeyboardPlugin, KeyboardState,
-        MouseState, PhysicsPlugin,
-    },
+    mouse::{CursorMoved, MouseButtonInput, MouseMotion, MouseWheel},
+    prelude::{CollisionEvent, KeyboardInput, KeyboardState, MouseState},
     text_actor::TextActor,
 };
-use bevy::{app::AppExit, input::system::exit_on_esc_system, prelude::*, utils::HashMap};
-use bevy_kira_audio::*;
-use lazy_static::lazy_static;
-use log::{debug, info};
-use std::{sync::Mutex, time::Duration};
+use bevy::{prelude::*, utils::HashMap};
+use std::time::Duration;
 
 pub type GameLogicFunction = fn(&mut GameState);
 pub use bevy::window::{WindowDescriptor, WindowMode, WindowResizeConstraints};
-
-// TODO: Find a way to connect outside logic with the Bevy system in a more elegant way if possible
-lazy_static! {
-    pub(crate) static ref GAME_LOGIC_FUNCTIONS: Mutex<Vec<GameLogicFunction>> = Mutex::new(vec![]);
-}
-
-/// A [`Game`] represents the entire game and its data.
-/// By default the game will spawn an empty window, and exit upon Esc or closing of the window.
-/// Under the hood, Rusty Engine syncs the game data to Bevy to power most of the underlying
-/// functionality.
-pub struct Game {
-    app_builder: AppBuilder,
-    game_state: GameState,
-    window_descriptor: WindowDescriptor,
-}
-
-impl Default for Game {
-    fn default() -> Self {
-        Self {
-            app_builder: App::build(),
-            game_state: GameState::default(),
-            window_descriptor: WindowDescriptor {
-                title: "Rusty Engine".into(),
-                ..Default::default()
-            },
-        }
-    }
-}
-
-impl Game {
-    /// Create an empty [`Game`] with an empty [`GameState`] and an empty vector of [`Actor`]s
-    pub fn new() -> Self {
-        if std::fs::read_dir("assets").is_err() {
-            println!("FATAL: Could not find assets directory. Have you downloaded the assets?\nhttps://github.com/CleanCut/rusty_engine#you-must-download-the-assets-separately");
-            std::process::exit(1);
-        }
-        Default::default()
-    }
-
-    #[must_use]
-    /// Add an [`Actor`] before the game has begun. Use the `&mut Actor` that is returned to set
-    /// the translation, rotation, etc.
-    pub fn add_actor<T: Into<String>>(&mut self, label: T, preset: ActorPreset) -> &mut Actor {
-        let label = label.into();
-        self.game_state
-            .actors
-            .insert(label.clone(), preset.build(label.clone()));
-        // Unwrap: Can't crash because we just inserted the actor
-        self.game_state.actors.get_mut(&label).unwrap()
-    }
-
-    #[must_use]
-    /// Add a [`TextActor`] before the game has begun. Use the `&mut TextActor` that is returned to
-    /// set the translation, rotation, etc.
-    pub fn add_text_actor<T, S>(&mut self, label: T, text: S) -> &mut TextActor
-    where
-        T: Into<String>,
-        S: Into<String>,
-    {
-        let label = label.into();
-        let text = text.into();
-        let text_actor = TextActor {
-            label: label.clone(),
-            text,
-            ..Default::default()
-        };
-        self.game_state
-            .text_actors
-            .insert(label.clone(), text_actor);
-        // Unwrap: Can't crash because we just inserted the actor
-        self.game_state.text_actors.get_mut(&label).unwrap()
-    }
-
-    /// Use to get a `&mut GameState` to set up game state before the game has begun.
-    pub fn game_state_mut(&mut self) -> &mut GameState {
-        &mut self.game_state
-    }
-
-    /// Use this to set properties of the native OS window before running the game. See the
-    /// [window](https://github.com/CleanCut/rusty_engine/blob/main/examples/window.rs) example for
-    /// more information.
-    pub fn window_settings(&mut self, window_descriptor: WindowDescriptor) -> &mut Self {
-        self.window_descriptor = window_descriptor;
-        debug!("window descriptor is: {:?}", self.window_descriptor);
-        self
-    }
-
-    /// Start the game. This method never returns.  [`GameLogicFunction`] should be a function or
-    /// closure which accepts one parameter, a `&mut GameState` and returns nothing.
-    ///
-    /// # Examples
-    ///
-    /// There are much more interesting and complete examples in [the `examples/` directory.](https://github.com/CleanCut/rusty_engine/tree/main/examples)
-    ///
-    /// You can write a function for your game logic.
-    ///
-    /// ```no_run
-    /// use rusty_engine::prelude::*;
-    ///
-    /// fn game_logic(game_state: &mut GameState) {
-    ///     println!("This game has been running for: {:.2}", game_state.time_since_startup_f64);
-    /// }
-    ///
-    /// fn main() {
-    ///     let mut game = Game::new();
-    ///     game.run(game_logic);
-    /// }
-    /// ```
-    ///
-    /// You can write a closure for your game logic, if and only if your closure doesn't capture
-    /// any variables.
-    ///
-    /// ```no_run
-    /// # use rusty_engine::prelude::*;
-    /// let mut game = Game::new();
-    /// game.run(|game_state| {
-    ///     println!("This game has been running for: {:.2}", game_state.time_since_startup_f64);
-    /// });
-    /// ```
-    ///
-    /// If you don't want to do anything, you can use the closure `|_| {}`
-    ///
-    /// ```no_run
-    /// # use rusty_engine::prelude::*;
-    /// let mut game = Game::new();
-    /// game.run(|_| {});
-    /// ```
-    pub fn run(&mut self, func: GameLogicFunction) {
-        self.app_builder
-            .insert_resource::<WindowDescriptor>(self.window_descriptor.clone());
-        self.app_builder
-            // Built-ins
-            .add_plugins_with(DefaultPlugins, |group| {
-                group.disable::<bevy::audio::AudioPlugin>()
-            })
-            .add_system(exit_on_esc_system.system())
-            // External Plugins
-            .add_plugin(AudioPlugin) // kira_bevy_audio
-            // Rusty Engine Plugins
-            .add_plugin(AudioManagerPlugin)
-            .add_plugin(KeyboardPlugin)
-            .add_plugin(MousePlugin)
-            .add_plugin(PhysicsPlugin)
-            //.insert_resource(ReportExecutionOrderAmbiguities) // for debugging
-            .add_system(game_logic_sync.system().label("game_logic_sync"))
-            .add_startup_system(setup.system());
-        // Unwrap: Can't crash, we're the only thread using the lock, so it can't be poisoned.
-        GAME_LOGIC_FUNCTIONS.lock().unwrap().push(func);
-        let world = self.app_builder.world_mut();
-        world
-            .spawn()
-            .insert_bundle(OrthographicCameraBundle::new_2d());
-        let game_state = std::mem::take(&mut self.game_state);
-        self.app_builder.insert_resource(game_state);
-        self.app_builder.run();
-    }
-}
 
 /// GameState is the primary way that you will interact with Rusty Engine. Every frame this struct
 /// is provided to the "game logic" function or closure that you provided to [`Game::run`]. The
@@ -292,7 +129,8 @@ pub struct GameState {
     /// INFO - Screen dimensions in pixels
     pub screen_dimensions: Vec2,
     // Used by internal methods
-    should_exit: bool,
+    #[doc(hidden)]
+    pub should_exit: bool,
 }
 
 impl GameState {
@@ -332,6 +170,178 @@ impl GameState {
     }
 }
 
+#[macro_export]
+macro_rules! game_stuff {
+    ($state_struct:ty, $(),+ ) => {
+
+use rusty_engine::{
+    actor::{Actor, ActorPreset},
+    audio::AudioManager,
+    mouse::{CursorMoved, MouseButtonInput, MouseMotion, MousePlugin, MouseWheel},
+    prelude::{
+        AudioManagerPlugin, CollisionEvent, KeyboardInput, KeyboardPlugin, KeyboardState,
+        MouseState, PhysicsPlugin,
+    },
+    text_actor::TextActor,
+};
+use bevy::{app::AppExit, input::system::exit_on_esc_system, prelude::*, utils::HashMap};
+use bevy_kira_audio::*;
+use std::{sync::Mutex, time::Duration};
+
+
+/// A [`Game`] represents the entire game and its data.
+/// By default the game will spawn an empty window, and exit upon Esc or closing of the window.
+/// Under the hood, Rusty Engine syncs the game data to Bevy to power most of the underlying
+/// functionality.
+pub struct Game {
+    app_builder: AppBuilder,
+    game_state: GameState,
+    window_descriptor: WindowDescriptor,
+}
+
+impl Default for Game {
+    fn default() -> Self {
+        Self {
+            app_builder: App::build(),
+            game_state: GameState::default(),
+            window_descriptor: WindowDescriptor {
+                title: "Rusty Engine".into(),
+                ..Default::default()
+            },
+        }
+    }
+}
+
+impl Game {
+    /// Create an empty [`Game`] with an empty [`GameState`] and an empty vector of [`Actor`]s
+    pub fn new() -> Self {
+        if std::fs::read_dir("assets").is_err() {
+            println!("FATAL: Could not find assets directory. Have you downloaded the assets?\nhttps://github.com/CleanCut/rusty_engine#you-must-download-the-assets-separately");
+            std::process::exit(1);
+        }
+        Default::default()
+    }
+
+    #[must_use]
+    /// Add an [`Actor`] before the game has begun. Use the `&mut Actor` that is returned to set
+    /// the translation, rotation, etc.
+    pub fn add_actor<T: Into<String>>(&mut self, label: T, preset: ActorPreset) -> &mut Actor {
+        let label = label.into();
+        self.game_state
+            .actors
+            .insert(label.clone(), preset.build(label.clone()));
+        // Unwrap: Can't crash because we just inserted the actor
+        self.game_state.actors.get_mut(&label).unwrap()
+    }
+
+    #[must_use]
+    /// Add a [`TextActor`] before the game has begun. Use the `&mut TextActor` that is returned to
+    /// set the translation, rotation, etc.
+    pub fn add_text_actor<T, S>(&mut self, label: T, text: S) -> &mut TextActor
+    where
+        T: Into<String>,
+        S: Into<String>,
+    {
+        let label = label.into();
+        let text = text.into();
+        let text_actor = TextActor {
+            label: label.clone(),
+            text,
+            ..Default::default()
+        };
+        self.game_state
+            .text_actors
+            .insert(label.clone(), text_actor);
+        // Unwrap: Can't crash because we just inserted the actor
+        self.game_state.text_actors.get_mut(&label).unwrap()
+    }
+
+    /// Use to get a `&mut GameState` to set up game state before the game has begun.
+    pub fn game_state_mut(&mut self) -> &mut GameState {
+        &mut self.game_state
+    }
+
+    /// Use this to set properties of the native OS window before running the game. See the
+    /// [window](https://github.com/CleanCut/rusty_engine/blob/main/examples/window.rs) example for
+    /// more information.
+    pub fn window_settings(&mut self, window_descriptor: WindowDescriptor) -> &mut Self {
+        self.window_descriptor = window_descriptor;
+        log::debug!("window descriptor is: {:?}", self.window_descriptor);
+        self
+    }
+
+    /// Start the game. This method never returns.  [`GameLogicFunction`] should be a function or
+    /// closure which accepts one parameter, a `&mut GameState` and returns nothing.
+    ///
+    /// # Examples
+    ///
+    /// There are much more interesting and complete examples in [the `examples/` directory.](https://github.com/CleanCut/rusty_engine/tree/main/examples)
+    ///
+    /// You can write a function for your game logic.
+    ///
+    /// ```no_run
+    /// use rusty_engine::prelude::*;
+    ///
+    /// fn game_logic(game_state: &mut GameState) {
+    ///     println!("This game has been running for: {:.2}", game_state.time_since_startup_f64);
+    /// }
+    ///
+    /// fn main() {
+    ///     let mut game = Game::new();
+    ///     game.run(game_logic);
+    /// }
+    /// ```
+    ///
+    /// You can write a closure for your game logic, if and only if your closure doesn't capture
+    /// any variables.
+    ///
+    /// ```no_run
+    /// # use rusty_engine::prelude::*;
+    /// let mut game = Game::new();
+    /// game.run(|game_state| {
+    ///     println!("This game has been running for: {:.2}", game_state.time_since_startup_f64);
+    /// });
+    /// ```
+    ///
+    /// If you don't want to do anything, you can use the closure `|_| {}`
+    ///
+    /// ```no_run
+    /// # use rusty_engine::prelude::*;
+    /// let mut game = Game::new();
+    /// game.run(|_| {});
+    /// ```
+    pub fn run(&mut self, func: GameLogicFunction) {
+        self.app_builder
+            .insert_resource::<WindowDescriptor>(self.window_descriptor.clone());
+        self.app_builder
+            // Built-ins
+            .add_plugins_with(DefaultPlugins, |group| {
+                group.disable::<bevy::audio::AudioPlugin>()
+            })
+            .add_system(exit_on_esc_system.system())
+            // External Plugins
+            .add_plugin(AudioPlugin) // kira_bevy_audio
+            // Rusty Engine Plugins
+            .add_plugin(AudioManagerPlugin)
+            .add_plugin(KeyboardPlugin)
+            .add_plugin(MousePlugin)
+            .add_plugin(PhysicsPlugin)
+            //.insert_resource(ReportExecutionOrderAmbiguities) // for debugging
+            .add_system(game_logic_sync.system().label("game_logic_sync"))
+            .add_startup_system(setup.system());
+        // Unwrap: Can't crash, we're the only thread using the lock, so it can't be poisoned.
+        //GAME_LOGIC_FUNCTIONS.lock().unwrap().push(func);
+        let world = self.app_builder.world_mut();
+        world
+            .spawn()
+            .insert_bundle(OrthographicCameraBundle::new_2d());
+        let game_state = std::mem::take(&mut self.game_state);
+        self.app_builder.insert_resource(game_state);
+        self.app_builder.run();
+    }
+}
+
+
 // startup system - grab window settings, initialize all the starting actors
 fn setup(
     mut commands: Commands,
@@ -355,6 +365,7 @@ fn game_logic_sync(
     asset_server: Res<AssetServer>,
     materials: ResMut<Assets<ColorMaterial>>,
     mut game_state: ResMut<GameState>,
+    mut custom_state: ResMut<$state_struct>,
     keyboard_state: Res<KeyboardState>,
     mouse_state: Res<MouseState>,
     time: Res<Time>,
@@ -414,9 +425,9 @@ fn game_logic_sync(
 
     // Perform all the user's game logic for this frame
     // Unwrap: Can't crash, we're the only thread using the lock, so it can't be poisoned.
-    for func in GAME_LOGIC_FUNCTIONS.lock().unwrap().iter() {
-        func(&mut game_state);
-    }
+    // for func in GAME_LOGIC_FUNCTIONS.lock().unwrap().iter() {
+    //     func(&mut game_state);
+    // }
 
     // Transfer any changes in the user's Actor copies to the Bevy Actor and Transform components
     for (entity, mut actor, mut transform) in query_set.q2_mut().iter_mut() {
@@ -507,4 +518,7 @@ fn add_text_actors(
                 ..Default::default()
             });
     }
+}
+
+};
 }
