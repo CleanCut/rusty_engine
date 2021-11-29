@@ -29,9 +29,9 @@ fn logic(game_state: &mut GameState) {
         // None of the timers repeat, and they're all set to different times, so when the timer in
         // index X goes off, play sound effect in index X
         if timer.tick(game_state.delta).just_finished() {
-            // Play a new sound effect at full volume
+            // Play a new sound effect
             let sfx = SfxPreset::variant_iter().nth(i).unwrap();
-            game_state.audio_manager.play_sfx(sfx, 1.0);
+            game_state.audio_manager.play_sfx(sfx);
             // Update the text to show which sound effect we are playing
             let sfx_label = game_state.text_actors.get_mut("sfx_label").unwrap();
             sfx_label.text = format!("{:?}", sfx);

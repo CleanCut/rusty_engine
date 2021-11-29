@@ -244,7 +244,7 @@ Now we need to actually handle the health.  At **_the bottom_** of the `game_log
     1. If `*health_amount` is greater than `0` (we don't want to try to subtract from an unsigned number without checking first)
         1. Subtract `1` from `*health_amount`
         1. Set `health_message` to the string "Health: {}", where "{}" is the value of `*health-amount`.
-        1. Use the `audio_manager` to play `SfxPreset::Impact3` at full volume. The value for volume ranges from `0.0` (silent) to `1.0` (full volume).
+        1. Use the `audio_manager` to play `SfxPreset::Impact3`
 1. Try it!  The game should mostly work, just with a sort of odd, frozen ending, with music still playing.
 
 ```rust
@@ -258,7 +258,7 @@ for event in game_state.collision_events.drain(..) {
     if *health_amount > 0 {
         *health_amount -= 1;
         health_message.text = format!("Health: {}", *health_amount);
-        game_state.audio_manager.play_sfx(SfxPreset::Impact3, 1.0);
+        game_state.audio_manager.play_sfx(SfxPreset::Impact3);
     }
 }
 ```
@@ -279,7 +279,7 @@ Finally, at the very end of the `game_logic()` function we can do a bit of clean
     1. Create a text actor, and set its text to `"Game Over"`
     1. Using the mutable reference from creating the text actor, set its `font_size` to `128.0` (if this crashes on your system, reduce the font size to a smaller number)
     1. Use the `audio_manager` to stop the music.
-    1. Use the `audio_manager` to play `SfxPreset::Jingle3` at full volume (it's a sad sound)
+    1. Use the `audio_manager` to play `SfxPreset::Jingle3` (it's a sad sound)
 1. Try it!
 
 ```rust
@@ -287,7 +287,7 @@ if *health_amount == 0 {
     let game_over = game_state.add_text_actor("game over", "Game Over");
     game_over.font_size = 128.0;
     game_state.audio_manager.stop_music();
-    game_state.audio_manager.play_sfx(SfxPreset::Jingle3, 1.0);
+    game_state.audio_manager.play_sfx(SfxPreset::Jingle3);
 }
 ```
 

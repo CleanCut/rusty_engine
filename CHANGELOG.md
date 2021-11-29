@@ -1,12 +1,6 @@
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
-## BREAKING CHANGES
-
-- `.play_sfx()` now takes a volume level from `0.0` to `1.0` as a second argument, e.g. `.play_sfx(SfxPreset::Congratulations, 1.0)`
-
-## Other Changes
-
 - (meta) Improved CI times by using sccache together with GitHub Actions caching
 
 ## [2.0.1] - 2021-11-15
