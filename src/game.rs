@@ -186,7 +186,7 @@ use rusty_engine::{
 };
 use bevy::{app::AppExit, input::system::exit_on_esc_system, prelude::*, utils::HashMap};
 use bevy_kira_audio::*;
-use std::{sync::Mutex, time::Duration};
+use std::{sync::Mutex, time::Duration, ops::{Deref, DerefMut}};
 
 
 type LogicFunction = fn(&mut GameState, &mut $custom_state_type);
@@ -258,11 +258,6 @@ impl Game {
             .insert(label.clone(), text_actor);
         // Unwrap: Can't crash because we just inserted the actor
         self.game_state.text_actors.get_mut(&label).unwrap()
-    }
-
-    /// Use to get a `&mut GameState` to set up game state before the game has begun.
-    pub fn game_state_mut(&mut self) -> &mut GameState {
-        &mut self.game_state
     }
 
     /// Use this to set properties of the native OS window before running the game. See the
@@ -474,6 +469,20 @@ fn game_logic_sync(
 
     if game_state.should_exit {
         app_exit_events.send(AppExit);
+    }
+}
+
+impl Deref for Game {
+    type Target = GameState;
+
+    fn deref(&self) -> &Self::Target {
+        &self.game_state
+    }
+}
+
+impl DerefMut for Game {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.game_state
     }
 }
 

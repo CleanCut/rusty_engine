@@ -10,8 +10,7 @@ fn main() {
     let mut game = Game::new();
 
     // Play some background music
-    game.game_state_mut()
-        .audio_manager
+    game.audio_manager
         .play_music(MusicPreset::WhimsicalPopsicle, 0.2);
 
     // Create the player actor
@@ -49,9 +48,7 @@ fn main() {
     }
 
     // Create the health amount and health message
-    game.game_state_mut()
-        .u8_map
-        .insert("health_amount".into(), 5);
+    game.u8_map.insert("health_amount".into(), 5);
     let health_message = game.add_text_actor("health_message", "Health: 5");
     health_message.translation = Vec2::new(550.0, 320.0);
 
