@@ -56,10 +56,11 @@ fn main() {
     health_message.translation = Vec2::new(550.0, 320.0);
 
     // Run the game, which will run our game logic once every frame
-    game.run(game_logic);
+    game.add_logic(game_logic);
+    game.run(());
 }
 
-fn game_logic(game_state: &mut GameState) {
+fn game_logic(game_state: &mut GameState, custom_state: &mut ()) {
     // Pause if we have already lost
     let health_amount = game_state.u8_map.get_mut("health_amount").unwrap();
     if *health_amount == 0 {

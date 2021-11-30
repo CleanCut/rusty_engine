@@ -172,7 +172,7 @@ impl GameState {
 
 #[macro_export]
 macro_rules! game_stuff {
-    ($state_struct:ty, $(),+ ) => {
+    ($custom_state_type:ty) => {
 
 use rusty_engine::{
     actor::{Actor, ActorPreset},
@@ -189,6 +189,8 @@ use bevy_kira_audio::*;
 use std::{sync::Mutex, time::Duration};
 
 
+type LogicFunction = fn(&mut GameState, &mut $custom_state_type);
+
 /// A [`Game`] represents the entire game and its data.
 /// By default the game will spawn an empty window, and exit upon Esc or closing of the window.
 /// Under the hood, Rusty Engine syncs the game data to Bevy to power most of the underlying
@@ -196,6 +198,7 @@ use std::{sync::Mutex, time::Duration};
 pub struct Game {
     app_builder: AppBuilder,
     game_state: GameState,
+    logic_functions: Vec<LogicFunction>,
     window_descriptor: WindowDescriptor,
 }
 
@@ -204,6 +207,7 @@ impl Default for Game {
         Self {
             app_builder: App::build(),
             game_state: GameState::default(),
+            logic_functions: vec![],
             window_descriptor: WindowDescriptor {
                 title: "Rusty Engine".into(),
                 ..Default::default()
@@ -310,9 +314,10 @@ impl Game {
     /// let mut game = Game::new();
     /// game.run(|_| {});
     /// ```
-    pub fn run(&mut self, func: GameLogicFunction) {
+    pub fn run(&mut self, custom_state: $custom_state_type) {
         self.app_builder
-            .insert_resource::<WindowDescriptor>(self.window_descriptor.clone());
+            .insert_resource::<WindowDescriptor>(self.window_descriptor.clone())
+            .insert_resource::<$custom_state_type>(custom_state);
         self.app_builder
             // Built-ins
             .add_plugins_with(DefaultPlugins, |group| {
@@ -337,10 +342,15 @@ impl Game {
             .insert_bundle(OrthographicCameraBundle::new_2d());
         let game_state = std::mem::take(&mut self.game_state);
         self.app_builder.insert_resource(game_state);
+        let logic_functions = std::mem::take(&mut self.logic_functions);
+        self.app_builder.insert_resource(logic_functions);
         self.app_builder.run();
     }
-}
 
+    pub fn add_logic(&mut self, logic_function: LogicFunction) {
+        self.logic_functions.push(logic_function);
+    }
+}
 
 // startup system - grab window settings, initialize all the starting actors
 fn setup(
@@ -365,7 +375,8 @@ fn game_logic_sync(
     asset_server: Res<AssetServer>,
     materials: ResMut<Assets<ColorMaterial>>,
     mut game_state: ResMut<GameState>,
-    mut custom_state: ResMut<$state_struct>,
+    mut custom_state: ResMut<$custom_state_type>,
+    logic_functions: Res<Vec<LogicFunction>>,
     keyboard_state: Res<KeyboardState>,
     mouse_state: Res<MouseState>,
     time: Res<Time>,
@@ -424,10 +435,9 @@ fn game_logic_sync(
     }
 
     // Perform all the user's game logic for this frame
-    // Unwrap: Can't crash, we're the only thread using the lock, so it can't be poisoned.
-    // for func in GAME_LOGIC_FUNCTIONS.lock().unwrap().iter() {
-    //     func(&mut game_state);
-    // }
+    for func in logic_functions.iter() {
+        func(&mut game_state, &mut custom_state);
+    }
 
     // Transfer any changes in the user's Actor copies to the Bevy Actor and Transform components
     for (entity, mut actor, mut transform) in query_set.q2_mut().iter_mut() {
