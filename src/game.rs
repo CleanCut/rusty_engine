@@ -171,7 +171,7 @@ impl GameState {
 }
 
 #[macro_export]
-macro_rules! game_stuff {
+macro_rules! init {
     ($custom_state_type:ty) => {
 
 use rusty_engine::{

@@ -1,10 +1,13 @@
 use rand::prelude::*;
-use rusty_engine::game_stuff;
 use rusty_engine::prelude::{ActorPreset::*, *};
 
 const ROAD_SPEED: f32 = 400.0;
 
-game_stuff!(());
+pub struct MyState {
+    health_amount: u8,
+}
+
+rusty_engine::init!(MyState);
 
 fn main() {
     let mut game = Game::new();
@@ -48,19 +51,17 @@ fn main() {
     }
 
     // Create the health amount and health message
-    game.u8_map.insert("health_amount".into(), 5);
     let health_message = game.add_text_actor("health_message", "Health: 5");
     health_message.translation = Vec2::new(550.0, 320.0);
 
     // Run the game, which will run our game logic once every frame
     game.add_logic(game_logic);
-    game.run(());
+    game.run(MyState { health_amount: 5 });
 }
 
-fn game_logic(game_state: &mut GameState, custom_state: &mut ()) {
+fn game_logic(game_state: &mut GameState, custom_state: &mut MyState) {
     // Pause if we have already lost
-    let health_amount = game_state.u8_map.get_mut("health_amount").unwrap();
-    if *health_amount == 0 {
+    if custom_state.health_amount == 0 {
         return;
     }
 
@@ -96,7 +97,7 @@ fn game_logic(game_state: &mut GameState, custom_state: &mut ()) {
             player1.rotation = 0.0;
         }
         if player1.translation.y < -360.0 || player1.translation.y > 360.0 {
-            *health_amount = 0;
+            custom_state.health_amount = 0;
         }
     }
 
@@ -124,13 +125,13 @@ fn game_logic(game_state: &mut GameState, custom_state: &mut ()) {
         if !event.pair.either_contains("player1") || event.state.is_end() {
             continue;
         }
-        if *health_amount > 0 {
-            *health_amount -= 1;
-            health_message.text = format!("Health: {}", *health_amount);
+        if custom_state.health_amount > 0 {
+            custom_state.health_amount -= 1;
+            health_message.text = format!("Health: {}", custom_state.health_amount);
             game_state.audio_manager.play_sfx(SfxPreset::Impact3);
         }
     }
-    if *health_amount == 0 {
+    if custom_state.health_amount == 0 {
         let game_over = game_state.add_text_actor("game over", "Game Over");
         game_over.font_size = 128.0;
         game_state.audio_manager.stop_music();
