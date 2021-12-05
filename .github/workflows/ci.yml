@@ -26,22 +26,16 @@ jobs:
             MACOS: true
             sccache-path: /Users/runner/Library/Caches/Mozilla.sccache
             sccache-download-target: apple-darwin
-            # This can be moved to the "env:" section below once sccache is also working on Windows
-            rustc_wrapper: sccache
           - os: windows-latest
             sccache-path: .\.cargo\bin\sccache.exe
             sccache-download-target: pc-windows-msvc
-            # This can be moved to the "env:" section below once sccache is also working on Windows
-            rustc_wrapper: sccache
           - os: ubuntu-latest
             sccache-path: /home/runner/.cache/sccache
             sccache-download-target: unknown-linux-musl
-            # This can be moved to the "env:" section below once sccache is also working on Windows
-            rustc_wrapper: sccache
     env:
       RUST_BACKTRACE: full
       #RUSTC_WRAPPER: sccache  # Can't hard-code this until we've got Windows working, too
-      RUSTC_WRAPPER: ${{ matrix.rustc_wrapper }}
+      RUSTC_WRAPPER: sccache
       RUSTV: ${{ matrix.toolchain }}
       SCCACHE_CACHE_SIZE: 2G
       SCCACHE_DIR: ${{ matrix.sccache-path }}
@@ -63,7 +57,6 @@ jobs:
         if: matrix.os != 'windows-latest'
 
       - name: Install sccache (windows)
-#            $client.DownloadFile("$URL_BASE/$SCCACHE_VERSION/sccache-0.2.12-x86_64-pc-windows-msvc.tar.gz", "$pwd\sccache.tar.gz")
         run: |
             Set-Location "$Env:USERPROFILE"
             $Env:SCCACHE_FILE = "sccache-$Env:SCCACHE_VERSION-x86_64-$Env:SCCACHE_TARGET"
@@ -97,7 +90,6 @@ jobs:
           key: ${{ runner.os }}-cargo-${{ matrix.toolchain }}-${{ hashFiles('**/Cargo.toml') }}
           restore-keys: |
             ${{ runner.os }}-cargo-${{ matrix.toolchain }}-
-        if: matrix.os != 'windows-latest'
 
       - name: Fetch sccache cache
         uses: actions/cache@v2
@@ -107,11 +99,9 @@ jobs:
           key: ${{ runner.os }}-sccache-${{ matrix.toolchain }}-${{ hashFiles('**/Cargo.toml') }}
           restore-keys: |
             ${{ runner.os }}-sccache-${{ matrix.toolchain }}-
-        if: matrix.os != 'windows-latest'
 
       - name: Start sccache server
         run: sccache --start-server
-        if: matrix.os != 'windows-latest'
 
       - name: rustfmt & clippy
         run: |
@@ -126,4 +116,3 @@ jobs:
 
       - name: Stop sccache server
         run: sccache --stop-server || true
-        if: matrix.os != 'windows-latest'
