@@ -1,4 +1,4 @@
-use crate::prelude::GameState;
+use crate::prelude::EngineState;
 use bevy::{prelude::*, utils::HashMap};
 
 // Re-export some Bevy types to use
@@ -15,7 +15,7 @@ impl Plugin for KeyboardPlugin {
 }
 
 fn sync_keyboard_events(
-    mut game_state: ResMut<GameState>,
+    mut game_state: ResMut<EngineState>,
     mut keyboard_input_events: EventReader<KeyboardInput>,
 ) {
     // Clear any events that weren't used last frame

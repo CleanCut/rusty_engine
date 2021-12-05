@@ -25,7 +25,7 @@ fn main() {
     game.run(game_logic);
 }
 
-fn game_logic(game_state: &mut GameState) {
+fn game_logic(game_state: &mut EngineState) {
     let timer = game_state.timer_vec.get_mut(0).unwrap();
     if timer.tick(game_state.delta).just_finished() {
         let mut fps = game_state.text_actors.get_mut("fps").unwrap();

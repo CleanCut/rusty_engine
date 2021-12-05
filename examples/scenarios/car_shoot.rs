@@ -1,6 +1,15 @@
 use rand::prelude::*;
 use rusty_engine::prelude::*;
-use ActorPreset::*;
+use ActorPreset::*; // The ActorPreset enum was imported from rusty_engine::prelude
+
+rusty_engine::init!(GameState);
+
+#[derive(Default)]
+struct GameState {
+    marbles_left: Vec<String>,
+    cars_left: Vec<i32>,
+    spawn_timer: Timer,
+}
 
 fn main() {
     let mut game = Game::new();
@@ -18,98 +27,99 @@ fn main() {
         ..Default::default()
     });
 
-    // Music!
-    game.game_state_mut()
-        .audio_manager
-        .play_music(MusicPreset::Classy8Bit, 0.1);
+    // Start the music
+    game.audio_manager.play_music(MusicPreset::Classy8Bit, 0.1);
 
-    // Marbles left
+    let mut game_state = GameState::default();
+
+    // Marbles left. We'll use these strings as labels for actors. If they are present in the
+    // vector, then they are available to be shot out of the marble gun. If they are not present,
+    // then they are currently in play.
     for i in 0..3 {
-        game.game_state_mut()
-            .string_vec
-            .push(format!("marble{}", i));
+        game_state.marbles_left.push(format!("marble{}", i));
     }
 
-    // Cars left in level
+    // Cars left in level - each integer represents a car that will be spawned
     for i in 0..25 {
-        game.game_state_mut().u32_vec.push(i);
+        game_state.cars_left.push(i);
     }
     let cars_left = game.add_text_actor("cars left", "Cars left: 25");
     cars_left.translation = Vec2::new(540.0, -320.0);
 
-    game.run(game_logic);
+    game.add_logic(game_logic);
+    game.run(game_state);
 }
 
 const MARBLE_SPEED: f32 = 600.0;
 const CAR_SPEED: f32 = 300.0;
 
-fn game_logic(game_state: &mut GameState) {
+fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) -> bool {
     // Handle marble gun movement
-    for event in game_state.mouse_location_events.drain(..) {
-        let player = game_state.actors.get_mut("player").unwrap();
+    for event in engine_state.mouse_location_events.drain(..) {
+        let player = engine_state.actors.get_mut("player").unwrap();
         player.translation.x = event.position.x;
     }
 
     // Shoot marbles!
-    for event in game_state.mouse_button_events.clone() {
+    for event in engine_state.mouse_button_events.clone() {
         if !matches!(event.state, ElementState::Pressed) {
             continue;
         }
         // Create the marble
-        if let Some(label) = game_state.string_vec.pop() {
-            let player_x = game_state.actors.get_mut("player").unwrap().translation.x;
-            let marble = game_state.add_actor(label, RollingBallBlue);
+        if let Some(label) = game_state.marbles_left.pop() {
+            let player_x = engine_state.actors.get_mut("player").unwrap().translation.x;
+            let marble = engine_state.add_actor(label, RollingBallBlue);
             marble.translation.y = -275.0;
             marble.translation.x = player_x;
             marble.layer = 5.0;
             marble.collision = true;
-            game_state.audio_manager.play_sfx(SfxPreset::Impact2);
+            engine_state.audio_manager.play_sfx(SfxPreset::Impact2);
         }
     }
 
     // Move marbles
-    for marble in game_state
+    for marble in engine_state
         .actors
         .values_mut()
         .filter(|marble| marble.label.starts_with("marble"))
     {
-        marble.translation.y += MARBLE_SPEED * game_state.delta_f32;
+        marble.translation.y += MARBLE_SPEED * engine_state.delta_f32;
     }
 
     // Clean up actors that have gone off the screen
     let mut labels_to_delete = vec![];
-    for actor in game_state.actors.values_mut() {
+    for actor in engine_state.actors.values_mut() {
         if actor.translation.y > 400.0 || actor.translation.x > 750.0 {
             labels_to_delete.push(actor.label.clone());
         }
     }
     for label in labels_to_delete {
-        game_state.actors.remove(&label);
+        engine_state.actors.remove(&label);
         if label.starts_with("marble") {
-            game_state.string_vec.push(label);
+            game_state.marbles_left.push(label);
         }
     }
 
     // Move cars across the screen
-    for car in game_state
+    for car in engine_state
         .actors
         .values_mut()
         .filter(|car| car.label.starts_with("car"))
     {
-        car.translation.x += CAR_SPEED * game_state.delta_f32;
+        car.translation.x += CAR_SPEED * engine_state.delta_f32;
     }
 
     // Spawn cars
-    let spawn_timer = game_state
-        .timer_map
-        .entry("spawn_timer".into())
-        .or_insert(Timer::from_seconds(0.0, false));
-    if spawn_timer.tick(game_state.delta).just_finished() {
+    if game_state
+        .spawn_timer
+        .tick(engine_state.delta)
+        .just_finished()
+    {
         // Reset the timer to a new value
-        *spawn_timer = Timer::from_seconds(thread_rng().gen_range(0.1..1.25), false);
+        game_state.spawn_timer = Timer::from_seconds(thread_rng().gen_range(0.1..1.25), false);
         // Get the next car
-        if let Some(i) = game_state.u32_vec.pop() {
-            let cars_left = game_state.text_actors.get_mut("cars left").unwrap();
+        if let Some(i) = game_state.cars_left.pop() {
+            let cars_left = engine_state.text_actors.get_mut("cars left").unwrap();
             cars_left.text = format!("Cars left: {}", i);
             let label = format!("car{}", i);
             let car_choices = vec![
@@ -119,7 +129,7 @@ fn game_logic(game_state: &mut GameState) {
                 RacingCarRed,
                 RacingCarYellow,
             ];
-            let car = game_state.add_actor(
+            let car = engine_state.add_actor(
                 label,
                 car_choices
                     .iter()
@@ -134,23 +144,27 @@ fn game_logic(game_state: &mut GameState) {
     }
 
     // Collide with things
-    for event in game_state.collision_events.drain(..) {
+    for event in engine_state.collision_events.drain(..) {
         if event.state.is_end() {
             continue;
         }
         if !event.pair.one_starts_with("marble") {
             // it's two cars spawning on top of each other, take one out
-            game_state.actors.remove(&event.pair.0);
+            engine_state.actors.remove(&event.pair.0);
             continue;
         }
-        game_state.actors.remove(&event.pair.0);
-        game_state.actors.remove(&event.pair.1);
+        engine_state.actors.remove(&event.pair.0);
+        engine_state.actors.remove(&event.pair.1);
         if event.pair.0.starts_with("marble") {
-            game_state.string_vec.push(event.pair.0);
+            game_state.marbles_left.push(event.pair.0);
         }
         if event.pair.1.starts_with("marble") {
-            game_state.string_vec.push(event.pair.1);
+            game_state.marbles_left.push(event.pair.1);
         }
-        game_state.audio_manager.play_sfx(SfxPreset::Confirmation1);
+        engine_state
+            .audio_manager
+            .play_sfx(SfxPreset::Confirmation1);
     }
+
+    true
 }

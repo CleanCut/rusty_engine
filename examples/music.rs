@@ -11,7 +11,7 @@ fn main() {
     game.run(logic);
 }
 
-fn logic(game_state: &mut GameState) {
+fn logic(game_state: &mut EngineState) {
     let mut should_play_new_song = false;
 
     // Play a "new" song if nothing has been played before

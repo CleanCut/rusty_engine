@@ -15,7 +15,7 @@ fn main() {
     game.run(logic);
 }
 
-fn logic(game_state: &mut GameState) {
+fn logic(game_state: &mut EngineState) {
     // Get the race car actor
     let race_car = game_state.actors.get_mut("Race Car").unwrap();
 

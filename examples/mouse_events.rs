@@ -33,7 +33,7 @@ fn main() {
     game.run(logic);
 }
 
-fn logic(game_state: &mut GameState) {
+fn logic(game_state: &mut EngineState) {
     if let Some(actor) = game_state.actors.get_mut("Race Car") {
         // Use mouse button events to rotate. Every click rotates the actor by a fixed amount
         for mouse_button_input in &game_state.mouse_button_events {

@@ -34,7 +34,7 @@ fn main() {
     game.run(logic);
 }
 
-fn logic(game_state: &mut GameState) {
+fn logic(game_state: &mut EngineState) {
     if let Some(actor) = game_state.actors.get_mut("Race Car") {
         // Use the latest state of the mouse buttons to rotate the actor
         let mut rotation_amount = 0.0;

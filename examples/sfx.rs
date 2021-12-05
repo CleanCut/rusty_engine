@@ -24,7 +24,7 @@ fn main() {
     game.run(logic);
 }
 
-fn logic(game_state: &mut GameState) {
+fn logic(game_state: &mut EngineState) {
     for (i, timer) in game_state.timer_vec.iter_mut().enumerate() {
         // None of the timers repeat, and they're all set to different times, so when the timer in
         // index X goes off, play sound effect in index X

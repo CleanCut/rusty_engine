@@ -1,4 +1,4 @@
-use crate::prelude::GameState;
+use crate::prelude::EngineState;
 use bevy::prelude::*;
 use bevy_kira_audio::{Audio, AudioChannel};
 use std::array::IntoIter;
@@ -136,7 +136,7 @@ impl MusicPreset {
 pub fn queue_managed_audio_system(
     asset_server: Res<AssetServer>,
     audio: Res<Audio>,
-    mut game_state: ResMut<GameState>,
+    mut game_state: ResMut<EngineState>,
 ) {
     for sfx in game_state.audio_manager.sfx_queue.drain(..) {
         let sfx_handle = asset_server.load(sfx.to_path());

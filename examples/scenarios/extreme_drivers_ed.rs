@@ -1094,7 +1094,7 @@ fn main() {
 const TURN_RATE: f32 = 3.0;
 const ACCELERATION_RATE: f32 = 100.0;
 
-fn logic(game_state: &mut GameState) {
+fn logic(game_state: &mut EngineState) {
     let mut win = game_state.bool_vec.get(0).unwrap().clone();
     let crashed = game_state.bool_map.get("crashed").unwrap().clone();
     let win_amount = game_state.u32_map.get_mut("win_amount").unwrap().clone();

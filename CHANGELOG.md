@@ -1,6 +1,19 @@
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### BREAKING CHANGES
+
+- The fundamental way that Rusty Engine connects a user's game state to Bevy has been heavily
+refactored to a new solution based on macros so that users can provide a custom struct with their
+desired game state. This obseletes the old generic vectors and maps of various types that used to be
+stored on the `GameState` struct (which has been renamed to `EngineState` to more accurately
+describe what it is used for). Please refer to the [readme](./README.md) and
+[docs](https://docs.rs/rusty_engine/latest/rusty_engine/) for more information on the new approach.
+- `GameState` has been renamed to `EngineState` so that user's custom game state can be referred to
+as `GameState` instead.
+
+### Other CHanges
+
 - (meta) Improved CI times by using sccache together with GitHub Actions caching
 
 ## [2.0.1] - 2021-11-15

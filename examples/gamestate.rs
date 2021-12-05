@@ -21,7 +21,7 @@ fn main() {
     game.run(logic);
 }
 
-fn logic(game_state: &mut GameState) {
+fn logic(game_state: &mut EngineState) {
     // Get mutable references to the variables in the game state that we care about
     let race_car = game_state.actors.get_mut("Race Car").unwrap();
     let turning = game_state.bool_map.get_mut("turning").unwrap();

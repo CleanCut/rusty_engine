@@ -22,7 +22,7 @@ fn main() {
     game.run(logic);
 }
 
-fn logic(game_state: &mut GameState) {
+fn logic(game_state: &mut EngineState) {
     let car1 = game_state.actors.get_mut("car1").unwrap();
     car1.translation.x = -300.0 + (game_state.time_since_startup_f64.cos() * 100.0) as f32;
     car1.translation.y = (game_state.time_since_startup_f64.sin() * 100.0) as f32;

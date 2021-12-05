@@ -37,7 +37,7 @@ fn main() {
     game.run(logic);
 }
 
-fn logic(game_state: &mut GameState) {
+fn logic(game_state: &mut EngineState) {
     // If a collision event happened last frame, print it out and play a sound
     for event in game_state.collision_events.drain(..) {
         let text_actor = game_state.text_actors.get_mut("collision text").unwrap();

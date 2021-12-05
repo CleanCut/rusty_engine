@@ -51,7 +51,7 @@ Z - Print out Rust code of current level
     game.run(logic);
 }
 
-fn logic(game_state: &mut GameState) {
+fn logic(game_state: &mut EngineState) {
     // Extract values we're tracking
     let current_label = game_state.string_vec.get_mut(0).unwrap();
     let next_actor_index = game_state.u32_vec.get_mut(0).unwrap();
