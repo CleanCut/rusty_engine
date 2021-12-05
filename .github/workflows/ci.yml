@@ -29,6 +29,10 @@ jobs:
             # This can be moved to the "env:" section below once sccache is also working on Windows
             rustc_wrapper: sccache
           - os: windows-latest
+            sccache-path: .\.cargo\bin\sccache.exe
+            sccache-download-target: pc-windows-msvc
+            # This can be moved to the "env:" section below once sccache is also working on Windows
+            rustc_wrapper: sccache
           - os: ubuntu-latest
             sccache-path: /home/runner/.cache/sccache
             sccache-download-target: unknown-linux-musl
@@ -57,6 +61,17 @@ jobs:
           chmod +x $HOME/.local/bin/sccache
           echo "$HOME/.local/bin" >> $GITHUB_PATH
         if: matrix.os != 'windows-latest'
+
+      - name: Install sccache (windows)
+#            $client.DownloadFile("$URL_BASE/$SCCACHE_VERSION/sccache-0.2.12-x86_64-pc-windows-msvc.tar.gz", "$pwd\sccache.tar.gz")
+        run: |
+            Set-Location "$env:USERPROFILE"
+            $Env:SCCACHE_FILE = "sccache-$SCCACHE_VERSION-x86_64-$SCCACHE_TARGET
+            $client = new-object System.Net.WebClient
+            $client.DownloadFile("$env:URL_BASE/$Env:SCCACHE_VERSION/$env:SCCACHE_FILE.tar.gz", "$pwd\sccache.tar.gz")
+            tar -xvzf .\sccache.tar.gz
+            Move-Item -Path .\$env:SCCACHE_FILE\sccache.exe -Destination .\.cargo\bin\sccache.exe
+        if: matrix.os == 'windows-latest'
 
       - name: Install Linux deps alsa and udev
         run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev
