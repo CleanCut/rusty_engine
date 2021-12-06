@@ -41,7 +41,7 @@ jobs:
       SCCACHE_TARGET: ${{ matrix.sccache-download-target }}
       URL_BASE: https://github.com/mozilla/sccache/releases/download
       SCCACHE_VERSION: v0.2.15
-      SCCACHE_RECACHE: 1 # Uncomment this to clear cache, then comment it back out
+      # SCCACHE_RECACHE: 1 # Uncomment this to clear cache, then comment it back out
     steps:
       - uses: actions/checkout@v2
 
