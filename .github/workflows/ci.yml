@@ -27,7 +27,7 @@ jobs:
             sccache-path: /Users/runner/Library/Caches/Mozilla.sccache
             sccache-download-target: apple-darwin
           - os: windows-latest
-            sccache-path: .\.cargo\bin\sccache.exe
+            sccache-path: %LOCALAPPDATA%\Mozilla\sccache
             sccache-download-target: pc-windows-msvc
           - os: ubuntu-latest
             sccache-path: /home/runner/.cache/sccache
