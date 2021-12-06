@@ -103,7 +103,7 @@ impl SfxPreset {
             SfxPreset::Tones1,
             SfxPreset::Tones2,
         ];
-        IntoIter::new(SFX_PRESETS)
+        SFX_PRESETS.into_iter()
     }
 }
 
@@ -129,7 +129,7 @@ impl MusicPreset {
             MusicPreset::MysteriousMagic,
             MusicPreset::WhimsicalPopsicle,
         ];
-        IntoIter::new(MUSIC_PRESETS)
+        MUSIC_PRESETS.into_iter()
     }
 }
 
