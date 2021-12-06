@@ -34,7 +34,6 @@ jobs:
             sccache-download-target: unknown-linux-musl
     env:
       RUST_BACKTRACE: full
-      #RUSTC_WRAPPER: sccache  # Can't hard-code this until we've got Windows working, too
       RUSTC_WRAPPER: sccache
       RUSTV: ${{ matrix.toolchain }}
       SCCACHE_CACHE_SIZE: 2G
@@ -90,6 +89,20 @@ jobs:
           key: ${{ runner.os }}-cargo-${{ matrix.toolchain }}-${{ hashFiles('**/Cargo.toml') }}
           restore-keys: |
             ${{ runner.os }}-cargo-${{ matrix.toolchain }}-
+        if: runner.os != 'windows'
+
+      - name: Fetch cargo registry cache (windows)
+        uses: actions/cache@v2
+        continue-on-error: false
+        with:
+          path: |
+            %USERPROFILE%\.cargo\registry
+            %USERPROFILE%\.cargo\git
+            Cargo.lock
+          key: ${{ runner.os }}-cargo-${{ matrix.toolchain }}-${{ hashFiles('**/Cargo.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-${{ matrix.toolchain }}-
+        if: runner.os == 'windows'
 
       - name: Fetch sccache cache
         uses: actions/cache@v2
