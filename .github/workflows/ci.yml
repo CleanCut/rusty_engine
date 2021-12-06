@@ -27,7 +27,7 @@ jobs:
             sccache-path: /Users/runner/Library/Caches/Mozilla.sccache
             sccache-download-target: apple-darwin
           - os: windows-latest
-            sccache-path: '%LOCALAPPDATA%\Mozilla\sccache'
+            sccache-path: 'C:\Rust\.cargo\sccache'
             sccache-download-target: pc-windows-msvc
           - os: ubuntu-latest
             sccache-path: /home/runner/.cache/sccache
@@ -96,8 +96,8 @@ jobs:
         continue-on-error: false
         with:
           path: |
-            %USERPROFILE%\.cargo\registry
-            %USERPROFILE%\.cargo\git
+            C:\Rust\.cargo\registry
+            C:\Rust\.cargo\git
             Cargo.lock
           key: ${{ runner.os }}-cargo-${{ matrix.toolchain }}-${{ hashFiles('**/Cargo.toml') }}
           restore-keys: |
