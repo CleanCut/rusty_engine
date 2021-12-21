@@ -1,4 +1,57 @@
-//! ## Asset Licenses
+//! # Quick Start Example
+//!
+//! You need to start by importing `rusty_engine::prelude::*`, and then initializing the engine with
+//! the `rusty_engine::init!( ... )` macro. This macro takes the name of a custom struct to store
+//! whatever game logic you need. If you don't need any game logic, you can pass in the "unit
+//! struct", which looks like empty parens: `()`.
+//!
+//! ```no_run
+//! use rusty_engine::prelude::*;
+//!
+//! // Define a struct to hold custom data for your game (it can be a lot more complicated than this one!)
+//! struct GameState {
+//!     health: i32,
+//! }
+//!
+//! // Initialize the engine with your custom struct
+//! rusty_engine::init!(GameState);
+//!
+//! fn main() {
+//!     // Create a game
+//!     let mut game = Game::new();
+//!     // Set up your game. `Game` exposes all of the methods (but not fields) of `EngineState` as well.
+//!     let actor = game.add_actor("player", ActorPreset::RacingCarBlue);
+//!     actor.scale = 2.0;
+//!     game.audio_manager.play_music(MusicPreset::Classy8Bit, 1.0);
+//!     // Add one or more functions with logic for your game. When the game is run, the logic
+//!     // functions will run in the order they were added.
+//!     game.add_logic(game_logic);
+//!     // Run the game, with an initial state
+//!     let initial_game_state = GameState { health: 100 };
+//!     game.run(initial_game_state);
+//! }
+//!
+//! // Your game logic functions can be named anything, but the first parameter is always a
+//! // `&mut EngineState`, and the second parameter is a mutable reference to your custom game
+//! // state struct (`&mut GameState` in this case). The function returns a `bool`.
+//! //
+//! // This function will be run once each frame.
+//! fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) -> bool {
+//!     // The `EngineState` contains all sorts of built-in goodies.
+//!     // Get access to the player actor...
+//!     let player = engine_state.actors.get_mut("player").unwrap();
+//!     // Rotate the player...
+//!     player.rotation += std::f32::consts::PI * engine_state.delta_f32;
+//!     // Damage the player if it is out of bounds...
+//!     if player.translation.x > 100.0 {
+//!         game_state.health -= 1;
+//!     }
+//!     // Returning `true` means the next logic function in line should be run.
+//!     true
+//! }
+//! ```
+//!
+//! # Asset Licenses
 //!
 //! All assets included with this game engine have the appropriate license described and linked to
 //! in a `README.md` file in the same directory as the source files. In most cases, the license is
@@ -10,7 +63,7 @@
 //! distributed. Please see
 //! [this `README.md` file](https://github.com/CleanCut/rusty_engine/tree/main/assets/audio/music)
 //! for more information.
-
+//!
 pub mod actor;
 pub mod audio;
 pub mod consts;
@@ -23,8 +76,10 @@ pub mod text_actor;
 // Public prelude
 pub mod prelude {
     pub use crate::{
-        actor::*, audio::*, consts::*, game::*, keyboard::*, mouse::*, physics::*, text_actor::*,
+        actor::*, audio::*, consts::*, keyboard::*, mouse::*, physics::*, text_actor::*,
     };
+    // we can't use `*` on game because of the stubbed `Game` stuff we did for documentation
+    pub use crate::game::{EngineState, WindowDescriptor, WindowMode, WindowResizeConstraints};
     pub use bevy::{
         self,
         prelude::{Time, Timer, Vec2},

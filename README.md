@@ -34,7 +34,7 @@ If you are using Linux or Windows Subsystem for Linux 2, please visit Bevy's [In
 ## Quick Start
 
 ### You MUST download the assets separately!!!
-Here are three different ways to download the assets (it should end up the same in the end):
+Here are three different ways to download the assets (pick any of them--it should end up the same in the end):
 - Clone the `rusty_engine` repository and copy/move the `assets/` directory over to your own project
 - Download a [zip file](https://github.com/CleanCut/rusty_engine/archive/refs/heads/main.zip) or [tarball](https://github.com/CleanCut/rusty_engine/archive/refs/heads/main.tar.gz) of the `rusty_engine` repository, extract it, and copy/move the `assets/` directory over to your own project.
 - On a posix compatible shell, run this command inside your project directory:
@@ -52,30 +52,56 @@ rusty_engine = "2.0.1"
 Write your game!
 
 ```rust
-// In main.rs
-use rusty_engine::prelude::*;
+// in src/main.rs
+ use rusty_engine::prelude::*;
 
-fn main() {
-    let mut game = Game::new();
-    // Use `game` to initialize starting state.
-    let race_car: &mut Actor = game.add_actor("race car", ActorPreset::RacingCarYellow);
-    race_car.translation = Vec2::new(-100.0, -100.0);
-    race_car.rotation = NORTH_EAST;
-    race_car.scale = 2.0;
-    // Then do `game.run()` to start the game.
-    game.run(game_logic);
-}
+ // Define a struct to hold custom data for your game (it can be a lot more complicated than this one!)
+ struct GameState {
+     health: i32,
+ }
 
-// This function is called once per frame
-fn game_logic(game_state: &mut GameState) {
-    // Your game logic goes here
-}
+ // Initialize the engine with your custom struct
+ rusty_engine::init!(GameState);
+
+ fn main() {
+     // Create a game
+     let mut game = Game::new();
+     // Set up your game. `Game` exposes all of the methods (but not fields) of `EngineState` as well.
+     let actor = game.add_actor("player", ActorPreset::RacingCarBlue);
+     actor.scale = 2.0;
+     game.audio_manager.play_music(MusicPreset::Classy8Bit, 1.0);
+     // Add one or more functions with logic for your game. When the game is run, the logic
+     // functions will run in the order they were added.
+     game.add_logic(game_logic);
+     // Run the game, with an initial state
+     let initial_game_state = GameState { health: 100 };
+     game.run(initial_game_state);
+ }
+
+ // Your game logic functions can be named anything, but the first parameter is always a
+ // `&mut EngineState`, and the second parameter is a mutable reference to your custom game
+ // state struct (`&mut GameState` in this case). The function returns a `bool`.
+ //
+ // This function will be run once each frame.
+ fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) -> bool {
+     // The `EngineState` contains all sorts of built-in goodies.
+     // Get access to the player actor...
+     let player = engine_state.actors.get_mut("player").unwrap();
+     // Rotate the player...
+     player.rotation += std::f32::consts::PI * engine_state.delta_f32;
+     // Damage the player if it is out of bounds...
+     if player.translation.x > 100.0 {
+         game_state.health -= 1;
+     }
+     // Returning `true` means the next logic function in line should be run.
+     true
+ }
 
 ```
 
 Run your game with `cargo run --release`!
 
-<img width="1392" alt="Screen Shot 2021-06-22 at 1 10 04 AM" src="https://user-images.githubusercontent.com/5838512/122879972-b5ded700-d2f6-11eb-9066-99d5b56fcd3a.png">
+<img width="1348" alt="example screenshot" src="https://user-images.githubusercontent.com/5838512/146858022-1d91c7f4-8b21-4f85-a72a-c4b93edcabc6.png">
 
 
 See also the [game scenarios](https://github.com/CleanCut/rusty_engine/tree/main/scenarios), [code examples](https://github.com/CleanCut/rusty_engine/tree/main/examples) and the [API documentation](https://docs.rs/rusty_engine/latest/rusty_engine/)
