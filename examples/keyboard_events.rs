@@ -1,5 +1,7 @@
 use rusty_engine::prelude::*;
 
+rusty_engine::init!();
+
 fn main() {
     let mut game = Game::new();
 
@@ -12,10 +14,11 @@ fn main() {
     let text = game.add_text_actor("instructions", instructions);
     text.translation.y = 250.0;
 
-    game.run(logic);
+    game.add_logic(logic);
+    game.run(());
 }
 
-fn logic(game_state: &mut EngineState) {
+fn logic(game_state: &mut EngineState, _: &mut ()) -> bool {
     // Get the race car actor
     let race_car = game_state.actors.get_mut("Race Car").unwrap();
 
@@ -50,4 +53,5 @@ fn logic(game_state: &mut EngineState) {
             );
         }
     }
+    true
 }

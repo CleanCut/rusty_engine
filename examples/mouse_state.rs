@@ -1,5 +1,7 @@
 use rusty_engine::prelude::*;
 
+rusty_engine::init!();
+
 const ORIGIN_LOCATION: (f32, f32) = (0.0, -200.0);
 const ROTATION_SPEED: f32 = 3.0;
 
@@ -31,23 +33,24 @@ fn main() {
     msg2.font_size = 30.0;
     msg2.translation.y = 275.0;
 
-    game.run(logic);
+    game.add_logic(logic);
+    game.run(());
 }
 
-fn logic(game_state: &mut EngineState) {
-    if let Some(actor) = game_state.actors.get_mut("Race Car") {
+fn logic(engine_state: &mut EngineState, _: &mut ()) -> bool {
+    if let Some(actor) = engine_state.actors.get_mut("Race Car") {
         // Use the latest state of the mouse buttons to rotate the actor
         let mut rotation_amount = 0.0;
-        if game_state.mouse_state.pressed(MouseButton::Left) {
-            rotation_amount += ROTATION_SPEED * game_state.delta_f32;
+        if engine_state.mouse_state.pressed(MouseButton::Left) {
+            rotation_amount += ROTATION_SPEED * engine_state.delta_f32;
         }
-        if game_state.mouse_state.pressed(MouseButton::Right) {
-            rotation_amount -= ROTATION_SPEED * game_state.delta_f32;
+        if engine_state.mouse_state.pressed(MouseButton::Right) {
+            rotation_amount -= ROTATION_SPEED * engine_state.delta_f32;
         }
         actor.rotation += rotation_amount;
 
         // Use the latest state of the mouse wheel to scale the actor
-        if let Some(location) = game_state.mouse_state.location() {
+        if let Some(location) = engine_state.mouse_state.location() {
             actor.translation = location
         }
 
@@ -56,15 +59,15 @@ fn logic(game_state: &mut EngineState) {
         // fast spins of the wheel. But here is how to use the mouse wheel state sort of like a
         // button. `wheel_direction` will be `1.0`, `0.0`, or `-1.0` depending on what's going on
         // with the mouse wheel.
-        let wheel_direction = game_state.mouse_state.wheel().y;
+        let wheel_direction = engine_state.mouse_state.wheel().y;
         actor.scale *= 1.0 + (wheel_direction * 0.1);
         actor.scale = actor.scale.clamp(0.1, 4.0);
     }
 
     // Offset the move indicator from the move indicator origin to visually represent the relative
     // mouse motion for the frame
-    if let Some(actor) = game_state.actors.get_mut("move indicator") {
-        let motion = game_state.mouse_state.motion();
+    if let Some(actor) = engine_state.actors.get_mut("move indicator") {
+        let motion = engine_state.mouse_state.motion();
         // There seems to be a Bevy 0.5 bug where every other frame we don't receive any mouse
         // motion events, so ignore those frames.
         // TODO: Follow up on this bug in upstream Bevy
@@ -72,4 +75,5 @@ fn logic(game_state: &mut EngineState) {
             actor.translation = motion + ORIGIN_LOCATION.into();
         }
     }
+    true
 }

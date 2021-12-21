@@ -1,5 +1,6 @@
-//
 use rusty_engine::prelude::*;
+
+rusty_engine::init!();
 
 fn main() {
     let mut game = Game::new();
@@ -14,5 +15,5 @@ fn main() {
     }
 
     // We don't do anything after game setup, so our game logic can be an empty closure
-    game.run(|_| {});
+    game.run(());
 }

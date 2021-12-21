@@ -8,6 +8,7 @@ pub struct AudioManager {
     sfx_queue: Vec<SfxPreset>,
     music_queue: Vec<Option<(MusicPreset, f32)>>,
     playing: AudioChannel,
+    music_playing: bool,
 }
 
 impl AudioManager {
@@ -18,12 +19,18 @@ impl AudioManager {
     /// Play looping music. `volume` ranges from `0.0` to `1.0`.  Any music already playing will be
     /// stopped.
     pub fn play_music(&mut self, music_preset: MusicPreset, volume: f32) {
+        self.music_playing = true;
         self.music_queue
             .push(Some((music_preset, volume.clamp(0.0, 1.0))));
     }
     /// Stop any music currently playing
     pub fn stop_music(&mut self) {
+        self.music_playing = false;
         self.music_queue.push(None);
+    }
+    /// Whether music is currently playing
+    pub fn music_playing(&self) -> bool {
+        self.music_playing
     }
 }
 

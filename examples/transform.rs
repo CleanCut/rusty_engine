@@ -1,6 +1,8 @@
 //
 use rusty_engine::prelude::*;
 
+rusty_engine::init!();
+
 fn main() {
     let mut game = Game::new();
 
@@ -19,17 +21,19 @@ fn main() {
     car3.rotation = UP;
     car3.scale = 1.0;
 
-    game.run(logic);
+    game.add_logic(logic);
+    game.run(());
 }
 
-fn logic(game_state: &mut EngineState) {
-    let car1 = game_state.actors.get_mut("car1").unwrap();
-    car1.translation.x = -300.0 + (game_state.time_since_startup_f64.cos() * 100.0) as f32;
-    car1.translation.y = (game_state.time_since_startup_f64.sin() * 100.0) as f32;
+fn logic(engine_state: &mut EngineState, _: &mut ()) -> bool {
+    let car1 = engine_state.actors.get_mut("car1").unwrap();
+    car1.translation.x = -300.0 + (engine_state.time_since_startup_f64.cos() * 100.0) as f32;
+    car1.translation.y = (engine_state.time_since_startup_f64.sin() * 100.0) as f32;
 
-    let car2 = game_state.actors.get_mut("car2").unwrap();
-    car2.scale = ((game_state.time_since_startup_f64 * 0.5).cos().abs() * 2.0) as f32;
+    let car2 = engine_state.actors.get_mut("car2").unwrap();
+    car2.scale = ((engine_state.time_since_startup_f64 * 0.5).cos().abs() * 2.0) as f32;
 
-    let car3 = game_state.actors.get_mut("car3").unwrap();
-    car3.rotation = game_state.time_since_startup_f64 as f32;
+    let car3 = engine_state.actors.get_mut("car3").unwrap();
+    car3.rotation = engine_state.time_since_startup_f64 as f32;
+    true
 }
