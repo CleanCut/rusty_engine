@@ -294,7 +294,7 @@ impl ActorPreset {
             ActorPreset::RollingHoleEnd,
             ActorPreset::RollingHoleStart,
         ];
-        std::array::IntoIter::new(ACTOR_PRESETS)
+        ACTOR_PRESETS.into_iter()
     }
 
     fn shifted_by(&self, amount: isize) -> ActorPreset {
