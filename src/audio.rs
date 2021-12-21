@@ -1,4 +1,4 @@
-use crate::prelude::GameState;
+use crate::prelude::EngineState;
 use bevy::prelude::*;
 use bevy_kira_audio::{Audio, AudioChannel};
 use std::array::IntoIter;
@@ -8,6 +8,7 @@ pub struct AudioManager {
     sfx_queue: Vec<(SfxPreset, f32)>,
     music_queue: Vec<Option<(MusicPreset, f32)>>,
     playing: AudioChannel,
+    music_playing: bool,
 }
 
 impl AudioManager {
@@ -18,12 +19,18 @@ impl AudioManager {
     /// Play looping music. `volume` ranges from `0.0` to `1.0`.  Any music already playing will be
     /// stopped.
     pub fn play_music(&mut self, music_preset: MusicPreset, volume: f32) {
+        self.music_playing = true;
         self.music_queue
             .push(Some((music_preset, volume.clamp(0.0, 1.0))));
     }
     /// Stop any music currently playing
     pub fn stop_music(&mut self) {
+        self.music_playing = false;
         self.music_queue.push(None);
+    }
+    /// Whether music is currently playing
+    pub fn music_playing(&self) -> bool {
+        self.music_playing
     }
 }
 
@@ -103,7 +110,7 @@ impl SfxPreset {
             SfxPreset::Tones1,
             SfxPreset::Tones2,
         ];
-        IntoIter::new(SFX_PRESETS)
+        SFX_PRESETS.into_iter()
     }
 }
 
@@ -129,14 +136,14 @@ impl MusicPreset {
             MusicPreset::MysteriousMagic,
             MusicPreset::WhimsicalPopsicle,
         ];
-        IntoIter::new(MUSIC_PRESETS)
+        MUSIC_PRESETS.into_iter()
     }
 }
 
 pub fn queue_managed_audio_system(
     asset_server: Res<AssetServer>,
     audio: Res<Audio>,
-    mut game_state: ResMut<GameState>,
+    mut game_state: ResMut<EngineState>,
 ) {
     for (sfx_preset, volume) in game_state.audio_manager.sfx_queue.drain(..) {
         let sfx_path = sfx_preset.to_path();

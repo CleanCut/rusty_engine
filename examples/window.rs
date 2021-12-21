@@ -1,5 +1,7 @@
 use rusty_engine::prelude::*;
 
+rusty_engine::init!();
+
 fn main() {
     let mut game = Game::new();
     game.window_settings(WindowDescriptor {
@@ -22,5 +24,5 @@ fn main() {
         "message",
         "This is a heavily-customized window.\nYou may resize it a little bit.\nPress Esc to exit.",
     );
-    game.run(|_| {});
+    game.run(());
 }

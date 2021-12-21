@@ -2,6 +2,8 @@ use std::f32::consts::PI;
 
 use rusty_engine::prelude::*;
 
+rusty_engine::init!();
+
 fn main() {
     let mut game = Game::new();
 
@@ -14,10 +16,11 @@ fn main() {
     let text = game.add_text_actor("instructions", instructions);
     text.translation.y = 250.0;
 
-    game.run(logic);
+    game.add_logic(logic);
+    game.run(());
 }
 
-fn logic(game_state: &mut GameState) {
+fn logic(game_state: &mut EngineState, _: &mut ()) -> bool {
     // Compute how fast we should move, rotate, and scale
     let move_amount = 200.0 * game_state.delta_f32;
     let rotation_amount = PI * game_state.delta_f32;
@@ -61,4 +64,5 @@ fn logic(game_state: &mut GameState) {
         -game_state.screen_dimensions * 0.5,
         game_state.screen_dimensions * 0.5,
     );
+    true
 }

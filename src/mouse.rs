@@ -1,4 +1,4 @@
-use crate::prelude::GameState;
+use crate::prelude::EngineState;
 use bevy::{prelude::*, utils::HashSet};
 
 // Re-export some Bevy types to use
@@ -102,7 +102,7 @@ impl MouseState {
 }
 
 fn sync_mouse_events(
-    mut game_state: ResMut<GameState>,
+    mut game_state: ResMut<EngineState>,
     mut mouse_button_events: EventReader<MouseButtonInput>,
     mut cursor_moved_events: EventReader<CursorMoved>,
     mut mouse_motion_events: EventReader<MouseMotion>,
@@ -141,7 +141,7 @@ fn sync_mouse_state(
     mut mouse_motion_events: EventReader<MouseMotion>,
     mut cursor_moved_events: EventReader<CursorMoved>,
     mut mouse_wheel_events: EventReader<MouseWheel>,
-    game_state: Res<GameState>,
+    game_state: Res<EngineState>,
 ) {
     // Sync the current mouse location, which will be the last cursor_moved event that occurred.
     // Only changes when we get a new event, otherwise we preserve the last location.

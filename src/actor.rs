@@ -43,7 +43,8 @@ impl Default for Actor {
 }
 
 impl Actor {
-    pub(crate) fn bevy_transform(&self) -> Transform {
+    #[doc(hidden)]
+    pub fn bevy_transform(&self) -> Transform {
         let mut transform = Transform::from_translation(self.translation.extend(self.layer));
         transform.rotation = Quat::from_axis_angle(Vec3::Z, self.rotation);
         transform.scale = Vec3::splat(self.scale);
@@ -293,7 +294,7 @@ impl ActorPreset {
             ActorPreset::RollingHoleEnd,
             ActorPreset::RollingHoleStart,
         ];
-        std::array::IntoIter::new(ACTOR_PRESETS)
+        ACTOR_PRESETS.into_iter()
     }
 
     fn shifted_by(&self, amount: isize) -> ActorPreset {

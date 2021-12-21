@@ -1,5 +1,27 @@
 use rusty_engine::prelude::*;
 
+struct GameState {
+    current_label: String,
+    // Use an incrementing index (converted to a string) for the unique label of the actors
+    // Start at 1 since the hard-coded initial actor is 0
+    next_actor_index: u32,
+    shift_pressed: bool,
+    next_layer: f32,
+}
+
+impl Default for GameState {
+    fn default() -> Self {
+        Self {
+            current_label: "0".into(),
+            next_actor_index: 1,
+            shift_pressed: false,
+            next_layer: 0.01,
+        }
+    }
+}
+
+rusty_engine::init!(GameState);
+
 const MAX_LAYER: f32 = 900.0;
 
 fn main() {
@@ -31,33 +53,18 @@ Z - Print out Rust code of current level
 "
     );
 
-    // Use an incrementing index (converted to a string) for the unique label of the actors
-    // Start at 1 since the hard-coded initial actor is 0
-    game.game_state_mut().u32_vec.push(1);
+    let game_state = GameState::default();
 
     // Get our first actor onto the board
-    let initial_label = "0".to_string();
-    game.game_state_mut().string_vec.push(initial_label.clone());
-    let mut curr_actor = game.add_actor(initial_label, ActorPreset::RacingCarRed);
+    let mut curr_actor = game.add_actor("0".to_string(), ActorPreset::RacingCarRed);
     //curr_actor.scale = 0.5;
     curr_actor.layer = MAX_LAYER;
 
-    // Use a bool to track whether or not the shift key is currently pressed
-    game.game_state_mut().bool_vec.push(false);
-
-    // Use an f32 to track the current layer (so newer actors will always be on top of older ones)
-    game.game_state_mut().f32_vec.push(0.01);
-
-    game.run(logic);
+    game.add_logic(logic);
+    game.run(game_state);
 }
 
-fn logic(game_state: &mut GameState) {
-    // Extract values we're tracking
-    let current_label = game_state.string_vec.get_mut(0).unwrap();
-    let next_actor_index = game_state.u32_vec.get_mut(0).unwrap();
-    let shift_pressed = game_state.bool_vec.get_mut(0).unwrap();
-    let next_layer = game_state.f32_vec.get_mut(0).unwrap();
-
+fn logic(engine_state: &mut EngineState, game_state: &mut GameState) -> bool {
     // Gather keyboard input
     let mut reset = false;
     let mut print_level = false;
@@ -65,7 +72,7 @@ fn logic(game_state: &mut GameState) {
     let mut place_actor = false;
     let mut prev_preset = false;
     let mut next_preset = false;
-    for keyboard_event in &game_state.keyboard_events {
+    for keyboard_event in &engine_state.keyboard_events {
         if let KeyboardInput {
             scan_code: _,
             key_code: Some(key_code),
@@ -78,7 +85,7 @@ fn logic(game_state: &mut GameState) {
                         print_level = true;
                     }
                     KeyCode::LShift | KeyCode::RShift => {
-                        *shift_pressed = true;
+                        game_state.shift_pressed = true;
                     }
                     KeyCode::R | KeyCode::P => {
                         reset = true;
@@ -100,7 +107,7 @@ fn logic(game_state: &mut GameState) {
             } else {
                 match key_code {
                     KeyCode::LShift | KeyCode::RShift => {
-                        *shift_pressed = false;
+                        game_state.shift_pressed = false;
                     }
                     _ => {}
                 }
@@ -111,14 +118,14 @@ fn logic(game_state: &mut GameState) {
     // Print out the level?
     if print_level {
         println!(
-            "---------------\n\nuse rusty_engine::prelude::*;\n\nfn main() {{\n    let mut game = Game::new();\n"
+            "---------------\n\nuse rusty_engine::prelude::*;\n\nstruct GameState {{}}\n\nrusty_engine::init!(GameState);\n\nfn main() {{\n    let mut game = Game::new();\n"
         );
-        for actor in game_state.actors.values() {
-            if actor.label == *current_label {
+        for actor in engine_state.actors.values() {
+            if actor.label == game_state.current_label {
                 continue;
             }
             println!(
-                "    let a = game.game_state_mut().add_actor(\"{}\", ActorPreset::{:?}); a.translation = Vec2::new({:.1}, {:.1}); a.rotation = {:.8}; a.scale = {:.8}; a.layer = {:.8}; a.collision = true;",
+                "    let a = game.add_actor(\"{}\", ActorPreset::{:?}); a.translation = Vec2::new({:.1}, {:.1}); a.rotation = {:.8}; a.scale = {:.8}; a.layer = {:.8}; a.collision = true;",
                 actor.label,
                 actor.preset.unwrap(),
                 actor.translation.x,
@@ -128,11 +135,11 @@ fn logic(game_state: &mut GameState) {
                 actor.layer,
             );
         }
-        println!("\n    game.run(logic);\n}}\n\nfn logic(game_state: &mut GameState) {{\n    // Game Logic Goes Here\n}}")
+        println!("\n    game.add_logic(logic);\n    game.run(GameState {{}});\n}}\n\nfn logic(engine_state: &mut EngineState, game_state: &mut GameState) -> bool {{\n    // Game Logic Goes Here\n    true\n}}")
     }
 
     // Handle current actor that has not yet been placed
-    if let Some(actor) = game_state.actors.get_mut(current_label) {
+    if let Some(actor) = engine_state.actors.get_mut(&game_state.current_label) {
         // Should we print out the status of the actor?
         if print_status {
             println!(
@@ -151,15 +158,15 @@ fn logic(game_state: &mut GameState) {
         }
 
         // Handle translation via mouse location
-        for cursor_moved in &game_state.mouse_location_events {
+        for cursor_moved in &engine_state.mouse_location_events {
             actor.translation = cursor_moved.position;
         }
         // Handle rotation via mouse clicks
-        for mouse_button_input in &game_state.mouse_button_events {
+        for mouse_button_input in &engine_state.mouse_button_events {
             if mouse_button_input.state != ElementState::Pressed {
                 break;
             }
-            let rotate_amount = if *shift_pressed {
+            let rotate_amount = if game_state.shift_pressed {
                 std::f32::consts::TAU / 360.0
             } else {
                 std::f32::consts::FRAC_PI_4
@@ -172,8 +179,8 @@ fn logic(game_state: &mut GameState) {
             println!("r: {:.8}", actor.rotation);
         }
         // Handle scale via mousewheel
-        for mouse_wheel in &game_state.mouse_wheel_events {
-            let scale_amount = if *shift_pressed { 0.01 } else { 0.1 };
+        for mouse_wheel in &engine_state.mouse_wheel_events {
+            let scale_amount = if game_state.shift_pressed { 0.01 } else { 0.1 };
             if mouse_wheel.y > 0.0 || mouse_wheel.x < 0.0 {
                 actor.scale *= 1.0 + scale_amount;
             } else {
@@ -186,7 +193,13 @@ fn logic(game_state: &mut GameState) {
 
     // Change actor to prev/next preset
     if prev_preset || next_preset {
-        let old_actor = { game_state.actors.get_mut(current_label).unwrap().clone() };
+        let old_actor = {
+            engine_state
+                .actors
+                .get_mut(&game_state.current_label)
+                .unwrap()
+                .clone()
+        };
         let new_preset = {
             if prev_preset {
                 old_actor.preset.unwrap().prev()
@@ -195,27 +208,36 @@ fn logic(game_state: &mut GameState) {
             }
         };
 
-        let new_label = next_actor_index.to_string();
-        *next_actor_index += 1;
+        let new_label = game_state.next_actor_index.to_string();
+        game_state.next_actor_index += 1;
         let mut new_actor = new_preset.build(new_label.clone());
 
-        *current_label = new_label;
+        game_state.current_label = new_label;
         new_actor.layer = MAX_LAYER;
         new_actor.translation = old_actor.translation;
         new_actor.rotation = old_actor.rotation;
         new_actor.scale = old_actor.scale;
-        game_state.actors.insert(new_actor.label.clone(), new_actor);
-        game_state.actors.remove::<str>(old_actor.label.as_ref());
+        engine_state
+            .actors
+            .insert(new_actor.label.clone(), new_actor);
+        engine_state.actors.remove::<str>(old_actor.label.as_ref());
         println!("{:?}", new_preset);
     }
 
     // Place an actor
     if place_actor {
-        let mut actor = { game_state.actors.get_mut(current_label).unwrap().clone() };
-        actor.layer = *next_layer;
-        *next_layer += 0.01;
-        actor.label = next_actor_index.to_string();
-        *next_actor_index += 1;
-        game_state.actors.insert(actor.label.clone(), actor);
+        let mut actor = {
+            engine_state
+                .actors
+                .get_mut(&game_state.current_label)
+                .unwrap()
+                .clone()
+        };
+        actor.layer = game_state.next_layer;
+        game_state.next_layer += 0.01;
+        actor.label = game_state.next_actor_index.to_string();
+        game_state.next_actor_index += 1;
+        engine_state.actors.insert(actor.label.clone(), actor);
     }
+    true
 }

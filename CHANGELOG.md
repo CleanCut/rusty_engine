@@ -1,11 +1,34 @@
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
-## BREAKING CHANGES
+### BREAKING CHANGES
 
+- The fundamental way that Rusty Engine connects a user's game state to Bevy has been heavily
+refactored to a new solution based on macros so that users can provide a custom struct with their
+desired game state. This obseletes the old generic vectors and maps of various types that used to be
+stored on the `GameState` struct (which itself has been renamed to `EngineState` to more accurately
+describe what it is used for). Please refer to the [readme](./README.md) and
+[docs](https://docs.rs/rusty_engine/latest/rusty_engine/) for comprehensive documentation on the new
+approach.
+- Placing the module-level macro call `rusty_engine::init!(MyGameState)` is now required.
+`MyGameState` is any user-defined struct type that will be passed to the logic functions each frame.
+- `GameState` has been renamed to `EngineState` so that user's custom game state can be referred to
+as `GameState` instead.
+- `Game` now implements `Deref` and `DerefMut` for `EngineState`, so you can easily access
+`EngineState`'s methods from `Game` in `main.rs` for your game setup. `Game::game_state_mut` has
+been removed (if it had stayed it would have been renamed `engine_state_mut`, but with the deref
+implementations it's not needed at all).
+- Multiple logic functions can now be run. Pass them to `Game::run` in the order you would like them
+run. Return `false` to abort running any later functions during the frame.
+- Logic functions now need to fit the signature
+`fn somename(engine_state: &mut EngineState, game_state: &mut GameState) -> bool`, where `GameState`
+is the user-defined struct passed to `rusty_engine::init!()`, or `()` if nothing was passed in.
 - `.play_sfx()` now takes a volume level from `0.0` to `1.0` as a second argument, e.g. `.play_sfx(SfxPreset::Congratulations, 1.0)`
 
-## Other Changes
+### Other Changes
+
+- `AudioManager::music_playing()` will return whether or not music is currently playing (accessible
+through `EngineState:audio_manager`)
 
 - (meta) Improved CI times by using sccache together with GitHub Actions caching
 
