@@ -126,14 +126,14 @@ fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) -> boo
         if game_state.health_amount > 0 {
             game_state.health_amount -= 1;
             health_message.text = format!("Health: {}", game_state.health_amount);
-            engine_state.audio_manager.play_sfx(SfxPreset::Impact3);
+            engine_state.audio_manager.play_sfx(SfxPreset::Impact3, 0.5);
         }
     }
     if game_state.health_amount == 0 {
         let game_over = engine_state.add_text_actor("game over", "Game Over");
         game_over.font_size = 128.0;
         engine_state.audio_manager.stop_music();
-        engine_state.audio_manager.play_sfx(SfxPreset::Jingle3);
+        engine_state.audio_manager.play_sfx(SfxPreset::Jingle3, 0.5);
     }
 
     true

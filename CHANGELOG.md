@@ -23,11 +23,13 @@ run. Return `false` to abort running any later functions during the frame.
 - Logic functions now need to fit the signature
 `fn somename(engine_state: &mut EngineState, game_state: &mut GameState) -> bool`, where `GameState`
 is the user-defined struct passed to `rusty_engine::init!()`, or `()` if nothing was passed in.
+- `.play_sfx()` now takes a volume level from `0.0` to `1.0` as a second argument, e.g. `.play_sfx(SfxPreset::Congratulations, 1.0)`
 
 ### Other Changes
 
 - `AudioManager::music_playing()` will return whether or not music is currently playing (accessible
 through `EngineState:audio_manager`)
+
 - (meta) Improved CI times by using sccache together with GitHub Actions caching
 
 ## [2.0.1] - 2021-11-15

@@ -47,11 +47,11 @@ fn logic(engine_state: &mut EngineState, _: &mut ()) -> bool {
         match event.state {
             CollisionState::Begin => {
                 text_actor.text = format!("{:?}", event.pair);
-                engine_state.audio_manager.play_sfx(SfxPreset::Switch1)
+                engine_state.audio_manager.play_sfx(SfxPreset::Switch1, 1.0)
             }
             CollisionState::End => {
                 text_actor.text = "".into();
-                engine_state.audio_manager.play_sfx(SfxPreset::Switch2)
+                engine_state.audio_manager.play_sfx(SfxPreset::Switch2, 1.0)
             }
         }
     }

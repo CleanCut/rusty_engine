@@ -73,7 +73,7 @@ fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) -> boo
             marble.translation.x = player_x;
             marble.layer = 5.0;
             marble.collision = true;
-            engine_state.audio_manager.play_sfx(SfxPreset::Impact2);
+            engine_state.audio_manager.play_sfx(SfxPreset::Impact2, 0.7);
         }
     }
 
@@ -163,7 +163,7 @@ fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) -> boo
         }
         engine_state
             .audio_manager
-            .play_sfx(SfxPreset::Confirmation1);
+            .play_sfx(SfxPreset::Confirmation1, 0.5);
     }
 
     true

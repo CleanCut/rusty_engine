@@ -41,7 +41,7 @@ fn logic(engine_state: &mut EngineState, game_state: &mut GameState) -> bool {
         if timer.tick(engine_state.delta).just_finished() {
             // Play a new sound effect
             let sfx = SfxPreset::variant_iter().nth(i).unwrap();
-            engine_state.audio_manager.play_sfx(sfx);
+            engine_state.audio_manager.play_sfx(sfx, 1.0);
             // Update the text to show which sound effect we are playing
             let sfx_label = engine_state.text_actors.get_mut("sfx_label").unwrap();
             sfx_label.text = format!("{:?}", sfx);

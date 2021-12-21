@@ -915,7 +915,7 @@ fn logic(engine_state: &mut EngineState, game_state: &mut GameState) -> bool {
             engine_state.actors.remove(&shiny_label);
             engine_state
                 .audio_manager
-                .play_sfx(SfxPreset::Confirmation1);
+                .play_sfx(SfxPreset::Confirmation1, 1.0);
             game_state.score += 1;
             score_text.text = format!("Score: {}", game_state.score);
             if game_state.score >= game_state.win_amount {
@@ -927,14 +927,14 @@ fn logic(engine_state: &mut EngineState, game_state: &mut GameState) -> bool {
         // Crash!
         game_state.crashed = true;
         //game_state.add_text_actor("crashed", "You crashed. You fail. :-(");
-        engine_state.audio_manager.play_sfx(SfxPreset::Jingle3);
+        engine_state.audio_manager.play_sfx(SfxPreset::Jingle3, 1.0);
         engine_state.audio_manager.stop_music();
     }
 
     if game_state.won {
         engine_state
             .audio_manager
-            .play_sfx(SfxPreset::Congratulations);
+            .play_sfx(SfxPreset::Congratulations, 1.0);
         let mut you_win = engine_state.add_text_actor("you win", "You Win!");
         you_win.font_size = 120.0;
         you_win.translation.y = -50.0;
