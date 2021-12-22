@@ -12,8 +12,13 @@ pub struct TextActor {
     pub label: String,
     /// SYNCED: The actual text you want to display.
     pub text: String,
+    /// CREATION: The font to use when creating this text actor. Should be a file name of an .otf or
+    /// .ttf font located within the assets/fonts folder. Defaults to "FiraSans-Bold.ttf" (included
+    /// in the default asset pack).
+    pub font: String,
     /// SYNCED: The font size of the text you want to display. WARNING: As font sizes get larger,
-    /// the sprites we generate for them get slower to create. Very large sizes will crash.
+    /// the sprites we generate for them get slower to create. Very large sizes will crash. The
+    /// default font size is `30.0`.
     pub font_size: f32,
     /// SYNCED: Where you are in 2D game space. Positive x is right. Positive y is up. (0.0, 0.0) is the
     /// center of the screen.
@@ -36,6 +41,7 @@ impl Default for TextActor {
         Self {
             label: String::default(),
             text: String::default(),
+            font: "FiraSans-Bold.ttf".to_string(),
             font_size: TEXT_ACTOR_DEFAULT_FONT_SIZE,
             translation: Vec2::default(),
             layer: TEXT_ACTOR_DEFAULT_LAYER,

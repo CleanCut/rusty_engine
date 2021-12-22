@@ -31,8 +31,10 @@ pub struct EngineState {
     /// SYNCED - The state of all actors this frame. To add an actor, use the
     /// [`add_actor`](EngineState::add_actor) method. Modify & remove text actors as you like.
     pub actors: HashMap<String, Actor>,
-    /// SYNCED - The state of all text actors this frame. To add a text actor, use the
-    /// [`add_text_actor`](EngineState::add_text_actor) method. Modify & remove text actors as you like.
+    /// SYNCED - The state of all text actors this frame. For convenience adding text actor, use the
+    /// [`add_text_actor`](EngineState::add_text_actor) or
+    /// [`add_text_actor_with_font`](EngineState::add_text_actor_with_font) methods. Modify & remove
+    /// text actors as you like.
     pub text_actors: HashMap<String, TextActor>,
     /// INFO - All the collision events that occurred this frame. For collisions to be generated
     /// between actors, both actors must have [`Actor.collision`] set to `true`. Collision events
@@ -123,6 +125,36 @@ impl EngineState {
         // Unwrap: Can't crash because we just inserted the actor
         self.text_actors.get_mut(&label).unwrap()
     }
+
+    #[must_use]
+    /// Add a [`TextActor`]. Use the `&mut TextActor` that is returned to set the translation,
+    /// rotation, etc. Use a unique label for each text actor. Attempting to add two text actors
+    /// with the same label will crash. The `font` paramater should be the filename of a font
+    /// located in the assets/fonts directory. The default font is "FiraSans-Bold.ttf".
+    pub fn add_text_actor_with_font<L, T, F>(
+        &mut self,
+        label: L,
+        text: T,
+        font: F,
+    ) -> &mut TextActor
+    where
+        L: Into<String>,
+        T: Into<String>,
+        F: Into<String>,
+    {
+        let label = label.into();
+        let text = text.into();
+        let font = font.into();
+        let text_actor = TextActor {
+            label: label.clone(),
+            text,
+            font,
+            ..Default::default()
+        };
+        self.text_actors.insert(label.clone(), text_actor);
+        // Unwrap: Can't crash because we just inserted the actor
+        self.text_actors.get_mut(&label).unwrap()
+    }
 }
 
 // startup system - grab window settings, initialize all the starting actors
@@ -172,6 +204,7 @@ pub fn add_text_actors(
         let transform = text_actor.bevy_transform();
         let font_size = text_actor.font_size;
         let text = text_actor.text.clone();
+        let font_path = format!("fonts/{}", text_actor.font);
         commands
             .spawn()
             .insert(text_actor)
@@ -179,7 +212,7 @@ pub fn add_text_actors(
                 text: Text::with_section(
                     text,
                     TextStyle {
-                        font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                        font: asset_server.load(font_path.as_str()),
                         font_size,
                         color: Color::WHITE,
                     },

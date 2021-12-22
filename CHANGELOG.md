@@ -29,6 +29,9 @@ is the user-defined struct passed to `rusty_engine::init!()`, or `()` if nothing
 
 - `AudioManager::music_playing()` will return whether or not music is currently playing (accessible
 through `EngineState:audio_manager`)
+- Custom fonts may now be set on a `TextActor` at creation time.
+`EngineState::add_text_actor_with_font` was added for a convenience. The font specified should be
+a `.ttf` or `.otf` file stored in `assets/fonts`
 
 - (meta) Improved CI times by using sccache together with GitHub Actions caching
 
