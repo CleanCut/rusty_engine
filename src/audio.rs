@@ -233,7 +233,7 @@ pub fn queue_managed_audio_system(
         // ends up being a performance or correctness problem, we'll need to circle back and do
         // something more sophisticated (like keep a set number of channels around at different
         // volumes).
-        let new_sfx_channel = AudioChannel::new(sfx_path.into());
+        let new_sfx_channel = AudioChannel::new(sfx_path);
         audio.set_volume_in_channel(volume, &new_sfx_channel);
         audio.play_in_channel(sfx_handle, &new_sfx_channel);
     }
@@ -243,7 +243,7 @@ pub fn queue_managed_audio_system(
         if let Some((music, volume)) = item {
             let music_path = format!("audio/{}", music);
             let music_handle = asset_server.load(music_path.as_str());
-            playing_music = AudioChannel::new(music_path.into());
+            playing_music = AudioChannel::new(music_path);
             audio.set_volume_in_channel(volume, &playing_music);
             audio.play_looped_in_channel(music_handle, &playing_music);
         }
