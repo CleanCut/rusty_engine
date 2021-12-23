@@ -32,6 +32,8 @@ through `EngineState:audio_manager`)
 - Custom fonts may now be set on a `TextActor` at creation time.
 `EngineState::add_text_actor_with_font` was added for a convenience. The font specified should be
 a `.ttf` or `.otf` file stored in `assets/fonts`
+- Custom sounds may now be played via `AudioManager::play_music` and `AudioManager::play_sfx` by
+specifying a path to a sound file relative to `assets/audio`.
 
 - (meta) Improved CI times by using sccache together with GitHub Actions caching
 

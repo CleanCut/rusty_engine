@@ -3,12 +3,15 @@ use bevy::prelude::*;
 /// Default depth of the text actor, positioned so it will be on top of other default layers. Depth
 /// can range from `0.0` (back) to `999.0` (front)
 pub const TEXT_ACTOR_DEFAULT_LAYER: f32 = 900.0;
+/// Default font size for a text actor.
 pub const TEXT_ACTOR_DEFAULT_FONT_SIZE: f32 = 30.0;
 
+/// An [`TextActor`] is a bit of text that exists on the screen.
 #[derive(Clone, Debug)]
 pub struct TextActor {
     /// READONLY: A label to identify the text. This is not the text that is displayed! This is the
-    /// label you use to retrieve and modify your text in code.
+    /// label you use to retrieve and modify your text from the
+    /// [`EngineState::text_actors`](crate::prelude::EngineState::text_actors) HashMap.
     pub label: String,
     /// SYNCED: The actual text you want to display.
     pub text: String,
@@ -34,8 +37,6 @@ pub struct TextActor {
     pub scale: f32,
 }
 
-/// An [`Actor`] is the basic abstraction for something that can be seen and interacted with.
-/// Players, obstacles, etc. are all actors.
 impl Default for TextActor {
     fn default() -> Self {
         Self {

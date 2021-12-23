@@ -122,7 +122,7 @@ impl ActorPreset {
     }
 
     /// Build a usable actor from this preset. This is called for you if you use
-    /// [`GameState::add_actor`].
+    /// [`EngineState::add_actor`](crate::prelude::EngineState::add_actor).
     pub fn build(self, label: String) -> Actor {
         let filename = self.filename();
         let collider = self.collider();
