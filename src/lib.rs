@@ -1,9 +1,17 @@
+//! Rusty Engine is a simple, 2D game engine for those who are learning Rust. Create simple game
+//! prototypes using straightforward Rust code without any advanced game engine concepts! It works
+//! on macOS, Linux, and Windows. Rusty Engine is a simplification wrapper over
+//! [Bevy](https://bevyengine.org/), which I encourage you to use directly for more serious game
+//! engine needs.
+//!
 //! # Quick Start Example
 //!
 //! You need to start by importing `rusty_engine::prelude::*`, and then initializing the engine with
 //! the `rusty_engine::init!( ... )` macro. This macro takes the name of a custom struct to store
-//! whatever game logic you need. If you don't need any game logic, you can pass in the "unit
-//! struct", which looks like empty parens: `()`.
+//! whatever game logic you need. If you don't need any game logic, you can leave the macro call
+//! empty, but you'll need to substitute in the unit struct (which looks like empty parens: `()`)
+//! wherever your struct type is expected, like the call to [`Game::run`](crate::game::Game) or the
+//! type of the second paramater in your logic function.
 //!
 //! ```no_run
 //! use rusty_engine::prelude::*;
