@@ -52,7 +52,7 @@ fn logic(engine_state: &mut EngineState, _: &mut ()) -> bool {
 
         // Use mouse location events to set the location of the actor. This loop is effectively
         // discarding all but the last location. If that is what you want, you should use
-        // GameState::mouse_state instead. See the mouse_state example for more details.
+        // EngineState::mouse_state instead. See the mouse_state example for more details.
         for cursor_moved in &engine_state.mouse_location_events {
             actor.translation = cursor_moved.position;
         }

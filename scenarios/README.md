@@ -21,7 +21,7 @@ Next, set up the skeleton of your project:
     1. Forgot the latest version number?  You can always peek at [the `rusty_engine` page on Crates.io](https://crates.io/crates/rusty_engine)
     1. It's recommended to leave off the "patch" version number, ie use version number`6.7` not `6.7.8`.
 1. In `src/main.rs`, add a `use` statement to bring everything from `rusty_engine`'s prelude into scope. Yes, this is one of those times you can use a `*` in a `use` statement!
-1. Create a `fn game_logic(game_state: &mut GameState)` for your game logic.
+1. Create a `fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState)` for your game logic.
 1. In `main()` create a _mutable_ `Game` struct
 1. Then add a `// setup goes here` placeholder line after your new `Game` struct.
 1. Finally, at the end of `main()` call `.run(game_logic)` on whatever you named your `Game` instance.
