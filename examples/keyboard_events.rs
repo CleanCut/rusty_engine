@@ -5,7 +5,7 @@ rusty_engine::init!();
 fn main() {
     let mut game = Game::new();
 
-    let mut race_car = game.add_actor("Race Car", ActorPreset::RacingCarGreen);
+    let mut race_car = game.add_sprite("Race Car", SpritePreset::RacingCarGreen);
     race_car.translation = Vec2::new(0.0, 0.0);
     race_car.rotation = UP;
     race_car.scale = 1.0;
@@ -19,8 +19,8 @@ fn main() {
 }
 
 fn logic(game_state: &mut EngineState, _: &mut ()) -> bool {
-    // Get the race car actor
-    let race_car = game_state.actors.get_mut("Race Car").unwrap();
+    // Get the race car sprite
+    let race_car = game_state.sprites.get_mut("Race Car").unwrap();
 
     // Loop through any keyboard input that hasn't been processed this frame
     for keyboard_event in &game_state.keyboard_events {

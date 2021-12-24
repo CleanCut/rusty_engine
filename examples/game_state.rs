@@ -16,7 +16,7 @@ rusty_engine::init!(MyCustomGameStateStuff);
 
 fn main() {
     let mut game = Game::new();
-    let _ = game.add_actor("Race Car", ActorPreset::RacingCarGreen);
+    let _ = game.add_sprite("Race Car", SpritePreset::RacingCarGreen);
 
     let initial_game_state = MyCustomGameStateStuff {
         change_timer: Timer::from_seconds(1.0, true),
@@ -29,7 +29,7 @@ fn main() {
 
 fn logic(engine_state: &mut EngineState, game_state: &mut MyCustomGameStateStuff) -> bool {
     // Get mutable references to the variables in the game state that we care about
-    let race_car = engine_state.actors.get_mut("Race Car").unwrap();
+    let race_car = engine_state.sprites.get_mut("Race Car").unwrap();
 
     // If we aren't turning, then tick the timer until it's time to start turning again
     if !game_state.turning

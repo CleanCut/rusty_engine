@@ -28,8 +28,8 @@
 //!     // Create a game
 //!     let mut game = Game::new();
 //!     // Set up your game. `Game` exposes all of the methods (but not fields) of `EngineState` as well.
-//!     let actor = game.add_actor("player", ActorPreset::RacingCarBlue);
-//!     actor.scale = 2.0;
+//!     let sprite = game.add_sprite("player", SpritePreset::RacingCarBlue);
+//!     sprite.scale = 2.0;
 //!     game.audio_manager.play_music(MusicPreset::Classy8Bit, 1.0);
 //!     // Add one or more functions with logic for your game. When the game is run, the logic
 //!     // functions will run in the order they were added.
@@ -46,8 +46,8 @@
 //! // This function will be run once each frame.
 //! fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) -> bool {
 //!     // The `EngineState` contains all sorts of built-in goodies.
-//!     // Get access to the player actor...
-//!     let player = engine_state.actors.get_mut("player").unwrap();
+//!     // Get access to the player sprite...
+//!     let player = engine_state.sprites.get_mut("player").unwrap();
 //!     // Rotate the player...
 //!     player.rotation += std::f32::consts::PI * engine_state.delta_f32;
 //!     // Damage the player if it is out of bounds...
@@ -72,20 +72,18 @@
 //! [this `README.md` file](https://github.com/CleanCut/rusty_engine/tree/main/assets/audio/music)
 //! for more information.
 //!
-pub mod actor;
 pub mod audio;
 pub mod consts;
 pub mod game;
 pub mod keyboard;
 pub mod mouse;
 pub mod physics;
+pub mod sprite;
 pub mod text;
 
 // Public prelude
 pub mod prelude {
-    pub use crate::{
-        actor::*, audio::*, consts::*, keyboard::*, mouse::*, physics::*, text::*,
-    };
+    pub use crate::{audio::*, consts::*, keyboard::*, mouse::*, physics::*, sprite::*, text::*};
     // we can't use `*` on game because of the stubbed `Game` stuff we did for documentation
     pub use crate::game::{EngineState, WindowDescriptor, WindowMode, WindowResizeConstraints};
     pub use bevy::{

@@ -1,6 +1,6 @@
 use rand::prelude::*;
 use rusty_engine::prelude::*;
-use ActorPreset::*; // The ActorPreset enum was imported from rusty_engine::prelude
+use SpritePreset::*; // The SpritePreset enum was imported from rusty_engine::prelude
 
 const ROAD_SPEED: f32 = 400.0;
 const PLAYER_SPEED: f32 = 250.0;
@@ -18,20 +18,20 @@ fn main() {
     game.audio_manager
         .play_music(MusicPreset::WhimsicalPopsicle, 0.2);
 
-    // Create the player actor
-    let player1 = game.add_actor("player1", RacingCarBlue);
+    // Create the player sprite
+    let player1 = game.add_sprite("player1", RacingCarBlue);
     player1.translation.x = -500.0;
     player1.layer = 100.0;
     player1.collision = true;
 
-    // Create the road line actors
+    // Create the road line sprites
     for i in 0..10 {
-        let roadline = game.add_actor(format!("roadline{}", i), ActorPreset::RacingBarrierWhite);
+        let roadline = game.add_sprite(format!("roadline{}", i), SpritePreset::RacingBarrierWhite);
         roadline.scale = 0.1;
         roadline.translation.x = -600.0 + 150.0 * i as f32;
     }
 
-    // Create the obstacle actors
+    // Create the obstacle sprites
     let obstacle_presets = vec![
         RacingBarrelBlue,
         RacingBarrelRed,
@@ -44,11 +44,11 @@ fn main() {
         RollingBlockSmall,
     ];
     for (i, preset) in obstacle_presets.into_iter().enumerate() {
-        let actor = game.add_actor(format!("obstacle{}", i), preset);
-        actor.layer = 50.0;
-        actor.collision = true;
-        actor.translation.x = thread_rng().gen_range(800.0..1600.0);
-        actor.translation.y = thread_rng().gen_range(-300.0..300.0);
+        let sprite = game.add_sprite(format!("obstacle{}", i), preset);
+        sprite.layer = 50.0;
+        sprite.collision = true;
+        sprite.translation.x = thread_rng().gen_range(800.0..1600.0);
+        sprite.translation.y = thread_rng().gen_range(-300.0..300.0);
     }
 
     // Create the health message
@@ -84,7 +84,7 @@ fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) -> boo
     }
 
     // Move player1
-    if let Some(player1) = engine_state.actors.get_mut("player1") {
+    if let Some(player1) = engine_state.sprites.get_mut("player1") {
         if direction > 0 {
             player1.translation.y += PLAYER_SPEED * engine_state.delta_f32;
             player1.rotation = 0.15;
@@ -100,18 +100,18 @@ fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) -> boo
     }
 
     // Move road objects
-    for actor in engine_state.actors.values_mut() {
-        if actor.label.starts_with("roadline") {
-            actor.translation.x -= ROAD_SPEED * engine_state.delta_f32;
-            if actor.translation.x < -675.0 {
-                actor.translation.x += 1500.0;
+    for sprite in engine_state.sprites.values_mut() {
+        if sprite.label.starts_with("roadline") {
+            sprite.translation.x -= ROAD_SPEED * engine_state.delta_f32;
+            if sprite.translation.x < -675.0 {
+                sprite.translation.x += 1500.0;
             }
         }
-        if actor.label.starts_with("obstacle") {
-            actor.translation.x -= ROAD_SPEED * engine_state.delta_f32;
-            if actor.translation.x < -800.0 {
-                actor.translation.x = thread_rng().gen_range(800.0..1600.0);
-                actor.translation.y = thread_rng().gen_range(-300.0..300.0);
+        if sprite.label.starts_with("obstacle") {
+            sprite.translation.x -= ROAD_SPEED * engine_state.delta_f32;
+            if sprite.translation.x < -800.0 {
+                sprite.translation.x = thread_rng().gen_range(800.0..1600.0);
+                sprite.translation.y = thread_rng().gen_range(-300.0..300.0);
             }
         }
     }
