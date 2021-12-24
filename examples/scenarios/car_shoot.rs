@@ -43,7 +43,7 @@ fn main() {
     for i in 0..25 {
         game_state.cars_left.push(i);
     }
-    let cars_left = game.add_text_actor("cars left", "Cars left: 25");
+    let cars_left = game.add_text("cars left", "Cars left: 25");
     cars_left.translation = Vec2::new(540.0, -320.0);
 
     game.add_logic(game_logic);
@@ -119,8 +119,8 @@ fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) -> boo
         game_state.spawn_timer = Timer::from_seconds(thread_rng().gen_range(0.1..1.25), false);
         // Get the next car
         if let Some(i) = game_state.cars_left.pop() {
-            let cars_left = engine_state.text_actors.get_mut("cars left").unwrap();
-            cars_left.text = format!("Cars left: {}", i);
+            let cars_left = engine_state.texts.get_mut("cars left").unwrap();
+            cars_left.value = format!("Cars left: {}", i);
             let label = format!("car{}", i);
             let car_choices = vec![
                 RacingCarBlack,

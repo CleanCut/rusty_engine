@@ -21,11 +21,11 @@ fn main() {
     anchor.translation = ORIGIN_LOCATION.into();
     anchor.layer = 0.0;
 
-    let msg = game.add_text_actor("relative message", "Relative Mouse Motion Indicator");
+    let msg = game.add_text("relative message", "Relative Mouse Motion Indicator");
     msg.translation.y = -300.0;
     msg.font_size = 20.0;
 
-    let msg2 = game.add_text_actor(
+    let msg2 = game.add_text(
         "instructions",
         "Discrete Movement with Mouse Events\n==============================\nMove the car around with your mouse.\nRotate it by clicking left/right mouse buttons.\nScale it with the mousewheel.",
     );

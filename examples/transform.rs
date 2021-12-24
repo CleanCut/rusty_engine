@@ -1,4 +1,3 @@
-//
 use rusty_engine::prelude::*;
 
 rusty_engine::init!();

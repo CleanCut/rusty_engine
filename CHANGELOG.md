@@ -24,13 +24,15 @@ run. Return `false` to abort running any later functions during the frame.
 `fn somename(engine_state: &mut EngineState, game_state: &mut GameState) -> bool`, where `GameState`
 is the user-defined struct passed to `rusty_engine::init!()`, or `()` if nothing was passed in.
 - `.play_sfx()` now takes a volume level from `0.0` to `1.0` as a second argument, e.g. `.play_sfx(SfxPreset::Congratulations, 1.0)`
+- `TextActor` has been renamed to `Text` to eliminate the confusing "actor" terminology.
+`TextActor::text` is now `Text::value` for similar reasons.
 
 ### Other Changes
 
 - `AudioManager::music_playing()` will return whether or not music is currently playing (accessible
 through `EngineState:audio_manager`)
-- Custom fonts may now be set on a `TextActor` at creation time.
-`EngineState::add_text_actor_with_font` was added for a convenience. The font specified should be
+- Custom fonts may now be set on a `Text` at creation time.
+`EngineState::add_text_with_font` was added for a convenience. The font specified should be
 a `.ttf` or `.otf` file stored in `assets/fonts`
 - Custom sounds may now be played via `AudioManager::play_music` and `AudioManager::play_sfx` by
 specifying a path to a sound file relative to `assets/audio`.

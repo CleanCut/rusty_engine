@@ -22,11 +22,11 @@ fn main() {
     game_state.end_timer =
         Timer::from_seconds((SfxPreset::variant_iter().len() as f32) * 2.0 + 1.0, false);
 
-    let mut msg = game.add_text_actor("msg", "Playing sound effects!");
+    let mut msg = game.add_text("msg", "Playing sound effects!");
     msg.translation = Vec2::new(0.0, 100.0);
     msg.font_size = 60.0;
 
-    let mut sfx_label = game.add_text_actor("sfx_label", "");
+    let mut sfx_label = game.add_text("sfx_label", "");
     sfx_label.translation = Vec2::new(0.0, -100.0);
     sfx_label.font_size = 90.0;
 
@@ -43,8 +43,8 @@ fn logic(engine_state: &mut EngineState, game_state: &mut GameState) -> bool {
             let sfx = SfxPreset::variant_iter().nth(i).unwrap();
             engine_state.audio_manager.play_sfx(sfx, 1.0);
             // Update the text to show which sound effect we are playing
-            let sfx_label = engine_state.text_actors.get_mut("sfx_label").unwrap();
-            sfx_label.text = format!("{:?}", sfx);
+            let sfx_label = engine_state.texts.get_mut("sfx_label").unwrap();
+            sfx_label.value = format!("{:?}", sfx);
         }
     }
 
@@ -54,8 +54,8 @@ fn logic(engine_state: &mut EngineState, game_state: &mut GameState) -> bool {
         .tick(engine_state.delta)
         .just_finished()
     {
-        let sfx_label = engine_state.text_actors.get_mut("sfx_label").unwrap();
-        sfx_label.text = "That's all! Press Esc to quit.".into();
+        let sfx_label = engine_state.texts.get_mut("sfx_label").unwrap();
+        sfx_label.value = "That's all! Press Esc to quit.".into();
     }
     true
 }

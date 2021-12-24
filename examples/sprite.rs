@@ -17,9 +17,9 @@ fn main() {
             let mut actor = game.add_actor(&actor_string, actor_preset);
             actor.translation = Vec2::new(x as f32, (-y) as f32);
 
-            let mut text_actor = game.add_text_actor(&actor_string, &actor_string);
-            text_actor.translation = Vec2::new(x as f32, (-y - 75) as f32);
-            text_actor.font_size = 22.0;
+            let mut text = game.add_text(&actor_string, &actor_string);
+            text.translation = Vec2::new(x as f32, (-y - 75) as f32);
+            text.font_size = 22.0;
         }
     }
 

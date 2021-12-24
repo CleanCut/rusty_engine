@@ -1,21 +1,21 @@
-use bevy::prelude::*;
+use bevy::prelude::{Quat, Transform, Vec2, Vec3};
 
-/// Default depth of the text actor, positioned so it will be on top of other default layers. Depth
+/// Default depth of the text, positioned so it will be on top of other default layers. Depth
 /// can range from `0.0` (back) to `999.0` (front)
-pub const TEXT_ACTOR_DEFAULT_LAYER: f32 = 900.0;
-/// Default font size for a text actor.
-pub const TEXT_ACTOR_DEFAULT_FONT_SIZE: f32 = 30.0;
+pub const TEXT_DEFAULT_LAYER: f32 = 900.0;
+/// Default font size for a text.
+pub const TEXT_DEFAULT_FONT_SIZE: f32 = 30.0;
 
-/// An [`TextActor`] is a bit of text that exists on the screen.
+/// A [`Text`] is a bit of text that exists on the screen.
 #[derive(Clone, Debug)]
-pub struct TextActor {
+pub struct Text {
     /// READONLY: A label to identify the text. This is not the text that is displayed! This is the
     /// label you use to retrieve and modify your text from the
-    /// [`EngineState::text_actors`](crate::prelude::EngineState::text_actors) HashMap.
+    /// [`EngineState::texts`](crate::prelude::EngineState::texts) HashMap.
     pub label: String,
-    /// SYNCED: The actual text you want to display.
-    pub text: String,
-    /// CREATION: The font to use when creating this text actor. Should be a file name of an .otf or
+    /// SYNCED: The actual text value you want to display.
+    pub value: String,
+    /// CREATION: The font to use when creating this text. Should be a file name of an .otf or
     /// .ttf font located within the assets/fonts folder. Defaults to "FiraSans-Bold.ttf" (included
     /// in the default asset pack).
     pub font: String,
@@ -26,7 +26,7 @@ pub struct TextActor {
     /// SYNCED: Where you are in 2D game space. Positive x is right. Positive y is up. (0.0, 0.0) is the
     /// center of the screen.
     pub translation: Vec2,
-    /// SYNCED: Depth of the text. 0.0 (back) to 999.0 (front)  Defaults to [`TEXT_ACTOR_DEFAULT_LAYER`]
+    /// SYNCED: Depth of the text. 0.0 (back) to 999.0 (front)  Defaults to [`TEXT_DEFAULT_LAYER`]
     pub layer: f32,
     /// SYNCED: Direction you face in radians. Defaults to [`RIGHT`](crate::consts::RIGHT). See also
     /// the [direction constants](crate::consts). WARNING: This field will not affect text rotation
@@ -37,22 +37,22 @@ pub struct TextActor {
     pub scale: f32,
 }
 
-impl Default for TextActor {
+impl Default for Text {
     fn default() -> Self {
         Self {
             label: String::default(),
-            text: String::default(),
+            value: String::default(),
             font: "FiraSans-Bold.ttf".to_string(),
-            font_size: TEXT_ACTOR_DEFAULT_FONT_SIZE,
+            font_size: TEXT_DEFAULT_FONT_SIZE,
             translation: Vec2::default(),
-            layer: TEXT_ACTOR_DEFAULT_LAYER,
+            layer: TEXT_DEFAULT_LAYER,
             rotation: f32::default(),
             scale: 1.0,
         }
     }
 }
 
-impl TextActor {
+impl Text {
     #[doc(hidden)]
     pub fn bevy_transform(&self) -> Transform {
         let mut transform = Transform::from_translation(self.translation.extend(self.layer));

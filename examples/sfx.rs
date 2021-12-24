@@ -7,13 +7,13 @@ rusty_engine::init!();
 
 fn main() {
     let mut game = Game::new();
-    let msg = game.add_text_actor(
+    let msg = game.add_text(
         "msg",
         "You can play sound effect presets that are included in the asset pack. For example:",
     );
     msg.translation.y = 50.0;
 
-    let msg2 = game.add_text_actor_with_font(
+    let msg2 = game.add_text_with_font(
         "msg2",
         "engine_state.audio_manager.play_sfx(SfxPreset::Jingle1, 1.0);",
         "FiraMono-Medium.ttf",
