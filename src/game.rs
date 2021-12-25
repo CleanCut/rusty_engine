@@ -3,12 +3,16 @@ use crate::{
     audio::AudioManager,
     mouse::{CursorMoved, MouseButtonInput, MouseMotion, MouseWheel},
     prelude::{CollisionEvent, KeyboardInput, KeyboardState, MouseState},
-    text_actor::TextActor,
+    text::Text,
 };
-use bevy::{prelude::*, utils::HashMap};
-use std::time::Duration;
-
+use bevy::prelude::{
+    info, AssetServer, Assets, Color, ColorMaterial, Commands, HorizontalAlign, Res, ResMut,
+    SpriteBundle, Text as BevyText, Text2dBundle, TextAlignment, TextStyle, Vec2, VerticalAlign,
+    Windows,
+};
+use bevy::utils::HashMap;
 pub use bevy::window::{WindowDescriptor, WindowMode, WindowResizeConstraints};
+use std::time::Duration;
 
 /// EngineState is the primary way that you will interact with Rusty Engine. Every frame this struct
 /// is provided to the "logic" function (or closure) that you provided to [`Game::run`]. The
@@ -29,13 +33,13 @@ pub use bevy::window::{WindowDescriptor, WindowMode, WindowResizeConstraints};
 #[derive(Default, Debug)]
 pub struct EngineState {
     /// SYNCED - The state of all actors this frame. To add an actor, use the
-    /// [`add_actor`](EngineState::add_actor) method. Modify & remove text actors as you like.
+    /// [`add_actor`](EngineState::add_actor) method. Modify & remove actors as you like.
     pub actors: HashMap<String, Actor>,
-    /// SYNCED - The state of all text actors this frame. For convenience adding text actor, use the
-    /// [`add_text_actor`](EngineState::add_text_actor) or
-    /// [`add_text_actor_with_font`](EngineState::add_text_actor_with_font) methods. Modify & remove
-    /// text actors as you like.
-    pub text_actors: HashMap<String, TextActor>,
+    /// SYNCED - The state of all texts this frame. For convenience adding a text, use the
+    /// [`add_text`](EngineState::add_text) or
+    /// [`add_text_with_font`](EngineState::add_text_with_font) methods. Modify & remove
+    /// text as you like.
+    pub texts: HashMap<String, Text>,
     /// INFO - All the collision events that occurred this frame. For collisions to be generated
     /// between actors, both actors must have [`Actor.collision`] set to `true`. Collision events
     /// are generated when two actors' colliders begin or end overlapping in 2D space.
@@ -62,11 +66,11 @@ pub struct EngineState {
     /// finally released, a single released event is emitted.
     pub keyboard_state: KeyboardState,
     /// INFO - The delta time (time between frames) for the current frame as a [`Duration`], perfect
-    /// for use with [`Timer`]s
+    /// for use with [`Timer`](crate::prelude::Timer)s
     pub keyboard_events: Vec<KeyboardInput>,
     /// INFO - The current state of all the keys on the keyboard. Use this to control movement in
     /// your games!  A [`KeyboardState`] has helper methods you should use to query the state of
-    /// specific [`KeyCode`]s.
+    /// specific [`KeyCode`](crate::prelude::KeyCode)s.
     pub delta: Duration,
     /// INFO - The delta time (time between frames) for the current frame as an [`f32`], perfect for
     /// use in math with other `f32`'s. A cheap and quick way to approximate smooth movement
@@ -106,37 +110,32 @@ impl EngineState {
     }
 
     #[must_use]
-    /// Add a [`TextActor`]. Use the `&mut TextActor` that is returned to set the translation,
-    /// rotation, etc. Use a unique label for each text actor. Attempting to add two text actors
-    /// with the same label will crash.
-    pub fn add_text_actor<T, S>(&mut self, label: T, text: S) -> &mut TextActor
+    /// Add a [`Text`]. Use the `&mut Text` that is returned to set the translation, rotation, etc.
+    /// Use a unique label for each text. Attempting to add two texts with the same label will
+    /// crash.
+    pub fn add_text<T, S>(&mut self, label: T, text: S) -> &mut Text
     where
         T: Into<String>,
         S: Into<String>,
     {
         let label = label.into();
         let text = text.into();
-        let text_actor = TextActor {
+        let curr_text = Text {
             label: label.clone(),
-            text,
+            value: text,
             ..Default::default()
         };
-        self.text_actors.insert(label.clone(), text_actor);
-        // Unwrap: Can't crash because we just inserted the actor
-        self.text_actors.get_mut(&label).unwrap()
+        self.texts.insert(label.clone(), curr_text);
+        // Unwrap: Can't crash because we just inserted the text
+        self.texts.get_mut(&label).unwrap()
     }
 
     #[must_use]
-    /// Add a [`TextActor`]. Use the `&mut TextActor` that is returned to set the translation,
-    /// rotation, etc. Use a unique label for each text actor. Attempting to add two text actors
-    /// with the same label will crash. The `font` paramater should be the filename of a font
+    /// Add a [`Text`] with a specific font. Use the `&mut Text` that is returned to set the
+    /// translation, rotation, etc. Use a unique label for each text. Attempting to add two texts
+    /// with the same label will crash. The `font` parameter should be the filename of a font
     /// located in the assets/fonts directory. The default font is "FiraSans-Bold.ttf".
-    pub fn add_text_actor_with_font<L, T, F>(
-        &mut self,
-        label: L,
-        text: T,
-        font: F,
-    ) -> &mut TextActor
+    pub fn add_text_with_font<L, T, F>(&mut self, label: L, text: T, font: F) -> &mut Text
     where
         L: Into<String>,
         T: Into<String>,
@@ -145,15 +144,15 @@ impl EngineState {
         let label = label.into();
         let text = text.into();
         let font = font.into();
-        let text_actor = TextActor {
+        let curr_text = Text {
             label: label.clone(),
-            text,
+            value: text,
             font,
             ..Default::default()
         };
-        self.text_actors.insert(label.clone(), text_actor);
+        self.texts.insert(label.clone(), curr_text);
         // Unwrap: Can't crash because we just inserted the actor
-        self.text_actors.get_mut(&label).unwrap()
+        self.texts.get_mut(&label).unwrap()
     }
 }
 
@@ -171,7 +170,7 @@ pub fn setup(
     engine_state.screen_dimensions = Vec2::new(window.width(), window.height());
     info!("Window dimensions: {}", engine_state.screen_dimensions);
     add_actors(&mut commands, &asset_server, materials, &mut engine_state);
-    add_text_actors(&mut commands, &asset_server, &mut engine_state);
+    add_texts(&mut commands, &asset_server, &mut engine_state);
 }
 
 // helper function: Add Bevy components for all the actors in engine_state.actors
@@ -193,37 +192,35 @@ pub fn add_actors(
     }
 }
 
-// helper function: Add Bevy components for all the actors in engine_state.text_actors
+/// Bevy system which adds any needed Bevy components to correspond to the texts in
+/// `engine_state.texts`
 #[doc(hidden)]
-pub fn add_text_actors(
+pub fn add_texts(
     commands: &mut Commands,
     asset_server: &Res<AssetServer>,
     engine_state: &mut EngineState,
 ) {
-    for (_, text_actor) in engine_state.text_actors.drain() {
-        let transform = text_actor.bevy_transform();
-        let font_size = text_actor.font_size;
-        let text = text_actor.text.clone();
-        let font_path = format!("fonts/{}", text_actor.font);
-        commands
-            .spawn()
-            .insert(text_actor)
-            .insert_bundle(Text2dBundle {
-                text: Text::with_section(
-                    text,
-                    TextStyle {
-                        font: asset_server.load(font_path.as_str()),
-                        font_size,
-                        color: Color::WHITE,
-                    },
-                    TextAlignment {
-                        vertical: VerticalAlign::Center,
-                        horizontal: HorizontalAlign::Center,
-                    },
-                ),
-                transform,
-                ..Default::default()
-            });
+    for (_, text) in engine_state.texts.drain() {
+        let transform = text.bevy_transform();
+        let font_size = text.font_size;
+        let text_string = text.value.clone();
+        let font_path = format!("fonts/{}", text.font);
+        commands.spawn().insert(text).insert_bundle(Text2dBundle {
+            text: BevyText::with_section(
+                text_string,
+                TextStyle {
+                    font: asset_server.load(font_path.as_str()),
+                    font_size,
+                    color: Color::WHITE,
+                },
+                TextAlignment {
+                    vertical: VerticalAlign::Center,
+                    horizontal: HorizontalAlign::Center,
+                },
+            ),
+            transform,
+            ..Default::default()
+        });
     }
 }
 
@@ -300,9 +297,31 @@ use rusty_engine::{
         AudioManagerPlugin, CollisionEvent, KeyboardInput, KeyboardPlugin, KeyboardState,
         MouseState, PhysicsPlugin,
     },
-    text_actor::TextActor,
+    text::Text,
 };
-use bevy::{app::AppExit, input::system::exit_on_esc_system, prelude::*, utils::HashMap};
+use bevy::{app::AppExit, input::system::exit_on_esc_system,
+    prelude::{
+        Text as BevyText,
+        Query,
+        Commands,
+        DefaultPlugins,
+        AssetServer,
+        ColorMaterial,
+        Color,
+        OrthographicCameraBundle,
+        Assets,
+        Res,
+        ResMut,
+        AppBuilder,
+        EventReader,
+        EventWriter,
+        QuerySet,
+        Entity,
+        Transform,
+        App,
+        IntoSystem,
+        ParallelSystemDescriptorCoercion
+    }, utils::HashMap};
 use bevy_kira_audio::*;
 use std::{sync::Mutex, time::Duration, ops::{Deref, DerefMut}};
 
@@ -405,13 +424,11 @@ fn game_logic_sync(
     time: Res<Time>,
     mut app_exit_events: EventWriter<AppExit>,
     mut collision_events: EventReader<CollisionEvent>,
-    // mut actor_query: Query<(&mut Actor, &mut Transform)>,
-    // mut text_actor_query: Query<(&mut TextActor, &mut Transform)>,
     mut query_set: QuerySet<(
         Query<&Actor>,
-        Query<&TextActor>,
+        Query<&Text>,
         Query<(Entity, &mut Actor, &mut Transform)>,
-        Query<(Entity, &mut TextActor, &mut Transform, &mut Text)>,
+        Query<(Entity, &mut Text, &mut Transform, &mut BevyText)>,
     )>,
 ) {
     // Update this frame's timing info
@@ -449,12 +466,12 @@ fn game_logic_sync(
             .insert(actor.label.clone(), (*actor).clone());
     }
 
-    // Copy all text_actors over to the engine_state to give to users
-    engine_state.text_actors.clear();
-    for text_actor in query_set.q1().iter() {
+    // Copy all texts over to the engine_state to give to users
+    engine_state.texts.clear();
+    for text in query_set.q1().iter() {
         let _ = engine_state
-            .text_actors
-            .insert(text_actor.label.clone(), (*text_actor).clone());
+            .texts
+            .insert(text.label.clone(), (*text).clone());
     }
 
     // Perform all the user's game logic for this frame
@@ -475,17 +492,17 @@ fn game_logic_sync(
         }
     }
 
-    // Transfer any changes in the user's TextActor copies to the Bevy TextActor and Transform components
-    for (entity, mut text_actor, mut transform, mut text) in query_set.q3_mut().iter_mut() {
-        if let Some(text_actor_copy) = engine_state.text_actors.remove(&text_actor.label) {
-            *text_actor = text_actor_copy;
-            *transform = text_actor.bevy_transform();
-            if text_actor.text != text.sections[0].value {
-                text.sections[0].value = text_actor.text.clone();
+    // Transfer any changes in the user's Texts to the Bevy Text and Transform components
+    for (entity, mut text, mut transform, mut bevy_text_component) in query_set.q3_mut().iter_mut() {
+        if let Some(text_copy) = engine_state.texts.remove(&text.label) {
+            *text = text_copy;
+            *transform = text.bevy_transform();
+            if text.value != bevy_text_component.sections[0].value {
+                bevy_text_component.sections[0].value = text.value.clone();
             }
             #[allow(clippy::float_cmp)]
-            if text_actor.font_size != text.sections[0].style.font_size {
-                text.sections[0].style.font_size = text_actor.font_size;
+            if text.font_size != bevy_text_component.sections[0].style.font_size {
+                bevy_text_component.sections[0].style.font_size = text.font_size;
             }
         } else {
             commands.entity(entity).despawn();
@@ -495,8 +512,8 @@ fn game_logic_sync(
     // Add Bevy components for any new actors remaining in engine_state.actors
     rusty_engine::game::add_actors(&mut commands, &asset_server, materials, &mut engine_state);
 
-    // Add Bevy components for any new text_actors remaining in engine_state.text_actors
-    rusty_engine::game::add_text_actors(&mut commands, &asset_server, &mut engine_state);
+    // Add Bevy components for any new texts remaining in engine_state.texts
+    rusty_engine::game::add_texts(&mut commands, &asset_server, &mut engine_state);
 
     if engine_state.should_exit {
         app_exit_events.send(AppExit);

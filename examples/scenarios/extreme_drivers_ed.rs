@@ -806,7 +806,7 @@ fn main() {
     game.audio_manager.play_music(MusicPreset::Classy8Bit, 0.5);
 
     // Stuff used to keep and display score
-    let score_text = game.add_text_actor("score_text", "Score: 0");
+    let score_text = game.add_text("score_text", "Score: 0");
     score_text.translation = Vec2::new(-10.0, 82.0);
     score_text.font_size = 24.0;
 
@@ -833,7 +833,7 @@ const TURN_RATE: f32 = 3.0;
 const ACCELERATION_RATE: f32 = 100.0;
 
 fn logic(engine_state: &mut EngineState, game_state: &mut GameState) -> bool {
-    let score_text = engine_state.text_actors.get_mut("score_text").unwrap();
+    let score_text = engine_state.texts.get_mut("score_text").unwrap();
 
     // if game_state.won {
     //     for actor in game_state.actors.values_mut() {
@@ -917,7 +917,7 @@ fn logic(engine_state: &mut EngineState, game_state: &mut GameState) -> bool {
                 .audio_manager
                 .play_sfx(SfxPreset::Confirmation1, 1.0);
             game_state.score += 1;
-            score_text.text = format!("Score: {}", game_state.score);
+            score_text.value = format!("Score: {}", game_state.score);
             if game_state.score >= game_state.win_amount {
                 game_state.won = true;
             }
@@ -926,7 +926,7 @@ fn logic(engine_state: &mut EngineState, game_state: &mut GameState) -> bool {
 
         // Crash!
         game_state.crashed = true;
-        //game_state.add_text_actor("crashed", "You crashed. You fail. :-(");
+        //game_state.add_text("crashed", "You crashed. You fail. :-(");
         engine_state.audio_manager.play_sfx(SfxPreset::Jingle3, 1.0);
         engine_state.audio_manager.stop_music();
     }
@@ -935,7 +935,7 @@ fn logic(engine_state: &mut EngineState, game_state: &mut GameState) -> bool {
         engine_state
             .audio_manager
             .play_sfx(SfxPreset::Congratulations, 1.0);
-        let mut you_win = engine_state.add_text_actor("you win", "You Win!");
+        let mut you_win = engine_state.add_text("you win", "You Win!");
         you_win.font_size = 120.0;
         you_win.translation.y = -50.0;
     }

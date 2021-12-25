@@ -7,7 +7,7 @@ const ROTATION_SPEED: f32 = 3.0;
 fn main() {
     let mut game = Game::new();
 
-    let msg2 = game.add_text_actor(
+    let msg2 = game.add_text(
         "instructions",
         "Move the car around with your mouse. Rotate it by holding left/right mouse buttons. Scale it with the mousewheel.",
     );
@@ -33,8 +33,8 @@ fn main() {
         }
     }
 
-    let mut text_actor = game.add_text_actor("collision text", "");
-    text_actor.translation = Vec2::new(0.0, -200.0);
+    let mut text = game.add_text("collision text", "");
+    text.translation = Vec2::new(0.0, -200.0);
 
     game.add_logic(logic);
     game.run(());
@@ -43,14 +43,14 @@ fn main() {
 fn logic(engine_state: &mut EngineState, _: &mut ()) -> bool {
     // If a collision event happened last frame, print it out and play a sound
     for event in engine_state.collision_events.drain(..) {
-        let text_actor = engine_state.text_actors.get_mut("collision text").unwrap();
+        let text = engine_state.texts.get_mut("collision text").unwrap();
         match event.state {
             CollisionState::Begin => {
-                text_actor.text = format!("{:?}", event.pair);
+                text.value = format!("{:?}", event.pair);
                 engine_state.audio_manager.play_sfx(SfxPreset::Switch1, 1.0)
             }
             CollisionState::End => {
-                text_actor.text = "".into();
+                text.value = "".into();
                 engine_state.audio_manager.play_sfx(SfxPreset::Switch2, 1.0)
             }
         }

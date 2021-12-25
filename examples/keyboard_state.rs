@@ -13,7 +13,7 @@ fn main() {
     race_car.scale = 1.0;
 
     let instructions = "Smooth movement with KeyboardState Example\n====================================\nChange translation (move): w a s d / arrows\nChange Rotation: z c\nChange Scale: + -";
-    let text = game.add_text_actor("instructions", instructions);
+    let text = game.add_text("instructions", instructions);
     text.translation.y = 250.0;
 
     game.add_logic(logic);

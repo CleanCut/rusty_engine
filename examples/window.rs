@@ -20,7 +20,7 @@ fn main() {
         cursor_visible: false,
         ..Default::default() // for the rest of the options, see https://docs.rs/bevy/0.5.0/bevy/window/struct.WindowDescriptor.html
     });
-    let _ = game.add_text_actor(
+    let _ = game.add_text(
         "message",
         "This is a heavily-customized window.\nYou may resize it a little bit.\nPress Esc to exit.",
     );

@@ -7,13 +7,13 @@ rusty_engine::init!();
 
 fn main() {
     let mut game = Game::new();
-    let msg = game.add_text_actor(
+    let msg = game.add_text(
         "msg",
         "You can add your own sound files to the assets/audio directory (or its\nsubdirectories) and play them by relative path. For example:",
     );
     msg.translation.y = 100.0;
 
-    let msg2 = game.add_text_actor_with_font(
+    let msg2 = game.add_text_with_font(
         "msg2",
         "engine_state.audio_manager.play_sfx(\"sfx/congratulations.ogg\", 1.0);",
         "FiraMono-Medium.ttf",

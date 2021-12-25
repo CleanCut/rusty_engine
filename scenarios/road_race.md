@@ -204,9 +204,9 @@ if actor.label.starts_with("obstacle") {
 
 The race car is currently invincible. Before we can fix that, the car needs to have health to lose!
 1. In `main()`, insert a `"health_amount"` key into the `u8_map` with the value `5`. This is where we will store the amount of health for the player.
-1. Then add a `TextActor` using the `add_text_actor()` method with the label `"health_message"` and the text `"Health: 5"`.
-    * Set the text actor's `translation` to `Vec2::new(550.0, 320.0)`
-    * `TextActor`s are very similar to `Actor`s, only instead of a sprite and collisions, `TextActor`s have text to render and a font size to adjust.  Both of them have a `label` to retrieve them by and a `translation` for placement.
+1. Then add a `Text` using the `add_text()` method with the label `"health_message"` and the text `"Health: 5"`.
+    * Set the text's `translation` to `Vec2::new(550.0, 320.0)`
+    * `Text`s are very similar to `Actor`s, only instead of a sprite and collisions, `Text`s have text to render and a font size to adjust.  Both of them have a `label` to retrieve them by and a `translation`, `rotation`, and `scale` fields.
 
 ```rust
 // in main()
@@ -215,12 +215,12 @@ The race car is currently invincible. Before we can fix that, the car needs to h
 game.game_state_mut()
     .u8_map
     .insert("health_amount".into(), 5);
-let health_message = game.add_text_actor("health_message", "Health: 5");
+let health_message = game.add_text("health_message", "Health: 5");
 health_message.translation = Vec2::new(550.0, 320.0);
 ```
 
 Now we can actually lose health! At **_the top_** of the `game_logic()` function we are going to handle the case when we've _already_ lost by effectively pausing the game:
-1. Get a mutable reference to the health message text actor we created above.
+1. Get a mutable reference to the health message text we created above.
     * `let health_amount = game_state.u8_map.get_mut("health_amount").unwrap();`
 1. If `*health_amount` is zero, then return from the function.
     * This effectively halts the game, and whatever is on the screen will just sit there.
@@ -237,7 +237,7 @@ if *health_amount == 0 {
 
 Now we need to actually handle the health.  At **_the bottom_** of the `game_logic()` function we'll finally deal with collisions:
 1. Get a mutable reference to the health message we created
-    * `let health_message = game_state.text_actors.get_mut("health_message").unwrap();`
+    * `let health_message = game_state.texts.get_mut("health_message").unwrap();`
 1. Loop through all the `collision_events`.
     1. Ignore events (by doing a `continue` in the for loop) that contain "player1" in the collision pair or where the event state is the ending of a collision.
         * `if !event.pair.either_contains("player1") || event.state.is_end() { continue; }`
@@ -249,7 +249,7 @@ Now we need to actually handle the health.  At **_the bottom_** of the `game_log
 
 ```rust
 // Deal with collisions
-let health_message = game_state.text_actors.get_mut("health_message").unwrap();
+let health_message = game_state.texts.get_mut("health_message").unwrap();
 for event in game_state.collision_events.drain(..) {
     // We don't care if obstacles collide with each other or collisions end
     if !event.pair.either_contains("player1") || event.state.is_end() {
@@ -276,15 +276,15 @@ if player1.translation.y < -360.0 || player1.translation.y > 360.0 {
 
 Finally, at the very end of the `game_logic()` function we can do a bit of cleanup if we just lost.
 1. If `*health_amount` is `0`
-    1. Create a text actor, and set its text to `"Game Over"`
-    1. Using the mutable reference from creating the text actor, set its `font_size` to `128.0` (if this crashes on your system, reduce the font size to a smaller number)
+    1. Create a text, and set its text to `"Game Over"`
+    1. Using the mutable reference from creating the text, set its `font_size` to `128.0` (if this crashes on your system, reduce the font size to a smaller number)
     1. Use the `audio_manager` to stop the music.
     1. Use the `audio_manager` to play `SfxPreset::Jingle3` at full volume (it's a sad sound)
 1. Try it!
 
 ```rust
 if *health_amount == 0 {
-    let game_over = game_state.add_text_actor("game over", "Game Over");
+    let game_over = game_state.add_text("game over", "Game Over");
     game_over.font_size = 128.0;
     game_state.audio_manager.stop_music();
     game_state.audio_manager.play_sfx(SfxPreset::Jingle3, 1.0);

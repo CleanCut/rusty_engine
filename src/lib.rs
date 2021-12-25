@@ -79,13 +79,11 @@ pub mod game;
 pub mod keyboard;
 pub mod mouse;
 pub mod physics;
-pub mod text_actor;
+pub mod text;
 
 // Public prelude
 pub mod prelude {
-    pub use crate::{
-        actor::*, audio::*, consts::*, keyboard::*, mouse::*, physics::*, text_actor::*,
-    };
+    pub use crate::{actor::*, audio::*, consts::*, keyboard::*, mouse::*, physics::*, text::*};
     // we can't use `*` on game because of the stubbed `Game` stuff we did for documentation
     pub use crate::game::{EngineState, WindowDescriptor, WindowMode, WindowResizeConstraints};
     pub use bevy::{
