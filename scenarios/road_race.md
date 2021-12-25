@@ -89,7 +89,7 @@ for event in game_state.keyboard_events.drain(..) {
         * Don't forget to multiply your `speed` by `delta_f32`, the amount of time that elapsed since the last frame.
         * For example, to move up you could do `player1.translation.y += speed * game_state.delta_f32;`
     1. Try it out!
-1. It would look better if the car turned when it was moving up or down. Let's set the car's rotation to a different value when it moves up down. `.rotation` is specified in radians, with `0.0` facing right, and `std::f32::consts::PI` facing left. See also `rusty_engine::consts`.
+1. It would look better if the car turned when it was moving up or down. Let's set the car's rotation to a different value when it moves up down. `.rotation` is specified in radians, with `0.0` facing right, and `std::f32::consts::PI` facing left. See also the [Constants](https://docs.rs/rusty_engine/latest/rusty_engine/#constants) section of the Rusty Engine documentation for some helpful constant definitions.
     1. Inside the `if` expression that moves the car up, add a line that sets the car's rotation slightly upwards.
         * `player1.rotation = 0.15;`
     1. Inside the `if` (or `else if`) that moves the car down, add a line that sets the car's rotation slightly downwards.
