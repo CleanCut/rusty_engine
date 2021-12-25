@@ -73,7 +73,6 @@
 //! for more information.
 //!
 pub mod audio;
-pub mod consts;
 pub mod game;
 pub mod keyboard;
 pub mod mouse;
@@ -83,7 +82,11 @@ pub mod text;
 
 // Public prelude
 pub mod prelude {
-    pub use crate::{audio::*, consts::*, keyboard::*, mouse::*, physics::*, sprite::*, text::*};
+    pub use crate::{audio::*, keyboard::*, mouse::*, physics::*, sprite::*, text::*};
+    pub use crate::{
+        DOWN, EAST, LEFT, NORTH, NORTH_EAST, NORTH_WEST, RIGHT, SOUTH, SOUTH_EAST, SOUTH_WEST, UP,
+        WEST,
+    };
     // we can't use `*` on game because of the stubbed `Game` stuff we did for documentation
     pub use crate::game::{EngineState, WindowDescriptor, WindowMode, WindowResizeConstraints};
     pub use bevy::{
@@ -91,3 +94,34 @@ pub mod prelude {
         prelude::{Time, Timer, Vec2},
     };
 }
+
+// Used in our public constants
+use std::f32::consts::{FRAC_PI_2, FRAC_PI_4, PI};
+
+// Screen directions
+/// The rotation (in radians) for a sprite to face right
+pub const RIGHT: f32 = 0.0;
+/// The rotation (in radians) for a sprite to face left
+pub const LEFT: f32 = PI;
+/// The rotation (in radians) for a sprite to face up
+pub const UP: f32 = FRAC_PI_2;
+/// The rotation (in radians) for a sprite to face down
+pub const DOWN: f32 = PI + FRAC_PI_2;
+
+// Compass directions
+/// The rotation (in radians) for a sprite to face north
+pub const NORTH: f32 = FRAC_PI_2;
+/// The rotation (in radians) for a sprite to face north east
+pub const NORTH_EAST: f32 = FRAC_PI_4;
+/// The rotation (in radians) for a sprite to face east
+pub const EAST: f32 = 0.0;
+/// The rotation (in radians) for a sprite to face south east
+pub const SOUTH_EAST: f32 = PI + FRAC_PI_2 + FRAC_PI_4;
+/// The rotation (in radians) for a sprite to face south
+pub const SOUTH: f32 = PI + FRAC_PI_2;
+/// The rotation (in radians) for a sprite to face south west
+pub const SOUTH_WEST: f32 = PI + FRAC_PI_4;
+/// The rotation (in radians) for a sprite to face west
+pub const WEST: f32 = PI;
+/// The rotation (in radians) for a sprite to face north west
+pub const NORTH_WEST: f32 = FRAC_PI_2 + FRAC_PI_4;

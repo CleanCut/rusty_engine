@@ -28,9 +28,10 @@ pub struct Text {
     pub translation: Vec2,
     /// SYNCED: Depth of the text. 0.0 (back) to 999.0 (front)  Defaults to [`TEXT_DEFAULT_LAYER`]
     pub layer: f32,
-    /// SYNCED: Direction you face in radians. Defaults to [`RIGHT`](crate::consts::RIGHT). See also
-    /// the [direction constants](crate::consts). WARNING: This field will not affect text rotation
-    /// until Bevy 0.6 is released and Rusty Engine is updated to use it.
+    /// SYNCED: Direction you face in radians. Defaults to [`RIGHT`](crate::RIGHT). See also
+    /// the [direction constants](https://docs.rs/rusty_engine/latest/rusty_engine/#constants).
+    /// WARNING: This field will not affect text rotation until Bevy 0.6 is released and Rusty
+    /// Engine is updated to use it.
     pub rotation: f32,
     /// SYNCED: 1.0 is the normal 100%. WARNING: This field will not affect text scale
     /// until Bevy 0.6 is released and Rusty Engine is updated to use it.
