@@ -24,6 +24,7 @@ run. Return `false` to abort running any later functions during the frame.
 `fn somename(engine_state: &mut EngineState, game_state: &mut GameState) -> bool`, where `GameState`
 is the user-defined struct passed to `rusty_engine::init!()`, or `()` if nothing was passed in.
 - `.play_sfx()` now takes a volume level from `0.0` to `1.0` as a second argument, e.g. `.play_sfx(SfxPreset::Congratulations, 1.0)`
+- `Actor` has been renamed to `Sprite` to eliminate the confusing "actor" terminalogy.
 - `TextActor` has been renamed to `Text` to eliminate the confusing "actor" terminology.
 `TextActor::text` is now `Text::value` for similar reasons.
 

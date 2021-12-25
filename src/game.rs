@@ -1,8 +1,8 @@
 use crate::{
-    actor::{Actor, ActorPreset},
     audio::AudioManager,
     mouse::{CursorMoved, MouseButtonInput, MouseMotion, MouseWheel},
     prelude::{CollisionEvent, KeyboardInput, KeyboardState, MouseState},
+    sprite::{Sprite, SpritePreset},
     text::Text,
 };
 use bevy::prelude::{
@@ -32,17 +32,17 @@ use std::time::Duration;
 /// e.g. consume all the events out of the `collision_events` vector.
 #[derive(Default, Debug)]
 pub struct EngineState {
-    /// SYNCED - The state of all actors this frame. To add an actor, use the
-    /// [`add_actor`](EngineState::add_actor) method. Modify & remove actors as you like.
-    pub actors: HashMap<String, Actor>,
+    /// SYNCED - The state of all sprites this frame. To add a sprite, use the
+    /// [`add_sprite`](EngineState::add_sprite) method. Modify & remove sprites as you like.
+    pub sprites: HashMap<String, Sprite>,
     /// SYNCED - The state of all texts this frame. For convenience adding a text, use the
     /// [`add_text`](EngineState::add_text) or
     /// [`add_text_with_font`](EngineState::add_text_with_font) methods. Modify & remove
     /// text as you like.
     pub texts: HashMap<String, Text>,
     /// INFO - All the collision events that occurred this frame. For collisions to be generated
-    /// between actors, both actors must have [`Actor.collision`] set to `true`. Collision events
-    /// are generated when two actors' colliders begin or end overlapping in 2D space.
+    /// between sprites, both sprites must have [`Sprite.collision`] set to `true`. Collision events
+    /// are generated when two sprites' colliders begin or end overlapping in 2D space.
     pub collision_events: Vec<CollisionEvent>,
     /// INFO - The current state of mouse location and buttons. Useful for input handling that only
     /// cares about the final state of the mouse each frame, and not the intermediate states.
@@ -98,15 +98,15 @@ impl EngineState {
     }
 
     #[must_use]
-    /// Add an [`Actor`]. Use the `&mut Actor` that is returned to set the translation, rotation,
-    /// etc. Use a unique label for each actor. Attempting to add two actors with the same label
+    /// Add an [`Sprite`]. Use the `&mut Sprite` that is returned to set the translation, rotation,
+    /// etc. Use a unique label for each sprite. Attempting to add two sprites with the same label
     /// will crash.
-    pub fn add_actor<T: Into<String>>(&mut self, label: T, preset: ActorPreset) -> &mut Actor {
+    pub fn add_sprite<T: Into<String>>(&mut self, label: T, preset: SpritePreset) -> &mut Sprite {
         let label = label.into();
-        self.actors
+        self.sprites
             .insert(label.clone(), preset.build(label.clone()));
-        // Unwrap: Can't crash because we just inserted the actor
-        self.actors.get_mut(&label).unwrap()
+        // Unwrap: Can't crash because we just inserted the sprite
+        self.sprites.get_mut(&label).unwrap()
     }
 
     #[must_use]
@@ -151,12 +151,12 @@ impl EngineState {
             ..Default::default()
         };
         self.texts.insert(label.clone(), curr_text);
-        // Unwrap: Can't crash because we just inserted the actor
+        // Unwrap: Can't crash because we just inserted the sprite
         self.texts.get_mut(&label).unwrap()
     }
 }
 
-// startup system - grab window settings, initialize all the starting actors
+// startup system - grab window settings, initialize all the starting sprites
 #[doc(hidden)]
 pub fn setup(
     mut commands: Commands,
@@ -169,22 +169,22 @@ pub fn setup(
     let window = windows.get_primary().unwrap();
     engine_state.screen_dimensions = Vec2::new(window.width(), window.height());
     info!("Window dimensions: {}", engine_state.screen_dimensions);
-    add_actors(&mut commands, &asset_server, materials, &mut engine_state);
+    add_sprites(&mut commands, &asset_server, materials, &mut engine_state);
     add_texts(&mut commands, &asset_server, &mut engine_state);
 }
 
-// helper function: Add Bevy components for all the actors in engine_state.actors
+// helper function: Add Bevy components for all the sprites in engine_state.sprites
 #[doc(hidden)]
-pub fn add_actors(
+pub fn add_sprites(
     commands: &mut Commands,
     asset_server: &Res<AssetServer>,
     mut materials: ResMut<Assets<ColorMaterial>>,
     engine_state: &mut EngineState,
 ) {
-    for (_, actor) in engine_state.actors.drain() {
-        let transform = actor.bevy_transform();
-        let texture_handle = asset_server.load(actor.filename.as_str());
-        commands.spawn().insert(actor).insert_bundle(SpriteBundle {
+    for (_, sprite) in engine_state.sprites.drain() {
+        let transform = sprite.bevy_transform();
+        let texture_handle = asset_server.load(sprite.filename.as_str());
+        commands.spawn().insert(sprite).insert_bundle(SpriteBundle {
             material: materials.add(texture_handle.into()),
             transform,
             ..Default::default()
@@ -290,37 +290,20 @@ macro_rules! init {
     ($game_state_type:ty) => {
 
 use rusty_engine::{
-    actor::{Actor, ActorPreset},
     audio::AudioManager,
     mouse::{CursorMoved, MouseButtonInput, MouseMotion, MousePlugin, MouseWheel},
     prelude::{
         AudioManagerPlugin, CollisionEvent, KeyboardInput, KeyboardPlugin, KeyboardState,
         MouseState, PhysicsPlugin,
     },
+    sprite::{Sprite, SpritePreset},
     text::Text,
 };
 use bevy::{app::AppExit, input::system::exit_on_esc_system,
     prelude::{
-        Text as BevyText,
-        Query,
-        Commands,
-        DefaultPlugins,
-        AssetServer,
-        ColorMaterial,
-        Color,
-        OrthographicCameraBundle,
-        Assets,
-        Res,
-        ResMut,
-        AppBuilder,
-        EventReader,
-        EventWriter,
-        QuerySet,
-        Entity,
-        Transform,
-        App,
-        IntoSystem,
-        ParallelSystemDescriptorCoercion
+        App, AppBuilder, Assets, AssetServer, Color, ColorMaterial, Commands, DefaultPlugins,
+        Entity, EventReader, EventWriter, IntoSystem, OrthographicCameraBundle,
+        ParallelSystemDescriptorCoercion, Query, QuerySet, Res, ResMut, Text as BevyText, Transform,
     }, utils::HashMap};
 use bevy_kira_audio::*;
 use std::{sync::Mutex, time::Duration, ops::{Deref, DerefMut}};
@@ -425,9 +408,9 @@ fn game_logic_sync(
     mut app_exit_events: EventWriter<AppExit>,
     mut collision_events: EventReader<CollisionEvent>,
     mut query_set: QuerySet<(
-        Query<&Actor>,
+        Query<&Sprite>,
         Query<&Text>,
-        Query<(Entity, &mut Actor, &mut Transform)>,
+        Query<(Entity, &mut Sprite, &mut Transform)>,
         Query<(Entity, &mut Text, &mut Transform, &mut BevyText)>,
     )>,
 ) {
@@ -437,13 +420,13 @@ fn game_logic_sync(
     engine_state.time_since_startup = time.time_since_startup();
     engine_state.time_since_startup_f64 = time.seconds_since_startup();
 
-    // TODO: Transfer any changes to the Bevy components by the physics system over to the Actors
-    // for (mut actor, mut transform) in actor_query.iter_mut() {
-    //     actor.translation = Vec2::from(transform.translation);
-    //     actor.layer = transform.translation.z;
-    //     // transform.rotation = Quat::from_axis_angle(Vec3::Z, actor.rotation);
-    //     actor.rotation = ???
-    //     actor.scale = transform.scale.x;
+    // TODO: Transfer any changes to the Bevy components by the physics system over to the Sprites
+    // for (mut sprite, mut transform) in sprite_query.iter_mut() {
+    //     sprite.translation = Vec2::from(transform.translation);
+    //     sprite.layer = transform.translation.z;
+    //     // transform.rotation = Quat::from_axis_angle(Vec3::Z, sprite.rotation);
+    //     sprite.rotation = ???
+    //     sprite.scale = transform.scale.x;
     // }
 
     // Copy keyboard state over to engine_state to give to users
@@ -458,12 +441,12 @@ fn game_logic_sync(
         engine_state.collision_events.push(collision_event.clone());
     }
 
-    // Copy all actors over to the engine_state to give to users
-    engine_state.actors.clear();
-    for actor in query_set.q0().iter() {
+    // Copy all sprites over to the engine_state to give to users
+    engine_state.sprites.clear();
+    for sprite in query_set.q0().iter() {
         let _ = engine_state
-            .actors
-            .insert(actor.label.clone(), (*actor).clone());
+            .sprites
+            .insert(sprite.label.clone(), (*sprite).clone());
     }
 
     // Copy all texts over to the engine_state to give to users
@@ -482,11 +465,11 @@ fn game_logic_sync(
         }
     }
 
-    // Transfer any changes in the user's Actor copies to the Bevy Actor and Transform components
-    for (entity, mut actor, mut transform) in query_set.q2_mut().iter_mut() {
-        if let Some(actor_copy) = engine_state.actors.remove(&actor.label) {
-            *actor = actor_copy;
-            *transform = actor.bevy_transform();
+    // Transfer any changes in the user's Sprite copies to the Bevy Sprite and Transform components
+    for (entity, mut sprite, mut transform) in query_set.q2_mut().iter_mut() {
+        if let Some(sprite_copy) = engine_state.sprites.remove(&sprite.label) {
+            *sprite = sprite_copy;
+            *transform = sprite.bevy_transform();
         } else {
             commands.entity(entity).despawn();
         }
@@ -509,8 +492,8 @@ fn game_logic_sync(
         }
     }
 
-    // Add Bevy components for any new actors remaining in engine_state.actors
-    rusty_engine::game::add_actors(&mut commands, &asset_server, materials, &mut engine_state);
+    // Add Bevy components for any new sprites remaining in engine_state.sprites
+    rusty_engine::game::add_sprites(&mut commands, &asset_server, materials, &mut engine_state);
 
     // Add Bevy components for any new texts remaining in engine_state.texts
     rusty_engine::game::add_texts(&mut commands, &asset_server, &mut engine_state);

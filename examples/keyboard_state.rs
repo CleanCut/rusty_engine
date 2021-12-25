@@ -7,7 +7,7 @@ rusty_engine::init!();
 fn main() {
     let mut game = Game::new();
 
-    let mut race_car = game.add_actor("Race Car", ActorPreset::RacingCarGreen);
+    let mut race_car = game.add_sprite("Race Car", SpritePreset::RacingCarGreen);
     race_car.translation = Vec2::new(0.0, 0.0);
     race_car.rotation = UP;
     race_car.scale = 1.0;
@@ -26,8 +26,8 @@ fn logic(game_state: &mut EngineState, _: &mut ()) -> bool {
     let rotation_amount = PI * game_state.delta_f32;
     let scale_amount = 1.0 * game_state.delta_f32;
 
-    // Get the race car actor
-    let race_car = game_state.actors.get_mut("Race Car").unwrap();
+    // Get the race car sprite
+    let race_car = game_state.sprites.get_mut("Race Car").unwrap();
 
     // Handle keyboard input
     let ks = &mut game_state.keyboard_state;

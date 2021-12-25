@@ -1,4 +1,4 @@
-use crate::actor::Actor;
+use crate::sprite::Sprite;
 use bevy::prelude::*;
 use std::{collections::HashSet, hash::Hash};
 
@@ -81,18 +81,18 @@ impl Hash for CollisionPair {
 fn collision_detection(
     mut existing_collisions: Local<HashSet<CollisionPair>>,
     mut collision_events: EventWriter<CollisionEvent>,
-    query: Query<&Actor>,
+    query: Query<&Sprite>,
 ) {
     let mut current_collisions = HashSet::<CollisionPair>::new();
-    'outer: for actor1 in query.iter().filter(|a| a.collision) {
-        for actor2 in query.iter().filter(|a| a.collision) {
-            if actor1.label == actor2.label {
+    'outer: for sprite1 in query.iter().filter(|a| a.collision) {
+        for sprite2 in query.iter().filter(|a| a.collision) {
+            if sprite1.label == sprite2.label {
                 // We only need to compare one half of the matrix triangle
                 continue 'outer;
             }
-            if Collider::colliding(actor1, actor2) {
+            if Collider::colliding(sprite1, sprite2) {
                 current_collisions
-                    .insert(CollisionPair(actor1.label.clone(), actor2.label.clone()));
+                    .insert(CollisionPair(sprite1.label.clone(), sprite2.label.clone()));
             }
         }
     }
@@ -183,23 +183,23 @@ impl Collider {
         }
         rotated_points
     }
-    fn relative_to(&self, actor: &Actor) -> Vec<Vec2> {
-        self.rotated(actor.rotation)
+    fn relative_to(&self, sprite: &Sprite) -> Vec<Vec2> {
+        self.rotated(sprite.rotation)
             .iter()
-            .map(|&v| v * actor.scale + actor.translation) // scale & translation
+            .map(|&v| v * sprite.scale + sprite.translation) // scale & translation
             .collect()
     }
-    pub fn colliding(actor1: &Actor, actor2: &Actor) -> bool {
+    pub fn colliding(sprite1: &Sprite, sprite2: &Sprite) -> bool {
         use Collider::*;
-        if let NoCollider = actor1.collider {
+        if let NoCollider = sprite1.collider {
             return false;
         }
-        if let NoCollider = actor2.collider {
+        if let NoCollider = sprite2.collider {
             return false;
         }
-        if actor1.collider.is_poly() && actor2.collider.is_poly() {
-            let poly1 = actor1.collider.relative_to(actor1);
-            let poly2 = actor2.collider.relative_to(actor2);
+        if sprite1.collider.is_poly() && sprite2.collider.is_poly() {
+            let poly1 = sprite1.collider.relative_to(sprite1);
+            let poly2 = sprite2.collider.relative_to(sprite2);
             // Polygon intersection algorithm adapted from
             // https://stackoverflow.com/questions/10962379/how-to-check-intersection-between-2-rotated-rectangles
             for poly in vec![poly1.clone(), poly2.clone()] {

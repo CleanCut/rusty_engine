@@ -8,17 +8,17 @@ const ROTATION_SPEED: f32 = 3.0;
 fn main() {
     let mut game = Game::new();
 
-    let race_car = game.add_actor("Race Car", ActorPreset::RacingCarGreen);
+    let race_car = game.add_sprite("Race Car", SpritePreset::RacingCarGreen);
     race_car.translation = Vec2::new(0.0, 0.0);
     race_car.rotation = UP;
     race_car.scale = 1.0;
     race_car.layer = 2.0;
 
-    let mover = game.add_actor("move indicator", ActorPreset::RollingHoleStart);
+    let mover = game.add_sprite("move indicator", SpritePreset::RollingHoleStart);
     mover.translation = ORIGIN_LOCATION.into();
     mover.layer = 1.0;
 
-    let anchor = game.add_actor("move indicator origin", ActorPreset::RollingHoleEnd);
+    let anchor = game.add_sprite("move indicator origin", SpritePreset::RollingHoleEnd);
     anchor.translation = ORIGIN_LOCATION.into();
     anchor.layer = 0.0;
 
@@ -38,8 +38,8 @@ fn main() {
 }
 
 fn logic(engine_state: &mut EngineState, _: &mut ()) -> bool {
-    if let Some(actor) = engine_state.actors.get_mut("Race Car") {
-        // Use the latest state of the mouse buttons to rotate the actor
+    if let Some(sprite) = engine_state.sprites.get_mut("Race Car") {
+        // Use the latest state of the mouse buttons to rotate the sprite
         let mut rotation_amount = 0.0;
         if engine_state.mouse_state.pressed(MouseButton::Left) {
             rotation_amount += ROTATION_SPEED * engine_state.delta_f32;
@@ -47,11 +47,11 @@ fn logic(engine_state: &mut EngineState, _: &mut ()) -> bool {
         if engine_state.mouse_state.pressed(MouseButton::Right) {
             rotation_amount -= ROTATION_SPEED * engine_state.delta_f32;
         }
-        actor.rotation += rotation_amount;
+        sprite.rotation += rotation_amount;
 
-        // Use the latest state of the mouse wheel to scale the actor
+        // Use the latest state of the mouse wheel to scale the sprite
         if let Some(location) = engine_state.mouse_state.location() {
-            actor.translation = location
+            sprite.translation = location
         }
 
         // Honestly, this is probably the one "state" thing that you should ignore in favor of
@@ -60,19 +60,19 @@ fn logic(engine_state: &mut EngineState, _: &mut ()) -> bool {
         // button. `wheel_direction` will be `1.0`, `0.0`, or `-1.0` depending on what's going on
         // with the mouse wheel.
         let wheel_direction = engine_state.mouse_state.wheel().y;
-        actor.scale *= 1.0 + (wheel_direction * 0.1);
-        actor.scale = actor.scale.clamp(0.1, 4.0);
+        sprite.scale *= 1.0 + (wheel_direction * 0.1);
+        sprite.scale = sprite.scale.clamp(0.1, 4.0);
     }
 
     // Offset the move indicator from the move indicator origin to visually represent the relative
     // mouse motion for the frame
-    if let Some(actor) = engine_state.actors.get_mut("move indicator") {
+    if let Some(sprite) = engine_state.sprites.get_mut("move indicator") {
         let motion = engine_state.mouse_state.motion();
         // There seems to be a Bevy 0.5 bug where every other frame we don't receive any mouse
         // motion events, so ignore those frames.
         // TODO: Follow up on this bug in upstream Bevy
         if motion != Vec2::ZERO {
-            actor.translation = motion + ORIGIN_LOCATION.into();
+            sprite.translation = motion + ORIGIN_LOCATION.into();
         }
     }
     true

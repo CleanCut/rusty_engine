@@ -14,22 +14,22 @@ fn main() {
     msg2.font_size = 20.0;
     msg2.translation.y = 340.0;
 
-    let mut race_car = game.add_actor("Player", ActorPreset::RacingCarGreen);
+    let mut race_car = game.add_sprite("Player", SpritePreset::RacingCarGreen);
     race_car.translation = Vec2::new(0.0, 0.0);
     race_car.rotation = UP;
     race_car.layer = 100.0;
     race_car.collision = true;
 
-    let mut actor_presets_iter = ActorPreset::variant_iter().peekable();
+    let mut sprite_presets_iter = SpritePreset::variant_iter().peekable();
     'outer: for y in (-265..=400).step_by(175) {
         for x in (-550..=550).step_by(275) {
-            if actor_presets_iter.peek().is_none() {
+            if sprite_presets_iter.peek().is_none() {
                 break 'outer;
             }
-            let actor_preset = actor_presets_iter.next().unwrap();
-            let mut actor = game.add_actor(format!("{:?}", actor_preset), actor_preset);
-            actor.translation = Vec2::new(x as f32, (-y) as f32);
-            actor.collision = true;
+            let sprite_preset = sprite_presets_iter.next().unwrap();
+            let mut sprite = game.add_sprite(format!("{:?}", sprite_preset), sprite_preset);
+            sprite.translation = Vec2::new(x as f32, (-y) as f32);
+            sprite.collision = true;
         }
     }
 
@@ -56,8 +56,8 @@ fn logic(engine_state: &mut EngineState, _: &mut ()) -> bool {
         }
     }
 
-    if let Some(actor) = engine_state.actors.get_mut("Player") {
-        // Use the latest state of the mouse buttons to rotate the actor
+    if let Some(sprite) = engine_state.sprites.get_mut("Player") {
+        // Use the latest state of the mouse buttons to rotate the sprite
         let mut rotation_amount = 0.0;
         if engine_state.mouse_state.pressed(MouseButton::Left) {
             rotation_amount += ROTATION_SPEED * engine_state.delta_f32;
@@ -65,17 +65,17 @@ fn logic(engine_state: &mut EngineState, _: &mut ()) -> bool {
         if engine_state.mouse_state.pressed(MouseButton::Right) {
             rotation_amount -= ROTATION_SPEED * engine_state.delta_f32;
         }
-        actor.rotation += rotation_amount;
+        sprite.rotation += rotation_amount;
 
-        // Use the latest state of the mouse wheel to scale the actor
+        // Use the latest state of the mouse wheel to scale the sprite
         if let Some(location) = engine_state.mouse_state.location() {
-            actor.translation = location
+            sprite.translation = location
         }
 
         // Mousewheel scales the car
         for mouse_wheel in &engine_state.mouse_wheel_events {
-            actor.scale *= 1.0 + (0.05 * mouse_wheel.y);
-            actor.scale = actor.scale.clamp(0.1, 4.0);
+            sprite.scale *= 1.0 + (0.05 * mouse_wheel.y);
+            sprite.scale = sprite.scale.clamp(0.1, 4.0);
         }
     }
     true

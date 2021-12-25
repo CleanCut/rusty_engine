@@ -1,6 +1,6 @@
 use rand::prelude::*;
 use rusty_engine::prelude::*;
-use ActorPreset::*; // The ActorPreset enum was imported from rusty_engine::prelude
+use SpritePreset::*; // The SpritePreset enum was imported from rusty_engine::prelude
 
 rusty_engine::init!(GameState);
 
@@ -15,7 +15,7 @@ fn main() {
     let mut game = Game::new();
 
     // Create the player
-    let player = game.add_actor("player", RacingBarrierRed);
+    let player = game.add_sprite("player", RacingBarrierRed);
     player.rotation = UP;
     player.scale = 0.5;
     player.translation.y = -325.0;
@@ -32,7 +32,7 @@ fn main() {
 
     let mut game_state = GameState::default();
 
-    // Marbles left. We'll use these strings as labels for actors. If they are present in the
+    // Marbles left. We'll use these strings as labels for sprites. If they are present in the
     // vector, then they are available to be shot out of the marble gun. If they are not present,
     // then they are currently in play.
     for i in 0..3 {
@@ -56,7 +56,7 @@ const CAR_SPEED: f32 = 300.0;
 fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) -> bool {
     // Handle marble gun movement
     for event in engine_state.mouse_location_events.drain(..) {
-        let player = engine_state.actors.get_mut("player").unwrap();
+        let player = engine_state.sprites.get_mut("player").unwrap();
         player.translation.x = event.position.x;
     }
 
@@ -67,8 +67,13 @@ fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) -> boo
         }
         // Create the marble
         if let Some(label) = game_state.marbles_left.pop() {
-            let player_x = engine_state.actors.get_mut("player").unwrap().translation.x;
-            let marble = engine_state.add_actor(label, RollingBallBlue);
+            let player_x = engine_state
+                .sprites
+                .get_mut("player")
+                .unwrap()
+                .translation
+                .x;
+            let marble = engine_state.add_sprite(label, RollingBallBlue);
             marble.translation.y = -275.0;
             marble.translation.x = player_x;
             marble.layer = 5.0;
@@ -79,22 +84,22 @@ fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) -> boo
 
     // Move marbles
     for marble in engine_state
-        .actors
+        .sprites
         .values_mut()
         .filter(|marble| marble.label.starts_with("marble"))
     {
         marble.translation.y += MARBLE_SPEED * engine_state.delta_f32;
     }
 
-    // Clean up actors that have gone off the screen
+    // Clean up sprites that have gone off the screen
     let mut labels_to_delete = vec![];
-    for actor in engine_state.actors.values_mut() {
-        if actor.translation.y > 400.0 || actor.translation.x > 750.0 {
-            labels_to_delete.push(actor.label.clone());
+    for sprite in engine_state.sprites.values_mut() {
+        if sprite.translation.y > 400.0 || sprite.translation.x > 750.0 {
+            labels_to_delete.push(sprite.label.clone());
         }
     }
     for label in labels_to_delete {
-        engine_state.actors.remove(&label);
+        engine_state.sprites.remove(&label);
         if label.starts_with("marble") {
             game_state.marbles_left.push(label);
         }
@@ -102,7 +107,7 @@ fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) -> boo
 
     // Move cars across the screen
     for car in engine_state
-        .actors
+        .sprites
         .values_mut()
         .filter(|car| car.label.starts_with("car"))
     {
@@ -129,7 +134,7 @@ fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) -> boo
                 RacingCarRed,
                 RacingCarYellow,
             ];
-            let car = engine_state.add_actor(
+            let car = engine_state.add_sprite(
                 label,
                 car_choices
                     .iter()
@@ -150,11 +155,11 @@ fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) -> boo
         }
         if !event.pair.one_starts_with("marble") {
             // it's two cars spawning on top of each other, take one out
-            engine_state.actors.remove(&event.pair.0);
+            engine_state.sprites.remove(&event.pair.0);
             continue;
         }
-        engine_state.actors.remove(&event.pair.0);
-        engine_state.actors.remove(&event.pair.1);
+        engine_state.sprites.remove(&event.pair.0);
+        engine_state.sprites.remove(&event.pair.1);
         if event.pair.0.starts_with("marble") {
             game_state.marbles_left.push(event.pair.0);
         }

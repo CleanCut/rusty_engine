@@ -15,16 +15,16 @@ This scenario can be extended to 2 players.
 
 In your `// setup goes here` section of `main()`...
 
-1. Create an actor using the `.add_actor()` method of `Game`  (`.add_actor()` returns a mutable reference to the actor you can use to access its fields)
+1. Create an sprite using the `.add_sprite()` method of `Game`  (`.add_sprite()` returns a mutable reference to the sprite you can use to access its fields)
     1. Label it `"player1"`
-    1. Use the preset `ActorPreset::RacingCarBlue`
-    * `let player1 = game.add_actor("player1", ActorPreset::RacingCarBlue);`
-1. Set the following attributes on the `player1` actor via the mutable reference:
+    1. Use the preset `SpritePreset::RacingCarBlue`
+    * `let player1 = game.add_sprite("player1", SpritePreset::RacingCarBlue);`
+1. Set the following attributes on the `player1` sprite via the mutable reference:
     1. Set `translation.x` to `-500.0` so the car will be near the left side of the screen
         * `player1.translation.x = -500.0;`
     1. Set the player's `layer` to `100.0` so it will be on top of other sprites by default (higher layers are rendered on top of lower layers)
         * `player1.layer = 100.0;`
-    1. Set the player's `collision` to `true` so that `player1` will detect collisions with other actors.
+    1. Set the player's `collision` to `true` so that `player1` will detect collisions with other sprites.
 1. Play some music in the background of the game if you like!  The recommended music for this scenario is `MusicPreset::WhimsicalPopsicle` at 20% volume.
     * `game.game_state_mut().audio_manager.play_music(MusicPreset::WhimsicalPopsicle, 0.2);`
 1. Try it! You should hear your music and see a blue race car on the left side of the screen.
@@ -83,8 +83,8 @@ for event in game_state.keyboard_events.drain(..) {
   
 1. Now let's add the movement code for `player1`
     1. Set a local variable named `speed` to some amount like `250.0`. It represents the car's vertical speed in pixels-per-second.
-    1. Use an `if let` pattern to get a mutable reference to the `player1` actor.
-        * `if let Some(player1) = game_state.actors.get_mut("player1") { }`
+    1. Use an `if let` pattern to get a mutable reference to the `player1` sprite.
+        * `if let Some(player1) = game_state.sprites.get_mut("player1") { }`
     1. Inside the `if let` block, use an `if` expression to move the player up if `*direction > 0`, or down if `*direction < 0`.
         * Don't forget to multiply your `speed` by `delta_f32`, the amount of time that elapsed since the last frame.
         * For example, to move up you could do `player1.translation.y += speed * game_state.delta_f32;`
@@ -103,7 +103,7 @@ for event in game_state.keyboard_events.drain(..) {
 
 // Move player1
 let speed = 250.0;
-if let Some(player1) = game_state.actors.get_mut("player1") {
+if let Some(player1) = game_state.sprites.get_mut("player1") {
     if *direction > 0 {
         player1.translation.y += speed * game_state.delta_f32;
         player1.rotation = 0.15;
@@ -118,7 +118,7 @@ if let Some(player1) = game_state.actors.get_mut("player1") {
 
 It doesn't really look like the car is driving down a road, yet. Let's fix that by adding painted lines on the road. Back up in the `main()` function in the `// setup goes here` section:
 1. Loop 10 times: `for i in 0..10 { }`, and each time through the loop:
-    1. Add an actor with the label `roadline{}` (substitute in `i` for the curly braces), and preset `ActorPreset::RacingBarrierWhite` and set:
+    1. Add an sprite with the label `roadline{}` (substitute in `i` for the curly braces), and preset `SpritePreset::RacingBarrierWhite` and set:
     1. the `scale` to `0.1`
     1. the `translation.x` to `-600.0 + 150.0 * i as f32`, where `i` is the index number of the road line.
 1. Add a constant near the top of your `main.rs` file called `ROAD_SPEED` and set it to `400.0`. This represents the speed our car is moving horizontally (even though it's "the road" that we're going to move)
@@ -129,7 +129,7 @@ It doesn't really look like the car is driving down a road, yet. Let's fix that 
 
 // Road lines
 for i in 0..10 {
-    let roadline = game.add_actor(format!("roadline{}", i), ActorPreset::RacingBarrierWhite);
+    let roadline = game.add_sprite(format!("roadline{}", i), SpritePreset::RacingBarrierWhite);
     roadline.scale = 0.1;
     roadline.translation.x = -600.0 + 150.0 * i as f32;
 }
@@ -137,21 +137,21 @@ for i in 0..10 {
 
 
 Now we need to make them move (yes, the lines will move, not the car).  Back at the bottom of the `game_logic()` function:
-1. Loop through all the `actors` HashMap values with `actors.values_mut()` using a mutable reference, and:
-    1. If the `actor.label` starts with `"player1"`, then:
+1. Loop through all the `sprites` HashMap values with `sprites.values_mut()` using a mutable reference, and:
+    1. If the `sprite.label` starts with `"player1"`, then:
        * Subtract `ROAD_SPEED * game_state.delta_f32` from `translation.x`
-    1. If the actor's `translation.x` is less than `-675.0` (meaning it has gone off the left side of the sreen) then add `1500.0` to it  (moving it off the right side of the screen), so it cn rush across the screen again.
+    1. If the sprite's `translation.x` is less than `-675.0` (meaning it has gone off the left side of the sreen) then add `1500.0` to it  (moving it off the right side of the screen), so it cn rush across the screen again.
 
 
 ```rust
 // In game_logic()
 
 // Move road objects
-for actor in game_state.actors.values_mut() {
-    if actor.label.starts_with("roadline") {
-        actor.translation.x -= ROAD_SPEED * game_state.delta_f32;
-        if actor.translation.x < -675.0 {
-            actor.translation.x += 1500.0;
+for sprite in game_state.sprites.values_mut() {
+    if sprite.label.starts_with("roadline") {
+        sprite.translation.x -= ROAD_SPEED * game_state.delta_f32;
+        if sprite.translation.x < -675.0 {
+            sprite.translation.x += 1500.0;
         }
     }
 }
@@ -159,45 +159,45 @@ for actor in game_state.actors.values_mut() {
 
 Now it's time to add some obstacles. Interesting obstacles will be in random locations, so first we need to:
 1. Add `rand` to the `[dependencies]` section of `Cargo.toml`
-1. In `main.rs` add `use rand::prelude::*` to the top of your file.  While we're adding `use` statements, go ahead and add `use ActorPreset::*;` as well since we'll be using a bunch of presets.
+1. In `main.rs` add `use rand::prelude::*` to the top of your file.  While we're adding `use` statements, go ahead and add `use SpritePreset::*;` as well since we'll be using a bunch of presets.
 1. In the `main()` function, in your `// setup goes here` section:
-1. Make a vactor of some `ActorPreset` variants to use as obstacles.
+1. Make a vector of some `SpritePreset` variants to use as obstacles.
     * `let obstacle_presets = vec![RacingBarrelBlue, RacingBarrelRed, RacingConeStraight];`
     * You can add more variants than that, depending how challenging you would like the game to be.
 1. Loop through the presets, enumerating them so you have their index.
     * `for (i, preset) in obstacle_presets.into_iter().enumerate() { }`
     1. For each preset:
-        1. Add an actor with that preset and a label that starts with `"obstacle"`, and ends with `i`. (Use the `format!()` macro to construct the label string).
-        1. Set the actor's `layer` to `50.0` so that the obstacle will be on top of road lines, but underneath the player.
-        1. set the actor's `collision` to `true` so that it will generate collision events with the race car.
+        1. Add an sprite with that preset and a label that starts with `"obstacle"`, and ends with `i`. (Use the `format!()` macro to construct the label string).
+        1. Set the sprite's `layer` to `50.0` so that the obstacle will be on top of road lines, but underneath the player.
+        1. set the sprite's `collision` to `true` so that it will generate collision events with the race car.
         1. Set the `x` location to a random value between `800.0` and `1600.0` using `thread_rng()`
-        * `actor.translation.x = thread_rng().gen_range(800.0..1600.0);`
+        * `sprite.translation.x = thread_rng().gen_range(800.0..1600.0);`
         1. Do the same for `y`, only between `-300.0` and `300.0`
 
 ```rust
 // in main()
 let obstacle_presets = vec![RacingBarrelBlue, RacingBarrelRed, RacingConeStraight];
 for (i, preset) in obstacle_presets.into_iter().enumerate() {
-    let actor = game.add_actor(format!("obstacle{}", i), preset);
-    actor.layer = 50.0;
-    actor.collision = true;
-    actor.translation.x = thread_rng().gen_range(800.0..1600.0);
-    actor.translation.y = thread_rng().gen_range(-300.0..300.0);
+    let sprite = game.add_sprite(format!("obstacle{}", i), preset);
+    sprite.layer = 50.0;
+    sprite.collision = true;
+    sprite.translation.x = thread_rng().gen_range(800.0..1600.0);
+    sprite.translation.y = thread_rng().gen_range(-300.0..300.0);
 }
 ```
 
 The obstacles need to move!  In the `game_logic()` function:
-1. Inside the same loop that moves the road lines, add another `if` expression that does the following if the actor's `label` starts with `"obstacle"`:
-    1. Updates the actor's `translation.x` the same as we did with the road lines
+1. Inside the same loop that moves the road lines, add another `if` expression that does the following if the sprite's `label` starts with `"obstacle"`:
+    1. Updates the sprite's `translation.x` the same as we did with the road lines
     1. If the `translation.x` value is less than `-800.0`, then set both the `x` and `y` values to new random values in the same ranges as before (you can copy-and-paste the same lines setting random values as in the last section)
 1. Try it out! Obstacles should now appear, which the race car can avoid.
 
 ```rust
-if actor.label.starts_with("obstacle") {
-    actor.translation.x -= ROAD_SPEED * game_state.delta_f32;
-    if actor.translation.x < -800.0 {
-        actor.translation.x = thread_rng().gen_range(800.0..1600.0);
-        actor.translation.y = thread_rng().gen_range(-300.0..300.0);
+if sprite.label.starts_with("obstacle") {
+    sprite.translation.x -= ROAD_SPEED * game_state.delta_f32;
+    if sprite.translation.x < -800.0 {
+        sprite.translation.x = thread_rng().gen_range(800.0..1600.0);
+        sprite.translation.y = thread_rng().gen_range(-300.0..300.0);
     }
 }
 ```
@@ -206,7 +206,7 @@ The race car is currently invincible. Before we can fix that, the car needs to h
 1. In `main()`, insert a `"health_amount"` key into the `u8_map` with the value `5`. This is where we will store the amount of health for the player.
 1. Then add a `Text` using the `add_text()` method with the label `"health_message"` and the text `"Health: 5"`.
     * Set the text's `translation` to `Vec2::new(550.0, 320.0)`
-    * `Text`s are very similar to `Actor`s, only instead of a sprite and collisions, `Text`s have text to render and a font size to adjust.  Both of them have a `label` to retrieve them by and a `translation`, `rotation`, and `scale` fields.
+    * `Text`s are very similar to `Sprite`s, only instead of an image and collisions, `Text`s have a value (text) and a font size to adjust.  Both of them have a `label` to retrieve them by and `translation`, `rotation`, and `scale` fields.
 
 ```rust
 // in main()
