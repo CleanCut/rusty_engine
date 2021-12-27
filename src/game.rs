@@ -1,18 +1,21 @@
-use crate::{
-    audio::AudioManager,
-    mouse::{CursorMoved, MouseButtonInput, MouseMotion, MouseWheel},
-    prelude::{CollisionEvent, KeyboardInput, KeyboardState, MouseState},
-    sprite::{Sprite, SpritePreset},
-    text::Text,
-};
 use bevy::prelude::{
-    info, AssetServer, Assets, Color, ColorMaterial, Commands, HorizontalAlign, Res, ResMut,
+    info, AssetServer, Assets, Color, ColorMaterial, Commands, HorizontalAlign, Query, Res, ResMut,
     SpriteBundle, Text as BevyText, Text2dBundle, TextAlignment, TextStyle, Vec2, VerticalAlign,
     Windows,
 };
 use bevy::utils::HashMap;
 pub use bevy::window::{WindowDescriptor, WindowMode, WindowResizeConstraints};
+use bevy_prototype_debug_lines::*;
+use std::path::PathBuf;
 use std::time::Duration;
+
+use crate::{
+    audio::AudioManager,
+    mouse::{CursorMoved, MouseButtonInput, MouseMotion, MouseWheel},
+    prelude::{CollisionEvent, KeyboardInput, KeyboardState, MouseState},
+    sprite::Sprite,
+    text::Text,
+};
 
 /// EngineState is the primary way that you will interact with Rusty Engine. Every frame this struct
 /// is provided to the "logic" function (or closure) that you provided to [`Game::run`]. The
@@ -40,6 +43,10 @@ pub struct EngineState {
     /// [`add_text_with_font`](EngineState::add_text_with_font) methods. Modify & remove
     /// text as you like.
     pub texts: HashMap<String, Text>,
+    /// SYNCED - If set to `true`, the game exits. Note: the current frame will run to completion first.
+    pub should_exit: bool,
+    /// SYNCED - If set to `true`, then debug lines are shown depicting sprite colliders
+    pub debug_sprite_colliders: bool,
     /// INFO - All the collision events that occurred this frame. For collisions to be generated
     /// between sprites, both sprites must have [`Sprite.collision`] set to `true`. Collision events
     /// are generated when two sprites' colliders begin or end overlapping in 2D space.
@@ -84,27 +91,23 @@ pub struct EngineState {
     pub time_since_startup_f64: f64,
     /// A struct with methods to play sound effects and music
     pub audio_manager: AudioManager,
-    /// INFO - Screen dimensions in pixels
-    pub screen_dimensions: Vec2,
-    // Used by internal methods
-    #[doc(hidden)]
-    pub should_exit: bool,
+    /// INFO - Window dimensions in pixels
+    pub window_dimensions: Vec2,
 }
 
 impl EngineState {
-    /// Exits the game. Note: the current frame will run to completion before the game actually exits.
-    pub fn exit(&mut self) {
-        self.should_exit = true;
-    }
-
     #[must_use]
     /// Add an [`Sprite`]. Use the `&mut Sprite` that is returned to set the translation, rotation,
     /// etc. Use a unique label for each sprite. Attempting to add two sprites with the same label
     /// will crash.
-    pub fn add_sprite<T: Into<String>>(&mut self, label: T, preset: SpritePreset) -> &mut Sprite {
+    pub fn add_sprite<T: Into<String>, P: Into<PathBuf>>(
+        &mut self,
+        label: T,
+        file_or_preset: P,
+    ) -> &mut Sprite {
         let label = label.into();
         self.sprites
-            .insert(label.clone(), preset.build(label.clone()));
+            .insert(label.clone(), Sprite::new(label.clone(), file_or_preset));
         // Unwrap: Can't crash because we just inserted the sprite
         self.sprites.get_mut(&label).unwrap()
     }
@@ -162,13 +165,8 @@ pub fn setup(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     materials: ResMut<Assets<ColorMaterial>>,
-    windows: Res<Windows>,
     mut engine_state: ResMut<EngineState>,
 ) {
-    // Unwrap: If we can't access the primary window...there's no point to running Rusty Engine
-    let window = windows.get_primary().unwrap();
-    engine_state.screen_dimensions = Vec2::new(window.width(), window.height());
-    info!("Window dimensions: {}", engine_state.screen_dimensions);
     add_sprites(&mut commands, &asset_server, materials, &mut engine_state);
     add_texts(&mut commands, &asset_server, &mut engine_state);
 }
@@ -183,7 +181,7 @@ pub fn add_sprites(
 ) {
     for (_, sprite) in engine_state.sprites.drain() {
         let transform = sprite.bevy_transform();
-        let texture_handle = asset_server.load(sprite.filename.as_str());
+        let texture_handle = asset_server.load(sprite.filepath.clone());
         commands.spawn().insert(sprite).insert_bundle(SpriteBundle {
             material: materials.add(texture_handle.into()),
             transform,
@@ -221,6 +219,44 @@ pub fn add_texts(
             transform,
             ..Default::default()
         });
+    }
+}
+
+// system - update current window dimensions in the engine state, because people resize windows
+#[doc(hidden)]
+pub fn update_window_dimensions(windows: Res<Windows>, mut engine_state: ResMut<EngineState>) {
+    // Unwrap: If we can't access the primary window...there's no point to running Rusty Engine
+    let window = windows.get_primary().unwrap();
+    let screen_dimensions = Vec2::new(window.width(), window.height());
+    if screen_dimensions != engine_state.window_dimensions {
+        engine_state.window_dimensions = screen_dimensions;
+        info!("Set window dimensions: {}", engine_state.window_dimensions);
+    }
+}
+
+// system - draw sprite colliders
+#[doc(hidden)]
+pub fn draw_sprite_colliders(
+    engine_state: Res<EngineState>,
+    mut lines: ResMut<DebugLines>,
+    sprite_query: Query<&Sprite>,
+) {
+    if !engine_state.debug_sprite_colliders {
+        return;
+    }
+    for sprite in sprite_query.iter() {
+        let points = sprite.collider.relative_to(sprite); // will be empty vector if NoCollider
+        let length = points.len();
+        if length < 2 {
+            continue;
+        }
+        let mut curr = 0;
+        let mut next = 1;
+        while curr < length {
+            lines.line(points[curr].extend(0.0), points[next].extend(0.0), 0.0);
+            curr += 1;
+            next = (next + 1) % length;
+        }
     }
 }
 
@@ -296,6 +332,7 @@ use rusty_engine::{
         AudioManagerPlugin, CollisionEvent, KeyboardInput, KeyboardPlugin, KeyboardState,
         MouseState, PhysicsPlugin,
     },
+    game::{draw_sprite_colliders, update_window_dimensions},
     sprite::{Sprite, SpritePreset},
     text::Text,
 };
@@ -304,8 +341,10 @@ use bevy::{app::AppExit, input::system::exit_on_esc_system,
         App, AppBuilder, Assets, AssetServer, Color, ColorMaterial, Commands, DefaultPlugins,
         Entity, EventReader, EventWriter, IntoSystem, OrthographicCameraBundle,
         ParallelSystemDescriptorCoercion, Query, QuerySet, Res, ResMut, Text as BevyText, Transform,
+        Vec3,
     }, utils::HashMap};
 use bevy_kira_audio::*;
+use bevy_prototype_debug_lines::*;
 use std::{sync::Mutex, time::Duration, ops::{Deref, DerefMut}};
 
 
@@ -366,16 +405,17 @@ impl Game {
             .add_system(exit_on_esc_system.system())
             // External Plugins
             .add_plugin(AudioPlugin) // kira_bevy_audio
+            .add_plugin(DebugLinesPlugin) // bevy_prototype_debug_lines, for debugging sprite colliders
             // Rusty Engine Plugins
             .add_plugin(AudioManagerPlugin)
             .add_plugin(KeyboardPlugin)
             .add_plugin(MousePlugin)
             .add_plugin(PhysicsPlugin)
             //.insert_resource(ReportExecutionOrderAmbiguities) // for debugging
+            .add_system(update_window_dimensions.system().label("update_window_dimensions").before("game_logic_sync"))
             .add_system(game_logic_sync.system().label("game_logic_sync"))
+            .add_system(draw_sprite_colliders.system().label("draw_sprite_colliders").after("game_logic_sync"))
             .add_startup_system(rusty_engine::game::setup.system());
-        // Unwrap: Can't crash, we're the only thread using the lock, so it can't be poisoned.
-        //GAME_LOGIC_FUNCTIONS.lock().unwrap().push(func);
         let world = self.app_builder.world_mut();
         world
             .spawn()

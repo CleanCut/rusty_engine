@@ -4,7 +4,7 @@ struct GameState {
     current_label: String,
     // Use an incrementing index (converted to a string) for the unique label of the sprites
     // Start at 1 since the hard-coded initial sprite is 0
-    next_sprite_index: u32,
+    next_sprite_num: u32,
     shift_pressed: bool,
     next_layer: f32,
 }
@@ -13,7 +13,7 @@ impl Default for GameState {
     fn default() -> Self {
         Self {
             current_label: "0".into(),
-            next_sprite_index: 1,
+            next_sprite_num: 1,
             shift_pressed: false,
             next_layer: 0.01,
         }
@@ -125,9 +125,9 @@ fn logic(engine_state: &mut EngineState, game_state: &mut GameState) -> bool {
                 continue;
             }
             println!(
-                "    let a = game.add_sprite(\"{}\", SpritePreset::{:?}); a.translation = Vec2::new({:.1}, {:.1}); a.rotation = {:.8}; a.scale = {:.8}; a.layer = {:.8}; a.collision = true;",
+                "    let a = game.add_sprite(\"{}\", \"{}\"); a.translation = Vec2::new({:.1}, {:.1}); a.rotation = {:.8}; a.scale = {:.8}; a.layer = {:.8}; a.collision = true;",
                 sprite.label,
-                sprite.preset.unwrap(),
+                sprite.filepath.to_string_lossy(),
                 sprite.translation.x,
                 sprite.translation.y,
                 sprite.rotation,
@@ -144,7 +144,7 @@ fn logic(engine_state: &mut EngineState, game_state: &mut GameState) -> bool {
         if print_status {
             println!(
                 "Sprite Status:\n-----------\n{:?}\nt: ({:.1}, {:.1})\nr: {:.8}\ns: {:.8}",
-                sprite.preset.unwrap(),
+                sprite.filepath.to_string_lossy(),
                 sprite.translation.x,
                 sprite.translation.y,
                 sprite.rotation,
@@ -200,17 +200,16 @@ fn logic(engine_state: &mut EngineState, game_state: &mut GameState) -> bool {
                 .unwrap()
                 .clone()
         };
-        let new_preset = {
-            if prev_preset {
-                old_sprite.preset.unwrap().prev()
-            } else {
-                old_sprite.preset.unwrap().next()
-            }
-        };
+        let (idx, _) = SpritePreset::variant_iter()
+            .enumerate()
+            .find(|(_, preset)| preset.filepath() == old_sprite.filepath)
+            .unwrap();
+        let new_idx = (idx + 1) % SpritePreset::variant_iter().count();
+        let new_preset = SpritePreset::variant_iter().nth(new_idx).unwrap();
 
-        let new_label = game_state.next_sprite_index.to_string();
-        game_state.next_sprite_index += 1;
-        let mut new_sprite = new_preset.build(new_label.clone());
+        let new_label = game_state.next_sprite_num.to_string();
+        game_state.next_sprite_num += 1;
+        let mut new_sprite = Sprite::new(new_label.clone(), new_preset);
 
         game_state.current_label = new_label;
         new_sprite.layer = MAX_LAYER;
@@ -237,8 +236,8 @@ fn logic(engine_state: &mut EngineState, game_state: &mut GameState) -> bool {
         };
         sprite.layer = game_state.next_layer;
         game_state.next_layer += 0.01;
-        sprite.label = game_state.next_sprite_index.to_string();
-        game_state.next_sprite_index += 1;
+        sprite.label = game_state.next_sprite_num.to_string();
+        game_state.next_sprite_num += 1;
         engine_state.sprites.insert(sprite.label.clone(), sprite);
     }
     true

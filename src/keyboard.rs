@@ -45,9 +45,15 @@ impl KeyboardState {
         *self.this_frame.get(&key).unwrap_or(&false)
             && !*self.last_frame.get(&key).unwrap_or(&false)
     }
+    pub fn just_pressed_any(&self, key_codes: &[KeyCode]) -> bool {
+        key_codes.iter().any(|k| self.just_pressed(*k))
+    }
     pub fn just_released(&self, key: KeyCode) -> bool {
         !*self.this_frame.get(&key).unwrap_or(&false)
             && *self.last_frame.get(&key).unwrap_or(&false)
+    }
+    pub fn just_released_any(&self, key_codes: &[KeyCode]) -> bool {
+        key_codes.iter().any(|k| self.just_released(*k))
     }
 }
 
