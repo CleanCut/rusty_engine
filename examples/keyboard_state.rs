@@ -61,8 +61,8 @@ fn logic(game_state: &mut EngineState, _: &mut ()) -> bool {
 
     // Clamp the translation so that the car stays on the screen
     race_car.translation = race_car.translation.clamp(
-        -game_state.screen_dimensions * 0.5,
-        game_state.screen_dimensions * 0.5,
+        -game_state.window_dimensions * 0.5,
+        game_state.window_dimensions * 0.5,
     );
     true
 }

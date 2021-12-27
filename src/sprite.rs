@@ -7,10 +7,12 @@ use bevy::prelude::*;
 pub struct Sprite {
     /// READONLY: A way to identify a sprite.
     pub label: String,
-    /// READONLY: Which preset was used to create this sprite
-    pub preset: Option<SpritePreset>,
     /// READONLY: File used for this sprite's image
-    pub filename: String,
+    pub filepath: PathBuf,
+    /// READONLY: File used for this sprite's collider. Note that this file will not exist if the
+    /// sprite does not have a collider, but if you set the `collider` field to a collider and then
+    /// call the `write_collider` method, the file will be written for you!
+    pub collider_filepath: PathBuf,
     /// SYNCED: Where you are in 2D game space. Positive x is right. Positive y is up. (0.0, 0.0) is the
     /// center of the screen.
     pub translation: Vec2,
@@ -24,25 +26,66 @@ pub struct Sprite {
     pub collision: bool,
     /// Relative to translation
     pub collider: Collider,
+    #[doc(hidden)]
+    // force people to use new()
+    phantom: PhantomData<()>,
 }
 
-impl Default for Sprite {
-    fn default() -> Self {
-        Self {
-            label: String::default(),
-            preset: None,
-            filename: String::default(),
-            translation: Vec2::default(),
-            layer: f32::default(),
-            rotation: f32::default(),
-            scale: 1.0,
-            collision: false,
-            collider: Collider::default(),
+fn read_collider_from_file(filepath: &Path) -> Collider {
+    match File::open(filepath) {
+        Ok(fh) => match ron::de::from_reader::<_, Collider>(fh) {
+            Ok(collider) => collider,
+            Err(e) => {
+                eprintln!("failed deserializing collider from file: {}", e);
+                Collider::NoCollider
+            }
+        },
+        Err(e) => {
+            eprintln!("failed to open collider file: {}", e);
+            Collider::NoCollider
         }
     }
 }
 
 impl Sprite {
+    /// `label` should be a unique string (it will be used as a key in the hashmap
+    /// [`EngineState::sprites`](crate::prelude::EngineState)). `file_or_preset` should either be a
+    /// [`SpritePreset`] variant, or a relative path to an image file inside the `assets/`
+    /// directory. If a collider definition exists in a file with the same name as the image file,
+    /// but with the `.collider` extension, then the collider will be loaded automatically. To
+    /// create a collider file you can either run the `collider_creator` example, or
+    /// programmatically create a [`Collider`], set the sprite's `.collider` field to it, and call
+    /// the sprite's `.write_collider()` method.  All presets have collider files already.
+    pub fn new<S: Into<String>, P: Into<PathBuf>>(label: S, file_or_preset: P) -> Self {
+        let label = label.into();
+        let filepath = file_or_preset.into();
+        let mut collider_filepath = filepath.clone();
+        collider_filepath.set_extension("collider");
+        let actual_collider_filepath = PathBuf::from("assets").join(&collider_filepath);
+        let collider = if actual_collider_filepath.exists() {
+            read_collider_from_file(actual_collider_filepath.as_path())
+        } else {
+            eprintln!(
+                "warning: could not find collider file {} -- consider creating one with the `collider_creator` example.",
+                actual_collider_filepath.to_string_lossy()
+            );
+            Collider::NoCollider
+        };
+        Self {
+            label,
+            filepath,
+            collider_filepath,
+            translation: Vec2::default(),
+            layer: f32::default(),
+            rotation: f32::default(),
+            scale: 1.0,
+            collision: false,
+            collider,
+            phantom: PhantomData,
+        }
+    }
+
+    /// Do the math to translate from Rusty Engine translation+rotation+scale to Bevy's Transform
     #[doc(hidden)]
     pub fn bevy_transform(&self) -> Transform {
         let mut transform = Transform::from_translation(self.translation.extend(self.layer));
@@ -50,17 +93,95 @@ impl Sprite {
         transform.scale = Vec3::splat(self.scale);
         transform
     }
-    pub fn set_collision(&mut self, value: bool) -> &mut Self {
-        self.collision = value;
-        self
+
+    /// Attempt to take the current collider and write it to collider_filepath. If there isn't a
+    /// collider, or writing fails, then `false` is returned. Otherwise `true` is returned.
+    pub fn write_collider(&self) -> bool {
+        if self.collider == Collider::NoCollider {
+            return false;
+        }
+        // Bevy's asset system is relative from the assets/ subdirectory, so we must be too
+        let filepath = PathBuf::from("assets").join(self.collider_filepath.clone());
+        let mut fh = match File::create(filepath) {
+            Ok(fh) => fh,
+            Err(e) => {
+                eprintln!("failed creating collider file: {}", e);
+                return false;
+            }
+        };
+
+        let collider_ron = match ron::ser::to_string_pretty(&self.collider, Default::default()) {
+            Ok(r) => r,
+            Err(e) => {
+                eprintln!("failed converting collider to ron: {}", e);
+                return false;
+            }
+        };
+        match fh.write_all(collider_ron.as_bytes()) {
+            Ok(_) => true,
+            Err(e) => {
+                eprintln!("failed writing collider file: {}", e);
+                false
+            }
+        }
     }
-    pub fn set_collider(&mut self, collider: Collider) -> &mut Self {
-        self.collider = collider;
-        self
+    /// Add a collider point. `p` is a `Vec2` in worldspace (usually the mouse coordinate). See the
+    /// `collider_creator` example.
+    pub fn add_collider_point(&mut self, mut p: Vec2) {
+        // If there isn't a collider, we better switch to one
+        if self.collider == Collider::NoCollider {
+            self.collider = Collider::Poly(Vec::new());
+        }
+        // Add the current point to the collider
+        if let Collider::Poly(points) = &mut self.collider {
+            // untranslate (make p relative to the sprite's position)
+            p -= self.translation;
+            // unscale (make p the same scale as the sprite)
+            p *= 1.0 / self.scale;
+            // unrotate (make p the same rotation as the sprite)
+            let mut p2 = Vec2::ZERO;
+            let sin = (-self.rotation).sin();
+            let cos = (-self.rotation).cos();
+            p2.x = p.x * cos - p.y * sin;
+            p2.y = p.x * sin + p.y * cos;
+            points.push(p2);
+        }
+    }
+    /// Change the last collider point. `p` is a `Vec2` in worldspace (usually the mouse
+    /// coordinate). See the `collider_creator` example.
+    pub fn change_last_collider_point(&mut self, mut p: Vec2) {
+        // If there isn't a collider, create one with a "last point" to change
+        if self.collider == Collider::NoCollider {
+            self.collider = Collider::Poly(vec![Vec2::ZERO]);
+        }
+        // Add the current point to the collider
+        if let Collider::Poly(points) = &mut self.collider {
+            // If the collider exists, but doesn't have any points, add a "last point" to modify.
+            if points.is_empty() {
+                points.push(Vec2::ZERO);
+            }
+            // untranslate (make p relative to the sprite's origin instead of the world's origin)
+            p -= self.translation;
+            // unscale (make p the same scale as the sprite)
+            p *= 1.0 / self.scale;
+            // unrotate (make p the same rotation as the sprite)
+            let length = points.len();
+            let p2 = points.get_mut(length - 1).unwrap(); // mutable reference to "last point"
+            let sin = (-self.rotation).sin();
+            let cos = (-self.rotation).cos();
+            p2.x = p.x * cos - p.y * sin;
+            p2.y = p.x * sin + p.y * cos;
+        }
     }
 }
 
-use std::array::IntoIter;
+use std::{
+    array::IntoIter,
+    fs::File,
+    io::Write,
+    marker::PhantomData,
+    path::{Path, PathBuf},
+};
 
 /// Sprite presets using the asset pack have a all have images and colliders
 #[derive(Copy, Clone, Debug, PartialEq)]
@@ -88,162 +209,10 @@ pub enum SpritePreset {
 }
 
 impl SpritePreset {
-    /// Build an sprite from a string describing the preset. Useful when "loading" things from a text
-    /// file. When writing code from scratch, you should prefer [`SpritePreset::build`].
-    pub fn build_from_name(preset_name: String, label: String) -> Sprite {
-        use SpritePreset::*;
-        match preset_name.as_str() {
-            "RacingBarrelBlue" => RacingBarrelBlue,
-            "RacingBarrelRed" => RacingBarrelRed,
-            "RacingBarrierRed" => RacingBarrierRed,
-            "RacingBarrierWhite" => RacingBarrierWhite,
-            "RacingCarBlack" => RacingCarBlack,
-            "RacingCarBlue" => RacingCarBlue,
-            "RacingCarGreen" => RacingCarGreen,
-            "RacingCarRed" => RacingCarRed,
-            "RacingCarYellow" => RacingCarYellow,
-            "RacingConeStraight" => RacingConeStraight,
-            "RollingBallBlue" => RollingBallBlue,
-            "RollingBallBlueAlt" => RollingBallBlueAlt,
-            "RollingBallRed" => RollingBallRed,
-            "RollingBallRedAlt" => RollingBallRedAlt,
-            "RollingBlockCorner" => RollingBlockCorner,
-            "RollingBlockNarrow" => RollingBlockNarrow,
-            "RollingBlockSmall" => RollingBlockSmall,
-            "RollingBlockSquare" => RollingBlockSquare,
-            "RollingHoleEnd" => RollingHoleEnd,
-            "RollingHoleStart" => RollingHoleStart,
-            _ => panic!(
-                "Cannot find preset named {}, does it need to be added to the list?",
-                preset_name
-            ),
-        }
-        .build(label)
-    }
-
-    /// Build a usable sprite from this preset. This is called for you if you use
-    /// [`EngineState::add_sprite`](crate::prelude::EngineState::add_sprite).
-    pub fn build(self, label: String) -> Sprite {
-        let filename = self.filename();
-        let collider = self.collider();
-        Sprite {
-            label,
-            preset: Some(self),
-            filename,
-            collider,
-            ..Default::default()
-        }
-    }
-
-    /// Retrieve the collider for a preset. You don't usually need to call this yourself, as the
-    /// `.build*` methods will call it for you.
-    pub fn collider(&self) -> Collider {
-        match self {
-            SpritePreset::RacingBarrelBlue => Collider::circle(28.0),
-            SpritePreset::RacingBarrelRed => Collider::circle(28.0),
-            SpritePreset::RacingBarrierRed => {
-                Collider::rect(Vec2::new(-105.0, 31.0), Vec2::new(105.0, -31.0))
-            }
-            SpritePreset::RacingBarrierWhite => {
-                Collider::rect(Vec2::new(-105.0, 31.0), Vec2::new(105.0, -31.0))
-            }
-            SpritePreset::RacingCarBlack => Collider::poly(&[
-                (-59., 28.),
-                (-58., 31.),
-                (-54., 34.),
-                (51., 34.),
-                (56., 31.5),
-                (58.5, 28.5),
-                (58.5, -26.),
-                (57.5, -29.5),
-                (52.5, -33.5),
-                (-54.5, -33.5),
-                (-59., -29.),
-            ]),
-            SpritePreset::RacingCarBlue => Collider::poly(&[
-                (-59., 28.),
-                (-58., 31.),
-                (-54., 34.),
-                (51., 34.),
-                (56., 31.5),
-                (58.5, 28.5),
-                (58.5, -26.),
-                (57.5, -29.5),
-                (52.5, -33.5),
-                (-54.5, -33.5),
-                (-59., -29.),
-            ]),
-            SpritePreset::RacingCarGreen => Collider::poly(&[
-                (-59., 28.),
-                (-58., 31.),
-                (-54., 34.),
-                (51., 34.),
-                (56., 31.5),
-                (58.5, 28.5),
-                (58.5, -26.),
-                (57.5, -29.5),
-                (52.5, -33.5),
-                (-54.5, -33.5),
-                (-59., -29.),
-            ]),
-            SpritePreset::RacingCarRed => Collider::poly(&[
-                (-59., 28.),
-                (-58., 31.),
-                (-54., 34.),
-                (51., 34.),
-                (56., 31.5),
-                (58.5, 28.5),
-                (58.5, -26.),
-                (57.5, -29.5),
-                (52.5, -33.5),
-                (-54.5, -33.5),
-                (-59., -29.),
-            ]),
-            SpritePreset::RacingCarYellow => Collider::poly(&[
-                (-59., 28.),
-                (-58., 31.),
-                (-54., 34.),
-                (51., 34.),
-                (56., 31.5),
-                (58.5, 28.5),
-                (58.5, -26.),
-                (57.5, -29.5),
-                (52.5, -33.5),
-                (-54.5, -33.5),
-                (-59., -29.),
-            ]),
-            SpritePreset::RacingConeStraight => {
-                Collider::rect(Vec2::new(-22.0, 22.0), Vec2::new(22.0, -22.0))
-            }
-            SpritePreset::RollingBallBlue => Collider::circle(18.0),
-            SpritePreset::RollingBallBlueAlt => Collider::circle(18.0),
-            SpritePreset::RollingBallRed => Collider::circle(18.0),
-            SpritePreset::RollingBallRedAlt => Collider::circle(18.0),
-            SpritePreset::RollingBlockCorner => Collider::poly(&[
-                (-64., 61.),
-                (-64.0, 64.),
-                (-56., 64.),
-                (64., -56.),
-                (64., -61.),
-                (61., -64.),
-                (-62., -64.),
-                (-64., -62.),
-            ]),
-            SpritePreset::RollingBlockNarrow => Collider::rect((-64., 16.), (64., -16.)),
-            SpritePreset::RollingBlockSmall => {
-                Collider::rect(Vec2::new(-16.0, 16.0), Vec2::new(16.0, -16.0))
-            }
-            SpritePreset::RollingBlockSquare => {
-                Collider::rect(Vec2::new(-32.0, 32.0), Vec2::new(32.0, -32.0))
-            }
-            SpritePreset::RollingHoleEnd => Collider::circle(18.0),
-            SpritePreset::RollingHoleStart => Collider::circle(24.0),
-        }
-    }
-
-    /// Retrieve the asset filename. You probably won't need this method, as it is called internally
-    /// by the `.build*` methods
-    pub fn filename(&self) -> String {
+    /// Retrieve the asset filepath. You probably won't need to call this method, since the methods
+    /// which create [`Sprite`]s will accept [`SpritePreset`]s and call this method via the
+    /// `impl From<SpritePreset> for PathBuf` implementation.
+    pub fn filepath(&self) -> PathBuf {
         match self {
             SpritePreset::RacingBarrelBlue => "sprite/racing/barrel_blue.png",
             SpritePreset::RacingBarrelRed => "sprite/racing/barrel_red.png",
@@ -320,5 +289,11 @@ impl SpritePreset {
     /// Just get the previous sprite preset in the list, without dealing with an iterator
     pub fn prev(&self) -> SpritePreset {
         self.shifted_by(1)
+    }
+}
+
+impl From<SpritePreset> for PathBuf {
+    fn from(sprite_preset: SpritePreset) -> Self {
+        sprite_preset.filepath()
     }
 }

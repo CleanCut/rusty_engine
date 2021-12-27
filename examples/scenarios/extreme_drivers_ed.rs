@@ -814,7 +814,7 @@ fn main() {
     let win_amount = game
         .sprites
         .values()
-        .filter(|a| a.preset == Some(SpritePreset::RollingHoleStart))
+        .filter(|a| a.filepath == SpritePreset::RollingHoleStart.filepath())
         .count() as u32;
 
     let game_state = GameState {

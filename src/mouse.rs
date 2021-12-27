@@ -122,7 +122,7 @@ fn sync_mouse_events(
         let mut new_event = ev.clone();
         // Convert from screen space to game space
         // TODO: Check to see if this needs to be adjusted for different DPIs
-        new_event.position -= game_state.screen_dimensions * 0.5;
+        new_event.position -= game_state.window_dimensions * 0.5;
         game_state.mouse_location_events.push(new_event);
     }
     for ev in mouse_motion_events.iter() {
@@ -147,7 +147,7 @@ fn sync_mouse_state(
     // Only changes when we get a new event, otherwise we preserve the last location.
     if let Some(event) = cursor_moved_events.iter().last() {
         // Convert from bevy's window space to our game space
-        let location = event.position - game_state.screen_dimensions * 0.5;
+        let location = event.position - game_state.window_dimensions * 0.5;
         mouse_state.location = Some(location);
     }
     // Sync the relative mouse motion. This is the cumulative relative motion during the last frame.

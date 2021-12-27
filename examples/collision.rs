@@ -6,10 +6,9 @@ const ROTATION_SPEED: f32 = 3.0;
 
 fn main() {
     let mut game = Game::new();
-
     let msg2 = game.add_text(
         "instructions",
-        "Move the car around with your mouse. Rotate it by holding left/right mouse buttons. Scale it with the mousewheel.",
+        "Move the car with your mouse. Rotate it by holding left/right mouse buttons. Scale it with the mousewheel. Toggle collider visibility with C.",
     );
     msg2.font_size = 20.0;
     msg2.translation.y = 340.0;
@@ -77,6 +76,11 @@ fn logic(engine_state: &mut EngineState, _: &mut ()) -> bool {
             sprite.scale *= 1.0 + (0.05 * mouse_wheel.y);
             sprite.scale = sprite.scale.clamp(0.1, 4.0);
         }
+    }
+
+    // Pressing C toggles sprite collider debug lines
+    if engine_state.keyboard_state.just_pressed(KeyCode::C) {
+        engine_state.debug_sprite_colliders = !engine_state.debug_sprite_colliders;
     }
     true
 }

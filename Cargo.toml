@@ -32,8 +32,11 @@ bevy_kira_audio = { version = "0.6.0", features = [
     "ogg",
     "wav",
 ] }
+bevy_prototype_debug_lines = "0.3"
 lazy_static = "1.4"
 log = "0.4"
+ron = "0.7"
+serde = { version = "1.0", features = [ "derive" ] }
 
 [dev-dependencies]
 env_logger = "0.9"
