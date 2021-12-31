@@ -54,6 +54,10 @@ game.audio_manager
     .play_music(MusicPreset::WhimsicalPopsicle, 0.2);
 ```
 
+<img width="1392" alt="screenshot1" src="https://user-images.githubusercontent.com/5838512/147838667-ea202119-77db-40b4-bdc1-404b27e9c5e8.png">
+
+
+
 ## Player input
 
 Let's look at the player input and store it for using to move the player later. This section is all done in your `game_logic(...)` function, which is called once every frame.
@@ -100,6 +104,9 @@ if player1.translation.y < -360.0 || player1.translation.y > 360.0 {
 }
 ```
 
+<img width="1392" alt="screenshot2" src="https://user-images.githubusercontent.com/5838512/147838668-a6eb80ec-e0fe-465e-a0dc-f59185a9c11a.png">
+
+
 ## The Road
 
 It doesn't really look like the car is driving down a road, yet. Let's fix that by adding painted lines on the road. Back up in the `main()` function in the `// game setup goes here` section:
@@ -145,6 +152,8 @@ for sprite in engine_state.sprites.values_mut() {
     }
 }
 ```
+
+<img width="1392" alt="screenshot3" src="https://user-images.githubusercontent.com/5838512/147838670-6fa05611-7b97-4857-b787-316b9aa1fd7b.png">
 
 ## Obstacles
 
@@ -250,6 +259,9 @@ for event in engine_state.collision_events.drain(..) {
 }
 ```
 
+<img width="1392" alt="screenshot4" src="https://user-images.githubusercontent.com/5838512/147838672-f442f587-340a-4623-b6ca-f4cda37e0f86.png">
+
+
 ## Game Over
 
 Finally, at the very end of the `game_logic` function we can do a bit of cleanup if we just lost during this frame.
@@ -269,6 +281,8 @@ if game_state.health_amount == 0 {
     engine_state.audio_manager.play_sfx(SfxPreset::Jingle3, 0.5);
 }
 ```
+
+<img width="1392" alt="screenshot5" src="https://user-images.githubusercontent.com/5838512/147838675-a3d85aef-c2e5-4257-aef1-51ca983d3044.png">
 
 That's it! You've done it!  At this point you should have a fully-functional game prototype.  Feel free to continue changing things and having some fun.  Below is a list of challenge ideas to get you thinking about other things you could do.
 
