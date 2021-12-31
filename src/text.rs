@@ -16,7 +16,7 @@ pub struct Text {
     /// SYNCED: The actual text value you want to display.
     pub value: String,
     /// CREATION: The font to use when creating this text. Should be a file name of an .otf or
-    /// .ttf font located within the assets/fonts folder. Defaults to "FiraSans-Bold.ttf" (included
+    /// .ttf font located within the assets/font folder. Defaults to "FiraSans-Bold.ttf" (included
     /// in the default asset pack).
     pub font: String,
     /// SYNCED: The font size of the text you want to display. WARNING: As font sizes get larger,

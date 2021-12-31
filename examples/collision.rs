@@ -41,11 +41,11 @@ fn main() {
 
 fn logic(engine_state: &mut EngineState, _: &mut ()) -> bool {
     // If a collision event happened last frame, print it out and play a sound
-    for event in engine_state.collision_events.drain(..) {
+    for collision_event in engine_state.collision_events.drain(..) {
         let text = engine_state.texts.get_mut("collision text").unwrap();
-        match event.state {
+        match collision_event.state {
             CollisionState::Begin => {
-                text.value = format!("{:?}", event.pair);
+                text.value = format!("{:?}", collision_event.pair);
                 engine_state.audio_manager.play_sfx(SfxPreset::Switch1, 1.0)
             }
             CollisionState::End => {

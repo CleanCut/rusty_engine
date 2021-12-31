@@ -21,16 +21,21 @@ fn main() {
     let args = std::env::args().skip(1).collect::<Vec<_>>();
     if args.len() != 1 {
         println!(
-            "Please pass in the path of an image inside the assets directory! For example:\n\
-            cargo run --release --example collider_creator -- sprite/racing/car_green.png"
+            "Please pass in the path of an image inside the `assets/sprite` directory! For example:\n\
+            cargo run --release --example collider_creator -- racing/car_green.png"
         );
         std::process::exit(1);
     }
 
-    // Convert the string to an actual path, and make sure it exists
+    // If the user passed in `assets/sprite/something...` then we need to strip `assets/` (the asset loader will prepend `assets/`)
     let mut path = PathBuf::from(args[0].clone());
-    if path.starts_with("assets") {
-        path = path.strip_prefix("assets").unwrap().to_path_buf();
+    if path.starts_with("assets/sprite") {
+        path = path
+            .strip_prefix("assets")
+            .unwrap()
+            .strip_prefix("sprite")
+            .unwrap()
+            .to_path_buf();
     }
     if !(PathBuf::from("assets").join(&path)).exists() {
         println!("Couldn't find the file {}", path.to_string_lossy());

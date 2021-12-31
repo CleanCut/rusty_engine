@@ -1,0 +1,6 @@
+[book]
+authors = [ "Nathan Stocks" ]
+language = "en"
+multilingual = false
+src = "src"
+title = "Rusty Engine Tutorial"

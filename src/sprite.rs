@@ -61,7 +61,7 @@ impl Sprite {
         let filepath = file_or_preset.into();
         let mut collider_filepath = filepath.clone();
         collider_filepath.set_extension("collider");
-        let actual_collider_filepath = PathBuf::from("assets").join(&collider_filepath);
+        let actual_collider_filepath = PathBuf::from("assets/sprite").join(&collider_filepath);
         let collider = if actual_collider_filepath.exists() {
             read_collider_from_file(actual_collider_filepath.as_path())
         } else {
@@ -214,26 +214,26 @@ impl SpritePreset {
     /// `impl From<SpritePreset> for PathBuf` implementation.
     pub fn filepath(&self) -> PathBuf {
         match self {
-            SpritePreset::RacingBarrelBlue => "sprite/racing/barrel_blue.png",
-            SpritePreset::RacingBarrelRed => "sprite/racing/barrel_red.png",
-            SpritePreset::RacingBarrierRed => "sprite/racing/barrier_red.png",
-            SpritePreset::RacingBarrierWhite => "sprite/racing/barrier_white.png",
-            SpritePreset::RacingCarBlack => "sprite/racing/car_black.png",
-            SpritePreset::RacingCarBlue => "sprite/racing/car_blue.png",
-            SpritePreset::RacingCarGreen => "sprite/racing/car_green.png",
-            SpritePreset::RacingCarRed => "sprite/racing/car_red.png",
-            SpritePreset::RacingCarYellow => "sprite/racing/car_yellow.png",
-            SpritePreset::RacingConeStraight => "sprite/racing/cone_straight.png",
-            SpritePreset::RollingBallBlue => "sprite/rolling/ball_blue.png",
-            SpritePreset::RollingBallBlueAlt => "sprite/rolling/ball_blue_alt.png",
-            SpritePreset::RollingBallRed => "sprite/rolling/ball_red.png",
-            SpritePreset::RollingBallRedAlt => "sprite/rolling/ball_red_alt.png",
-            SpritePreset::RollingBlockCorner => "sprite/rolling/block_corner.png",
-            SpritePreset::RollingBlockNarrow => "sprite/rolling/block_narrow.png",
-            SpritePreset::RollingBlockSmall => "sprite/rolling/block_small.png",
-            SpritePreset::RollingBlockSquare => "sprite/rolling/block_square.png",
-            SpritePreset::RollingHoleEnd => "sprite/rolling/hole_end.png",
-            SpritePreset::RollingHoleStart => "sprite/rolling/hole_start.png",
+            SpritePreset::RacingBarrelBlue => "racing/barrel_blue.png",
+            SpritePreset::RacingBarrelRed => "racing/barrel_red.png",
+            SpritePreset::RacingBarrierRed => "racing/barrier_red.png",
+            SpritePreset::RacingBarrierWhite => "racing/barrier_white.png",
+            SpritePreset::RacingCarBlack => "racing/car_black.png",
+            SpritePreset::RacingCarBlue => "racing/car_blue.png",
+            SpritePreset::RacingCarGreen => "racing/car_green.png",
+            SpritePreset::RacingCarRed => "racing/car_red.png",
+            SpritePreset::RacingCarYellow => "racing/car_yellow.png",
+            SpritePreset::RacingConeStraight => "racing/cone_straight.png",
+            SpritePreset::RollingBallBlue => "rolling/ball_blue.png",
+            SpritePreset::RollingBallBlueAlt => "rolling/ball_blue_alt.png",
+            SpritePreset::RollingBallRed => "rolling/ball_red.png",
+            SpritePreset::RollingBallRedAlt => "rolling/ball_red_alt.png",
+            SpritePreset::RollingBlockCorner => "rolling/block_corner.png",
+            SpritePreset::RollingBlockNarrow => "rolling/block_narrow.png",
+            SpritePreset::RollingBlockSmall => "rolling/block_small.png",
+            SpritePreset::RollingBlockSquare => "rolling/block_square.png",
+            SpritePreset::RollingHoleEnd => "rolling/hole_end.png",
+            SpritePreset::RollingHoleStart => "rolling/hole_start.png",
         }
         .into()
     }

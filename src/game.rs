@@ -39,9 +39,7 @@ pub struct EngineState {
     /// [`add_sprite`](EngineState::add_sprite) method. Modify & remove sprites as you like.
     pub sprites: HashMap<String, Sprite>,
     /// SYNCED - The state of all texts this frame. For convenience adding a text, use the
-    /// [`add_text`](EngineState::add_text) or
-    /// [`add_text_with_font`](EngineState::add_text_with_font) methods. Modify & remove
-    /// text as you like.
+    /// [`add_text`](EngineState::add_text) method. Modify & remove text as you like.
     pub texts: HashMap<String, Text>,
     /// SYNCED - If set to `true`, the game exits. Note: the current frame will run to completion first.
     pub should_exit: bool,
@@ -91,7 +89,7 @@ pub struct EngineState {
     pub time_since_startup_f64: f64,
     /// A struct with methods to play sound effects and music
     pub audio_manager: AudioManager,
-    /// INFO - Window dimensions in pixels
+    /// INFO - Window dimensions in logical pixels
     pub window_dimensions: Vec2,
 }
 
@@ -132,31 +130,6 @@ impl EngineState {
         // Unwrap: Can't crash because we just inserted the text
         self.texts.get_mut(&label).unwrap()
     }
-
-    #[must_use]
-    /// Add a [`Text`] with a specific font. Use the `&mut Text` that is returned to set the
-    /// translation, rotation, etc. Use a unique label for each text. Attempting to add two texts
-    /// with the same label will crash. The `font` parameter should be the filename of a font
-    /// located in the assets/fonts directory. The default font is "FiraSans-Bold.ttf".
-    pub fn add_text_with_font<L, T, F>(&mut self, label: L, text: T, font: F) -> &mut Text
-    where
-        L: Into<String>,
-        T: Into<String>,
-        F: Into<String>,
-    {
-        let label = label.into();
-        let text = text.into();
-        let font = font.into();
-        let curr_text = Text {
-            label: label.clone(),
-            value: text,
-            font,
-            ..Default::default()
-        };
-        self.texts.insert(label.clone(), curr_text);
-        // Unwrap: Can't crash because we just inserted the sprite
-        self.texts.get_mut(&label).unwrap()
-    }
 }
 
 // startup system - grab window settings, initialize all the starting sprites
@@ -181,7 +154,7 @@ pub fn add_sprites(
 ) {
     for (_, sprite) in engine_state.sprites.drain() {
         let transform = sprite.bevy_transform();
-        let texture_handle = asset_server.load(sprite.filepath.clone());
+        let texture_handle = asset_server.load(PathBuf::from("sprite").join(&sprite.filepath));
         commands.spawn().insert(sprite).insert_bundle(SpriteBundle {
             material: materials.add(texture_handle.into()),
             transform,
@@ -202,7 +175,7 @@ pub fn add_texts(
         let transform = text.bevy_transform();
         let font_size = text.font_size;
         let text_string = text.value.clone();
-        let font_path = format!("fonts/{}", text.font);
+        let font_path = format!("font/{}", text.font);
         commands.spawn().insert(text).insert_bundle(Text2dBundle {
             text: BevyText::with_section(
                 text_string,
@@ -526,6 +499,11 @@ fn game_logic_sync(
             #[allow(clippy::float_cmp)]
             if text.font_size != bevy_text_component.sections[0].style.font_size {
                 bevy_text_component.sections[0].style.font_size = text.font_size;
+            }
+            let font_path = format!("font/{}", text.font);
+            let font = asset_server.load(font_path.as_str());
+            if bevy_text_component.sections[0].style.font != font {
+                bevy_text_component.sections[0].style.font = font;
             }
         } else {
             commands.entity(entity).despawn();

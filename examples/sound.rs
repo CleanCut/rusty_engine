@@ -13,12 +13,12 @@ fn main() {
     );
     msg.translation.y = 100.0;
 
-    let msg2 = game.add_text_with_font(
+    let msg2 = game.add_text(
         "msg2",
         "engine_state.audio_manager.play_sfx(\"sfx/congratulations.ogg\", 1.0);",
-        "FiraMono-Medium.ttf",
     );
     msg2.translation.y = -100.0;
+    msg2.font = "FiraMono-Medium.ttf".to_string();
 
     game.audio_manager.play_sfx("sfx/congratulations.ogg", 1.0);
 

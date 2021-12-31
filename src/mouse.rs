@@ -87,17 +87,17 @@ impl MouseState {
     pub fn just_released(&self, mouse_button: MouseButton) -> bool {
         self.just_released.contains(&mouse_button)
     }
-    /// Returns an iterator over all the mouse buttons were being pressed at the end of the last frame
-    pub fn get_pressed(&self) -> impl ExactSizeIterator<Item = &MouseButton> {
-        self.pressed.iter()
+    /// Returns true if any of the indicated mouse buttons were pressed
+    pub fn pressed_any(&self, mouse_buttons: &[MouseButton]) -> bool {
+        mouse_buttons.iter().any(|k| self.pressed(*k))
     }
-    /// Returns an iterator over all the mouse buttons that started being pressed at the end of the last frame
-    pub fn get_just_pressed(&self) -> impl ExactSizeIterator<Item = &MouseButton> {
-        self.just_pressed.iter()
+    /// Returns true if any of the indicated mouse buttons were just pressed this frame
+    pub fn just_pressed_any(&self, mouse_buttons: &[MouseButton]) -> bool {
+        mouse_buttons.iter().any(|k| self.just_pressed(*k))
     }
-    /// Returns an iterator over all the mouse buttons that started being released at the end of the last frame
-    pub fn get_just_released(&self) -> impl ExactSizeIterator<Item = &MouseButton> {
-        self.just_released.iter()
+    /// Returns true if any of the indicated mouse buttons were just released this frame
+    pub fn just_released_any(&self, mouse_buttons: &[MouseButton]) -> bool {
+        mouse_buttons.iter().any(|k| self.just_released(*k))
     }
 }
 

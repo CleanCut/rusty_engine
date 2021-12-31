@@ -34,20 +34,23 @@ run. Return `false` to abort running any later functions during the frame.
    - `Sprite::write_collider` has been added (see note below about changes to colliders)
 - `TextActor` has been renamed to `Text` to eliminate the confusing "actor" terminology.
    - `TextActor.text` is now `Text.value` for similar reasons.
-- `Sprite`s may now be created with either a `SpritePreset` or the path to an image file via both `Sprite::new` or `EngineState::add_sprite`
+- `Sprite`s may now be created with either a `SpritePreset` or the path to an image file via both `Sprite::new` or `EngineState::add_sprite`. The image file needs to be stored in `assets/sprite` or one of its subdirectories. When specifying the path to the file, the path relative to `assets/sprite` should be used. For example, if your image is `assets/sprite/circus/animal.png` then you would pass `circus/animal.png` to one of the methods to create the sprite.
 - `SpritePreset::build_from_name` and `SpritePreset::build` have been removed (see note above about the new, more flexible way to create sprites)
 - `SpritePreset::collider()` has been removed since colliders are no longer hard-coded features of presets (see note below about changes to colliders)
 - `SpritePreset::filename -> String` has been replaced by `SpritePreset::filepath -> PathBuf`, which powers the `impl From<SpritePreset> for PathBuf` implementation.
 - Colliders are now loaded from collider files. Collider files use the [Rusty Object Notation (RON)](https://github.com/ron-rs/ron) format. The easiest way to create a collider is to run the `collider_creator` example by cloning the `rusty_engine` repository and running `cargo run --release --example collider_creator relative/path/to/my/image.png`. The image needs to be somewhere inside the `assets/` directory. You could also create the collider programmatically, set it on the `Sprite` struct, and call the sprite's `write_collider()` method. Or you could copy an existing collider file, name it the same as your image file (but with the `.collider` extension) and change it to match your image.  Collider coordinates need to define a convex polygon with points going in clockwise order. Coordinates are floating point values relative to the center of the image, with the center of the image being (0.0, 0.0).
 - All sprites' colliders in the asset pack have been recreated more cleanly using the new `collider_creator` example.
+- The `assets/fonts` directory in the asset pack has been renamed to `assets/font` for consistency with the other directories.
+- `KeyboardState` and `MouseState` now both have 6 similar methods for processing key- and button-presses:
+   - `pressed` -> `pressed_any`
+   - `just_pressed` -> `just_pressed_any`
+   - `just_released` -> `just_released_any`
 
 ### Other Changes
 
 - `AudioManager::music_playing()` will return whether or not music is currently playing (accessible
 through `EngineState:audio_manager`)
-- Custom fonts may now be set on a `Text` at creation time.
-`EngineState::add_text_with_font` was added for a convenience. The font specified should be
-a `.ttf` or `.otf` file stored in `assets/fonts`
+- A custom font may now be selected by placing it in `assets/font` and specifying the relative filepath on `Text.font`.
 - Custom sounds may now be played via `AudioManager::play_music` and `AudioManager::play_sfx` by
 specifying a path to a sound file relative to `assets/audio`.
 - `Collider` now implements `PartialEq`, `Serialize`, and `Deserialize`
