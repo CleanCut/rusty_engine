@@ -2,7 +2,7 @@ If you like Rusty Engine, please sponsor me [on GitHub] or [on Patreon], or [tak
 
 # Rusty Engine
 
-Rusty Engine is a simple, 2D game engine for those who are learning Rust. Create simple game prototypes using straightforward Rust code without any advanced game engine concepts! It works on macOS, Linux, and Windows. Rusty Engine is a simplification wrapper over [Bevy], which I encourage you to use directly for more serious game engine needs.
+Rusty Engine is a simple, 2D game engine for those who are learning Rust. Create simple game prototypes using straightforward Rust code without needing to learning difficult game engine concepts! It works on macOS, Linux, and Windows. Rusty Engine is a simplification wrapper over [Bevy], which I encourage you to use directly for more serious game engine needs.
 
 [Questions], [bug reports], and contributions are most welcome!
 
@@ -10,22 +10,26 @@ https://user-images.githubusercontent.com/5838512/122880590-651bae00-d2f7-11eb-8
 
 ## Features
 
+- Asset pack included (sprites, music, sound effects, and fonts)
 - Sprites (2D images)
-  - Includes 2 built-in asset packs
+  - Use sprites from the included asset pack, or bring your own
+  - Collision detection with custom colliders
 - Audio (music & sound effects)
-  - Includes 2 built-in asset packs
-- Collision detection
+  - Looping music
+  - Multi-channel sound effects
 - Text
-  - Includes 2 built-in fonts
+  - 2 fonts included, or bring your own
 - Input handling (keyboard, mouse)
 - Timers
+- Custom game state
+- Window customization
 
 ## Courses
 
-I teach courses which use this game engine:
+The following courses use Rusty Engine in their curriculum:
 
-- `Ultimate Rust 2: Intermediate Concepts` on Udemy, etc. Coming soon!
-- [Rust in 3 Weeks](https://agileperception.com) conducted live on O'Reilly Online.
+- [Ultimate Rust 2: Intermediate Concepts](https://www.udemy.com/course/ultimate-rust-2/?referralCode=8ED694EBE5637F954414) on Udemy (the sequel to [Ultimate Rust Crash Course](https://www.udemy.com/course/ultimate-rust-crash-course/?referralCode=AF30FAD8C6CCCC2C94F0))
+- [Rust in 3 Weeks](https://agileperception.com) conducted live on O'Reilly Online approximately once each quarter.
 
 ## Linux Dependencies (Including WSL 2)
 

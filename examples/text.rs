@@ -8,8 +8,9 @@ rusty_engine::init!(GameState);
 
 fn main() {
     let mut game = Game::new();
-    let fps = game.add_text_with_font("fps", "FPS: ", "FiraMono-Medium.ttf");
+    let fps = game.add_text("fps", "FPS: ");
     fps.translation = Vec2::new(0.0, 250.0);
+    fps.font = "FiraMono-Medium.ttf".to_string();
     fps.font_size = 60.0;
 
     let zoom_msg = game.add_text(
@@ -19,12 +20,12 @@ fn main() {
     zoom_msg.font_size = 35.0;
     zoom_msg.translation = Vec2::new(0.0, 150.0);
 
-    let font_msg = game.add_text_with_font(
+    let font_msg = game.add_text(
         "font_msg",
-        "You can choose a font at creation time by providing the filename of a font stored in assets/fonts.\n\"FiraSans-Bold.ttf\" is the default. \"FiraMono-Medium.ttf\" is also included in the asset pack.",
-        "FiraMono-Medium.ttf",
+        "You can choose a font at creation time by providing the filename of a font stored in assets/font.\n\"FiraSans-Bold.ttf\" is the default. \"FiraMono-Medium.ttf\" is also included in the asset pack."
     );
     font_msg.font_size = 20.0;
+    font_msg.font = "FiraMono-Medium.ttf".to_string();
     font_msg.translation.y = 0.0;
 
     let msg = game.add_text("msg", "Changing the text's translation, rotation*, and scale* is fast,\n so feel free to do that a lot.");
