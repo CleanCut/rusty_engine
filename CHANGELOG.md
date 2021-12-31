@@ -1,6 +1,8 @@
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [3.0.0] - 2021-12-30
+
 ### BREAKING CHANGES
 
 - The fundamental way that Rusty Engine connects a user's game state to Bevy has been heavily
@@ -173,7 +175,8 @@ specifying a path to a sound file relative to `assets/audio`.
 
 [Bevy]: https://bevyengine.org
 <!-- next-url -->
-[Unreleased]: https://github.com/CleanCut/rusty_engine/compare/v2.0.1...HEAD
+[Unreleased]: https://github.com/CleanCut/rusty_engine/compare/v3.0.0...HEAD
+[3.0.0]: https://github.com/CleanCut/rusty_engine/compare/v2.0.1...v3.0.0
 [2.0.1]: https://github.com/CleanCut/rusty_engine/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/CleanCut/rusty_engine/compare/v1.1.4...v2.0.0
 [1.1.4]: https://github.com/CleanCut/rusty_engine/compare/v1.1.3...v1.1.4

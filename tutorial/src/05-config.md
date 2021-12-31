@@ -5,7 +5,7 @@
 
 ```toml
 [dependencies]
-rusty_engine = "2.0.1"
+rusty_engine = "3.0.0"
 ```
 
 ### (Optional) Make `dev` profile act like `release`
