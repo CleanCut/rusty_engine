@@ -31,6 +31,12 @@ The following courses use Rusty Engine in their curriculum:
 - [Ultimate Rust 2: Intermediate Concepts](https://www.udemy.com/course/ultimate-rust-2/?referralCode=8ED694EBE5637F954414) on Udemy (the sequel to [Ultimate Rust Crash Course](https://www.udemy.com/course/ultimate-rust-crash-course/?referralCode=AF30FAD8C6CCCC2C94F0))
 - [Rust in 3 Weeks](https://agileperception.com) conducted live on O'Reilly Online approximately once each quarter.
 
+## Documentation
+
+- [Rusty Engine Tutorial](https://cleancut.github.io/rusty_engine/)
+- [Rusty Engine API Reference](https://docs.rs/rusty_engine/latest/rusty_engine/)
+- [Game Scenarios](https://github.com/CleanCut/rusty_engine/tree/main/scenarios)
+
 ## Linux Dependencies (Including WSL 2)
 
 If you are using Linux or Windows Subsystem for Linux 2, please visit Bevy's [Installing Linux Dependencies](https://github.com/bevyengine/bevy/blob/main/docs/linux_dependencies.md) page and follow the instructions to install needed dependencies.
