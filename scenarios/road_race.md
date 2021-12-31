@@ -3,129 +3,120 @@
 
 How far can you race without running into obstacles?
 
-Race your car (or cars) down the road.  Your car (or cars) are on the left side of the screen facing towards the right side, and are continuously driving down a road. The road sways back and forth, indicated by the borders of the road going up or down. Hitting side barriers or obstacles in the road ends your race.
+Race your car down the road.  Your car is on the left side of the screen facing towards the right side, and is continuously driving down a road. Hitting obstacles lowers your health. If your health reaches zero, the race ends.
 
-This scenario can be extended to 2 players.
+- [Reference Code](https://github.com/CleanCut/rusty_engine/blob/main/examples/scenarios/road_race.rs)
 
 ## Common Setup
 
-1. Follow the instructions in the [Common Setup](https://github.com/CleanCut/rusty_engine/tree/main/scenarios#common-setup) section of the scenarios readme to set up the skeleton of the project.
+1. Follow the instructions in the [Common Setup](https://github.com/CleanCut/rusty_engine/tree/main/scenarios) section of the scenarios readme to set up the skeleton of the project.
 
-## Game Initialization
+## Health
 
-In your `// setup goes here` section of `main()`...
+1. We need to keep track of the player's health, so we'll store it in our `GameState` struct. Add a `health_amount: u8` field to the `GameState` struct definition.
+1. When you run the game, provide `5` for the initial value of the `health_amount` field. You can hit five obstacles before you lose the game.
+1. Try it! At this point you should still be presented with a blank window, but it should compile and run!
+    * `cargo run --release`
 
-1. Create an sprite using the `.add_sprite()` method of `Game`  (`.add_sprite()` returns a mutable reference to the sprite you can use to access its fields)
+```rust
+struct GameState {
+    health_amount: u8,
+}
+
+// ...inside main()
+game.run( GameState { health_amount: 5 });
+```
+
+## Create Player Sprite
+
+In your `// game setup goes here` section of `main()`...
+
+1. Create a sprite using the [`.add_sprite()`](https://cleancut.github.io/rusty_engine/55-sprite-creation.html) method of `Game`  (`.add_sprite()` returns a mutable reference to the sprite you can use to access its fields)
     1. Label it `"player1"`
     1. Use the preset `SpritePreset::RacingCarBlue`
-    * `let player1 = game.add_sprite("player1", SpritePreset::RacingCarBlue);`
-1. Set the following attributes on the `player1` sprite via the mutable reference:
+1. Set the following [attributes](https://cleancut.github.io/rusty_engine/60-sprite-transform.html) on the `player1` sprite via the mutable reference:
     1. Set `translation.x` to `-500.0` so the car will be near the left side of the screen
-        * `player1.translation.x = -500.0;`
-    1. Set the player's `layer` to `100.0` so it will be on top of other sprites by default (higher layers are rendered on top of lower layers)
-        * `player1.layer = 100.0;`
-    1. Set the player's `collision` to `true` so that `player1` will detect collisions with other sprites.
-1. Play some music in the background of the game if you like!  The recommended music for this scenario is `MusicPreset::WhimsicalPopsicle` at 20% volume.
-    * `game.game_state_mut().audio_manager.play_music(MusicPreset::WhimsicalPopsicle, 0.2);`
+    1. Set the player sprite's `layer` to `10.0` so it will be on top of other sprites by default (higher layers are rendered on top of lower layers)
+    1. Set the player sprite's `collision` to `true` so that `player1` will detect collisions with other sprites.
+1. [Play some music](https://cleancut.github.io/rusty_engine/205-music.html) in the background of the game if you like!  The recommended music for this scenario is `MusicPreset::WhimsicalPopsicle` at 20% volume.
 1. Try it! You should hear your music and see a blue race car on the left side of the screen.
+    * `cargo run --release`
 
-## Gameplay Logic
+```rust
+// Create the player sprite
+let player1 = game.add_sprite("player1", RacingCarBlue);
+player1.translation.x = -500.0;
+player1.layer = 10.0;
+player1.collision = true;
 
-In your `game_logic(...)` function...
+// Start some background music
+game.audio_manager
+    .play_music(MusicPreset::WhimsicalPopsicle, 0.2);
+```
 
-Make it so you can move the player up and down
-1. We need a variable in our game_state to represent which direction the race car is moving: up, down, or straight.
-    1. We will add an integer entry named `"direction"` to `i32_map: HashMap<String, i32>`
-    1. Here's how to get a mutable reference to that entry, initializing the entry to `0` if it doesn't exist:
-        * `let direction: &mut i32 = game_state.i32_map.entry("direction".into()).or_insert(0);`
-        * Now we can use `*direction` to read or write our direction integer.
-    1. `1` means up (positive `y` direction). `0` means not moving up or down. `-1` means down (negative `y` direction)
- 1. Time for keyboard input! We will move the car up and down with the arrow keys (or you can pick some other keys)
-    1. Add a `for` loop that loops over all the keyboard events using `.drain(..)`, which empties out the `Vec` but doesn't consume it.  (We couldn't consume that vector even if we wanted to because we don't own it!)
-        * `for event in game_state.keyboard_events.drain(..) {  }`
-    1. Inside the for loop, do a `match` expression on `event.state`:
-        * `match event.state { }`
-    1. Inside the match expression, add an arm that resets `*direction` to 0 if a key was released.
-        * `ElementState::Released => *direction = 0,`
-    1. If a key was pressed, add a block of code for our logic to figure out whether we should go up or down.
-        * `ElementState::Pressed => { },`
-    1. Inside of the _pressed_ block, use an `if let` expression extract a `key_code` out of `event.key_code`, which is an  `Option<KeyCode>`.
-        * `if let Some(key_code) = event.key_code { }`
-        1. Inside _that_ block, do a `match` on the value of `key_code`.
-        1. The `KeyCode::Up` arm should set `*direction = 1`
-        1. The `KeyCode::Down` arm should set `*direction = -1`
-        1. A wildcard arm should do nothing (just use an empty block `{}`)
-    1. Test it out by adding a `println!("{}", *direction);` to the bottom of `game_logic()` and running the game. You should see the  numbers change between `0`, `1`, and `-1` as you press and release the up and down arrows.
-        * Don't forget to remove this line after you are done testing!!!
+<img width="1392" alt="screenshot1" src="https://user-images.githubusercontent.com/5838512/147838667-ea202119-77db-40b4-bdc1-404b27e9c5e8.png">
+
+
+
+## Player input
+
+Let's look at the player input and store it for using to move the player later. This section is all done in your `game_logic(...)` function, which is called once every frame.
+
+1. Make a mutable variable `direction` of type `f32` and initialize it to `0.0`.
+    1. `1.0` means up (positive `y` direction). `0.0` means not moving up or down. `-1.0` means down (negative `y` direction)
+1. Time to collect some input from the [keyboard state](https://cleancut.github.io/rusty_engine/105-keyboard-state.html)!
+    1. If `KeyCode::Up` is pressed, then add `1.0` to `direction`. (`engine_state.keyboard_state.pressed(KeyCode::Up)`)
+    1. If `KeyCode::Down` is pressed, then subtract `1.0` from `direction`
+    1. At this point, `direction` should be `1.0` if the up arrow is pressed, `-1.0` if the down arrow is pressed, and `0.0` if neither or both are pressed.
+1. Now we can actually move the player!
+    1. First, define a constant near the top of your file at module level named `PLAYER_SPEED` and set it to something like `250.0` (you can set it higher or lower depending on your preference for how fast you can move). This is our up-and-down movement speed in pixels per second.
+    1. Back in `game_logic`, get a mutable reference to the player sprite. We used the label "player1", and it's in the `EngineState.sprites` [hash map](https://doc.rust-lang.org/std/collections/struct.HashMap.html#).
+    1. Change the player's `translation.y` by `direction * PLAYER_SPEED * engine_state.delta_f32`
+        * Multiplying by `direction` will do nothing if we're moving up, reverse the sign if we're moving down, or zero out the entire product if we're not moving.
+        * Multiplying by `engine_state.delta_f32` will make it so we move smoothly even as frame rates jitter around.
+    1. If the car is moving up (or down), let's rotate it a bit so it looks like it actually turned in that direction. Set the player sprite's `rotation` to `direction * 0.15`
+    1. If the (center of the) player leaves the top or bottom of the screen, then the player dies. Set the game state's `health_amount` to `0` if the player's `translation.y` value is greater than `360.0` or less than `-360.0`
+1. Try it out! Should be able to move the car up and down, seeing the car turn a bit while it does it.
+    * `cargo run --release`
  
 ```rust
-// Whew! That was a complicated step. Here's all the code in game_logic() so far in case you got lost.
+// At the top of your file...
+const PLAYER_SPEED: f32 = 250.0;
 
-// Direction player1 is moving vertically. 1 is up, 0 is not moving, -1 is down.
-let direction = game_state.i32_map.entry("direction".into()).or_insert(0);
 
-// Respond to keyboard events and set the direction
-for event in game_state.keyboard_events.drain(..) {
-    match event.state {
-        ElementState::Pressed => {
-            if let Some(key_code) = event.key_code {
-                match key_code {
-                    KeyCode::Up => *direction = 1,
-                    KeyCode::Down => *direction = -1,
-                    _ => {}
-                }
-            }
-        }
-        ElementState::Released => *direction = 0,
-    }
+// In your `game_logic` function from here on down...
+
+// Collect keyboard input
+let mut direction = 0.0;
+if engine_state.keyboard_state.pressed(KeyCode::Up) {
+    direction += 1.0;
 }
-```
-  
-1. Now let's add the movement code for `player1`
-    1. Set a local variable named `speed` to some amount like `250.0`. It represents the car's vertical speed in pixels-per-second.
-    1. Use an `if let` pattern to get a mutable reference to the `player1` sprite.
-        * `if let Some(player1) = game_state.sprites.get_mut("player1") { }`
-    1. Inside the `if let` block, use an `if` expression to move the player up if `*direction > 0`, or down if `*direction < 0`.
-        * Don't forget to multiply your `speed` by `delta_f32`, the amount of time that elapsed since the last frame.
-        * For example, to move up you could do `player1.translation.y += speed * game_state.delta_f32;`
-    1. Try it out!
-1. It would look better if the car turned when it was moving up or down. Let's set the car's rotation to a different value when it moves up down. `.rotation` is specified in radians, with `0.0` facing right, and `std::f32::consts::PI` facing left. See also the [Constants](https://docs.rs/rusty_engine/latest/rusty_engine/#constants) section of the Rusty Engine documentation for some helpful constant definitions.
-    1. Inside the `if` expression that moves the car up, add a line that sets the car's rotation slightly upwards.
-        * `player1.rotation = 0.15;`
-    1. Inside the `if` (or `else if`) that moves the car down, add a line that sets the car's rotation slightly downwards.
-        * `player1.rotation = -0.15;`
-    1. Add an `else` branch that sets the car's rotation to `0.0` if the car is not moving up or down.
-        * `player1.rotation = 0.0;`
-    1. Try it out!
+if engine_state.keyboard_state.pressed(KeyCode::Down) {
+    direction -= 1.0;
+}
 
-```rust
-// Did you catch all that? Here's a cheat sheet just in case:
-
-// Move player1
-let speed = 250.0;
-if let Some(player1) = game_state.sprites.get_mut("player1") {
-    if *direction > 0 {
-        player1.translation.y += speed * game_state.delta_f32;
-        player1.rotation = 0.15;
-    } else if *direction < 0 {
-        player1.translation.y -= speed * game_state.delta_f32;
-        player1.rotation = -0.15;
-    } else {
-        player1.rotation = 0.0;
-    }
+// Move the player sprite
+let player1 = engine_state.sprites.get_mut("player1").unwrap();
+player1.translation.y += direction * PLAYER_SPEED * engine_state.delta_f32;
+player1.rotation = direction * 0.15;
+if player1.translation.y < -360.0 || player1.translation.y > 360.0 {
+    game_state.health_amount = 0;
 }
 ```
 
-It doesn't really look like the car is driving down a road, yet. Let's fix that by adding painted lines on the road. Back up in the `main()` function in the `// setup goes here` section:
+<img width="1392" alt="screenshot2" src="https://user-images.githubusercontent.com/5838512/147838668-a6eb80ec-e0fe-465e-a0dc-f59185a9c11a.png">
+
+
+## The Road
+
+It doesn't really look like the car is driving down a road, yet. Let's fix that by adding painted lines on the road. Back up in the `main()` function in the `// game setup goes here` section:
 1. Loop 10 times: `for i in 0..10 { }`, and each time through the loop:
-    1. Add an sprite with the label `roadline{}` (substitute in `i` for the curly braces), and preset `SpritePreset::RacingBarrierWhite` and set:
+    1. Add a sprite with the label `roadline{}` (substitute in `i` for the curly braces using the `format!()` macro), and the preset `SpritePreset::RacingBarrierWhite` and then set:
     1. the `scale` to `0.1`
     1. the `translation.x` to `-600.0 + 150.0 * i as f32`, where `i` is the index number of the road line.
-1. Add a constant near the top of your `main.rs` file called `ROAD_SPEED` and set it to `400.0`. This represents the speed our car is moving horizontally (even though it's "the road" that we're going to move)
-    * `const ROAD_SPEED: f32 = 400.0;`
 
 ```rust
-// In main()
+// In your `main` function...
 
 // Road lines
 for i in 0..10 {
@@ -135,21 +126,26 @@ for i in 0..10 {
 }
 ```
 
-
-Now we need to make them move (yes, the lines will move, not the car).  Back at the bottom of the `game_logic()` function:
-1. Loop through all the `sprites` HashMap values with `sprites.values_mut()` using a mutable reference, and:
-    1. If the `sprite.label` starts with `"player1"`, then:
-       * Subtract `ROAD_SPEED * game_state.delta_f32` from `translation.x`
-    1. If the sprite's `translation.x` is less than `-675.0` (meaning it has gone off the left side of the sreen) then add `1500.0` to it  (moving it off the right side of the screen), so it cn rush across the screen again.
+Now we need to make the lines move (yes, the lines will move to the left instead of the car moving to the right to create the illusion of moving down a road). 
+1. Add a constant near the top of your `main.rs` file called `ROAD_SPEED` and set it to `400.0`. This represents the speed our car is moving horizontally (even though it's "the road" that we're going to move)
+    * `const ROAD_SPEED: f32 = 400.0;`
+1. Back at the bottom of the `game_logic` function, loop through all the `sprites` HashMap values with `sprites.values_mut()` using a mutable reference, and:
+    1. If the `sprite.label` starts with `"roadline"`, then:
+       * Subtract `ROAD_SPEED * engine_state.delta_f32` from the sprite's `translation.x`
+    1. If the sprite's `translation.x` is less than `-675.0` (meaning it has gone off the left side of the screen) then add `1500.0` to it  (moving it off the right side of the screen), so it can rush across the screen again.
 
 
 ```rust
-// In game_logic()
+// At the top of your file...
+const ROAD_SPEED: f32 = 400.0;
+
+
+// In `game_logic`
 
 // Move road objects
-for sprite in game_state.sprites.values_mut() {
+for sprite in engine_state.sprites.values_mut() {
     if sprite.label.starts_with("roadline") {
-        sprite.translation.x -= ROAD_SPEED * game_state.delta_f32;
+        sprite.translation.x -= ROAD_SPEED * engine_state.delta_f32;
         if sprite.translation.x < -675.0 {
             sprite.translation.x += 1500.0;
         }
@@ -157,44 +153,50 @@ for sprite in game_state.sprites.values_mut() {
 }
 ```
 
+<img width="1392" alt="screenshot3" src="https://user-images.githubusercontent.com/5838512/147838670-6fa05611-7b97-4857-b787-316b9aa1fd7b.png">
+
+## Obstacles
+
 Now it's time to add some obstacles. Interesting obstacles will be in random locations, so first we need to:
 1. Add `rand` to the `[dependencies]` section of `Cargo.toml`
-1. In `main.rs` add `use rand::prelude::*` to the top of your file.  While we're adding `use` statements, go ahead and add `use SpritePreset::*;` as well since we'll be using a bunch of presets.
-1. In the `main()` function, in your `// setup goes here` section:
+1. Add `use rand::prelude::*` to the top of your `main.rs` file.  While we're adding `use` statements, go ahead and add `use SpritePreset::*;` as well since we'll be using a bunch of presets.
+1. In the `main()` function, in your `// game setup goes here` section:
 1. Make a vector of some `SpritePreset` variants to use as obstacles.
     * `let obstacle_presets = vec![RacingBarrelBlue, RacingBarrelRed, RacingConeStraight];`
     * You can add more variants than that, depending how challenging you would like the game to be.
 1. Loop through the presets, enumerating them so you have their index.
     * `for (i, preset) in obstacle_presets.into_iter().enumerate() { }`
     1. For each preset:
-        1. Add an sprite with that preset and a label that starts with `"obstacle"`, and ends with `i`. (Use the `format!()` macro to construct the label string).
-        1. Set the sprite's `layer` to `50.0` so that the obstacle will be on top of road lines, but underneath the player.
+        1. Add a sprite with that preset and a label that starts with `"obstacle"`, and ends with the number value of `i`. (Use the `format!()` macro to construct the label string).
+        1. Set the sprite's `layer` to `5.0` so that the obstacle will be on top of road lines, but underneath the player.
         1. set the sprite's `collision` to `true` so that it will generate collision events with the race car.
         1. Set the `x` location to a random value between `800.0` and `1600.0` using `thread_rng()`
         * `sprite.translation.x = thread_rng().gen_range(800.0..1600.0);`
         1. Do the same for `y`, only between `-300.0` and `300.0`
 
 ```rust
-// in main()
+// in `main`
 let obstacle_presets = vec![RacingBarrelBlue, RacingBarrelRed, RacingConeStraight];
 for (i, preset) in obstacle_presets.into_iter().enumerate() {
     let sprite = game.add_sprite(format!("obstacle{}", i), preset);
-    sprite.layer = 50.0;
+    sprite.layer = 5.0;
     sprite.collision = true;
     sprite.translation.x = thread_rng().gen_range(800.0..1600.0);
     sprite.translation.y = thread_rng().gen_range(-300.0..300.0);
 }
 ```
 
-The obstacles need to move!  In the `game_logic()` function:
+The obstacles need to move, too, so they appear to be on the road!  In the `game_logic()` function:
 1. Inside the same loop that moves the road lines, add another `if` expression that does the following if the sprite's `label` starts with `"obstacle"`:
     1. Updates the sprite's `translation.x` the same as we did with the road lines
     1. If the `translation.x` value is less than `-800.0`, then set both the `x` and `y` values to new random values in the same ranges as before (you can copy-and-paste the same lines setting random values as in the last section)
 1. Try it out! Obstacles should now appear, which the race car can avoid.
+    * `cargo run --release`
 
 ```rust
+// inside the same loop in `game_logic` that moves the road lines
 if sprite.label.starts_with("obstacle") {
-    sprite.translation.x -= ROAD_SPEED * game_state.delta_f32;
+    sprite.translation.x -= ROAD_SPEED * engine_state.delta_f32;
     if sprite.translation.x < -800.0 {
         sprite.translation.x = thread_rng().gen_range(800.0..1600.0);
         sprite.translation.y = thread_rng().gen_range(-300.0..300.0);
@@ -202,96 +204,87 @@ if sprite.label.starts_with("obstacle") {
 }
 ```
 
-The race car is currently invincible. Before we can fix that, the car needs to have health to lose!
-1. In `main()`, insert a `"health_amount"` key into the `u8_map` with the value `5`. This is where we will store the amount of health for the player.
-1. Then add a `Text` using the `add_text()` method with the label `"health_message"` and the text `"Health: 5"`.
+## Health
+
+Let's get ready to handle the player's health.
+1. In `main`, add a new `Text` using [the `add_text()` method](https://cleancut.github.io/rusty_engine/155-text-creation.html) with the label `"health_message"` and the text `"Health: 5"`.
     * Set the text's `translation` to `Vec2::new(550.0, 320.0)`
-    * `Text`s are very similar to `Sprite`s, only instead of an image and collisions, `Text`s have a value (text) and a font size to adjust.  Both of them have a `label` to retrieve them by and `translation`, `rotation`, and `scale` fields.
+1. If the player's health reaches `0`, we will pause the game and let the player consider their poor life choices. Create a new [game logic function](https://cleancut.github.io/rusty_engine/25-game-logic-function.html) named `lose_condition`, and return `true` if the `health_amount` field in the game state is positive, or `false` if it reaches `0`.
+    * Returning `false` will cause the rest of the logic functions to be skipped, so we want `lose_condition` to run before `game_logic`, so in `main` add the `lose_condition` function to the game with `game.add_logic` before adding the `game_logic` function.
 
 ```rust
-// in main()
+// in `main`...
 
-// Create the health amount and health message
-game.game_state_mut()
-    .u8_map
-    .insert("health_amount".into(), 5);
+// Create the health message
 let health_message = game.add_text("health_message", "Health: 5");
 health_message.translation = Vec2::new(550.0, 320.0);
-```
 
-Now we can actually lose health! At **_the top_** of the `game_logic()` function we are going to handle the case when we've _already_ lost by effectively pausing the game:
-1. Get a mutable reference to the health message text we created above.
-    * `let health_amount = game_state.u8_map.get_mut("health_amount").unwrap();`
-1. If `*health_amount` is zero, then return from the function.
-    * This effectively halts the game, and whatever is on the screen will just sit there.
+// before adding the `game_logic` function
+game.add_logic(lose_condition);
 
-```rust
-/// at the *top* of game_logic()
 
-// Pause if we have already lost
-let health_amount = game_state.u8_map.get_mut("health_amount").unwrap();
-if *health_amount == 0 {
-    return;
+// outside of `main` -- define the lose_condition function
+fn lose_condition(_: &mut EngineState, game_state: &mut GameState) -> bool {
+    // Don't run any more game logic if the game has ended
+    game_state.health_amount > 0
 }
 ```
 
-Now we need to actually handle the health.  At **_the bottom_** of the `game_logic()` function we'll finally deal with collisions:
-1. Get a mutable reference to the health message we created
-    * `let health_message = game_state.texts.get_mut("health_message").unwrap();`
-1. Loop through all the `collision_events`.
-    1. Ignore events (by doing a `continue` in the for loop) that contain "player1" in the collision pair or where the event state is the ending of a collision.
+Now we need to actually handle the health.  At **_the bottom_** of the `game_logic` function we'll deal with collisions:
+1. Get a mutable reference to the health message
+    * `let health_message = engine_state.texts.get_mut("health_message").unwrap();`
+1. Loop through all the `collision_events` in the engine state.
+    1. Ignore events (by doing a `continue` in the `for` loop) that contain `"player1"` in the collision pair or where the event state is the ending of a collision.
         * `if !event.pair.either_contains("player1") || event.state.is_end() { continue; }`
-    1. If `*health_amount` is greater than `0` (we don't want to try to subtract from an unsigned number without checking first)
-        1. Subtract `1` from `*health_amount`
-        1. Set `health_message` to the string "Health: {}", where "{}" is the value of `*health-amount`.
+    1. If `game_state.health_amount` is greater than `0` (we don't want to try to subtract from an unsigned number without checking first)
+        1. Subtract `1` from `game_state.health_amount`
+        1. Set the `value` of the `health_message` to the string `"Health: {}"`, where `{}` is the value of `game_state.health_amount`.
         1. Use the `audio_manager` to play `SfxPreset::Impact3` at full volume. The value for volume ranges from `0.0` (silent) to `1.0` (full volume).
 1. Try it!  The game should mostly work, just with a sort of odd, frozen ending, with music still playing.
+    * `cargo run --release`
 
 ```rust
 // Deal with collisions
-let health_message = game_state.texts.get_mut("health_message").unwrap();
-for event in game_state.collision_events.drain(..) {
+let health_message = engine_state.texts.get_mut("health_message").unwrap();
+for event in engine_state.collision_events.drain(..) {
     // We don't care if obstacles collide with each other or collisions end
     if !event.pair.either_contains("player1") || event.state.is_end() {
         continue;
     }
-    if *health_amount > 0 {
-        *health_amount -= 1;
-        health_message.text = format!("Health: {}", *health_amount);
-        game_state.audio_manager.play_sfx(SfxPreset::Impact3, 1.0);
+    if game_state.health_amount > 0 {
+        game_state.health_amount -= 1;
+        health_message.value = format!("Health: {}", game_state.health_amount);
+        engine_state.audio_manager.play_sfx(SfxPreset::Impact3, 0.5);
     }
 }
 ```
 
-Also, let's not let the player cheat by driving completely off the screen to avoid obstacles! In the `game_logic()` function:
-1. Find the place where we get the mutable reference to `player1` and move him up or down.
-1. Right after the logic where you've moved `player1`, but while you still have access to the mutable reference to `player1`:
-    1. If the player's `translation.y` value is greater than `360.0` or lower than `-360.0`, then set `*health_amount` to `0`
+<img width="1392" alt="screenshot4" src="https://user-images.githubusercontent.com/5838512/147838672-f442f587-340a-4623-b6ca-f4cda37e0f86.png">
 
-```rust
-if player1.translation.y < -360.0 || player1.translation.y > 360.0 {
-    *health_amount = 0;
-}
-```
 
-Finally, at the very end of the `game_logic()` function we can do a bit of cleanup if we just lost.
-1. If `*health_amount` is `0`
-    1. Create a text, and set its text to `"Game Over"`
+## Game Over
+
+Finally, at the very end of the `game_logic` function we can do a bit of cleanup if we just lost during this frame.
+1. If `game.health_amount` is `0`
+    1. Create a `Text`, and set its value to `"Game Over"`
     1. Using the mutable reference from creating the text, set its `font_size` to `128.0` (if this crashes on your system, reduce the font size to a smaller number)
     1. Use the `audio_manager` to stop the music.
-    1. Use the `audio_manager` to play `SfxPreset::Jingle3` at full volume (it's a sad sound)
+    1. Use the `audio_manager` to [play the sound effect](https://cleancut.github.io/rusty_engine/210-sfx.html) `SfxPreset::Jingle3` at half volume (it's a sad sound)
 1. Try it!
+    * `cargo run --release`
 
 ```rust
-if *health_amount == 0 {
-    let game_over = game_state.add_text("game over", "Game Over");
+if game_state.health_amount == 0 {
+    let game_over = engine_state.add_text("game over", "Game Over");
     game_over.font_size = 128.0;
-    game_state.audio_manager.stop_music();
-    game_state.audio_manager.play_sfx(SfxPreset::Jingle3, 1.0);
+    engine_state.audio_manager.stop_music();
+    engine_state.audio_manager.play_sfx(SfxPreset::Jingle3, 0.5);
 }
 ```
 
-That's it! You've done it!  At this point you should have a fully-functional game prototype.  Feel free to continue changing things and having some fun.  I have included a list of challenge ideas to get you thinking about other things you could do.
+<img width="1392" alt="screenshot5" src="https://user-images.githubusercontent.com/5838512/147838675-a3d85aef-c2e5-4257-aef1-51ca983d3044.png">
+
+That's it! You've done it!  At this point you should have a fully-functional game prototype.  Feel free to continue changing things and having some fun.  Below is a list of challenge ideas to get you thinking about other things you could do.
 
 # Troubleshooting
 
@@ -302,13 +295,13 @@ Having trouble getting the scenario above to work?  Check out the [reference imp
 * Add a second player!
     * Variant A: The two players can overlap, harmlessly
     * Variant B: The two players are separated into their own lanes, and cannot cross to the same lane
-    * Variant C: The two players crash if they touch each other. Requires implementing the "cars can move forward and backward a little" challenge for any chance at rewarding gameplay.
-* Powerups!  All powerups wear off after a short time.
+    * Variant C: The two players crash if they touch each other. Requires implementing the "cars can move forward and backward a little".
+* Powerups!  All powerups wear off after a short time, so you'll need to use `Timer`s
     * Powerup A: Boost car maneuverability
     * Powerup B: Armor - car can withstand more obstacle hits
     * Powerup C: Phase shift - car can move through obstacles
     * Powerup D: Explosion - all visible obstacles are cleared
-* Hazards!  All hazards wear off after a short time.
+* Hazards!  All hazards wear off after a short time, so you'll need to use `Timer`s
     * Hazard A: Oil Slick - car is unable to control movement
     * Hazard B: Anti-Powerup - hitting the anti-powerup causes a new type of obstacle to appear
     * Hazard C: Afterburners - road speed increases
@@ -321,5 +314,5 @@ Having trouble getting the scenario above to work?  Check out the [reference imp
     * Add the ability to pause and resume the game
     * Collect points for every obstacle that you pass, display the score in the corner during the game, add an end screen showing the final score.
     * Instead of ignoring obstacles that collide with each other, take one of the colliding items and set it to a new random starting position.
-    * Make it so you can't hit the same obstacle twice
+    * Make it so you can't hit the same obstacle twice (currently if you wiggle back and forth you can run into the same obstacle multiple times)
 
