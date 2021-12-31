@@ -23,7 +23,6 @@ fn main() {
     let font_msg = game.add_text(
         "font_msg",
         "You can choose a font at creation time by providing the filename of a font stored in assets/font.\n\"FiraSans-Bold.ttf\" is the default. \"FiraMono-Medium.ttf\" is also included in the asset pack."
-        
     );
     font_msg.font_size = 20.0;
     font_msg.font = "FiraMono-Medium.ttf".to_string();
