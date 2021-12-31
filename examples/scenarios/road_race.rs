@@ -14,15 +14,15 @@ rusty_engine::init!(GameState);
 fn main() {
     let mut game = Game::new();
 
-    // Start some background music
-    game.audio_manager
-        .play_music(MusicPreset::WhimsicalPopsicle, 0.2);
-
     // Create the player sprite
     let player1 = game.add_sprite("player1", RacingCarBlue);
     player1.translation.x = -500.0;
-    player1.layer = 100.0;
+    player1.layer = 10.0;
     player1.collision = true;
+
+    // Start some background music
+    game.audio_manager
+        .play_music(MusicPreset::WhimsicalPopsicle, 0.2);
 
     // Create the road line sprites
     for i in 0..10 {
@@ -45,7 +45,7 @@ fn main() {
     ];
     for (i, preset) in obstacle_presets.into_iter().enumerate() {
         let sprite = game.add_sprite(format!("obstacle{}", i), preset);
-        sprite.layer = 50.0;
+        sprite.layer = 5.0;
         sprite.collision = true;
         sprite.translation.x = thread_rng().gen_range(800.0..1600.0);
         sprite.translation.y = thread_rng().gen_range(-300.0..300.0);
@@ -55,48 +55,40 @@ fn main() {
     let health_message = game.add_text("health_message", "Health: 5");
     health_message.translation = Vec2::new(550.0, 320.0);
 
-    game.add_logic(game_ends);
+    game.add_logic(lose_condition);
     game.add_logic(game_logic);
 
     // Run the game, which will run our game logic functions once every frame
     game.run(GameState { health_amount: 5 });
 }
 
-fn game_ends(_: &mut EngineState, game_state: &mut GameState) -> bool {
-    // Don't continue to game logic if the game has ended
+fn lose_condition(_: &mut EngineState, game_state: &mut GameState) -> bool {
+    // Don't run any more game logic if the game has ended
     game_state.health_amount > 0
 }
 
 fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) -> bool {
     // Respond to keyboard events and set the direction
-    let mut direction = 0;
+    let mut direction = 0.0;
     if engine_state
         .keyboard_state
         .pressed_any(&[KeyCode::Up, KeyCode::W, KeyCode::Comma])
     {
-        direction += 1;
+        direction += 1.0;
     }
     if engine_state
         .keyboard_state
         .pressed_any(&[KeyCode::Down, KeyCode::S, KeyCode::O])
     {
-        direction -= 1;
+        direction -= 1.0;
     }
 
     // Move player1
-    if let Some(player1) = engine_state.sprites.get_mut("player1") {
-        if direction > 0 {
-            player1.translation.y += PLAYER_SPEED * engine_state.delta_f32;
-            player1.rotation = 0.15;
-        } else if direction < 0 {
-            player1.translation.y -= PLAYER_SPEED * engine_state.delta_f32;
-            player1.rotation = -0.15;
-        } else {
-            player1.rotation = 0.0;
-        }
-        if player1.translation.y < -360.0 || player1.translation.y > 360.0 {
-            game_state.health_amount = 0;
-        }
+    let player1 = engine_state.sprites.get_mut("player1").unwrap();
+    player1.translation.y += direction * PLAYER_SPEED * engine_state.delta_f32;
+    player1.rotation = direction * 0.15;
+    if player1.translation.y < -360.0 || player1.translation.y > 360.0 {
+        game_state.health_amount = 0;
     }
 
     // Move road objects

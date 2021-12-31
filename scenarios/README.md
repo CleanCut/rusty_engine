@@ -1,52 +1,60 @@
 # Game Scenarios
 
-Here are some interesting scenarios that you can use to walk through building a working game prototype using Rusty Engine.  If you would like to contribute your own game scenario idea, please feel free to open a pull request!
+Here are some game scenarios that you run through and program using Rusty Engine.
 
-## Common Setup! Do this first!
+These scenarios are more focused on _building the game_ than on learning how to use Rusty Engine. If you need help understanding how to use Rusty Engine itself, you may want to take a look at the [Rusty Engine Tutorial](https://cleancut.github.io/rusty_engine/) and then come back here.
 
-All scenarios assume you've followed the basic setup below.  All scenarios assume default window width and height. If your screen is too small to accomodate a `1280 x 720` window or if you [customized the window settings](https://github.com/bevyengine/bevy/blob/main/examples/window/window_settings.rs) then you may have to adapt the translation coordinates and other numerical variables in the scenario to account for the difference.
+## Common Setup (Do this first!)
 
-First, create your project and download the `rusty_engine` assets
-1. Create your project with `cargo new somename`. Replace `somename` with a fun name!
-1. Download the asset packs. I can think of 3 easy ways to do this:
-    1. Clone the `rusty_engine` repository and copy the `assets/` directory over to your own project
-    1. Download a [zip file](https://github.com/CleanCut/rusty_engine/archive/refs/heads/main.zip) or [tarball](https://github.com/CleanCut/rusty_engine/archive/refs/heads/main.tar.gz) of the `rusty_engine` repository, extract it, and copy the `assets/` directory over to your own project.
-    1. On a posix compatible shell, run this command inside your project directory:
-```shell
-curl -L https://github.com/CleanCut/rusty_engine/archive/refs/heads/main.tar.gz | tar -zxv --strip-components=1 rusty_engine-main/assets
+All scenarios assume you've followed the setup steps below and that you are using the default window width and height. If your screen is too small to accomodate a `1280 x 720` window or if you customized the window settings, then you may have to adapt accordingly.
+
+1. Follow the [Configuration](https://cleancut.github.io/rusty_engine/05-config.html) section of the tutorial to set up your `Cargo.toml`
+1. Follow the [Asset Pack](https://cleancut.github.io/rusty_engine/10-assets.html) section of the tutorial to download the asset pack to your project.
+1. Start with this skeleton `main.rs`:
+
+```rust
+use rusty_engine::prelude::*;
+
+struct GameState {}
+
+rusty_engine::init!(GameState);
+
+fn main() {
+    let mut game = Game::new();
+
+    // game setup goes here
+
+    game.add_logic(game_logic);
+    game.run(GameState {});
+}
+
+fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) -> bool {
+    // game logic goes here
+    true
+}
 ```
 
-Next, set up the skeleton of your project:
-1. Add `rusty_engine` as a dependency in your `Cargo.toml`
-    1. Forgot the latest version number?  You can always peek at [the `rusty_engine` page on Crates.io](https://crates.io/crates/rusty_engine)
-    1. It's recommended to leave off the "patch" version number, ie use version number`6.7` not `6.7.8`.
-1. In `src/main.rs`, add a `use` statement to bring everything from `rusty_engine`'s prelude into scope. Yes, this is one of those times you can use a `*` in a `use` statement!
-1. Create a `fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState)` for your game logic.
-1. In `main()` create a _mutable_ `Game` struct
-1. Then add a `// setup goes here` placeholder line after your new `Game` struct.
-1. Finally, at the end of `main()` call `.run(game_logic)` on whatever you named your `Game` instance.
+Run your game in release mode for good performance!
 
-Now you're ready to proceed with your scenario!
+```
+cargo run --release
+```
 
-**Remember to run your game in release mode for good performance! `cargo run --release`**
+## Scenario Legend
 
-## 1. Full Scenarios (description, full instructions, reference code)
+Legend:
 
-These scenarious are step-by-step tutorials which walk you through the entire creation process, and have reference code that you can look at if you get stuck.
+|Level|Description|
+| --- | --- |
+| Easy | You will be told each step, and each section includes the code that you should have ended up with, and there is a complete reference project. |
+| Medium | You will be told each step, but won't be shown all the code. There might be a reference project. |
+| Hard | You will be told what to accomplish, and maybe be given a couple pointers. There is probably no reference project. |
 
-1. Road Race - [Instructions](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/road_race.md), [Reference Code](https://github.com/CleanCut/rusty_engine/blob/main/examples/scenarios/road_race.rs)
+## Scenarios
 
-## 2. Partial Scenarios (description, reference code)
-
-These scenarios describe what sort of prototype to make, and then you mostly make it on your own. Reference code is available if you get stuck.
-
-1. Car Shoot - [Description](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/car_shoot.md), [Reference Code](https://github.com/CleanCut/rusty_engine/blob/main/examples/scenarios/road_race.rs)
-1. Driver's Ed - [Description](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/car_shoot.md), [Reference Code](https://github.com/CleanCut/rusty_engine/blob/main/examples/scenarios/extreme_drivers_ed.rs)
-
-## Scenario Prompts (description only)
-
-These scenarios describe what sort of prototype to make, and you make it completely on your own.
-
-1. [Cannon Practice](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/cannon_practice.md)
-1. [Car Invaders](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/car_invaders.md)
-1. [Labrinth](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/labrinth.md)
+- (Easy) [Road Race](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/road_race.md)
+- (Medium) [Car Shoot](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/car_shoot.md)
+- (Medium) [Driver's Ed](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/car_shoot.md)
+- (Hard) [Cannon Practice](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/cannon_practice.md)
+- (Hard) [Space Invaders](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/space_invaders.md)
+- (Hard) [Labrinth](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/labrinth.md)
