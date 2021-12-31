@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-echo "\n== SANITY CHECK: GIT STATUS ==\n"
+echo -e "\n== SANITY CHECK: GIT STATUS ==\n"
 git status
-echo "\nIs everything committed?  (Ctrl-C if not!) "
+echo -e "\nIs everything committed?  (Ctrl-C if not!) "
 read
 
 CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
