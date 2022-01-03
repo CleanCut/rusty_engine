@@ -1,7 +1,7 @@
 # Quick Start Example
 
 - Create a new Rust project and add `rusty_engine` to the `[dependencies]` section of your `Cargo.toml` file.
-- Download the [Asset Pack](10-assets.md) to you project.
+- Download the [Asset Pack](10-assets.md) to your project.
 - Write your game:
 
 ```rust,ignore
