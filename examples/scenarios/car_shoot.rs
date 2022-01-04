@@ -16,7 +16,7 @@ fn main() {
 
     // Set the title of the window to be Car Shooter
     game.window_settings(WindowDescriptor {
-        title: "Car Shooter".into(),
+        title: "Car Shoot".into(),
         ..Default::default()
     });
 
