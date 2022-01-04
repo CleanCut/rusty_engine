@@ -6,6 +6,8 @@ You are at a carnival booth. Cars float across the back of the booth. The player
 
 This scenario can be extended to 2 players.
 
+https://user-images.githubusercontent.com/5838512/147995928-4705d9fc-c3fa-41b7-901f-d120307e455f.mp4
+
 ## Common Setup
 
 1. Follow the instructions in the [Common Setup](https://github.com/CleanCut/rusty_engine/tree/main/scenarios#common-setup-do-this-first) section of the scenarios readme to set up the skeleton of the project.
@@ -118,3 +120,4 @@ You made it to the end of the main scenario! You should have a playable game pro
 * Make the movement of the cars more interesting - have them drive in curvy motions
 * Smart black cars - black cars sometimes slow down or speed up so a shot will miss them
 * Armored cars - Green cars take two marbles to take down
+* Add support for a second player, with separate scores for each player. You'll need to figure out some way for the second player to control their marble gun...
