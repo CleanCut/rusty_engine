@@ -6,7 +6,7 @@ In this scenario you will create a cannon that sits on the bottom left side of t
 
 ## Common Setup
 
-1. Follow the instructions in the [Common Setup](https://github.com/CleanCut/rusty_engine/tree/main/scenarios#common-setup) section of the scenarios readme to set up the skeleton of the project.
+1. Follow the instructions in the [Common Setup](https://github.com/CleanCut/rusty_engine/tree/main/scenarios#common-setup-do-this-first) section of the scenarios readme to set up the skeleton of the project.
 
 ## Game Initialization
 

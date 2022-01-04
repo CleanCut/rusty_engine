@@ -6,7 +6,7 @@ This game consists of a [Labrinth](https://en.wikipedia.org/wiki/Labyrinth) or m
 
 ## Common Setup
 
-1. Follow the instructions in the [Common Setup](https://github.com/CleanCut/rusty_engine/tree/main/scenarios#common-setup) section of the scenarios readme to set up the skeleton of the project.
+1. Follow the instructions in the [Common Setup](https://github.com/CleanCut/rusty_engine/tree/main/scenarios#common-setup-do-this-first) section of the scenarios readme to set up the skeleton of the project.
 
 ## Game Initialization
 
