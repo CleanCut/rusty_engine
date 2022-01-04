@@ -1,3 +1,9 @@
+//! To run this code, clone the rusty_engine repository and run the command:
+//! 
+//!     cargo run --release --example collider_creator -- path/to/some_image.png
+//! 
+//!  ...where path/to/some_image.png is relative to assets/sprite/
+
 use std::path::PathBuf;
 
 use rusty_engine::prelude::*;

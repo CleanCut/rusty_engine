@@ -1,3 +1,7 @@
+//! To run this code, clone the rusty_engine repository and run the command:
+//! 
+//!     cargo run --release --example game_state
+
 use std::f32::consts::TAU;
 
 use rusty_engine::prelude::*;

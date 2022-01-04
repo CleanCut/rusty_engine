@@ -1,3 +1,7 @@
+//! To run this code, clone the rusty_engine repository and run the command:
+//! 
+//!     cargo run --release --example sfx
+
 //! This is an example of playing a sound effect preset. For playing your own sound effect file,
 //! please see the `sound` example.
 
