@@ -48,6 +48,9 @@ In your [`game_logic(...)` function](https://cleancut.github.io/rusty_engine/25-
     - Get a [mutable reference to the player sprite](https://cleancut.github.io/rusty_engine/60-sprite-transform.html#adjusting-an-existing-sprite)
     - Get the mouse location via the [mouse state's `location` method](https://cleancut.github.io/rusty_engine/115-mouse-state.html#location)
     - Make a variable `player_x` and set it to the player's current `translation.x` so we can use it later on: `let player_x = player.translation.x;`
+
+<img width="1392" alt="screenshot1" src="https://user-images.githubusercontent.com/5838512/147995315-e6b4108a-6344-4b38-9e11-057fb8d66017.png">
+
 1. If the [left mouse button was just pressed](https://cleancut.github.io/rusty_engine/115-mouse-state.html#mouse-buttons), then:
     1. [If there is](https://doc.rust-lang.org/book/ch06-03-if-let.html) a label string [left in the `game_state.marbles_left` vector](https://doc.rust-lang.org/std/vec/struct.Vec.html#method.pop), then:
         - Using the label value, create a new marble sprite using `SpritePreset::RollingBallBlue`
@@ -100,6 +103,7 @@ In your [`game_logic(...)` function](https://cleancut.github.io/rusty_engine/25-
         
 You made it to the end of the main scenario! You should have a playable game prototype by this point.
 
+<img width="1392" alt="screenshot2" src="https://user-images.githubusercontent.com/5838512/147995324-1ba02e86-86d1-4456-bb67-ba03ffeaff89.png">
 
 # Challenges
 
