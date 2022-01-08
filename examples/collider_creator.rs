@@ -1,3 +1,9 @@
+//! To run this code, clone the rusty_engine repository and run the command:
+//!
+//!     cargo run --release --example collider_creator path/to/some_image.png
+//!
+//!  ...where that image is somewhere under assets/sprite
+
 use std::path::PathBuf;
 
 use rusty_engine::prelude::*;
@@ -22,7 +28,7 @@ fn main() {
     if args.len() != 1 {
         println!(
             "Please pass in the path of an image inside the `assets/sprite` directory! For example:\n\
-            cargo run --release --example collider_creator -- racing/car_green.png"
+            cargo run --release --example collider_creator assets/sprite/racing/car_green.png"
         );
         std::process::exit(1);
     }
@@ -37,7 +43,7 @@ fn main() {
             .unwrap()
             .to_path_buf();
     }
-    if !(PathBuf::from("assets").join(&path)).exists() {
+    if !(PathBuf::from("assets/sprite").join(&path)).exists() {
         println!("Couldn't find the file {}", path.to_string_lossy());
         std::process::exit(1);
     }
