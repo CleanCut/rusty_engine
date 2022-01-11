@@ -59,8 +59,8 @@ use std::array::IntoIter;
 pub struct AudioManagerPlugin;
 
 impl Plugin for AudioManagerPlugin {
-    fn build(&self, app: &mut bevy::prelude::AppBuilder) {
-        app.add_system(queue_managed_audio_system.system());
+    fn build(&self, app: &mut bevy::prelude::App) {
+        app.add_system(queue_managed_audio_system);
     }
 }
 
