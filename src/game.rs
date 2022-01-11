@@ -1,10 +1,10 @@
 use bevy::prelude::{
-    info, AssetServer, Color, Commands, HorizontalAlign, Res, ResMut, SpriteBundle,
+    info, AssetServer, Color, Commands, HorizontalAlign, Query, Res, ResMut, SpriteBundle,
     Text as BevyText, Text2dBundle, TextAlignment, TextStyle, Vec2, VerticalAlign, Windows,
 };
 use bevy::utils::HashMap;
 pub use bevy::window::{WindowDescriptor, WindowMode, WindowResizeConstraints};
-//use bevy_prototype_debug_lines::*;
+use bevy_prototype_debug_lines::*;
 use std::path::PathBuf;
 use std::time::Duration;
 
@@ -204,7 +204,6 @@ pub fn update_window_dimensions(windows: Res<Windows>, mut engine_state: ResMut<
     }
 }
 
-/*
 // system - draw sprite colliders
 #[doc(hidden)]
 pub fn draw_sprite_colliders(
@@ -230,7 +229,6 @@ pub fn draw_sprite_colliders(
         }
     }
 }
-*/
 
 /// A [`Game`] represents the entire game and its data.
 /// By default the game will spawn an empty window, and exit upon Esc or closing of the window.
@@ -304,7 +302,7 @@ use rusty_engine::{
         AudioManagerPlugin, CollisionEvent, KeyboardInput, KeyboardPlugin, KeyboardState,
         MouseState, PhysicsPlugin,
     },
-    game::/*{draw_sprite_colliders, */update_window_dimensions/*}*/,
+    game::{draw_sprite_colliders, update_window_dimensions},
     sprite::{Sprite, SpritePreset},
     text::Text,
 };
@@ -316,7 +314,7 @@ use bevy::{app::AppExit, input::system::exit_on_esc_system,
         Text as BevyText, Transform, Vec3,
     }, utils::HashMap};
 use bevy_kira_audio::*;
-//use bevy_prototype_debug_lines::*;
+use bevy_prototype_debug_lines::*;
 use std::{sync::Mutex, time::Duration, ops::{Deref, DerefMut}};
 
 
@@ -377,7 +375,7 @@ impl Game {
             .add_system(exit_on_esc_system)
             // External Plugins
             .add_plugin(AudioPlugin) // kira_bevy_audio
-            //.add_plugin(DebugLinesPlugin) // bevy_prototype_debug_lines, for debugging sprite colliders
+            .add_plugin(DebugLinesPlugin::always_in_front()) // bevy_prototype_debug_lines, for displaying sprite colliders
             // Rusty Engine Plugins
             .add_plugin(AudioManagerPlugin)
             .add_plugin(KeyboardPlugin)
@@ -386,7 +384,7 @@ impl Game {
             //.insert_resource(ReportExecutionOrderAmbiguities) // for debugging
             .add_system(update_window_dimensions.label("update_window_dimensions").before("game_logic_sync"))
             .add_system(game_logic_sync.label("game_logic_sync"))
-            //.add_system(draw_sprite_colliders.label("draw_sprite_colliders").after("game_logic_sync"))
+            .add_system(draw_sprite_colliders.label("draw_sprite_colliders").after("game_logic_sync"))
             .add_startup_system(rusty_engine::game::setup);
         self.app.world
             .spawn()

@@ -31,6 +31,7 @@ bevy_kira_audio = { version = "0.8", features = [
 ] }
 #bevy_prototype_debug_lines = "0.3"
 #bevy_prototype_debug_lines = { version = "0.4.0", path = "../bevy_debug_lines" }
+bevy_prototype_debug_lines = { git = "https://github.com/Toqozz/bevy_debug_lines", branch = "bevy-main" }
 lazy_static = "1.4"
 log = "0.4"
 ron = "0.7"
