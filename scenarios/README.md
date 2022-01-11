@@ -54,7 +54,7 @@ Legend:
 
 - (Easy) [Road Race](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/road_race.md)
 - (Medium) [Car Shoot](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/car_shoot.md)
-- (Medium) [Driver's Ed](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/car_shoot.md)
+- (Medium) [Driver's Ed](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/extreme_drivers_ed.md)
 - (Hard) [Cannon Practice](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/cannon_practice.md)
 - (Hard) [Space Invaders](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/space_invaders.md)
 - (Hard) [Labrinth](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/labrinth.md)

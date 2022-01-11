@@ -6,6 +6,8 @@ You are at a carnival booth. Cars float across the back of the booth. The player
 
 This scenario can be extended to 2 players.
 
+- [Reference Code](https://github.com/CleanCut/rusty_engine/blob/main/examples/scenarios/car_shoot.rs)
+
 https://user-images.githubusercontent.com/5838512/147995928-4705d9fc-c3fa-41b7-901f-d120307e455f.mp4
 
 ## Common Setup
