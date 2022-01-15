@@ -3,13 +3,11 @@
 
 use rusty_engine::prelude::*;
 
-rusty_engine::init!();
-
 fn main() {
     let mut game = Game::new();
     let msg = game.add_text(
         "msg",
-        "You can add your own sound files to the assets/audio directory (or its\nsubdirectories) and play them by relative path. For example:",
+        "You can add your own sound files to the assets/audio directory\n(or its subdirectories) and play them by relative path. This\nworks for both sound effects and music. For example:",
     );
     msg.translation.y = 100.0;
 

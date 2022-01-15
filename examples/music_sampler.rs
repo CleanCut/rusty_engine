@@ -4,8 +4,6 @@ struct GameState {
     music_index: usize,
 }
 
-rusty_engine::init!(GameState);
-
 fn main() {
     let mut game = Game::new();
     let msg = game.add_text(

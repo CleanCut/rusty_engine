@@ -70,9 +70,6 @@ Write your game!
      health: i32,
  }
 
- // Initialize the engine with your custom struct
- rusty_engine::init!(GameState);
-
  fn main() {
      // Create a game
      let mut game = Game::new();

@@ -2,8 +2,6 @@ use std::f32::consts::PI;
 
 use rusty_engine::prelude::*;
 
-rusty_engine::init!();
-
 fn main() {
     let mut game = Game::new();
 
