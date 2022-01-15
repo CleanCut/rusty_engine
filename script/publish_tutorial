@@ -9,6 +9,7 @@ CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 rm -rf tmp tutorial/book
 mdbook build tutorial
 git switch gh-pages
+rm -rf FontAwesome css fonts
 mv -f tutorial/book/* .
 git add -A
 git commit -m "update tutorial"
