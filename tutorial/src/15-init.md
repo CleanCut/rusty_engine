@@ -6,36 +6,21 @@ Rusty Engine has a prelude which you should import all of in your `main.rs`:
 use rusty_engine::prelude::*;
 ```
 
-The Rusty Engine `Game` struct generated in the top level your `main.rs` by the `init` macro. If you don't have a [`GameState`](20-game-state.md) struct, then you can leave the macro call empty and a unit struct `()` will be assumed for your game state:
-
-```rust,ignore
-use rusty_engine::prelude::*;
-
-// Call init!() before your main() function
-rusty_engine::init!();
-
-fn main() {
-    // ...
-}
-```
-
-If you do have a [`GameState`](20-game-state.md) struct (which we'll go over in the [game state section](20-game-state.md)), then you need to pass that type to the `init` macro:
+You should usually define a [`GameState`](20-game-state.md) struct (which we'll go over in the [game state section](20-game-state.md)). This will be a struct that you store your game-specific data in. Things like high score, player name, health left, etc.
 
 ```rust,ignore
 use rusty_engine::prelude::*;
 
 struct GameState {
-    number: i32,
+    health_left: i32,
 }
-
-rusty_engine::init!(GameState); // There's a game state section later in the tutorial!
 
 fn main() {
     // ...
 }
 ```
 
-Once you have initialized the engine, you should create a new `Game` struct in your `main` function and assign it to a mutable variable, usually called `game`.
+Create a new `Game` struct in your `main` function and assign it to a mutable variable, usually called `game`.
 
 ```rust,ignore
 fn main() {
@@ -43,9 +28,9 @@ fn main() {
     // ...
 ```
 
-At this point you will use your `Game` instance to set up your game and register logic functions to run each frame.
+Use your `Game` instance to set up your game and register logic functions to run each frame.
 
-Finally, at the end of main you will run your `Game` with `Game::run()`. The `run` method takes an initial game state. If you didn't provide a game state struct type to the `init` macro, then your initial game state is a unit struct `()`:
+At the end of main you will run your game with `Game::run()`. The `run` method takes an initial game state. If you didn't define a game state struct, then just give it a unit struct `()`:
 
 ```rust,ignore
 fn main() {
@@ -54,12 +39,12 @@ fn main() {
 }
 ```
 
-If you did provide a game state struct type to the `init` macro, then pass `run` a value of that type:
+If you did define a game state struct (we'll assume you named it `GameState`), then pass `run` a value of that type:
 
 ```rust,ignore
 fn main() {
     // ...
-    game.run(GameState { number: 42 });
+    game.run(GameState { health_left: 42 });
 }
 ```
 
@@ -71,16 +56,14 @@ If you put it all together, it looks like this. This example will run and create
 use rusty_engine::prelude::*;
 
 struct GameState {
-    number: i32,
+    health_left: i32,
 }
-
-rusty_engine::init!(GameState);
 
 fn main() {
     let mut game = Game::new();
 
     // get your game stuff ready here
 
-    game.run(GameState { number: 42 });
+    game.run(GameState { health_left: 42 });
 }
 ```

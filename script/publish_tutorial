@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+function abort() {
+    echo -n $1
+    exit 1
+}
+
 echo -e "\n== SANITY CHECK: GIT STATUS ==\n"
 git status
 echo -e "\nIs everything committed?  (Ctrl-C if not!) "
@@ -7,8 +12,13 @@ read
 
 CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 rm -rf tmp tutorial/book
-mdbook build tutorial
-git switch gh-pages
+mdbook build tutorial || abort "Couldn't build the tutorial mdbook"
+git switch gh-pages || abort "Couldn't switch to the gh-pages branch"
+if ! git pull origin gh-pages ; then
+    git switch $CURRENT_BRANCH
+    abort "Couldn't pull the remote gh-pages branch. Please switch to gh-pages and pull manually."
+fi
+rm -rf FontAwesome css fonts
 mv -f tutorial/book/* .
 git add -A
 git commit -m "update tutorial"

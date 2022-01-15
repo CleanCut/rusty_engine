@@ -17,8 +17,6 @@ use rusty_engine::prelude::*;
 
 struct GameState {}
 
-rusty_engine::init!(GameState);
-
 fn main() {
     let mut game = Game::new();
 

@@ -4,8 +4,6 @@
 
 use rusty_engine::prelude::*;
 
-rusty_engine::init!();
-
 const ORIGIN_LOCATION: (f32, f32) = (0.0, -200.0);
 
 fn main() {
@@ -82,11 +80,11 @@ fn logic(engine_state: &mut EngineState, _: &mut ()) -> bool {
         for mouse_motion in &engine_state.mouse_motion_events {
             cumulative_motion += mouse_motion.delta
         }
-        // There seems to be a Bevy 0.5 bug where every other frame we don't receive any mouse
+        // There seems to be a Bevy 0.6 bug where every other frame we don't receive any mouse
         // motion events, so ignore those frames.
         // TODO: Follow up on this bug in upstream Bevy
         if cumulative_motion != Vec2::ZERO {
-            sprite.translation = cumulative_motion + ORIGIN_LOCATION.into();
+            sprite.translation = cumulative_motion + Vec2::from(ORIGIN_LOCATION);
         }
     }
     true

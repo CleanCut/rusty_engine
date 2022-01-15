@@ -13,8 +13,6 @@ struct GameState {
     health_amount: u8,
 }
 
-rusty_engine::init!(GameState);
-
 fn main() {
     let mut game = Game::new();
 

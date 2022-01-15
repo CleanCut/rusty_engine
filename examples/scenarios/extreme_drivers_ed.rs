@@ -12,8 +12,6 @@ struct GameState {
     velocity: Vec2,
 }
 
-rusty_engine::init!(GameState);
-
 fn main() {
     let mut game = Game::new();
 

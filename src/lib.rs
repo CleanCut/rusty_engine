@@ -6,12 +6,9 @@
 //!
 //! # Quick Start Example
 //!
-//! You need to start by importing `rusty_engine::prelude::*`, and then initializing the engine with
-//! the `rusty_engine::init!( ... )` macro. This macro takes the name of a custom struct to store
-//! whatever game logic you need. If you don't need any game logic, you can leave the macro call
-//! empty, but you'll need to substitute in the unit struct (which looks like empty parens: `()`)
-//! wherever your struct type is expected, like the call to [`Game::run`](crate::game::Game) or the
-//! type of the second paramater in your logic function.
+//! You start by importing `rusty_engine::prelude::*`, define your own `GameState` struct,
+//! create a [`Game`](crate::game::Game), set up your game, and then call
+//! [`Game::run`](crate::game::Game::run).
 //!
 //! ```no_run
 //! use rusty_engine::prelude::*;
@@ -20,9 +17,6 @@
 //! struct GameState {
 //!     health: i32,
 //! }
-//!
-//! // Initialize the engine with your custom struct
-//! rusty_engine::init!(GameState);
 //!
 //! fn main() {
 //!     // Create a game
@@ -82,13 +76,11 @@ pub mod text;
 
 // Public prelude
 pub mod prelude {
-    pub use crate::{audio::*, keyboard::*, mouse::*, physics::*, sprite::*, text::*};
+    pub use crate::{audio::*, game::*, keyboard::*, mouse::*, physics::*, sprite::*, text::*};
     pub use crate::{
         DOWN, EAST, LEFT, NORTH, NORTH_EAST, NORTH_WEST, RIGHT, SOUTH, SOUTH_EAST, SOUTH_WEST, UP,
         WEST,
     };
-    // we can't use `*` on game because of the stubbed `Game` stuff we did for documentation
-    pub use crate::game::{EngineState, WindowDescriptor, WindowMode, WindowResizeConstraints};
     pub use bevy::{
         self,
         prelude::{Time, Timer, Vec2},

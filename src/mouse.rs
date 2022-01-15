@@ -13,10 +13,10 @@ pub use bevy::{
 pub struct MousePlugin;
 
 impl Plugin for MousePlugin {
-    fn build(&self, app: &mut bevy::prelude::AppBuilder) {
+    fn build(&self, app: &mut bevy::prelude::App) {
         app.insert_resource(MouseState::default())
-            .add_system(sync_mouse_state.system().before("game_logic_sync"))
-            .add_system(sync_mouse_events.system().before("game_logic_sync"));
+            .add_system(sync_mouse_state.before("game_logic_sync"))
+            .add_system(sync_mouse_events.before("game_logic_sync"));
     }
 }
 

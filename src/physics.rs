@@ -10,9 +10,9 @@ use std::{
 pub struct PhysicsPlugin;
 
 impl Plugin for PhysicsPlugin {
-    fn build(&self, app: &mut AppBuilder) {
+    fn build(&self, app: &mut App) {
         app.add_event::<CollisionEvent>()
-            .add_system(collision_detection.system());
+            .add_system(collision_detection);
     }
 }
 

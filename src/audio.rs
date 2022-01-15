@@ -5,45 +5,42 @@
 //! and play them as sound effects or music by providing the relative path to the file. For example,
 //!  if you place a file named `my_sound_effect.mp3` in this directory, you could play it with:
 //!
-//! ```rust
+//! ```rust,no_run
 //! # use rusty_engine::prelude::*;
-//! #
-//! # rusty_engine::init!();
 //! #
 //! # fn main() {
 //! # let mut engine_state = Game::new();
 //! // Inside your logic function...
 //! engine_state.audio_manager.play_sfx("my_sound_effect.mp3", 1.0);
+//! # engine_state.run(());
 //! # }
 //! ```
 //!
 //! Or, if you create a `my_game/` subdirectory and place a file named `spooky_loop.ogg`, you could play it as continuous music with:
 //!
-//! ```rust
+//! ```rust,no_run
 //! # use rusty_engine::prelude::*;
-//! #
-//! # rusty_engine::init!();
 //! #
 //! # fn main() {
 //! # let mut engine_state = Game::new();
 //! // Inside your logic function...
 //! engine_state.audio_manager.play_music("my_game/spooky_loop.ogg", 1.0);
+//! # engine_state.run(());
 //! # }
 //! ```
 //!
 //! The sound effects provided in this asset pack have convenient `enum`s defined that you can use instead of a path to the file: `SfxPreset` and `MusicPreset`. For example:
 //!
-//! ```rust
+//! ```rust,no_run
 //! // Import the enums into scope first
 //! use rusty_engine::prelude::*;
 //!
-//! # rusty_engine::init!();
-//! #
 //! # fn main() {
 //! # let mut engine_state = Game::new();
 //! // Inside your logic function...
 //! engine_state.audio_manager.play_sfx(SfxPreset::Confirmation1, 1.0);
 //! engine_state.audio_manager.play_music(MusicPreset::Classy8Bit, 1.0);
+//! # engine_state.run(());
 //! # }
 //! ```
 //!
@@ -59,8 +56,8 @@ use std::array::IntoIter;
 pub struct AudioManagerPlugin;
 
 impl Plugin for AudioManagerPlugin {
-    fn build(&self, app: &mut bevy::prelude::AppBuilder) {
-        app.add_system(queue_managed_audio_system.system());
+    fn build(&self, app: &mut bevy::prelude::App) {
+        app.add_system(queue_managed_audio_system);
     }
 }
 

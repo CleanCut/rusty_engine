@@ -1,4 +1,4 @@
-use bevy::prelude::{Quat, Transform, Vec2, Vec3};
+use bevy::prelude::{Component, Quat, Transform, Vec2, Vec3};
 
 /// Default depth of the text, positioned so it will be on top of other default layers. Depth
 /// can range from `0.0` (back) to `999.0` (front)
@@ -7,7 +7,7 @@ pub const TEXT_DEFAULT_LAYER: f32 = 900.0;
 pub const TEXT_DEFAULT_FONT_SIZE: f32 = 30.0;
 
 /// A [`Text`] is a bit of text that exists on the screen.
-#[derive(Clone, Debug)]
+#[derive(Clone, Component, Debug)]
 pub struct Text {
     /// READONLY: A label to identify the text. This is not the text that is displayed! This is the
     /// label you use to retrieve and modify your text from the

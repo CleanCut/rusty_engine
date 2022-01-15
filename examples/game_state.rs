@@ -15,9 +15,6 @@ struct MyCustomGameStateStuff {
     turning: bool,
 }
 
-// Pass your custom struct to the init macro
-rusty_engine::init!(MyCustomGameStateStuff);
-
 fn main() {
     let mut game = Game::new();
     let _ = game.add_sprite("Race Car", SpritePreset::RacingCarGreen);

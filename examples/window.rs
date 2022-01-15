@@ -4,10 +4,9 @@
 
 use rusty_engine::prelude::*;
 
-rusty_engine::init!();
-
 fn main() {
     let mut game = Game::new();
+
     game.window_settings(WindowDescriptor {
         width: 800.0,
         height: 200.0,

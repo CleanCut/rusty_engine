@@ -8,8 +8,6 @@ struct GameState {
     timer: Timer,
 }
 
-rusty_engine::init!(GameState);
-
 fn main() {
     let mut game = Game::new();
     let fps = game.add_text("fps", "FPS: ");
@@ -32,12 +30,21 @@ fn main() {
     font_msg.font = "FiraMono-Medium.ttf".to_string();
     font_msg.translation.y = 0.0;
 
-    let msg = game.add_text("msg", "Changing the text's translation, rotation*, and scale* is fast,\n so feel free to do that a lot.");
+    let msg = game.add_text("msg", "Changing the text's translation, rotation, and scale is fast,\n so feel free to do that a lot.");
     msg.font_size = 24.0;
-    msg.translation.y = -150.0;
+    msg.translation.y = -100.0;
 
-    let msg2 = game.add_text("msg2", "*Changing rotation and scale will not work until Bevy 0.6 is released,\nbut changing the translation works great already!");
-    msg2.font_size = 20.0;
+    let translation = game.add_text("translation", "Translation");
+    translation.font_size = 36.0;
+    translation.translation = Vec2::new(-400.0, -230.0);
+
+    let rotation = game.add_text("rotation", "Rotation");
+    rotation.font_size = 36.0;
+    rotation.translation = Vec2::new(0.0, -230.0);
+
+    let scale = game.add_text("scale", "Scale");
+    scale.font_size = 36.0;
+    scale.translation = Vec2::new(400.0, -230.0);
 
     let game_state = GameState {
         timer: Timer::from_seconds(0.2, true),
@@ -52,9 +59,15 @@ fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) -> boo
         fps.value = format!("FPS: {:.1}", 1.0 / engine_state.delta_f32);
     }
 
-    let msg2 = engine_state.texts.get_mut("msg2").unwrap();
-    msg2.translation.x = 50.0 * (engine_state.time_since_startup_f64 * 0.5).sin() as f32;
-    msg2.translation.y = 50.0 * (engine_state.time_since_startup_f64 * 0.5).cos() as f32 - 275.0;
+    let t = engine_state.texts.get_mut("translation").unwrap();
+    t.translation.x = 50.0 * (engine_state.time_since_startup_f64).sin() as f32 - 400.0;
+    t.translation.y = 50.0 * (engine_state.time_since_startup_f64).cos() as f32 - 230.0;
+
+    let r = engine_state.texts.get_mut("rotation").unwrap();
+    r.rotation -= 1.5 * engine_state.delta_f32;
+
+    let s = engine_state.texts.get_mut("scale").unwrap();
+    s.scale = 1.5 + ((engine_state.time_since_startup_f64 * 0.5).cos() as f32) * -1.0;
 
     let msg3 = engine_state.texts.get_mut("zoom_msg").unwrap();
     msg3.font_size = 10.0 * (engine_state.time_since_startup_f64 * 0.5).cos() as f32 + 25.0;

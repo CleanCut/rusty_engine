@@ -4,8 +4,6 @@
 
 use rusty_engine::prelude::*;
 
-rusty_engine::init!();
-
 const ORIGIN_LOCATION: (f32, f32) = (0.0, -200.0);
 const ROTATION_SPEED: f32 = 3.0;
 
@@ -72,11 +70,11 @@ fn logic(engine_state: &mut EngineState, _: &mut ()) -> bool {
     // mouse motion for the frame
     if let Some(sprite) = engine_state.sprites.get_mut("move indicator") {
         let motion = engine_state.mouse_state.motion();
-        // There seems to be a Bevy 0.5 bug where every other frame we don't receive any mouse
+        // There seems to be a Bevy 0.6 bug where every other frame we don't receive any mouse
         // motion events, so ignore those frames.
         // TODO: Follow up on this bug in upstream Bevy
         if motion != Vec2::ZERO {
-            sprite.translation = motion + ORIGIN_LOCATION.into();
+            sprite.translation = motion + Vec2::from(ORIGIN_LOCATION);
         }
     }
     true

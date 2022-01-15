@@ -6,8 +6,6 @@ use rand::prelude::*;
 use rusty_engine::prelude::*;
 use SpritePreset::*; // The SpritePreset enum was imported from rusty_engine::prelude
 
-rusty_engine::init!(GameState);
-
 #[derive(Default)]
 struct GameState {
     marbles_left: Vec<String>,

@@ -24,8 +24,6 @@ impl Default for GameState {
     }
 }
 
-rusty_engine::init!(GameState);
-
 const MAX_LAYER: f32 = 900.0;
 
 fn main() {
@@ -122,7 +120,7 @@ fn logic(engine_state: &mut EngineState, game_state: &mut GameState) -> bool {
     // Print out the level?
     if print_level {
         println!(
-            "---------------\n\nuse rusty_engine::prelude::*;\n\nstruct GameState {{}}\n\nrusty_engine::init!(GameState);\n\nfn main() {{\n    let mut game = Game::new();\n"
+            "---------------\n\nuse rusty_engine::prelude::*;\n\nstruct GameState {{}}\n\nfn main() {{\n    let mut game = Game::new();\n"
         );
         for sprite in engine_state.sprites.values() {
             if sprite.label == game_state.current_label {
@@ -208,7 +206,15 @@ fn logic(engine_state: &mut EngineState, game_state: &mut GameState) -> bool {
             .enumerate()
             .find(|(_, preset)| preset.filepath() == old_sprite.filepath)
             .unwrap();
-        let new_idx = (idx + 1) % SpritePreset::variant_iter().count();
+        let new_idx = if next_preset {
+            (idx + 1) % SpritePreset::variant_iter().count()
+        } else {
+            if idx == 0 {
+                SpritePreset::variant_iter().count() - 1
+            } else {
+                idx - 1
+            }
+        };
         let new_preset = SpritePreset::variant_iter().nth(new_idx).unwrap();
 
         let new_label = game_state.next_sprite_num.to_string();
