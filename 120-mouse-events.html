@@ -4,37 +4,25 @@
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
         <title>Mouse Events - Rusty Engine Tutorial</title>
-        
-        
 
 
         <!-- Custom HTML head -->
-        
-
 
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff" />
 
-        
         <link rel="icon" href="favicon.svg">
-        
-        
         <link rel="shortcut icon" href="favicon.png">
-        
         <link rel="stylesheet" href="css/variables.css">
         <link rel="stylesheet" href="css/general.css">
         <link rel="stylesheet" href="css/chrome.css">
-        
         <link rel="stylesheet" href="css/print.css" media="print">
-        
 
         <!-- Fonts -->
         <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
-        
         <link rel="stylesheet" href="fonts/fonts.css">
-        
 
         <!-- Highlight.js Stylesheets -->
         <link rel="stylesheet" href="highlight.css">
@@ -42,9 +30,7 @@
         <link rel="stylesheet" href="ayu-highlight.css">
 
         <!-- Custom theme stylesheets -->
-        
 
-        
     </head>
     <body>
         <!-- Provide site root to javascript -->
@@ -103,7 +89,6 @@
         <div id="page-wrapper" class="page-wrapper">
 
             <div class="page">
-                
                 <div id="menu-bar-hover-placeholder"></div>
                 <div id="menu-bar" class="menu-bar sticky bordered">
                     <div class="left-buttons">
@@ -120,29 +105,24 @@
                             <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
                         </ul>
-                        
                         <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
                             <i class="fa fa-search"></i>
                         </button>
-                        
                     </div>
 
                     <h1 class="menu-title">Rusty Engine Tutorial</h1>
 
                     <div class="right-buttons">
-                        
                         <a href="print.html" title="Print this book" aria-label="Print this book">
                             <i id="print-button" class="fa fa-print"></i>
                         </a>
-                        
-                        
+
                     </div>
                 </div>
 
-                
                 <div id="search-wrapper" class="hidden">
                     <form id="searchbar-outer" class="searchbar-outer">
-                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
                     </form>
                     <div id="searchresults-outer" class="searchresults-outer hidden">
                         <div id="searchresults-header" class="searchresults-header"></div>
@@ -150,7 +130,6 @@
                         </ul>
                     </div>
                 </div>
-                
 
                 <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
                 <script type="text/javascript">
@@ -163,10 +142,10 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1><a class="header" href="#mouse-events" id="mouse-events">Mouse Events</a></h1>
+                        <h1 id="mouse-events"><a class="header" href="#mouse-events">Mouse Events</a></h1>
 <p>Every movement of the mouse, click of a mouse button, or scrolling tick of a scroll wheel generates a mouse event. All of the mouse events are stored into a set of vectors on <code>EngineState</code> that can be examined. At the end of each frame, any unprocessed events are thrown away.</p>
 <p>Mouse events are most useful when you want to process multiple events that happened within a single frame, such as processing all of the points that a mouse traversed, or all of the mousewheel clicks that happened in a single frame.</p>
-<h3><a class="header" href="#mouse-button-events" id="mouse-button-events">Mouse button events</a></h3>
+<h3 id="mouse-button-events"><a class="header" href="#mouse-button-events">Mouse button events</a></h3>
 <p>You usually want to use <a href="115-mouse-state.html">mouse state</a> for mouse buttons, which are less awkward to deal with than mouse events when you only care about the state the mouse ended up in at the end of the frame. Mouse events are available in the <code>EngineState.mouse_button_events</code> vector. The Bevy struct <a href="https://docs.rs/rusty_engine/latest/rusty_engine/mouse/struct.MouseButtonInput.html"><code>MouseButtonInput</code></a> is used for the event value.  Here is an example of using mouse button events to rotate a sprite by a fixed amount for each click. This is guaranteed not to miss any clicks in the (unlikely) event that two clicks come in on the same frame.</p>
 <pre><code class="language-rust ignored">for mouse_button_input in &amp;engine_state.mouse_button_events {
     if mouse_button_input.state != ElementState::Pressed {
@@ -179,20 +158,20 @@
     }
 }
 </code></pre>
-<h3><a class="header" href="#mouse-location-events" id="mouse-location-events">Mouse location events</a></h3>
+<h3 id="mouse-location-events"><a class="header" href="#mouse-location-events">Mouse location events</a></h3>
 <p>Mouse location events are most useful if you are trying to capture all the points the mouse was at during the frame. Unlike mouse button events, there are <em>often</em> multiple mouse location events, since moving the mouse produces a series of events for each location that the mouse cursor is rendered on screen. If you only care about the final location of the mouse during the frame, you should use <a href="115-mouse-state.html">mouse state</a> instead.</p>
 <p>Mouse location events are accessed through the <code>EngineState.mouse_location_events</code> vector and contain the <a href="https://docs.rs/rusty_engine/latest/rusty_engine/mouse/struct.CursorMoved.html"><code>CursorMoved</code></a> struct re-exported from Bevy. If one wanted to draw a trail of sparkles wherever a mouse went, mouse location events might be a good source of data:</p>
 <pre><code class="language-rust ignored">for cursor_moved in &amp;engine_state.mouse_location_events {
     // draw sparkles at cursor_moved.position
 }
 </code></pre>
-<h3><a class="header" href="#mouse-motion-events" id="mouse-motion-events">Mouse motion events</a></h3>
+<h3 id="mouse-motion-events"><a class="header" href="#mouse-motion-events">Mouse motion events</a></h3>
 <p>Each location event has a corresponding motion event which reports the <em>relative</em> motion of the mouse, rather than the absolute location.  Mouse motion events are accessed through the <code>EngineState.mouse_motion_events</code> vector and contain the <a href="https://docs.rs/rusty_engine/latest/rusty_engine/mouse/struct.MouseMotion.html"><code>MouseMotion</code></a> struct re-exported from Bevy.</p>
 <pre><code class="language-rust ignored">for mouse_motion in &amp;engine.state.mouse_motion_events {
     // do something with mouse_motion.delta
 }
 </code></pre>
-<h3><a class="header" href="#mouse-wheel-events" id="mouse-wheel-events">Mouse wheel events</a></h3>
+<h3 id="mouse-wheel-events"><a class="header" href="#mouse-wheel-events">Mouse wheel events</a></h3>
 <p>As the mouse wheel tends to produce multiple events in a single frame, mouse wheel events may tend to be more useful than the mouse wheel state. Mouse wheel events are accessed through the <code>EngineState.mouse_wheel_events</code> vector and contain the <a href="https://docs.rs/rusty_engine/latest/rusty_engine/mouse/struct.MouseWheel.html"><code>MouseWheel</code></a> struct re-exported from Bevy. Here's an example of using the mouse wheel to scale the size of a sprite up or down. The <code>y</code> field represents the turning of the wheel. The <code>x</code> field represents sideways tilting motion for mouse wheels that support it.</p>
 <pre><code class="language-rust ignored">for mouse_wheel in &amp;engine_state.mouse_wheel_events {
     sprite.scale *= 1.0 + (0.05 * mouse_wheel.y);
@@ -203,17 +182,13 @@
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                        
                             <a rel="prev" href="115-mouse-state.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
-                        
 
-                        
                             <a rel="next" href="150-text.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
-                        
 
                         <div style="clear: both"></div>
                     </nav>
@@ -221,49 +196,35 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                
                     <a rel="prev" href="115-mouse-state.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
-                
 
-                
                     <a rel="next" href="150-text.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
-                
             </nav>
 
         </div>
 
-        
 
-        
 
-        
 
-        
         <script type="text/javascript">
             window.playground_copyable = true;
         </script>
-        
 
-        
 
-        
         <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
         <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
         <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
-        
 
         <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
         <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
         <script src="book.js" type="text/javascript" charset="utf-8"></script>
 
         <!-- Custom JS scripts -->
-        
 
-        
 
     </body>
 </html>
