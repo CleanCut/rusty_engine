@@ -143,26 +143,24 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="game-logic-function"><a class="header" href="#game-logic-function">Game Logic Function</a></h1>
-<p>A game is divided up into <em>frames</em>. A <em>frame</em> is one run through your game logic to produce a new image to display on the screen. On most hardware you will usually get about 60 frames each second.  Rusty Engine tries to run your game logic function(s) once each frame.</p>
+<p>A game is divided up into <em>frames</em>. A <em>frame</em> is one run through your game logic to produce a new image to display on the screen. Commonly, you will get about 60 frames each second.  Each frame, Rusty Engine tries to run your game logic function(s).</p>
 <p>A game logic function definition looks like this:</p>
 <pre><code class="language-rust ignore">fn game_logic(engine_state: &amp;mut EngineState, game_state: &amp;mut GameState) -&gt; bool {
     // your actual game logic goes here
 }
 </code></pre>
-<p>If you passed in a unit struct for your game state, then use a unit struct in your logic function definition:</p>
-<pre><code class="language-rust ignore">fn game_logic(engine_state: &amp;mut EngineState, game_state: &amp;mut ()) -&gt; bool {
-    // logic...without any state to look at.
-}
-</code></pre>
 <p>The function may be named anything you want. We used <code>game_logic</code> in the example above, which is the conventional name if you only have one. However, if you use more than one game logic function, each will need to have a unique name.</p>
-<p>You need to &quot;add&quot; your game logic functions to Rusty Engine by calling <code>Game::add_logic</code> in your <code>main</code> function:</p>
+<p>Your <code>game_state</code> parameter should be a mutable reference to your game state struct type. The example above is for a game state struct literally named <code>GameState</code>. If you did not provide a game state type, then you will need to use a unit struct <code>()</code> instead:</p>
+<pre><code class="language-rust ignore">game_state: &amp;mut ()
+</code></pre>
+<p>Rusty Engine will attempt to run all of your game logic functions that it knows about each frame. You need to &quot;add&quot; your game logic functions by calling <code>Game::add_logic</code> in your <code>main</code> function:</p>
 <pre><code class="language-rust ignore">game.add_logic(game_logic);
 </code></pre>
 <p>You can add multiple game logic functions, which will always run in the order they were added. For example, this game will always run the <code>menu_logic</code> function first, and then the <code>game_logic</code>.</p>
 <pre><code class="language-rust ignore">game.add_logic(menu_logic);
 game.add_logic(game_logic);
 </code></pre>
-<p>After each logic function is run, Rusty Engine checks the return value to see if it should continue with the next logic function. Game logic functions return a <code>bool</code>. If the return value is <code>true</code>, that means &quot;keep on going!&quot; and run the next logic function. If the return value is <code>false</code>, then Rusty Engine skips the rest of the logic functions this frame. If you don't want your game logic to run while you are in a menu, then your make sure your menu logic runs first and returns <code>false</code> if you are in the menu, then the rest of the logic functions won't run that frame.</p>
+<p>After each logic function is run, Rusty Engine checks the return value to see if it should continue with the next logic function, or skip the rest. Game logic functions return a <code>bool</code>. If the return value is <code>true</code>, that means &quot;keep on going!&quot; and run the next logic function. If the return value is <code>false</code>, then Rusty Engine skips the rest of the logic functions this frame.  This is so, for example, if you don't want your game logic to run while you are in a menu, then your menu logic can return <code>false</code> and the game logic simply won't run.</p>
 <p>Most of the time you want the next function to run, so most game logic functions end like this:</p>
 <pre><code class="language-rust ignore">    // ...
     true
@@ -179,6 +177,8 @@ struct GameState {
     enemy_labels: Vec&lt;String&gt;,
     spawn_timer: Timer,
 }
+
+rusty_engine::init!(GameState);
 
 fn main() {
     let mut game = Game::new();
