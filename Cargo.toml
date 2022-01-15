@@ -9,6 +9,16 @@ readme = "README.md"
 keywords = [ "game", "engine", "graphics", "audio", "rusty" ]
 categories = [ "game-engines" ]
 license = "MIT OR Apache-2.0"
+exclude = [
+    "/assets",
+    "/.github",
+    "/scenarios",
+    "/tutorial",
+    "/script",
+    "release.toml",
+    "RELEASE.md",
+    ".gitignore",
+]
 
 [dependencies]
 bevy = { version = "0.6.0", default-features = false, features = [
