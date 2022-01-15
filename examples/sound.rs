@@ -1,5 +1,5 @@
 //! To run this code, clone the rusty_engine repository and run the command:
-//! 
+//!
 //!     cargo run --release --example sound
 
 //! This is an example of playing sound by path. For playing music or sound effect presets, please

@@ -1,5 +1,5 @@
 //! To run this code, clone the rusty_engine repository and run the command:
-//! 
+//!
 //!     cargo run --release --example extreme_drivers_ed
 
 use rusty_engine::prelude::*;
