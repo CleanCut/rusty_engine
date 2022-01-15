@@ -1,7 +1,6 @@
 use bevy::prelude::{
-    info, AssetServer, Assets, Color, ColorMaterial, Commands, HorizontalAlign, Query, Res, ResMut,
-    SpriteBundle, Text as BevyText, Text2dBundle, TextAlignment, TextStyle, Vec2, VerticalAlign,
-    Windows,
+    info, AssetServer, Color, Commands, HorizontalAlign, Query, Res, ResMut, SpriteBundle,
+    Text as BevyText, Text2dBundle, TextAlignment, TextStyle, Vec2, VerticalAlign, Windows,
 };
 use bevy::utils::HashMap;
 pub use bevy::window::{WindowDescriptor, WindowMode, WindowResizeConstraints};
@@ -137,10 +136,9 @@ impl EngineState {
 pub fn setup(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
-    materials: ResMut<Assets<ColorMaterial>>,
     mut engine_state: ResMut<EngineState>,
 ) {
-    add_sprites(&mut commands, &asset_server, materials, &mut engine_state);
+    add_sprites(&mut commands, &asset_server, &mut engine_state);
     add_texts(&mut commands, &asset_server, &mut engine_state);
 }
 
@@ -149,14 +147,13 @@ pub fn setup(
 pub fn add_sprites(
     commands: &mut Commands,
     asset_server: &Res<AssetServer>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
     engine_state: &mut EngineState,
 ) {
     for (_, sprite) in engine_state.sprites.drain() {
         let transform = sprite.bevy_transform();
-        let texture_handle = asset_server.load(PathBuf::from("sprite").join(&sprite.filepath));
+        let texture_path = PathBuf::from("sprite").join(&sprite.filepath);
         commands.spawn().insert(sprite).insert_bundle(SpriteBundle {
-            material: materials.add(texture_handle.into()),
+            texture: asset_server.load(texture_path),
             transform,
             ..Default::default()
         });
@@ -311,10 +308,10 @@ use rusty_engine::{
 };
 use bevy::{app::AppExit, input::system::exit_on_esc_system,
     prelude::{
-        App, AppBuilder, Assets, AssetServer, Color, ColorMaterial, Commands, DefaultPlugins,
+        App, Assets, AssetServer, Color, ColorMaterial, Commands, DefaultPlugins,
         Entity, EventReader, EventWriter, IntoSystem, OrthographicCameraBundle,
-        ParallelSystemDescriptorCoercion, Query, QuerySet, Res, ResMut, Text as BevyText, Transform,
-        Vec3,
+        ParallelSystemDescriptorCoercion, Query, QuerySet, QueryState, Res, ResMut,
+        Text as BevyText, Transform, Vec3,
     }, utils::HashMap};
 use bevy_kira_audio::*;
 use bevy_prototype_debug_lines::*;
@@ -328,7 +325,7 @@ type LogicFunction = fn(&mut EngineState, &mut $game_state_type) -> bool;
 /// Under the hood, Rusty Engine syncs the game data to Bevy to power most of the underlying
 /// functionality.
 struct Game {
-    app_builder: AppBuilder,
+    app: App,
     engine_state: EngineState,
     logic_functions: Vec<LogicFunction>,
     window_descriptor: WindowDescriptor,
@@ -337,7 +334,7 @@ struct Game {
 impl Default for Game {
     fn default() -> Self {
         Self {
-            app_builder: App::build(),
+            app: App::new(),
             engine_state: EngineState::default(),
             logic_functions: vec![],
             window_descriptor: WindowDescriptor {
@@ -367,37 +364,36 @@ impl Game {
 
     /// documented in the public stub
     fn run(&mut self, initial_game_state: $game_state_type) {
-        self.app_builder
+        self.app
             .insert_resource::<WindowDescriptor>(self.window_descriptor.clone())
             .insert_resource::<$game_state_type>(initial_game_state);
-        self.app_builder
+        self.app
             // Built-ins
             .add_plugins_with(DefaultPlugins, |group| {
                 group.disable::<bevy::audio::AudioPlugin>()
             })
-            .add_system(exit_on_esc_system.system())
+            .add_system(exit_on_esc_system)
             // External Plugins
             .add_plugin(AudioPlugin) // kira_bevy_audio
-            .add_plugin(DebugLinesPlugin) // bevy_prototype_debug_lines, for debugging sprite colliders
+            .add_plugin(DebugLinesPlugin::always_in_front()) // bevy_prototype_debug_lines, for displaying sprite colliders
             // Rusty Engine Plugins
             .add_plugin(AudioManagerPlugin)
             .add_plugin(KeyboardPlugin)
             .add_plugin(MousePlugin)
             .add_plugin(PhysicsPlugin)
             //.insert_resource(ReportExecutionOrderAmbiguities) // for debugging
-            .add_system(update_window_dimensions.system().label("update_window_dimensions").before("game_logic_sync"))
-            .add_system(game_logic_sync.system().label("game_logic_sync"))
-            .add_system(draw_sprite_colliders.system().label("draw_sprite_colliders").after("game_logic_sync"))
-            .add_startup_system(rusty_engine::game::setup.system());
-        let world = self.app_builder.world_mut();
-        world
+            .add_system(update_window_dimensions.label("update_window_dimensions").before("game_logic_sync"))
+            .add_system(game_logic_sync.label("game_logic_sync"))
+            .add_system(draw_sprite_colliders.label("draw_sprite_colliders").after("game_logic_sync"))
+            .add_startup_system(rusty_engine::game::setup);
+        self.app.world
             .spawn()
             .insert_bundle(OrthographicCameraBundle::new_2d());
         let engine_state = std::mem::take(&mut self.engine_state);
-        self.app_builder.insert_resource(engine_state);
+        self.app.insert_resource(engine_state);
         let logic_functions = std::mem::take(&mut self.logic_functions);
-        self.app_builder.insert_resource(logic_functions);
-        self.app_builder.run();
+        self.app.insert_resource(logic_functions);
+        self.app.run();
     }
 
     /// documented in the public stub
@@ -411,7 +407,6 @@ impl Game {
 fn game_logic_sync(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
-    materials: ResMut<Assets<ColorMaterial>>,
     mut engine_state: ResMut<EngineState>,
     mut game_state: ResMut<$game_state_type>,
     logic_functions: Res<Vec<LogicFunction>>,
@@ -421,10 +416,10 @@ fn game_logic_sync(
     mut app_exit_events: EventWriter<AppExit>,
     mut collision_events: EventReader<CollisionEvent>,
     mut query_set: QuerySet<(
-        Query<&Sprite>,
-        Query<&Text>,
-        Query<(Entity, &mut Sprite, &mut Transform)>,
-        Query<(Entity, &mut Text, &mut Transform, &mut BevyText)>,
+        QueryState<&Sprite>,
+        QueryState<&Text>,
+        QueryState<(Entity, &mut Sprite, &mut Transform)>,
+        QueryState<(Entity, &mut Text, &mut Transform, &mut BevyText)>,
     )>,
 ) {
     // Update this frame's timing info
@@ -479,7 +474,7 @@ fn game_logic_sync(
     }
 
     // Transfer any changes in the user's Sprite copies to the Bevy Sprite and Transform components
-    for (entity, mut sprite, mut transform) in query_set.q2_mut().iter_mut() {
+    for (entity, mut sprite, mut transform) in query_set.q2().iter_mut() {
         if let Some(sprite_copy) = engine_state.sprites.remove(&sprite.label) {
             *sprite = sprite_copy;
             *transform = sprite.bevy_transform();
@@ -489,7 +484,7 @@ fn game_logic_sync(
     }
 
     // Transfer any changes in the user's Texts to the Bevy Text and Transform components
-    for (entity, mut text, mut transform, mut bevy_text_component) in query_set.q3_mut().iter_mut() {
+    for (entity, mut text, mut transform, mut bevy_text_component) in query_set.q3().iter_mut() {
         if let Some(text_copy) = engine_state.texts.remove(&text.label) {
             *text = text_copy;
             *transform = text.bevy_transform();
@@ -511,7 +506,7 @@ fn game_logic_sync(
     }
 
     // Add Bevy components for any new sprites remaining in engine_state.sprites
-    rusty_engine::game::add_sprites(&mut commands, &asset_server, materials, &mut engine_state);
+    rusty_engine::game::add_sprites(&mut commands, &asset_server, &mut engine_state);
 
     // Add Bevy components for any new texts remaining in engine_state.texts
     rusty_engine::game::add_texts(&mut commands, &asset_server, &mut engine_state);

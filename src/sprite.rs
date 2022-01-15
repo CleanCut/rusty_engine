@@ -3,7 +3,7 @@ use bevy::prelude::*;
 
 /// An [`Sprite`] is the basic abstraction for something that can be seen and interacted with.
 /// Players, obstacles, etc. are all sprites.
-#[derive(Clone, Debug)]
+#[derive(Clone, Component, Debug)]
 pub struct Sprite {
     /// READONLY: A way to identify a sprite.
     pub label: String,

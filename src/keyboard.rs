@@ -7,10 +7,10 @@ pub use bevy::input::keyboard::{KeyCode, KeyboardInput};
 pub struct KeyboardPlugin;
 
 impl Plugin for KeyboardPlugin {
-    fn build(&self, app: &mut bevy::prelude::AppBuilder) {
+    fn build(&self, app: &mut bevy::prelude::App) {
         app.insert_resource::<KeyboardState>(KeyboardState::default())
-            .add_system(sync_keyboard_events.system().before("game_logic_sync"))
-            .add_system(sync_keyboard_state.system().before("game_logic_sync"));
+            .add_system(sync_keyboard_events.before("game_logic_sync"))
+            .add_system(sync_keyboard_state.before("game_logic_sync"));
     }
 }
 
