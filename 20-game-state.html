@@ -143,23 +143,24 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="game-state"><a class="header" href="#game-state">Game State</a></h1>
-<p>You will need somewhere to store data for your game that is not part of the engine but that you need access to for more than a single frame. That somewhere is your <em>game state struct</em>.  You provide a struct to use for your own game state. Within that struct, you can store just about anything. Some examples of things you may want to put in your game state:</p>
+<p>You will need somewhere to store data for your game that is not part of the engine but that you need access to for more than a single frame. That somewhere is your <em>game state struct</em>.  You provide a struct type to use for your own game state. Within that struct, you can store just about anything. Some examples of things you may want to put in your game state:</p>
 <ul>
 <li>Player attributes (name, color, health, energy, money, etc.)</li>
 <li>Game attributes (score, day, turn, etc.)</li>
 <li>Timers for animation, spawning events, etc.</li>
 <li>Collections of sprite labels to iterate through (perhaps a vector of labels of all the enemy sprites, or a vector of widgets to animate, or...whatever)</li>
-<li>Collections of text labels to iterate through and update (maybe text representing current health is placed above your player)</li>
 <li>Anything else that needs to persist across frames that isn't already stored in the engine</li>
 </ul>
-<p>You can name your game state struct whatever you want, but since there can only ever be one game state type, we suggest you call it <code>GameState</code> as we will in this tutorial.</p>
-<p>Here is an example of a game state you might define for a simple game which keeps track of a current score and a high score, the labels of enemies which need to move around, and a timer for when to spawn a new enemy.</p>
+<p>You can name your game state struct whatever you want, but since there can only ever be one game state type, we suggest you call it <code>GameState</code> for simplicity, as we will do in this tutorial.  Here is an example of a game state you might define for a simple game which keeps track of a current score and a high score, the labels of enemies which need to move around, and a timer for when to spawn a new enemy.</p>
 <pre><code class="language-rust ignore">struct GameState {
     high_score: u32,
     current_score: u32,
     enemy_labels: Vec&lt;String&gt;,
     spawn_timer: Timer,
 }
+</code></pre>
+<p>Once you have defined your struct, pass it to the <code>init</code> macro. If you don't give the <code>init</code> macro a struct value, the unit struct <code>()</code> will be used instead.</p>
+<pre><code class="language-rust ignore">rusty_engine::init!(GameState);
 </code></pre>
 <p>When you start your game, you will need to pass it an initial value of the game state.  You will receive a mutable reference to this game state value in your logic function(s) each frame.</p>
 <pre><code class="language-rust ignore">fn main() {

@@ -145,7 +145,7 @@
                         <h1 id="quick-start-example"><a class="header" href="#quick-start-example">Quick Start Example</a></h1>
 <ul>
 <li>Create a new Rust project and add <code>rusty_engine</code> to the <code>[dependencies]</code> section of your <code>Cargo.toml</code> file.</li>
-<li>Download the <a href="10-assets.html">Asset Pack</a> to your project.</li>
+<li>Download the <a href="10-assets.html">Asset Pack</a> to you project.</li>
 <li>Write your game:</li>
 </ul>
 <pre><code class="language-rust ignore">// in src/main.rs
@@ -155,6 +155,9 @@
  struct GameState {
      health: i32,
  }
+
+ // Initialize the engine with your custom struct
+ rusty_engine::init!(GameState);
 
  fn main() {
      // Create a game

@@ -163,7 +163,7 @@
 <h3 id="creating-colliders"><a class="header" href="#creating-colliders">Creating colliders</a></h3>
 <p>All of the sprite presets in the game already have colliders, so you don't need to worry about creating any of them.</p>
 <p>Creating colliders for custom sprites from scratch can be quite difficult, so there is an &quot;example&quot; program called <code>collider_creator</code> that you can run to create the collider by clicking around a sprite!  Clone the <a href="https://github.com/CleanCut/rusty_engine/"><code>rusty_engine</code></a> repository, place your image file in the <code>assets/sprite</code> directory (let's call it <code>db.png</code>), and then run:</p>
-<pre><code class="language-text">$ cargo run --release --example collider_creator assets/sprite/db.png
+<pre><code class="language-text">$ cargo run --release --example collider_creator -- db.png
 </code></pre>
 <p>Then follow the directions to create (or re-create) a collider and write it to a file.</p>
 <img width="1392" alt="Screen Shot 2021-12-26 at 10 45 40 PM" src="https://user-images.githubusercontent.com/5838512/147438683-c8af2db7-66dd-463c-a269-d03f37869496.png">
