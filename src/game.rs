@@ -1,4 +1,3 @@
-pub use bevy::window::{WindowDescriptor, WindowMode, WindowResizeConstraints};
 use bevy::{
     app::AppExit,
     core::Time,
@@ -29,6 +28,9 @@ use crate::{
     sprite::Sprite,
     text::Text,
 };
+
+// Public re-export
+pub use bevy::window::{WindowDescriptor, WindowMode, WindowResizeConstraints};
 
 /// EngineState is the primary way that you will interact with Rusty Engine. Every frame this struct
 /// is provided to the "logic" function (or closure) that you provided to [`Game::run`]. The
