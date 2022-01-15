@@ -3,8 +3,6 @@
 
 use rusty_engine::prelude::*;
 
-rusty_engine::init!();
-
 fn main() {
     let mut game = Game::new();
     let msg = game.add_text(

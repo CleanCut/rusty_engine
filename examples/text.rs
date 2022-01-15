@@ -4,8 +4,6 @@ struct GameState {
     timer: Timer,
 }
 
-rusty_engine::init!(GameState);
-
 fn main() {
     let mut game = Game::new();
     let fps = game.add_text("fps", "FPS: ");

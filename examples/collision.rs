@@ -1,7 +1,5 @@
 use rusty_engine::prelude::*;
 
-rusty_engine::init!();
-
 const ROTATION_SPEED: f32 = 3.0;
 
 fn main() {

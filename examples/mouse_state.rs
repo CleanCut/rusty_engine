@@ -1,7 +1,5 @@
 use rusty_engine::prelude::*;
 
-rusty_engine::init!();
-
 const ORIGIN_LOCATION: (f32, f32) = (0.0, -200.0);
 const ROTATION_SPEED: f32 = 3.0;
 

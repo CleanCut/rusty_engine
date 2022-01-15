@@ -1,5 +1,6 @@
+use bevy::prelude::{Component, Quat, Transform, Vec2, Vec3};
+
 use crate::physics::Collider;
-use bevy::prelude::*;
 
 /// An [`Sprite`] is the basic abstraction for something that can be seen and interacted with.
 /// Players, obstacles, etc. are all sprites.

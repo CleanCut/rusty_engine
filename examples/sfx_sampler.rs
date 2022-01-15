@@ -6,8 +6,6 @@ struct GameState {
     end_timer: Timer,
 }
 
-rusty_engine::init!(GameState);
-
 fn main() {
     let mut game = Game::new();
     let mut game_state = GameState::default();

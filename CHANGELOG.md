@@ -1,6 +1,16 @@
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### BREAKING CHANGES
+
+- `Game` is now generic over the user-provided game state struct, so the `init!` macro from the short-lived `3.0.0` version has been removed!
+
+### Other Changes
+
+- Upgraded to Bevy 0.6 in the back end
+- `Text` rotation and scale now works! 🎉
+- TODO: bevy_prototype_debug_lines hasn't had a release, and the `main` branch sorta works, but the lines now appear _under_ sprites instead of over them, which is not ideal. We _must_ have a release upstream and would _love_ a fix upstream. If there isn't an upstream release, we'll need to find another line-drawing solution before release.
+
 ## [3.0.0] - 2021-12-30
 
 ### BREAKING CHANGES

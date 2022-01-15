@@ -20,8 +20,6 @@ impl Default for GameState {
     }
 }
 
-rusty_engine::init!(GameState);
-
 fn main() {
     // We need an image file to work with, so the user must pass in the path of an image
     let args = std::env::args().skip(1).collect::<Vec<_>>();
