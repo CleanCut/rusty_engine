@@ -47,6 +47,7 @@ Legend:
 | Easy | You will be told each step, and each section includes the code that you should have ended up with, and there is a complete reference project. |
 | Medium | You will be told each step, but won't be shown all the code. There might be a reference project. |
 | Hard | You will be told what to accomplish, and maybe be given a couple pointers. There is probably no reference project. |
+| Insane | You'll need to implement some game engine features yourself |
 
 ## Scenarios
 
@@ -55,4 +56,4 @@ Legend:
 - (Medium) [Driver's Ed](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/extreme_drivers_ed.md)
 - (Hard) [Cannon Practice](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/cannon_practice.md)
 - (Hard) [Space Invaders](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/space_invaders.md)
-- (Hard) [Labrinth](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/labrinth.md)
+- (Insane) [Labrinth](https://github.com/CleanCut/rusty_engine/tree/main/scenarios/labrinth.md) - Rusty Engine doesn't yet provide all the features needed to implement this scenario.
