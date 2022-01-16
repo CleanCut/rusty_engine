@@ -224,7 +224,7 @@ pub fn update_window_dimensions(windows: Res<Windows>, mut engine_state: ResMut<
 #[doc(hidden)]
 pub fn draw_sprite_colliders(
     engine_state: Res<EngineState>,
-    mut lines: ResMut<DebugLines>,
+    //mut lines: ResMut<DebugLines>,
     sprite_query: Query<&Sprite>,
 ) {
     if !engine_state.debug_sprite_colliders {
@@ -239,7 +239,7 @@ pub fn draw_sprite_colliders(
         let mut curr = 0;
         let mut next = 1;
         while curr < length {
-            lines.line(points[curr].extend(0.0), points[next].extend(0.0), 0.0);
+            //lines.line(points[curr].extend(0.0), points[next].extend(0.0), 0.0);
             curr += 1;
             next = (next + 1) % length;
         }
@@ -306,7 +306,7 @@ impl<S: Send + Sync + 'static> Game<S> {
             .add_system(exit_on_esc_system)
             // External Plugins
             .add_plugin(AudioPlugin) // kira_bevy_audio
-            .add_plugin(DebugLinesPlugin::always_in_front()) // bevy_prototype_debug_lines, for displaying sprite colliders
+            //.add_plugin(DebugLinesPlugin::always_in_front()) // bevy_prototype_debug_lines, for displaying sprite colliders
             // Rusty Engine Plugins
             .add_plugin(AudioManagerPlugin)
             .add_plugin(KeyboardPlugin)
