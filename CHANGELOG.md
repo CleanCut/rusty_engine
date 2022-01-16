@@ -10,6 +10,7 @@
 - Upgraded to Bevy 0.6 in the back end
 - `Text` rotation and scale now works! 🎉
 - TODO: bevy_prototype_debug_lines hasn't had a release, and the `main` branch sorta works, but the lines now appear _under_ sprites instead of over them, which is not ideal. We _must_ have a release upstream and would _love_ a fix upstream. If there isn't an upstream release, we'll need to find another line-drawing solution before release.
+- Updated (or finished) all of the game scenario descriptions.
 
 ## [3.0.0] - 2021-12-30
 

@@ -6,7 +6,7 @@ Similar to the classic [Space Invaders](https://en.wikipedia.org/wiki/Space_Inva
 
 ## Common Setup
 
-1. Follow the instructions in the [Common Setup](https://github.com/CleanCut/rusty_engine/tree/main/scenarios#common-setup) section of the scenarios readme to set up the skeleton of the project.
+1. Follow the instructions in the [Common Setup](https://github.com/CleanCut/rusty_engine/tree/main/scenarios#common-setup-do-this-first) section of the scenarios readme to set up the skeleton of the project.
 
 ## Game Initialization
 
@@ -16,6 +16,6 @@ In your `// setup goes here` section of `main()`...
 
 ## Gameplay Logic
 
-In your `game_logic(...)` function...
+In your [`game_logic(...)` function](https://cleancut.github.io/rusty_engine/25-game-logic-function.html)...
 
 1. 

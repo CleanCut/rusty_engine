@@ -1,3 +1,7 @@
+//! To run this code, clone the rusty_engine repository and run the command:
+//!
+//!     cargo run --release --example road_race
+
 use rand::prelude::*;
 use rusty_engine::prelude::*;
 use SpritePreset::*; // The SpritePreset enum was imported from rusty_engine::prelude

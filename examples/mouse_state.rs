@@ -1,3 +1,7 @@
+//! To run this code, clone the rusty_engine repository and run the command:
+//!
+//!     cargo run --release --example mouse_state
+
 use rusty_engine::prelude::*;
 
 const ORIGIN_LOCATION: (f32, f32) = (0.0, -200.0);

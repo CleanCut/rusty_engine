@@ -1,3 +1,7 @@
+//! To run this code, clone the rusty_engine repository and run the command:
+//!
+//!     cargo run --release --example music
+
 //! This is an example of playing a music preset. For playing your own music file, please see the
 //! `sound` example.
 

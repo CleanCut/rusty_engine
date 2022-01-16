@@ -1,3 +1,7 @@
+//! To run this code, clone the rusty_engine repository and run the command:
+//!
+//!     cargo run --release --example car_shoot
+
 use rand::prelude::*;
 use rusty_engine::prelude::*;
 use SpritePreset::*; // The SpritePreset enum was imported from rusty_engine::prelude
@@ -5,12 +9,18 @@ use SpritePreset::*; // The SpritePreset enum was imported from rusty_engine::pr
 #[derive(Default)]
 struct GameState {
     marbles_left: Vec<String>,
-    cars_left: Vec<i32>,
+    cars_left: i32,
     spawn_timer: Timer,
 }
 
 fn main() {
     let mut game = Game::new();
+
+    // Set the title of the window to be Car Shooter
+    game.window_settings(WindowDescriptor {
+        title: "Car Shoot".into(),
+        ..Default::default()
+    });
 
     // Create the player
     let player = game.add_sprite("player", RacingBarrierRed);
@@ -18,12 +28,6 @@ fn main() {
     player.scale = 0.5;
     player.translation.y = -325.0;
     player.layer = 10.0;
-
-    // Set the Window Settings
-    game.window_settings(WindowDescriptor {
-        title: "Car Shooter".into(),
-        ..Default::default()
-    });
 
     // Start the music
     game.audio_manager.play_music(MusicPreset::Classy8Bit, 0.1);
@@ -33,14 +37,10 @@ fn main() {
     // Marbles left. We'll use these strings as labels for sprites. If they are present in the
     // vector, then they are available to be shot out of the marble gun. If they are not present,
     // then they are currently in play.
-    for i in 0..3 {
-        game_state.marbles_left.push(format!("marble{}", i));
-    }
+    game_state.marbles_left = vec!["marble1".into(), "marble2".into(), "marble3".into()];
 
     // Cars left in level - each integer represents a car that will be spawned
-    for i in 0..25 {
-        game_state.cars_left.push(i);
-    }
+    game_state.cars_left = 25;
     let cars_left = game.add_text("cars left", "Cars left: 25");
     cars_left.translation = Vec2::new(540.0, -320.0);
 
@@ -53,24 +53,16 @@ const CAR_SPEED: f32 = 300.0;
 
 fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) -> bool {
     // Handle marble gun movement
-    for event in engine_state.mouse_location_events.drain(..) {
-        let player = engine_state.sprites.get_mut("player").unwrap();
-        player.translation.x = event.position.x;
+    let player = engine_state.sprites.get_mut("player").unwrap();
+    if let Some(location) = engine_state.mouse_state.location() {
+        player.translation.x = location.x;
     }
+    let player_x = player.translation.x;
 
     // Shoot marbles!
-    for event in engine_state.mouse_button_events.clone() {
-        if !matches!(event.state, ElementState::Pressed) {
-            continue;
-        }
+    if engine_state.mouse_state.just_pressed(MouseButton::Left) {
         // Create the marble
         if let Some(label) = game_state.marbles_left.pop() {
-            let player_x = engine_state
-                .sprites
-                .get_mut("player")
-                .unwrap()
-                .translation
-                .x;
             let marble = engine_state.add_sprite(label, RollingBallBlue);
             marble.translation.y = -275.0;
             marble.translation.x = player_x;
@@ -89,9 +81,18 @@ fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) -> boo
         marble.translation.y += MARBLE_SPEED * engine_state.delta_f32;
     }
 
+    // Move cars across the screen
+    for car in engine_state
+        .sprites
+        .values_mut()
+        .filter(|car| car.label.starts_with("car"))
+    {
+        car.translation.x += CAR_SPEED * engine_state.delta_f32;
+    }
+
     // Clean up sprites that have gone off the screen
     let mut labels_to_delete = vec![];
-    for sprite in engine_state.sprites.values_mut() {
+    for sprite in engine_state.sprites.values() {
         if sprite.translation.y > 400.0 || sprite.translation.x > 750.0 {
             labels_to_delete.push(sprite.label.clone());
         }
@@ -103,15 +104,6 @@ fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) -> boo
         }
     }
 
-    // Move cars across the screen
-    for car in engine_state
-        .sprites
-        .values_mut()
-        .filter(|car| car.label.starts_with("car"))
-    {
-        car.translation.x += CAR_SPEED * engine_state.delta_f32;
-    }
-
     // Spawn cars
     if game_state
         .spawn_timer
@@ -121,10 +113,11 @@ fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) -> boo
         // Reset the timer to a new value
         game_state.spawn_timer = Timer::from_seconds(thread_rng().gen_range(0.1..1.25), false);
         // Get the next car
-        if let Some(i) = game_state.cars_left.pop() {
-            let cars_left = engine_state.texts.get_mut("cars left").unwrap();
-            cars_left.value = format!("Cars left: {}", i);
-            let label = format!("car{}", i);
+        if game_state.cars_left > 0 {
+            game_state.cars_left -= 1;
+            let label = format!("car{}", game_state.cars_left);
+            let cars_left_text = engine_state.texts.get_mut("cars left").unwrap();
+            cars_left_text.value = format!("Cars left: {}", game_state.cars_left);
             let car_choices = vec![
                 RacingCarBlack,
                 RacingCarBlue,
@@ -152,8 +145,6 @@ fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) -> boo
             continue;
         }
         if !event.pair.one_starts_with("marble") {
-            // it's two cars spawning on top of each other, take one out
-            engine_state.sprites.remove(&event.pair.0);
             continue;
         }
         engine_state.sprites.remove(&event.pair.0);
