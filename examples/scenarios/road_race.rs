@@ -15,6 +15,7 @@ struct GameState {
 
 fn main() {
     let mut game = Game::new();
+    game.debug_sprite_colliders = true;
 
     // Create the player sprite
     let player1 = game.add_sprite("player1", RacingCarBlue);
