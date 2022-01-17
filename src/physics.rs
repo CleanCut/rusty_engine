@@ -282,6 +282,13 @@ impl Collider {
             .map(|&v| v * sprite.scale + sprite.translation) // scale & translation
             .collect()
     }
+    pub fn points(&self) -> Vec<Vec2> {
+        if let Self::Poly(points) = self {
+            points.clone()
+        } else {
+            Vec::with_capacity(0)
+        }
+    }
     pub fn colliding(sprite1: &Sprite, sprite2: &Sprite) -> bool {
         use Collider::*;
         if let NoCollider = sprite1.collider {
