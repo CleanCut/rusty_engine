@@ -21,22 +21,10 @@ exclude = [
 ]
 
 [patch.crates-io]
-bevy = { git = "https://github.com/bevyengine/bevy", branch = "main", default-features = false, features = [
-    #"bevy_audio"
-    "bevy_dynamic_plugin",
-    "bevy_gilrs",
-    "bevy_gltf",
-    "bevy_winit",
-    "render",
-    "png",
-    "hdr",
-    "mp3",
-    "x11",
-] }
+bevy = { git = "https://github.com/bevyengine/bevy", branch = "main" }
 
 [dependencies]
-bevy = { version = "0.6.0", default-features = false, features = [
-    #"bevy_audio"
+bevy = { version = "0.6.0", default-features = false, features = [ #"bevy_audio"
     "bevy_dynamic_plugin",
     "bevy_gilrs",
     "bevy_gltf",
