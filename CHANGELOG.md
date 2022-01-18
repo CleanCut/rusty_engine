@@ -3,13 +3,14 @@
 
 ### BREAKING CHANGES
 
-- `Game` is now generic over the user-provided game state struct, so the `init!` macro from the short-lived `3.0.0` version has been removed!
+- `Game` is now generic over the user-provided game state struct, so the `init!` macro from the short-lived `3.0.0` version has been removed! All you need to do is delete the macro call if you have it.
+- `EngineState.debug_sprite_colliders` has been renamed `EngineState.show_colliders` for clarity.
 
 ### Other Changes
 
 - Upgraded to Bevy 0.6 in the back end
 - `Text` rotation and scale now works! 🎉
-- TODO: bevy_prototype_debug_lines hasn't had a release, and the `main` branch sorta works, but the lines now appear _under_ sprites instead of over them, which is not ideal. We _must_ have a release upstream and would _love_ a fix upstream. If there isn't an upstream release, we'll need to find another line-drawing solution before release.
+- Switched to `bevy_prototype_lyon` to power the debug lines. They look much nicer now that I can choose the line thickness.
 - Updated (or finished) all of the game scenario descriptions.
 
 ## [3.0.0] - 2021-12-30
