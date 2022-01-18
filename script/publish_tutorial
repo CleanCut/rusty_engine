@@ -10,12 +10,12 @@ git status
 echo -e "\nIs everything committed?  (Ctrl-C if not!) "
 read
 
-CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+CURR_BRANCH_OR_TAG=$(git symbolic-ref -q --short HEAD || git describe --tags --exact-match)
 rm -rf tmp tutorial/book
 mdbook build tutorial || abort "Couldn't build the tutorial mdbook"
 git switch gh-pages || abort "Couldn't switch to the gh-pages branch"
 if ! git pull origin gh-pages ; then
-    git switch $CURRENT_BRANCH
+    git switch $CURR_BRANCH_OR_TAG
     abort "Couldn't pull the remote gh-pages branch. Please switch to gh-pages and pull manually."
 fi
 rm -rf FontAwesome css fonts
@@ -23,4 +23,4 @@ mv -f tutorial/book/* .
 git add -A
 git commit -m "update tutorial"
 git push origin HEAD
-git switch $CURRENT_BRANCH
+git switch $CURR_BRANCH_OR_TAG
