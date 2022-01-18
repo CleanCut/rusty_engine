@@ -82,7 +82,7 @@ fn logic(engine_state: &mut EngineState, _: &mut ()) -> bool {
 
     // Pressing C toggles sprite collider debug lines
     if engine_state.keyboard_state.just_pressed(KeyCode::C) {
-        engine_state.debug_sprite_colliders = !engine_state.debug_sprite_colliders;
+        engine_state.show_colliders = !engine_state.show_colliders;
     }
     true
 }
