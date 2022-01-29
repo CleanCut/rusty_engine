@@ -8,10 +8,11 @@
 
 ### Other Changes
 
-- Upgraded to Bevy 0.6 in the back end
+- Upgraded to Bevy 0.6
 - `Text` rotation and scale now works! 🎉
 - Switched to `bevy_prototype_lyon` to power the debug lines. They look much nicer now that I can choose the line thickness.
 - Updated (or finished) all of the game scenario descriptions.
+- Updated the [tutorial](https://cleancut.github.io/rusty_engine/)
 
 ## [3.0.0] - 2021-12-30
 
