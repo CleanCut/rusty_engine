@@ -5,14 +5,15 @@
 
 - `Game` is now generic over the user-provided game state struct, so the `init!` macro from the short-lived `3.0.0` version has been removed! All you need to do is delete the macro call if you have it.
 - `EngineState.debug_sprite_colliders` has been renamed `EngineState.show_colliders` for clarity.
+- Renamed the `collider_creator` example to `collider` for brevity.
 
 ### Other Changes
 
-- Upgraded to Bevy 0.6
+- Upgraded to Bevy 0.6.
 - `Text` rotation and scale now works! 🎉
 - Switched to `bevy_prototype_lyon` to power the debug lines. They look much nicer now that I can choose the line thickness.
 - Updated (or finished) all of the game scenario descriptions.
-- Updated the [tutorial](https://cleancut.github.io/rusty_engine/)
+- Updated the [tutorial](https://cleancut.github.io/rusty_engine/).
 
 ## [3.0.0] - 2021-12-30
 

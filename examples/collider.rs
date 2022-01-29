@@ -1,6 +1,6 @@
 //! To run this code, clone the rusty_engine repository and run the command:
 //!
-//!     cargo run --release --example collider_creator path/to/some_image.png
+//!     cargo run --release --example collider path/to/some_image.png
 //!
 //!  ...where that image is somewhere under assets/sprite
 
@@ -26,7 +26,7 @@ fn main() {
     if args.len() != 1 {
         println!(
             "Please pass in the path of an image inside the `assets/sprite` directory! For example:\n\
-            cargo run --release --example collider_creator assets/sprite/racing/car_green.png"
+            cargo run --release --example collider assets/sprite/racing/car_green.png"
         );
         std::process::exit(1);
     }

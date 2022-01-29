@@ -18,7 +18,7 @@ impl Plugin for PhysicsPlugin {
 
 /// This is the struct that is generated when a collision occurs. Collisions only occur between two
 /// [Sprite]s which:
-/// - have colliders (you can use the `collider_creator` example to create your own colliders)
+/// - have colliders (you can use the `collider` example to create your own colliders)
 /// - have their `collision` flags set to `true`.
 #[derive(Debug, Clone)]
 pub struct CollisionEvent {

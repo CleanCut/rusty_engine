@@ -54,7 +54,7 @@ impl Sprite {
     /// [`SpritePreset`] variant, or a relative path to an image file inside the `assets/`
     /// directory. If a collider definition exists in a file with the same name as the image file,
     /// but with the `.collider` extension, then the collider will be loaded automatically. To
-    /// create a collider file you can either run the `collider_creator` example, or
+    /// create a collider file you can either run the `collider` example, or
     /// programmatically create a [`Collider`], set the sprite's `.collider` field to it, and call
     /// the sprite's `.write_collider()` method.  All presets have collider files already.
     pub fn new<S: Into<String>, P: Into<PathBuf>>(label: S, file_or_preset: P) -> Self {
@@ -67,7 +67,7 @@ impl Sprite {
             read_collider_from_file(actual_collider_filepath.as_path())
         } else {
             eprintln!(
-                "warning: could not find collider file {} -- consider creating one with the `collider_creator` example.",
+                "warning: could not find collider file {} -- consider creating one with the `collider` example.",
                 actual_collider_filepath.to_string_lossy()
             );
             Collider::NoCollider
@@ -127,7 +127,7 @@ impl Sprite {
         }
     }
     /// Add a collider point. `p` is a `Vec2` in worldspace (usually the mouse coordinate). See the
-    /// `collider_creator` example.
+    /// `collider` example.
     pub fn add_collider_point(&mut self, mut p: Vec2) {
         // If there isn't a collider, we better switch to one
         if self.collider == Collider::NoCollider {
@@ -149,7 +149,7 @@ impl Sprite {
         }
     }
     /// Change the last collider point. `p` is a `Vec2` in worldspace (usually the mouse
-    /// coordinate). See the `collider_creator` example.
+    /// coordinate). See the `collider` example.
     pub fn change_last_collider_point(&mut self, mut p: Vec2) {
         // If there isn't a collider, create one with a "last point" to change
         if self.collider == Collider::NoCollider {

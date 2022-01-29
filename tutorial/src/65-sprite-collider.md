@@ -30,10 +30,10 @@ for event in engine_state.collision_events.drain(..) {
 
 All of the sprite presets in the game already have colliders, so you don't need to worry about creating any of them.
 
-Creating colliders for custom sprites from scratch can be quite difficult, so there is an "example" program called `collider_creator` that you can run to create the collider by clicking around a sprite!  Clone the [`rusty_engine`](https://github.com/CleanCut/rusty_engine/) repository, place your image file in the `assets/sprite` directory (let's call it `db.png`), and then run:
+Creating colliders for custom sprites from scratch can be quite difficult, so there is an "example" program called `collider` that you can run to create the collider by clicking around a sprite!  Clone the [`rusty_engine`](https://github.com/CleanCut/rusty_engine/) repository, place your image file in the `assets/sprite` directory (let's call it `db.png`), and then run:
 
 ```text
-$ cargo run --release --example collider_creator assets/sprite/db.png
+$ cargo run --release --example collider assets/sprite/db.png
 ```
 
 Then follow the directions to create (or re-create) a collider and write it to a file.
