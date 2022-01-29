@@ -1,7 +1,14 @@
 # Quick Start Example
 
-- Create a new Rust project and add `rusty_engine` to the `[dependencies]` section of your `Cargo.toml` file.
-- Download the [Asset Pack](10-assets.md) to your project.
+- Create a new Rust project and add `rusty_engine` to `Cargo.toml`.
+```toml
+# In your [dependencies] section of Cargo.toml
+rusty_engine = "3.0.0"
+```
+- Download the Asset Pack to your project (see the [Asset Pack](10-assets.md) page for more details).
+```shell
+curl -L https://github.com/CleanCut/rusty_engine/archive/refs/heads/main.tar.gz | tar -zxv --strip-components=1 rusty_engine-main/assets
+```
 - Write your game:
 
 ```rust,ignore
@@ -16,16 +23,19 @@
  fn main() {
      // Create a game
      let mut game = Game::new();
-     // Set up your game. `Game` exposes all of the methods (but not fields) of `EngineState` as well.
+
+     // Set up your game. `Game` exposes all of the methods (but not fields) of `EngineState`
      let sprite = game.add_sprite("player", SpritePreset::RacingCarBlue);
      sprite.scale = 2.0;
+
      game.audio_manager.play_music(MusicPreset::Classy8Bit, 1.0);
+
      // Add one or more functions with logic for your game. When the game is run, the logic
      // functions will run in the order they were added.
      game.add_logic(game_logic);
+
      // Run the game, with an initial state
-     let initial_game_state = GameState { health: 100 };
-     game.run(initial_game_state);
+     game.run(GameState { health: 100 });
  }
 
  // Your game logic functions can be named anything, but the first parameter is always a
