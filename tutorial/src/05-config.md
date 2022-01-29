@@ -4,7 +4,7 @@
 - In your `Cargo.toml` file, add `rusty_engine` to your `[dependencies]` section:
 
 ```toml
-[dependencies]
+# In your [dependencies] section of Cargo.toml
 rusty_engine = "3.0.0"
 ```
 

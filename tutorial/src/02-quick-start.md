@@ -1,6 +1,6 @@
 # Quick Start Example
 
-- Create a new Rust project and add `rusty_engine` to `Cargo.toml`.
+- Create a new Rust project and add `rusty_engine` as a dependency (see the [Configuration](05-config.md) page for more details)
 ```toml
 # In your [dependencies] section of Cargo.toml
 rusty_engine = "3.0.0"
