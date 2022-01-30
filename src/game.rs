@@ -60,6 +60,8 @@ pub struct EngineState {
     pub should_exit: bool,
     /// SYNCED - If set to `true`, then debug lines are shown depicting sprite colliders
     pub show_colliders: bool,
+    // so we can tell if the value changed this frame
+    last_show_colliders: bool,
     /// INFO - All the collision events that occurred this frame. For collisions to be generated
     /// between sprites, both sprites must have [`Sprite.collision`] set to `true`. Collision events
     /// are generated when two sprites' colliders begin or end overlapping in 2D space.
@@ -158,6 +160,31 @@ pub fn setup(
     add_texts(&mut commands, &asset_server, &mut engine_state);
 }
 
+fn add_collider_lines(commands: &mut Commands, sprite: &mut Sprite) {
+    // Add the collider lines, a visual representation of the sprite's collider
+    let points = sprite.collider.points(); // will be empty vector if NoCollider
+    if points.len() >= 2 {
+        let mut path_builder = PathBuilder::new();
+        path_builder.move_to(points[0]);
+        for point in &points[1..] {
+            path_builder.line_to(*point);
+        }
+        path_builder.close(); // draws the line from the last point to the first point
+        let line = path_builder.build();
+        let transform = sprite.bevy_transform();
+        commands
+            .spawn_bundle(GeometryBuilder::build_as(
+                &line.0, // can be changed to `&line` once bevy_prototype_lyon > 0.4 is released
+                DrawMode::Stroke(StrokeMode::new(Color::WHITE, 1.0 / transform.scale.x)),
+                transform,
+            ))
+            .insert(ColliderLines {
+                sprite_label: sprite.label.clone(),
+            });
+    }
+    sprite.collider_dirty = false;
+}
+
 // helper function: Add Bevy components for all the sprites in engine_state.sprites
 #[doc(hidden)]
 pub fn add_sprites(
@@ -166,29 +193,8 @@ pub fn add_sprites(
     engine_state: &mut EngineState,
 ) {
     for (_, sprite) in engine_state.sprites.drain() {
-        // We'll need to use the Bevy transform in multiple places
-        let transform = sprite.bevy_transform();
-        // Add the collider lines, a visual representation of the sprite's collider
-        let points = sprite.collider.points(); // will be empty vector if NoCollider
-        if points.len() >= 2 {
-            let mut path_builder = PathBuilder::new();
-            path_builder.move_to(points[0]);
-            for point in &points[1..] {
-                path_builder.line_to(*point);
-            }
-            path_builder.close(); // draws the line from the last point to the first point
-            let line = path_builder.build();
-            commands
-                .spawn_bundle(GeometryBuilder::build_as(
-                    &line.0, // can be changed to `&line` once bevy_prototype_lyon > 0.4 is released
-                    DrawMode::Stroke(StrokeMode::new(Color::WHITE, 15.0)),
-                    transform,
-                ))
-                .insert(ColliderLines {
-                    sprite_label: sprite.label.clone(),
-                });
-        }
         // Create the sprite
+        let transform = sprite.bevy_transform();
         let texture_path = PathBuf::from("sprite").join(&sprite.filepath);
         commands.spawn().insert(sprite).insert_bundle(SpriteBundle {
             texture: asset_server.load(texture_path),
@@ -361,7 +367,7 @@ fn game_logic_sync<S: Send + Sync + 'static>(
     mut query_set: QuerySet<(
         QueryState<(Entity, &mut Sprite, &mut Transform)>,
         QueryState<(Entity, &mut Text, &mut Transform, &mut BevyText)>,
-        QueryState<(&mut DrawMode, &mut Transform, &ColliderLines)>,
+        QueryState<(Entity, &mut DrawMode, &mut Transform, &ColliderLines)>,
     )>,
 ) {
     // Update this frame's timing info
@@ -415,31 +421,52 @@ fn game_logic_sync<S: Send + Sync + 'static>(
         }
     }
 
-    // Update collider lines (the visual representation of colliders)
-    let new_color = if engine_state.show_colliders {
-        Color::WHITE
-    } else {
-        Color::NONE // we'll use a transparent color to hide colliders
-    };
-    for (mut draw_mode, mut transform, collider_lines) in query_set.q2().iter_mut() {
-        // TODO: If I track whether engine_state.show_colliders changed this frame, and it *didn't*,
-        // then I can do a fast path querying Transform components that *changed*, and only update the
-        // transform and not the DrawMode.
-
-        // Update the transform
-        if let Some(sprite) = engine_state.sprites.get(&collider_lines.sprite_label) {
-            *transform = sprite.bevy_transform();
-            // We want collider lines to appear on top of the sprite they are for, so they need a
-            // slightly higher z value. We tell users to only use up to 999.0.
-            transform.translation.z = (transform.translation.z + 0.1).clamp(0.0, 999.1);
+    if !engine_state.last_show_colliders && engine_state.show_colliders {
+        // Just turned on show_colliders -- create collider lines for all sprites
+        for sprite in engine_state.sprites.values_mut() {
+            add_collider_lines(&mut commands, sprite);
         }
-        // Stroke line width gets scaled with the transform, but we want it to appear to be the same
-        // regardless of scale, so we have to counter the scale.
-        if let DrawMode::Stroke(ref mut stroke_mode) = *draw_mode {
-            let line_width = 1.0 / transform.scale.x;
-            *stroke_mode = StrokeMode::new(new_color, line_width);
+    } else if engine_state.last_show_colliders && !engine_state.show_colliders {
+        // Just turned off show_colliders -- delete collider lines for all sprites
+        for (entity, _, _, _) in query_set.q2().iter_mut() {
+            commands.entity(entity).despawn();
         }
     }
+    // Update transform & line width of all collider lines
+    if engine_state.show_colliders {
+        // Delete collider lines for sprites which are missing, or whose colliders are dirty
+        for (entity, _, _, collider_lines) in query_set.q2().iter_mut() {
+            if let Some(sprite) = engine_state.sprites.get(&collider_lines.sprite_label) {
+                if sprite.collider_dirty {
+                    commands.entity(entity).despawn();
+                }
+            } else {
+                commands.entity(entity).despawn();
+            }
+        }
+        // Add collider lines for sprites whose colliders are dirty
+        for sprite in engine_state.sprites.values_mut() {
+            if sprite.collider_dirty {
+                add_collider_lines(&mut commands, sprite);
+            }
+        }
+        // Update transform & line width
+        for (_, mut draw_mode, mut transform, collider_lines) in query_set.q2().iter_mut() {
+            if let Some(sprite) = engine_state.sprites.get(&collider_lines.sprite_label) {
+                *transform = sprite.bevy_transform();
+                // We want collider lines to appear on top of the sprite they are for, so they need a
+                // slightly higher z value. We tell users to only use up to 999.0.
+                transform.translation.z = (transform.translation.z + 0.1).clamp(0.0, 999.1);
+            }
+            // Stroke line width gets scaled with the transform, but we want it to appear to be the same
+            // regardless of scale, so we have to counter the scale.
+            if let DrawMode::Stroke(ref mut stroke_mode) = *draw_mode {
+                let line_width = 1.0 / transform.scale.x;
+                *stroke_mode = StrokeMode::new(Color::WHITE, line_width);
+            }
+        }
+    }
+    engine_state.last_show_colliders = engine_state.show_colliders;
 
     // Transfer any changes in the user's Sprite copies to the Bevy Sprite and Transform components
     for (entity, mut sprite, mut transform) in query_set.q0().iter_mut() {
@@ -450,6 +477,9 @@ fn game_logic_sync<S: Send + Sync + 'static>(
             commands.entity(entity).despawn();
         }
     }
+
+    // Add Bevy components for any new sprites remaining in engine_state.sprites
+    add_sprites(&mut commands, &asset_server, &mut engine_state);
 
     // Transfer any changes in the user's Texts to the Bevy Text and Transform components
     for (entity, mut text, mut transform, mut bevy_text_component) in query_set.q1().iter_mut() {
@@ -472,9 +502,6 @@ fn game_logic_sync<S: Send + Sync + 'static>(
             commands.entity(entity).despawn();
         }
     }
-
-    // Add Bevy components for any new sprites remaining in engine_state.sprites
-    add_sprites(&mut commands, &asset_server, &mut engine_state);
 
     // Add Bevy components for any new texts remaining in engine_state.texts
     add_texts(&mut commands, &asset_server, &mut engine_state);
