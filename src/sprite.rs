@@ -27,9 +27,8 @@ pub struct Sprite {
     pub collision: bool,
     /// Relative to translation
     pub collider: Collider,
-    #[doc(hidden)]
-    // force people to use new()
-    phantom: PhantomData<()>,
+    // Used to detect when we need to create a new debug collider representation
+    pub(crate) collider_dirty: bool,
 }
 
 fn read_collider_from_file(filepath: &Path) -> Collider {
@@ -82,7 +81,7 @@ impl Sprite {
             scale: 1.0,
             collision: false,
             collider,
-            phantom: PhantomData,
+            collider_dirty: true,
         }
     }
 
@@ -129,6 +128,7 @@ impl Sprite {
     /// Add a collider point. `p` is a `Vec2` in worldspace (usually the mouse coordinate). See the
     /// `collider` example.
     pub fn add_collider_point(&mut self, mut p: Vec2) {
+        self.collider_dirty = true;
         // If there isn't a collider, we better switch to one
         if self.collider == Collider::NoCollider {
             self.collider = Collider::Poly(Vec::new());
@@ -151,6 +151,7 @@ impl Sprite {
     /// Change the last collider point. `p` is a `Vec2` in worldspace (usually the mouse
     /// coordinate). See the `collider` example.
     pub fn change_last_collider_point(&mut self, mut p: Vec2) {
+        self.collider_dirty = true;
         // If there isn't a collider, create one with a "last point" to change
         if self.collider == Collider::NoCollider {
             self.collider = Collider::Poly(vec![Vec2::ZERO]);
@@ -180,7 +181,6 @@ use std::{
     array::IntoIter,
     fs::File,
     io::Write,
-    marker::PhantomData,
     path::{Path, PathBuf},
 };
 
