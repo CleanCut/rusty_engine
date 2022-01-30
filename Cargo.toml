@@ -1,6 +1,6 @@
 [package]
 name = "rusty_engine"
-version = "3.0.0"
+version = "4.0.0"
 description = "Learn Rust with a simple, cross-platform, 2D game engine."
 edition = "2021"
 homepage = "https://github.com/CleanCut/rusty_engine"

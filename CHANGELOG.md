@@ -1,6 +1,8 @@
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [4.0.0] - 2022-01-29
+
 ### BREAKING CHANGES
 
 - `Game` is now generic over the user-provided game state struct, so the `init!` macro from the short-lived `3.0.0` version has been removed! All you need to do is delete the macro call if you have it.
@@ -190,7 +192,8 @@ specifying a path to a sound file relative to `assets/audio`.
 
 [Bevy]: https://bevyengine.org
 <!-- next-url -->
-[Unreleased]: https://github.com/CleanCut/rusty_engine/compare/v3.0.0...HEAD
+[Unreleased]: https://github.com/CleanCut/rusty_engine/compare/v4.0.0...HEAD
+[4.0.0]: https://github.com/CleanCut/rusty_engine/compare/v3.0.0...v4.0.0
 [3.0.0]: https://github.com/CleanCut/rusty_engine/compare/v2.0.1...v3.0.0
 [2.0.1]: https://github.com/CleanCut/rusty_engine/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/CleanCut/rusty_engine/compare/v1.1.4...v2.0.0
