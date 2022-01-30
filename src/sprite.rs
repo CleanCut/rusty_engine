@@ -2,7 +2,7 @@ use bevy::prelude::{Component, Quat, Transform, Vec2, Vec3};
 
 use crate::physics::Collider;
 
-/// An [`Sprite`] is the basic abstraction for something that can be seen and interacted with.
+/// A [`Sprite`] is the basic abstraction for something that can be seen and interacted with.
 /// Players, obstacles, etc. are all sprites.
 #[derive(Clone, Component, Debug)]
 pub struct Sprite {
@@ -27,8 +27,10 @@ pub struct Sprite {
     pub collision: bool,
     /// Relative to translation
     pub collider: Collider,
-    // Used to detect when we need to create a new debug collider representation
-    pub(crate) collider_dirty: bool,
+    /// If set to `true`, then the collider shown for this sprite will be regenerated (see also
+    /// [`EngineState.show_colliders`](crate::prelude::EngineState)). This needs to be done if you
+    /// manually replace a `Sprite`'s [`Collider`] after the game has started.
+    pub collider_dirty: bool,
 }
 
 fn read_collider_from_file(filepath: &Path) -> Collider {
@@ -101,7 +103,7 @@ impl Sprite {
             return false;
         }
         // Bevy's asset system is relative from the assets/ subdirectory, so we must be too
-        let filepath = PathBuf::from("assets").join(self.collider_filepath.clone());
+        let filepath = PathBuf::from("assets/sprite").join(self.collider_filepath.clone());
         let mut fh = match File::create(filepath) {
             Ok(fh) => fh,
             Err(e) => {

@@ -121,6 +121,7 @@ fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) -> boo
         || engine_state.keyboard_state.just_pressed(KeyCode::Back)
     {
         sprite.collider = Collider::NoCollider;
+        sprite.collider_dirty = true;
     }
     // Modify a collider point
     if engine_state.mouse_state.just_pressed(MouseButton::Left) {
