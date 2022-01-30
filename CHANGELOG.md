@@ -6,6 +6,7 @@
 - `Game` is now generic over the user-provided game state struct, so the `init!` macro from the short-lived `3.0.0` version has been removed! All you need to do is delete the macro call if you have it.
 - `EngineState.debug_sprite_colliders` has been renamed `EngineState.show_colliders` for clarity.
 - Renamed the `collider_creator` example to `collider` for brevity.
+- Added `Sprite.collider_dirty` which you can set to true to regenerate a collider. Necessary if you manually replace `Sprite.collider` with a new collider.
 
 ### Other Changes
 
