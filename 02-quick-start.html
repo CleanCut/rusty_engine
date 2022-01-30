@@ -144,8 +144,17 @@
                     <main>
                         <h1 id="quick-start-example"><a class="header" href="#quick-start-example">Quick Start Example</a></h1>
 <ul>
-<li>Create a new Rust project and add <code>rusty_engine</code> to the <code>[dependencies]</code> section of your <code>Cargo.toml</code> file.</li>
-<li>Download the <a href="10-assets.html">Asset Pack</a> to you project.</li>
+<li>Create a new Rust project and add <code>rusty_engine</code> as a dependency (see the <a href="05-config.html">Configuration</a> page for more details)</li>
+</ul>
+<pre><code class="language-toml"># In your [dependencies] section of Cargo.toml
+rusty_engine = &quot;4.0.0&quot;
+</code></pre>
+<ul>
+<li>Download the Asset Pack to your project (see the <a href="10-assets.html">Asset Pack</a> page for more details).</li>
+</ul>
+<pre><code class="language-shell">curl -L https://github.com/CleanCut/rusty_engine/archive/refs/heads/main.tar.gz | tar -zxv --strip-components=1 rusty_engine-main/assets
+</code></pre>
+<ul>
 <li>Write your game:</li>
 </ul>
 <pre><code class="language-rust ignore">// in src/main.rs
@@ -156,22 +165,22 @@
      health: i32,
  }
 
- // Initialize the engine with your custom struct
- rusty_engine::init!(GameState);
-
  fn main() {
      // Create a game
      let mut game = Game::new();
-     // Set up your game. `Game` exposes all of the methods (but not fields) of `EngineState` as well.
+
+     // Set up your game. `Game` exposes all of the methods (but not fields) of `EngineState`
      let sprite = game.add_sprite(&quot;player&quot;, SpritePreset::RacingCarBlue);
      sprite.scale = 2.0;
+
      game.audio_manager.play_music(MusicPreset::Classy8Bit, 1.0);
+
      // Add one or more functions with logic for your game. When the game is run, the logic
      // functions will run in the order they were added.
      game.add_logic(game_logic);
+
      // Run the game, with an initial state
-     let initial_game_state = GameState { health: 100 };
-     game.run(initial_game_state);
+     game.run(GameState { health: 100 });
  }
 
  // Your game logic functions can be named anything, but the first parameter is always a

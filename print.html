@@ -159,8 +159,17 @@
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="quick-start-example"><a class="header" href="#quick-start-example">Quick Start Example</a></h1>
 <ul>
-<li>Create a new Rust project and add <code>rusty_engine</code> to the <code>[dependencies]</code> section of your <code>Cargo.toml</code> file.</li>
-<li>Download the <a href="10-assets.html">Asset Pack</a> to you project.</li>
+<li>Create a new Rust project and add <code>rusty_engine</code> as a dependency (see the <a href="05-config.html">Configuration</a> page for more details)</li>
+</ul>
+<pre><code class="language-toml"># In your [dependencies] section of Cargo.toml
+rusty_engine = &quot;4.0.0&quot;
+</code></pre>
+<ul>
+<li>Download the Asset Pack to your project (see the <a href="10-assets.html">Asset Pack</a> page for more details).</li>
+</ul>
+<pre><code class="language-shell">curl -L https://github.com/CleanCut/rusty_engine/archive/refs/heads/main.tar.gz | tar -zxv --strip-components=1 rusty_engine-main/assets
+</code></pre>
+<ul>
 <li>Write your game:</li>
 </ul>
 <pre><code class="language-rust ignore">// in src/main.rs
@@ -171,22 +180,22 @@
      health: i32,
  }
 
- // Initialize the engine with your custom struct
- rusty_engine::init!(GameState);
-
  fn main() {
      // Create a game
      let mut game = Game::new();
-     // Set up your game. `Game` exposes all of the methods (but not fields) of `EngineState` as well.
+
+     // Set up your game. `Game` exposes all of the methods (but not fields) of `EngineState`
      let sprite = game.add_sprite(&quot;player&quot;, SpritePreset::RacingCarBlue);
      sprite.scale = 2.0;
+
      game.audio_manager.play_music(MusicPreset::Classy8Bit, 1.0);
+
      // Add one or more functions with logic for your game. When the game is run, the logic
      // functions will run in the order they were added.
      game.add_logic(game_logic);
+
      // Run the game, with an initial state
-     let initial_game_state = GameState { health: 100 };
-     game.run(initial_game_state);
+     game.run(GameState { health: 100 });
  }
 
  // Your game logic functions can be named anything, but the first parameter is always a
@@ -217,8 +226,8 @@
 <li>Create a new Rust project</li>
 <li>In your <code>Cargo.toml</code> file, add <code>rusty_engine</code> to your <code>[dependencies]</code> section:</li>
 </ul>
-<pre><code class="language-toml">[dependencies]
-rusty_engine = &quot;3.0.0&quot;
+<pre><code class="language-toml"># In your [dependencies] section of Cargo.toml
+rusty_engine = &quot;4.0.0&quot;
 </code></pre>
 <h3 id="optional-make-dev-profile-act-like-release"><a class="header" href="#optional-make-dev-profile-act-like-release">(Optional) Make <code>dev</code> profile act like <code>release</code></a></h3>
 <p>If you don't want to have remember to constantly add <code>--release</code> to your <code>cargo build</code> and <code>cargo run</code> commands, you can add this config section to your <code>Cargo.toml</code> to make your <code>dev</code> profile act like the <code>release</code> profile:</p>
@@ -262,45 +271,33 @@ codegen-units = 16
 <p>Rusty Engine has a prelude which you should import all of in your <code>main.rs</code>:</p>
 <pre><code class="language-rust ignore">use rusty_engine::prelude::*;
 </code></pre>
-<p>The Rusty Engine <code>Game</code> struct generated in the top level your <code>main.rs</code> by the <code>init</code> macro. If you don't have a <a href="20-game-state.html"><code>GameState</code></a> struct, then you can leave the macro call empty and a unit struct <code>()</code> will be assumed for your game state:</p>
-<pre><code class="language-rust ignore">use rusty_engine::prelude::*;
-
-// Call init!() before your main() function
-rusty_engine::init!();
-
-fn main() {
-    // ...
-}
-</code></pre>
-<p>If you do have a <a href="20-game-state.html"><code>GameState</code></a> struct (which we'll go over in the <a href="20-game-state.html">game state section</a>), then you need to pass that type to the <code>init</code> macro:</p>
+<p>You should usually define a <a href="20-game-state.html"><code>GameState</code></a> struct (which we'll go over in the <a href="20-game-state.html">game state section</a>). This will be a struct that you store your game-specific data in. Things like high score, player name, health left, etc.</p>
 <pre><code class="language-rust ignore">use rusty_engine::prelude::*;
 
 struct GameState {
-    number: i32,
+    health_left: i32,
 }
-
-rusty_engine::init!(GameState); // There's a game state section later in the tutorial!
 
 fn main() {
     // ...
 }
 </code></pre>
-<p>Once you have initialized the engine, you should create a new <code>Game</code> struct in your <code>main</code> function and assign it to a mutable variable, usually called <code>game</code>.</p>
+<p>Create a new <code>Game</code> struct in your <code>main</code> function and assign it to a mutable variable, usually called <code>game</code>.</p>
 <pre><code class="language-rust ignore">fn main() {
     let mut game = Game::new();
     // ...
 </code></pre>
-<p>At this point you will use your <code>Game</code> instance to set up your game and register logic functions to run each frame.</p>
-<p>Finally, at the end of main you will run your <code>Game</code> with <code>Game::run()</code>. The <code>run</code> method takes an initial game state. If you didn't provide a game state struct type to the <code>init</code> macro, then your initial game state is a unit struct <code>()</code>:</p>
+<p>Use your <code>Game</code> instance to set up your game and register logic functions to run each frame.</p>
+<p>At the end of main you will run your game with <code>Game::run()</code>. The <code>run</code> method takes an initial game state. If you didn't define a game state struct, then just give it a unit struct <code>()</code>:</p>
 <pre><code class="language-rust ignore">fn main() {
     // ...
     game.run(());
 }
 </code></pre>
-<p>If you did provide a game state struct type to the <code>init</code> macro, then pass <code>run</code> a value of that type:</p>
+<p>If you did define a game state struct (we'll assume you named it <code>GameState</code>), then pass <code>run</code> a value of that type:</p>
 <pre><code class="language-rust ignore">fn main() {
     // ...
-    game.run(GameState { number: 42 });
+    game.run(GameState { health_left: 42 });
 }
 </code></pre>
 <h2 id="example"><a class="header" href="#example">Example</a></h2>
@@ -308,38 +305,35 @@ fn main() {
 <pre><code class="language-rust ignore">use rusty_engine::prelude::*;
 
 struct GameState {
-    number: i32,
+    health_left: i32,
 }
-
-rusty_engine::init!(GameState);
 
 fn main() {
     let mut game = Game::new();
 
     // get your game stuff ready here
 
-    game.run(GameState { number: 42 });
+    game.run(GameState { health_left: 42 });
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="game-state"><a class="header" href="#game-state">Game State</a></h1>
-<p>You will need somewhere to store data for your game that is not part of the engine but that you need access to for more than a single frame. That somewhere is your <em>game state struct</em>.  You provide a struct type to use for your own game state. Within that struct, you can store just about anything. Some examples of things you may want to put in your game state:</p>
+<p>You will need somewhere to store data for your game that is not part of the engine but that you need access to for more than a single frame. That somewhere is your <em>game state struct</em>.  You provide a struct to use for your own game state. Within that struct, you can store just about anything. Some examples of things you may want to put in your game state:</p>
 <ul>
 <li>Player attributes (name, color, health, energy, money, etc.)</li>
 <li>Game attributes (score, day, turn, etc.)</li>
 <li>Timers for animation, spawning events, etc.</li>
 <li>Collections of sprite labels to iterate through (perhaps a vector of labels of all the enemy sprites, or a vector of widgets to animate, or...whatever)</li>
+<li>Collections of text labels to iterate through and update (maybe text representing current health is placed above your player)</li>
 <li>Anything else that needs to persist across frames that isn't already stored in the engine</li>
 </ul>
-<p>You can name your game state struct whatever you want, but since there can only ever be one game state type, we suggest you call it <code>GameState</code> for simplicity, as we will do in this tutorial.  Here is an example of a game state you might define for a simple game which keeps track of a current score and a high score, the labels of enemies which need to move around, and a timer for when to spawn a new enemy.</p>
+<p>You can name your game state struct whatever you want, but since there can only ever be one game state type, we suggest you call it <code>GameState</code> as we will in this tutorial.</p>
+<p>Here is an example of a game state you might define for a simple game which keeps track of a current score and a high score, the labels of enemies which need to move around, and a timer for when to spawn a new enemy.</p>
 <pre><code class="language-rust ignore">struct GameState {
     high_score: u32,
     current_score: u32,
     enemy_labels: Vec&lt;String&gt;,
     spawn_timer: Timer,
 }
-</code></pre>
-<p>Once you have defined your struct, pass it to the <code>init</code> macro. If you don't give the <code>init</code> macro a struct value, the unit struct <code>()</code> will be used instead.</p>
-<pre><code class="language-rust ignore">rusty_engine::init!(GameState);
 </code></pre>
 <p>When you start your game, you will need to pass it an initial value of the game state.  You will receive a mutable reference to this game state value in your logic function(s) each frame.</p>
 <pre><code class="language-rust ignore">fn main() {
@@ -354,24 +348,26 @@ fn main() {
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="game-logic-function"><a class="header" href="#game-logic-function">Game Logic Function</a></h1>
-<p>A game is divided up into <em>frames</em>. A <em>frame</em> is one run through your game logic to produce a new image to display on the screen. Commonly, you will get about 60 frames each second.  Each frame, Rusty Engine tries to run your game logic function(s).</p>
+<p>A game is divided up into <em>frames</em>. A <em>frame</em> is one run through your game logic to produce a new image to display on the screen. On most hardware you will usually get about 60 frames each second.  Rusty Engine tries to run your game logic function(s) once each frame.</p>
 <p>A game logic function definition looks like this:</p>
 <pre><code class="language-rust ignore">fn game_logic(engine_state: &amp;mut EngineState, game_state: &amp;mut GameState) -&gt; bool {
     // your actual game logic goes here
 }
 </code></pre>
-<p>The function may be named anything you want. We used <code>game_logic</code> in the example above, which is the conventional name if you only have one. However, if you use more than one game logic function, each will need to have a unique name.</p>
-<p>Your <code>game_state</code> parameter should be a mutable reference to your game state struct type. The example above is for a game state struct literally named <code>GameState</code>. If you did not provide a game state type, then you will need to use a unit struct <code>()</code> instead:</p>
-<pre><code class="language-rust ignore">game_state: &amp;mut ()
+<p>If you passed in a unit struct for your game state, then use a unit struct in your logic function definition:</p>
+<pre><code class="language-rust ignore">fn game_logic(engine_state: &amp;mut EngineState, game_state: &amp;mut ()) -&gt; bool {
+    // logic...without any state to look at.
+}
 </code></pre>
-<p>Rusty Engine will attempt to run all of your game logic functions that it knows about each frame. You need to &quot;add&quot; your game logic functions by calling <code>Game::add_logic</code> in your <code>main</code> function:</p>
+<p>The function may be named anything you want. We used <code>game_logic</code> in the example above, which is the conventional name if you only have one. However, if you use more than one game logic function, each will need to have a unique name.</p>
+<p>You need to &quot;add&quot; your game logic functions to Rusty Engine by calling <code>Game::add_logic</code> in your <code>main</code> function:</p>
 <pre><code class="language-rust ignore">game.add_logic(game_logic);
 </code></pre>
 <p>You can add multiple game logic functions, which will always run in the order they were added. For example, this game will always run the <code>menu_logic</code> function first, and then the <code>game_logic</code>.</p>
 <pre><code class="language-rust ignore">game.add_logic(menu_logic);
 game.add_logic(game_logic);
 </code></pre>
-<p>After each logic function is run, Rusty Engine checks the return value to see if it should continue with the next logic function, or skip the rest. Game logic functions return a <code>bool</code>. If the return value is <code>true</code>, that means &quot;keep on going!&quot; and run the next logic function. If the return value is <code>false</code>, then Rusty Engine skips the rest of the logic functions this frame.  This is so, for example, if you don't want your game logic to run while you are in a menu, then your menu logic can return <code>false</code> and the game logic simply won't run.</p>
+<p>After each logic function is run, Rusty Engine checks the return value to see if it should continue with the next logic function. Game logic functions return a <code>bool</code>. If the return value is <code>true</code>, that means &quot;keep on going!&quot; and run the next logic function. If the return value is <code>false</code>, then Rusty Engine skips the rest of the logic functions this frame. If you don't want your game logic to run while you are in a menu, then your make sure your menu logic runs first and returns <code>false</code> if you are in the menu, then the rest of the logic functions won't run that frame.</p>
 <p>Most of the time you want the next function to run, so most game logic functions end like this:</p>
 <pre><code class="language-rust ignore">    // ...
     true
@@ -388,8 +384,6 @@ struct GameState {
     enemy_labels: Vec&lt;String&gt;,
     spawn_timer: Timer,
 }
-
-rusty_engine::init!(GameState);
 
 fn main() {
     let mut game = Game::new();
@@ -486,8 +480,8 @@ player_reference.rotation += TURN_SPEED_PER_SEC * engine_state.delta_f32;
 </code></pre>
 <h3 id="creating-colliders"><a class="header" href="#creating-colliders">Creating colliders</a></h3>
 <p>All of the sprite presets in the game already have colliders, so you don't need to worry about creating any of them.</p>
-<p>Creating colliders for custom sprites from scratch can be quite difficult, so there is an &quot;example&quot; program called <code>collider_creator</code> that you can run to create the collider by clicking around a sprite!  Clone the <a href="https://github.com/CleanCut/rusty_engine/"><code>rusty_engine</code></a> repository, place your image file in the <code>assets/sprite</code> directory (let's call it <code>db.png</code>), and then run:</p>
-<pre><code class="language-text">$ cargo run --release --example collider_creator -- db.png
+<p>Creating colliders for custom sprites from scratch can be quite difficult, so there is an &quot;example&quot; program called <code>collider</code> that you can run to create the collider by clicking around a sprite!  Clone the <a href="https://github.com/CleanCut/rusty_engine/"><code>rusty_engine</code></a> repository, place your image file in the <code>assets/sprite</code> directory (let's call it <code>db.png</code>), and then run:</p>
+<pre><code class="language-text">$ cargo run --release --example collider assets/sprite/db.png
 </code></pre>
 <p>Then follow the directions to create (or re-create) a collider and write it to a file.</p>
 <img width="1392" alt="Screen Shot 2021-12-26 at 10 45 40 PM" src="https://user-images.githubusercontent.com/5838512/147438683-c8af2db7-66dd-463c-a269-d03f37869496.png">
@@ -818,8 +812,7 @@ if timer_repeating.tick(engine_state.delta).just_finished() {
 </ul>
 <p>...for the rest of the fields (and methods), see the <a href="https://docs.rs/rusty_engine/latest/rusty_engine/game/struct.EngineState.html"><code>EngineState</code> API documentation</a></p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="game"><a class="header" href="#game">Game</a></h1>
-<p>The <code>Game</code> struct is generated by the <code>rusty_engine::init!(GameState);</code> macro call. It mostly exists to get your custom game state injected into Bevy, and to serve as a proxy for <code>EngineState</code> before the game has started.</p>
-<p>Even though <code>Game</code> is generated, some <a href="https://docs.rs/rusty_engine/latest/rusty_engine/game/struct.Game.html"><code>Game</code> API documentation</a> has been stubbed out for reading -- just be aware that some bits (like the types of some things) will be inaccurate, since the docs aren't actually being generated off of the real bits that you will be using.</p>
+<p>The <code>Game</code> struct exists to get your custom game state injected into Bevy, and to serve as a proxy for <code>EngineState</code> before the game has started.</p>
 <p>Since <code>Game</code> implements <code>DerefMut&lt;EngineState&gt;</code>, any field or method not found on <code>Game</code> will be searched for on <code>EngineState</code> and used if it is found. So, in a sense, <code>Game</code> is also the <code>EngineState</code> while you are setting things up in <code>main</code>. However, there are a couple additional things that are unique to <code>Game</code>:</p>
 <h3 id="new"><a class="header" href="#new">New</a></h3>
 <p>The first, and most obvious, difference is that <code>Game</code> has a <code>new</code> method, as documented in the <a href="15-init.html">Engine Initialization</a> section. You need to call <code>new</code> in your <code>main</code> function to create a new game. The variable you assign this value to should be mutable.</p>
@@ -839,7 +832,7 @@ if timer_repeating.tick(engine_state.delta).just_finished() {
 <h3 id="adding-game-logic-functions"><a class="header" href="#adding-game-logic-functions">Adding Game Logic Functions</a></h3>
 <p>Game has an <code>add_logic</code> method to add game logic functions to your game. Please see the <a href="15-init.html">Engine Initialization</a> for more details on this method.</p>
 <h3 id="running-the-game"><a class="header" href="#running-the-game">Running the game</a></h3>
-<p>The last thing you will do in your main function is to call the <code>run</code> method to begin your game. The <code>run</code> method takes an instance of whatever game state struct you passed to the <code>init</code> macro, or a unit struct <code>()</code> if you didn't pass one.</p>
+<p>The last thing you will do in your main function is to call the <code>run</code> method to begin your game. The <code>run</code> method takes an instance of whatever game state struct you defined, or a unit struct <code>()</code> if you didn't define one.</p>
 
                     </main>
 
