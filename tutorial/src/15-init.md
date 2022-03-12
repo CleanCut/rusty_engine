@@ -1,6 +1,6 @@
 # Engine Initialization
 
-Rusty Engine has a prelude which you should import all of in your `main.rs`:
+Rusty Engine has a prelude which you should import in `main.rs`:
 
 ```rust,ignore
 use rusty_engine::prelude::*;
