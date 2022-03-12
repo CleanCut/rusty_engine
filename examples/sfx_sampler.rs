@@ -36,7 +36,7 @@ fn main() {
     game.run(game_state);
 }
 
-fn logic(engine_state: &mut EngineState, game_state: &mut GameState) -> bool {
+fn logic(engine_state: &mut EngineState, game_state: &mut GameState) {
     for (i, timer) in game_state.sfx_timers.iter_mut().enumerate() {
         // None of the timers repeat, and they're all set to different times, so when the timer in
         // index X goes off, play sound effect in index X
@@ -59,5 +59,4 @@ fn logic(engine_state: &mut EngineState, game_state: &mut GameState) -> bool {
         let sfx_label = engine_state.texts.get_mut("sfx_label").unwrap();
         sfx_label.value = "That's all! Press Esc to quit.".into();
     }
-    true
 }

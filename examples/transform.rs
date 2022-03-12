@@ -26,7 +26,7 @@ fn main() {
     game.run(());
 }
 
-fn logic(engine_state: &mut EngineState, _: &mut ()) -> bool {
+fn logic(engine_state: &mut EngineState, _: &mut ()) {
     let car1 = engine_state.sprites.get_mut("car1").unwrap();
     car1.translation.x = -300.0 + (engine_state.time_since_startup_f64.cos() * 100.0) as f32;
     car1.translation.y = (engine_state.time_since_startup_f64.sin() * 100.0) as f32;
@@ -36,5 +36,4 @@ fn logic(engine_state: &mut EngineState, _: &mut ()) -> bool {
 
     let car3 = engine_state.sprites.get_mut("car3").unwrap();
     car3.rotation = engine_state.time_since_startup_f64 as f32;
-    true
 }

@@ -51,7 +51,7 @@ fn main() {
 const MARBLE_SPEED: f32 = 600.0;
 const CAR_SPEED: f32 = 300.0;
 
-fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) -> bool {
+fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) {
     // Handle marble gun movement
     let player = engine_state.sprites.get_mut("player").unwrap();
     if let Some(location) = engine_state.mouse_state.location() {
@@ -159,6 +159,4 @@ fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) -> boo
             .audio_manager
             .play_sfx(SfxPreset::Confirmation1, 0.5);
     }
-
-    true
 }

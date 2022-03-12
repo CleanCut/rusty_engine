@@ -53,7 +53,7 @@ fn main() {
     game.run(game_state);
 }
 
-fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) -> bool {
+fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) {
     if game_state.timer.tick(engine_state.delta).just_finished() {
         let mut fps = engine_state.texts.get_mut("fps").unwrap();
         fps.value = format!("FPS: {:.1}", 1.0 / engine_state.delta_f32);
@@ -71,5 +71,4 @@ fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) -> boo
 
     let msg3 = engine_state.texts.get_mut("zoom_msg").unwrap();
     msg3.font_size = 10.0 * (engine_state.time_since_startup_f64 * 0.5).cos() as f32 + 25.0;
-    true
 }

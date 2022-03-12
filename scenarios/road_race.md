@@ -14,17 +14,19 @@ Race your car down the road.  Your car is on the left side of the screen facing 
 ## Health
 
 1. We need to keep track of the player's health, so we'll store it in our `GameState` struct. Add a `health_amount: u8` field to the `GameState` struct definition.
-1. When you run the game, provide `5` for the initial value of the `health_amount` field. You can hit five obstacles before you lose the game.
+1. We want to stop the game when the player loses. Add a `lost: bool` field to the `GameState` struct definition.
+1. When you run the game, provide `5` for the initial value of the `health_amount` field, and `false` for the `lost` field. You can hit five obstacles before you lose the game, and you haven't lost yet.
 1. Try it! At this point you should still be presented with a blank window, but it should compile and run!
     * `cargo run --release`
 
 ```rust
 struct GameState {
     health_amount: u8,
+    lost: bool,
 }
 
 // ...inside main()
-game.run( GameState { health_amount: 5 });
+game.run( GameState { health_amount: 5, lost: false });
 ```
 
 ## Create Player Sprite
@@ -56,11 +58,9 @@ game.audio_manager
 
 <img width="1392" alt="screenshot1" src="https://user-images.githubusercontent.com/5838512/147838667-ea202119-77db-40b4-bdc1-404b27e9c5e8.png">
 
-
-
 ## Player input
 
-Let's look at the player input and store it for using to move the player later. This section is all done in your `game_logic(...)` function, which is called once every frame.
+Let's look at the player input and store it for using to move the player later. This section is all done in your [game logic function](https://cleancut.github.io/rusty_engine/25-game-logic-function.html), which is called once every frame.
 
 1. Make a mutable variable `direction` of type `f32` and initialize it to `0.0`.
     1. `1.0` means up (positive `y` direction). `0.0` means not moving up or down. `-1.0` means down (negative `y` direction)
@@ -209,8 +209,7 @@ if sprite.label.starts_with("obstacle") {
 Let's get ready to handle the player's health.
 1. In `main`, add a new `Text` using [the `add_text()` method](https://cleancut.github.io/rusty_engine/155-text-creation.html) with the label `"health_message"` and the text `"Health: 5"`.
     * Set the text's `translation` to `Vec2::new(550.0, 320.0)`
-1. If the player's health reaches `0`, we will pause the game and let the player consider their poor life choices. Create a new [game logic function](https://cleancut.github.io/rusty_engine/25-game-logic-function.html) named `lose_condition`, and return `true` if the `health_amount` field in the game state is positive, or `false` if it reaches `0`.
-    * Returning `false` will cause the rest of the logic functions to be skipped, so we want `lose_condition` to run before `game_logic`, so in `main` add the `lose_condition` function to the game with `game.add_logic` before adding the `game_logic` function.
+1. If the player's health reaches `0`, we will pause the game and let the player consider their poor life choices.
 
 ```rust
 // in `main`...
@@ -218,16 +217,6 @@ Let's get ready to handle the player's health.
 // Create the health message
 let health_message = game.add_text("health_message", "Health: 5");
 health_message.translation = Vec2::new(550.0, 320.0);
-
-// before adding the `game_logic` function
-game.add_logic(lose_condition);
-
-
-// outside of `main` -- define the lose_condition function
-fn lose_condition(_: &mut EngineState, game_state: &mut GameState) -> bool {
-    // Don't run any more game logic if the game has ended
-    game_state.health_amount > 0
-}
 ```
 
 Now we need to actually handle the health.  At **_the bottom_** of the `game_logic` function we'll deal with collisions:
@@ -264,8 +253,18 @@ for event in engine_state.collision_events.drain(..) {
 
 ## Game Over
 
-Finally, at the very end of the `game_logic` function we can do a bit of cleanup if we just lost during this frame.
+First, at the very _top_ of the `game_logic function let's stop the game if we have lost.
+1. If `game_state.lost` is `true` then `return` from the game logic function. This will effectively "pause" everything, since none of the rest of our game logic will run.
+
+```rust
+if game_state.lost {
+    return;
+}
+```
+
+Finally, at the very _bottom_ of the `game_logic` function we need to detect whether we lost and clean up a few things if we did.
 1. If `game.health_amount` is `0`
+    1. Set `game_state.lost` to `true`
     1. Create a `Text`, and set its value to `"Game Over"`
     1. Using the mutable reference from creating the text, set its `font_size` to `128.0` (if this crashes on your system, reduce the font size to a smaller number)
     1. Use the `audio_manager` to stop the music.
@@ -275,6 +274,7 @@ Finally, at the very end of the `game_logic` function we can do a bit of cleanup
 
 ```rust
 if game_state.health_amount == 0 {
+    game_state.lost = true;
     let game_over = engine_state.add_text("game over", "Game Over");
     game_over.font_size = 128.0;
     engine_state.audio_manager.stop_music();

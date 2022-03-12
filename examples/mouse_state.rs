@@ -39,7 +39,7 @@ fn main() {
     game.run(());
 }
 
-fn logic(engine_state: &mut EngineState, _: &mut ()) -> bool {
+fn logic(engine_state: &mut EngineState, _: &mut ()) {
     if let Some(sprite) = engine_state.sprites.get_mut("Race Car") {
         // Use the latest state of the mouse buttons to rotate the sprite
         let mut rotation_amount = 0.0;
@@ -77,5 +77,4 @@ fn logic(engine_state: &mut EngineState, _: &mut ()) -> bool {
             sprite.translation = motion + Vec2::from(ORIGIN_LOCATION);
         }
     }
-    true
 }

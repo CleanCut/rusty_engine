@@ -38,7 +38,7 @@ fn main() {
     game.run(());
 }
 
-fn logic(engine_state: &mut EngineState, _: &mut ()) -> bool {
+fn logic(engine_state: &mut EngineState, _: &mut ()) {
     if let Some(sprite) = engine_state.sprites.get_mut("Race Car") {
         // Use mouse button events to rotate. Every click rotates the sprite by a fixed amount
         for mouse_button_input in &engine_state.mouse_button_events {
@@ -87,5 +87,4 @@ fn logic(engine_state: &mut EngineState, _: &mut ()) -> bool {
             sprite.translation = cumulative_motion + Vec2::from(ORIGIN_LOCATION);
         }
     }
-    true
 }

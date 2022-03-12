@@ -834,7 +834,7 @@ fn main() {
 const TURN_RATE: f32 = 3.0;
 const ACCELERATION_RATE: f32 = 100.0;
 
-fn logic(engine_state: &mut EngineState, game_state: &mut GameState) -> bool {
+fn logic(engine_state: &mut EngineState, game_state: &mut GameState) {
     let score_text = engine_state.texts.get_mut("score_text").unwrap();
 
     // if game_state.won {
@@ -845,11 +845,11 @@ fn logic(engine_state: &mut EngineState, game_state: &mut GameState) -> bool {
     //         //sprite.translation *= 1.0 + 1.5 * game_state.delta_f32;
     //         sprite.rotation += 1.0 * game_state.delta_f32;
     //     }
-    //     return true;
+    //     return;
     // }
 
     if game_state.crashed {
-        return true;
+        return;
     }
 
     // Player movement
@@ -894,7 +894,7 @@ fn logic(engine_state: &mut EngineState, game_state: &mut GameState) -> bool {
 
     // Don't do stuff past this point after we win
     if game_state.won {
-        return true;
+        return;
     }
 
     // Process collisions
@@ -941,5 +941,4 @@ fn logic(engine_state: &mut EngineState, game_state: &mut GameState) -> bool {
         you_win.font_size = 120.0;
         you_win.translation.y = -50.0;
     }
-    true
 }

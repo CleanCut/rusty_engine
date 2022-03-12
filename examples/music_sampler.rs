@@ -20,7 +20,7 @@ fn main() {
     game.run(GameState { music_index: 0 });
 }
 
-fn logic(engine_state: &mut EngineState, game_state: &mut GameState) -> bool {
+fn logic(engine_state: &mut EngineState, game_state: &mut GameState) {
     let mut should_play_new_song = false;
     // Play a new song because a key was pressed
     for ev in engine_state.keyboard_events.drain(..) {
@@ -42,5 +42,4 @@ fn logic(engine_state: &mut EngineState, game_state: &mut GameState) -> bool {
         let note1 = engine_state.add_text("note1", format!("Looping: {:?}", music_preset));
         note1.font_size = 75.0;
     }
-    true
 }
