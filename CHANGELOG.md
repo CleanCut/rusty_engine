@@ -1,6 +1,8 @@
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [5.0.0] - 2022-03-12
+
 ### BREAKING CHANGES
 
 - Logic functions no longer return a `bool` to simplify the learning curve. If you want logic functions to run conditionally, instead track your state in your `GameState` and use it to exit early from your logic function.
@@ -197,7 +199,8 @@ specifying a path to a sound file relative to `assets/audio`.
 
 [Bevy]: https://bevyengine.org
 <!-- next-url -->
-[Unreleased]: https://github.com/CleanCut/rusty_engine/compare/v4.0.0...HEAD
+[Unreleased]: https://github.com/CleanCut/rusty_engine/compare/v5.0.0...HEAD
+[5.0.0]: https://github.com/CleanCut/rusty_engine/compare/v4.0.0...v5.0.0
 [4.0.0]: https://github.com/CleanCut/rusty_engine/compare/v3.0.0...v4.0.0
 [3.0.0]: https://github.com/CleanCut/rusty_engine/compare/v2.0.1...v3.0.0
 [2.0.1]: https://github.com/CleanCut/rusty_engine/compare/v2.0.0...v2.0.1
