@@ -2,7 +2,7 @@
 
 Everything said about the [Keyboard State](105-keyboard-state.md) is true for Mouse State as well, just for your mouse instead of your keyboard. Mouse state is perfect for character movement or game controls such as buttons. If you need to process every bit of mouse input, such as all the locations the mouse was in since the beginning of the last frame, then you'll need to look at [Mouse Events](120-mouse-events.md) instead.
 
-All mouse state is stored in the `EngineState.mouse_state`, and queried via methods.
+All mouse state is stored in the `Engine.mouse_state`, and queried via methods.
 
 ### Mouse Buttons
 
@@ -15,22 +15,22 @@ Mouse button handling closely parallels [keyboard state handling](105-keyboard-s
 Rather than repeat the entire discussion for each of the six methods, here's a quick example covering them all:
 
 ```rust,ignored
-if engine_state.mouse_state.pressed(MouseButton::Left) {
+if engine.mouse_state.pressed(MouseButton::Left) {
     // The left mousebutton is currently pressed -- process some continuous movement
 }
-if engine_state.mouse_state.just_pressed(MouseButton::Right) {
+if engine.mouse_state.just_pressed(MouseButton::Right) {
     // click that button!
 }
-if engine_state.mouse_state.just_released(MouseButton::Right) {
+if engine.mouse_state.just_released(MouseButton::Right) {
     // nope, unclick the button.
 }
-if engine_state.mouse_state.pressed_any(&[MouseButton::Left, MouseButton::Right]) {
+if engine.mouse_state.pressed_any(&[MouseButton::Left, MouseButton::Right]) {
     // one or more of the main mouse buttons are currently pressed
 }
-if engine_state.mouse_state.just_pressed_any(&[MouseButton::Middle, MouseButton::Other(4)]) {
+if engine.mouse_state.just_pressed_any(&[MouseButton::Middle, MouseButton::Other(4)]) {
     // the middle button or the 4th button (or both) was just pressed
 }
-if engine_state.mouse_state.just_released_any(&[MouseButton::Left, MouseButton::Middle]) {
+if engine.mouse_state.just_released_any(&[MouseButton::Left, MouseButton::Middle]) {
     // one of those buttons was just released
 }
 ```
@@ -43,7 +43,7 @@ It is easy to demonstrate `location` by having a sprite appear wherever your mou
 
 ```rust,ignored
 // `player` is a sprite
-if let Some(location) = engine_state.mouse_state.location() {
+if let Some(location) = engine.mouse_state.location() {
     player.translation = location;
 }
 ```
@@ -53,7 +53,7 @@ if let Some(location) = engine_state.mouse_state.location() {
 The relative motion that the mouse moved last frame is accumulated into a single `Vec2`. This could be useful if you want to base some logic over how fast or in which direction the mouse is moving.
 
 ```rust,ignored
-let motion = engine_state.mouse_state.motion();
+let motion = engine.mouse_state.motion();
 if motion.length() > 50.0 {
     // mouse is moving pretty fast
 }
@@ -64,7 +64,7 @@ if motion.length() > 50.0 {
 This represents both the final scrolling (vertical, y) state of the mouse wheel and the final tilt (horizontal, x) state of the mouse wheel. See the [`MouseWheelState` docs](https://docs.rs/rusty_engine/latest/rusty_engine/mouse/struct.MouseWheelState.html) for more info on that.
 
 ```rust,ignored
-let mouse_wheel_state = engine_state.mouse_state.wheel();
+let mouse_wheel_state = engine.mouse_state.wheel();
 if mouse_wheel_state.y > 0 {
     // scrolling in one direction...
 }

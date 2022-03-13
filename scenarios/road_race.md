@@ -65,15 +65,15 @@ Let's look at the player input and store it for using to move the player later. 
 1. Make a mutable variable `direction` of type `f32` and initialize it to `0.0`.
     1. `1.0` means up (positive `y` direction). `0.0` means not moving up or down. `-1.0` means down (negative `y` direction)
 1. Time to collect some input from the [keyboard state](https://cleancut.github.io/rusty_engine/105-keyboard-state.html)!
-    1. If `KeyCode::Up` is pressed, then add `1.0` to `direction`. (`engine_state.keyboard_state.pressed(KeyCode::Up)`)
+    1. If `KeyCode::Up` is pressed, then add `1.0` to `direction`. (`engine.keyboard_state.pressed(KeyCode::Up)`)
     1. If `KeyCode::Down` is pressed, then subtract `1.0` from `direction`
     1. At this point, `direction` should be `1.0` if the up arrow is pressed, `-1.0` if the down arrow is pressed, and `0.0` if neither or both are pressed.
 1. Now we can actually move the player!
     1. First, define a constant near the top of your file at module level named `PLAYER_SPEED` and set it to something like `250.0` (you can set it higher or lower depending on your preference for how fast you can move). This is our up-and-down movement speed in pixels per second.
-    1. Back in `game_logic`, get a mutable reference to the player sprite. We used the label "player1", and it's in the `EngineState.sprites` [hash map](https://doc.rust-lang.org/std/collections/struct.HashMap.html#).
-    1. Change the player's `translation.y` by `direction * PLAYER_SPEED * engine_state.delta_f32`
+    1. Back in `game_logic`, get a mutable reference to the player sprite. We used the label "player1", and it's in the `Engine.sprites` [hash map](https://doc.rust-lang.org/std/collections/struct.HashMap.html#).
+    1. Change the player's `translation.y` by `direction * PLAYER_SPEED * engine.delta_f32`
         * Multiplying by `direction` will do nothing if we're moving up, reverse the sign if we're moving down, or zero out the entire product if we're not moving.
-        * Multiplying by `engine_state.delta_f32` will make it so we move smoothly even as frame rates jitter around.
+        * Multiplying by `engine.delta_f32` will make it so we move smoothly even as frame rates jitter around.
     1. If the car is moving up (or down), let's rotate it a bit so it looks like it actually turned in that direction. Set the player sprite's `rotation` to `direction * 0.15`
     1. If the (center of the) player leaves the top or bottom of the screen, then the player dies. Set the game state's `health_amount` to `0` if the player's `translation.y` value is greater than `360.0` or less than `-360.0`
 1. Try it out! Should be able to move the car up and down, seeing the car turn a bit while it does it.
@@ -88,16 +88,16 @@ const PLAYER_SPEED: f32 = 250.0;
 
 // Collect keyboard input
 let mut direction = 0.0;
-if engine_state.keyboard_state.pressed(KeyCode::Up) {
+if engine.keyboard_state.pressed(KeyCode::Up) {
     direction += 1.0;
 }
-if engine_state.keyboard_state.pressed(KeyCode::Down) {
+if engine.keyboard_state.pressed(KeyCode::Down) {
     direction -= 1.0;
 }
 
 // Move the player sprite
-let player1 = engine_state.sprites.get_mut("player1").unwrap();
-player1.translation.y += direction * PLAYER_SPEED * engine_state.delta_f32;
+let player1 = engine.sprites.get_mut("player1").unwrap();
+player1.translation.y += direction * PLAYER_SPEED * engine.delta_f32;
 player1.rotation = direction * 0.15;
 if player1.translation.y < -360.0 || player1.translation.y > 360.0 {
     game_state.health_amount = 0;
@@ -131,7 +131,7 @@ Now we need to make the lines move (yes, the lines will move to the left instead
     * `const ROAD_SPEED: f32 = 400.0;`
 1. Back at the bottom of the `game_logic` function, loop through all the `sprites` HashMap values with `sprites.values_mut()` using a mutable reference, and:
     1. If the `sprite.label` starts with `"roadline"`, then:
-       * Subtract `ROAD_SPEED * engine_state.delta_f32` from the sprite's `translation.x`
+       * Subtract `ROAD_SPEED * engine.delta_f32` from the sprite's `translation.x`
     1. If the sprite's `translation.x` is less than `-675.0` (meaning it has gone off the left side of the screen) then add `1500.0` to it  (moving it off the right side of the screen), so it can rush across the screen again.
 
 
@@ -143,9 +143,9 @@ const ROAD_SPEED: f32 = 400.0;
 // In `game_logic`
 
 // Move road objects
-for sprite in engine_state.sprites.values_mut() {
+for sprite in engine.sprites.values_mut() {
     if sprite.label.starts_with("roadline") {
-        sprite.translation.x -= ROAD_SPEED * engine_state.delta_f32;
+        sprite.translation.x -= ROAD_SPEED * engine.delta_f32;
         if sprite.translation.x < -675.0 {
             sprite.translation.x += 1500.0;
         }
@@ -196,7 +196,7 @@ The obstacles need to move, too, so they appear to be on the road!  In the `game
 ```rust
 // inside the same loop in `game_logic` that moves the road lines
 if sprite.label.starts_with("obstacle") {
-    sprite.translation.x -= ROAD_SPEED * engine_state.delta_f32;
+    sprite.translation.x -= ROAD_SPEED * engine.delta_f32;
     if sprite.translation.x < -800.0 {
         sprite.translation.x = thread_rng().gen_range(800.0..1600.0);
         sprite.translation.y = thread_rng().gen_range(-300.0..300.0);
@@ -221,8 +221,8 @@ health_message.translation = Vec2::new(550.0, 320.0);
 
 Now we need to actually handle the health.  At **_the bottom_** of the `game_logic` function we'll deal with collisions:
 1. Get a mutable reference to the health message
-    * `let health_message = engine_state.texts.get_mut("health_message").unwrap();`
-1. Loop through all the `collision_events` in the engine state.
+    * `let health_message = engine.texts.get_mut("health_message").unwrap();`
+1. Loop through all the `collision_events` in the engine.
     1. Ignore events (by doing a `continue` in the `for` loop) that contain `"player1"` in the collision pair or where the event state is the ending of a collision.
         * `if !event.pair.either_contains("player1") || event.state.is_end() { continue; }`
     1. If `game_state.health_amount` is greater than `0` (we don't want to try to subtract from an unsigned number without checking first)
@@ -234,8 +234,8 @@ Now we need to actually handle the health.  At **_the bottom_** of the `game_log
 
 ```rust
 // Deal with collisions
-let health_message = engine_state.texts.get_mut("health_message").unwrap();
-for event in engine_state.collision_events.drain(..) {
+let health_message = engine.texts.get_mut("health_message").unwrap();
+for event in engine.collision_events.drain(..) {
     // We don't care if obstacles collide with each other or collisions end
     if !event.pair.either_contains("player1") || event.state.is_end() {
         continue;
@@ -243,7 +243,7 @@ for event in engine_state.collision_events.drain(..) {
     if game_state.health_amount > 0 {
         game_state.health_amount -= 1;
         health_message.value = format!("Health: {}", game_state.health_amount);
-        engine_state.audio_manager.play_sfx(SfxPreset::Impact3, 0.5);
+        engine.audio_manager.play_sfx(SfxPreset::Impact3, 0.5);
     }
 }
 ```
@@ -275,10 +275,10 @@ Finally, at the very _bottom_ of the `game_logic` function we need to detect whe
 ```rust
 if game_state.health_amount == 0 {
     game_state.lost = true;
-    let game_over = engine_state.add_text("game over", "Game Over");
+    let game_over = engine.add_text("game over", "Game Over");
     game_over.font_size = 128.0;
-    engine_state.audio_manager.stop_music();
-    engine_state.audio_manager.play_sfx(SfxPreset::Jingle3, 0.5);
+    engine.audio_manager.stop_music();
+    engine.audio_manager.play_sfx(SfxPreset::Jingle3, 0.5);
 }
 ```
 

@@ -1,4 +1,4 @@
-use crate::prelude::EngineState;
+use crate::prelude::Engine;
 use bevy::{prelude::*, utils::HashSet};
 
 // Re-export some Bevy types to use
@@ -26,7 +26,7 @@ impl Plugin for MousePlugin {
 ///
 /// If you need to process all mouse events that occurred during a single frame, use the
 /// `mouse_button_events`, `mouse_location_events`, `mouse_motion_events`, or `mouse_wheel_events`
-/// fields on [`EngineState`](crate::prelude::EngineState).
+/// fields on [`Engine`](crate::prelude::Engine).
 #[derive(Clone, Debug, Default)]
 pub struct MouseState {
     location: Option<Vec2>,
@@ -40,38 +40,38 @@ pub struct MouseState {
 /// A simplification of mouse wheel events for a frame into a single state. Unless you are treating
 /// the mouse wheel as if scrolling in a direction were equivalent to clicking a mouse button, you
 /// probably want to use
-/// [`EngineState::mouse_wheel_events`](crate::prelude::EngineState::mouse_wheel_events) instead.
+/// [`Engine::mouse_wheel_events`](crate::prelude::Engine::mouse_wheel_events) instead.
 #[derive(Clone, Copy, Debug, Default)]
 pub struct MouseWheelState {
     /// The y component of the mouse wheel movement. This is the "normal" scrolling direction of a
     /// typical mouse wheel. This will be either `-1.0`, `0.0`, or `1.0`. For fine-grained
     /// mouse wheel info, see
-    /// [`EngineState::mouse_wheel_events`](crate::prelude::EngineState::mouse_wheel_events) instead.
+    /// [`Engine::mouse_wheel_events`](crate::prelude::Engine::mouse_wheel_events) instead.
     pub y: f32,
     /// The x component of the mouse wheel movement. This is usually caused by holding the shift key
     /// while scrolling the mouse on regular mice, or by a horizontal scroll wheel on exotic mice.
     /// This will be either `-1.0`, `0.0`, or `1.0`. For fine-grained mouse wheel info, see
-    /// [`EngineState::mouse_wheel_events`](crate::prelude::EngineState::mouse_wheel_events) instead.
+    /// [`Engine::mouse_wheel_events`](crate::prelude::Engine::mouse_wheel_events) instead.
     pub x: f32,
 }
 
 impl MouseState {
     /// Final location of the mouse this frame. If you want to process _all_ the locations the mouse
     /// was at during this frame, see
-    /// [`EngineState::mouse_location_events`](crate::prelude::EngineState::mouse_location_events)
+    /// [`Engine::mouse_location_events`](crate::prelude::Engine::mouse_location_events)
     /// instead.
     pub fn location(&self) -> Option<Vec2> {
         self.location
     }
     /// The cumulative relative motion of the mouse this frame. If you want to process _all_ the
     /// individual relative motions, see
-    /// [`EngineState::mouse_motion_events](crate::prelude::EngineState::mouse_motion_events) instead.
+    /// [`Engine::mouse_motion_events](crate::prelude::Engine::mouse_motion_events) instead.
     pub fn motion(&self) -> Vec2 {
         self.motion
     }
     /// Returns a [`MouseWheelState], which is a simplified version of cumulative mouse wheel
     /// events. When dealing with mouse wheel movement, you _usually_ don't want this...you want
-    /// [`EngineState::mouse_wheel_events`](crate::prelude::EngineState::mouse_wheel_events) instead.
+    /// [`Engine::mouse_wheel_events`](crate::prelude::Engine::mouse_wheel_events) instead.
     pub fn wheel(&self) -> MouseWheelState {
         self.wheel
     }
@@ -102,7 +102,7 @@ impl MouseState {
 }
 
 fn sync_mouse_events(
-    mut game_state: ResMut<EngineState>,
+    mut game_state: ResMut<Engine>,
     mut mouse_button_events: EventReader<MouseButtonInput>,
     mut cursor_moved_events: EventReader<CursorMoved>,
     mut mouse_motion_events: EventReader<MouseMotion>,
@@ -141,7 +141,7 @@ fn sync_mouse_state(
     mut mouse_motion_events: EventReader<MouseMotion>,
     mut cursor_moved_events: EventReader<CursorMoved>,
     mut mouse_wheel_events: EventReader<MouseWheel>,
-    game_state: Res<EngineState>,
+    game_state: Res<Engine>,
 ) {
     // Sync the current mouse location, which will be the last cursor_moved event that occurred.
     // Only changes when we get a new event, otherwise we preserve the last location.

@@ -4,4 +4,4 @@ Rusty Engine has a basic audio system. You can play one looping music track, and
 
 Supported audio file formats are `ogg` (including `oga`), `mp3`, `flac`, and `wav`.
 
-All audio is accessed through methods on the audio manager accessed through `EngineState.audio_manager`.
+All audio is accessed through methods on the audio manager accessed through `Engine.audio_manager`.

@@ -1,6 +1,6 @@
 # Music
 
-One music file may be played at a time.  Music always loops repeatedly until explicitly stopped (or the program exits). As with other `EngineState` fields, the audio manager is also available through the `Game` in your `main` function:
+One music file may be played at a time.  Music always loops repeatedly until explicitly stopped (or the program exits). As with other `Engine` fields, the audio manager is also available through the `Game` in your `main` function:
 
 ### Play
 
@@ -23,7 +23,7 @@ Any music already playing will be stopped to play a new music selection.
 The `stop_music` method stops any music that is playing. If no music is playing, it is a no-op.
 
 ```rust,ignored
-engine_state.audio_manager.stop_music();
+engine.audio_manager.stop_music();
 ```
 
 ### Music playing status
@@ -31,7 +31,7 @@ engine_state.audio_manager.stop_music();
 The `music_playing` method will return a `bool` indicating whether or not music is currently playing.
 
 ```rust,ignored
-if engine_state.audio_manager.music_playing() {
+if engine.audio_manager.music_playing() {
     // yep, you remembered to start the music
 }
 ```

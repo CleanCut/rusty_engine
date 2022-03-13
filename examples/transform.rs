@@ -26,14 +26,14 @@ fn main() {
     game.run(());
 }
 
-fn logic(engine_state: &mut EngineState, _: &mut ()) {
-    let car1 = engine_state.sprites.get_mut("car1").unwrap();
-    car1.translation.x = -300.0 + (engine_state.time_since_startup_f64.cos() * 100.0) as f32;
-    car1.translation.y = (engine_state.time_since_startup_f64.sin() * 100.0) as f32;
+fn logic(engine: &mut Engine, _: &mut ()) {
+    let car1 = engine.sprites.get_mut("car1").unwrap();
+    car1.translation.x = -300.0 + (engine.time_since_startup_f64.cos() * 100.0) as f32;
+    car1.translation.y = (engine.time_since_startup_f64.sin() * 100.0) as f32;
 
-    let car2 = engine_state.sprites.get_mut("car2").unwrap();
-    car2.scale = ((engine_state.time_since_startup_f64 * 0.5).cos().abs() * 2.0) as f32;
+    let car2 = engine.sprites.get_mut("car2").unwrap();
+    car2.scale = ((engine.time_since_startup_f64 * 0.5).cos().abs() * 2.0) as f32;
 
-    let car3 = engine_state.sprites.get_mut("car3").unwrap();
-    car3.rotation = engine_state.time_since_startup_f64 as f32;
+    let car3 = engine.sprites.get_mut("car3").unwrap();
+    car3.rotation = engine.time_since_startup_f64 as f32;
 }

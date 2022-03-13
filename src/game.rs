@@ -32,7 +32,7 @@ use crate::{
 // Public re-export
 pub use bevy::window::{WindowDescriptor, WindowMode, WindowResizeConstraints};
 
-/// EngineState is the primary way that you will interact with Rusty Engine. Every frame this struct
+/// Engine is the primary way that you will interact with Rusty Engine. Every frame this struct
 /// is provided to the "logic" function (or closure) that you provided to [`Game::run`]. The
 /// fields in this struct are divided into two groups:
 ///
@@ -49,12 +49,12 @@ pub use bevy::window::{WindowDescriptor, WindowMode, WindowResizeConstraints};
 /// these fields are overwritten every frame, any changes are ignored. Thus, you can feel free to,
 /// e.g. consume all the events out of the `collision_events` vector.
 #[derive(Default, Debug)]
-pub struct EngineState {
+pub struct Engine {
     /// SYNCED - The state of all sprites this frame. To add a sprite, use the
-    /// [`add_sprite`](EngineState::add_sprite) method. Modify & remove sprites as you like.
+    /// [`add_sprite`](Engine::add_sprite) method. Modify & remove sprites as you like.
     pub sprites: HashMap<String, Sprite>,
     /// SYNCED - The state of all texts this frame. For convenience adding a text, use the
-    /// [`add_text`](EngineState::add_text) method. Modify & remove text as you like.
+    /// [`add_text`](Engine::add_text) method. Modify & remove text as you like.
     pub texts: HashMap<String, Text>,
     /// SYNCED - If set to `true`, the game exits. Note: the current frame will run to completion first.
     pub should_exit: bool,
@@ -82,7 +82,7 @@ pub struct EngineState {
     pub mouse_wheel_events: Vec<MouseWheel>,
     /// INFO - All the keyboard input events. These are text-processor-like events. If you are
     /// looking for keyboard events to control movement in a game character, you should use
-    /// [`EngineState::keyboard_state`] instead. For example, one pressed event will fire when you
+    /// [`Engine::keyboard_state`] instead. For example, one pressed event will fire when you
     /// start holding down a key, and then after a short delay additional pressed events will occur
     /// at the same rate that additional letters would show up in a word processor. When the key is
     /// finally released, a single released event is emitted.
@@ -110,7 +110,7 @@ pub struct EngineState {
     pub window_dimensions: Vec2,
 }
 
-impl EngineState {
+impl Engine {
     #[must_use]
     /// Add an [`Sprite`]. Use the `&mut Sprite` that is returned to set the translation, rotation,
     /// etc. Use a unique label for each sprite. Attempting to add two sprites with the same label
@@ -151,13 +151,9 @@ impl EngineState {
 
 // startup system - grab window settings, initialize all the starting sprites
 #[doc(hidden)]
-pub fn setup(
-    mut commands: Commands,
-    asset_server: Res<AssetServer>,
-    mut engine_state: ResMut<EngineState>,
-) {
-    add_sprites(&mut commands, &asset_server, &mut engine_state);
-    add_texts(&mut commands, &asset_server, &mut engine_state);
+pub fn setup(mut commands: Commands, asset_server: Res<AssetServer>, mut engine: ResMut<Engine>) {
+    add_sprites(&mut commands, &asset_server, &mut engine);
+    add_texts(&mut commands, &asset_server, &mut engine);
 }
 
 fn add_collider_lines(commands: &mut Commands, sprite: &mut Sprite) {
@@ -185,14 +181,10 @@ fn add_collider_lines(commands: &mut Commands, sprite: &mut Sprite) {
     sprite.collider_dirty = false;
 }
 
-// helper function: Add Bevy components for all the sprites in engine_state.sprites
+// helper function: Add Bevy components for all the sprites in engine.sprites
 #[doc(hidden)]
-pub fn add_sprites(
-    commands: &mut Commands,
-    asset_server: &Res<AssetServer>,
-    engine_state: &mut EngineState,
-) {
-    for (_, sprite) in engine_state.sprites.drain() {
+pub fn add_sprites(commands: &mut Commands, asset_server: &Res<AssetServer>, engine: &mut Engine) {
+    for (_, sprite) in engine.sprites.drain() {
         // Create the sprite
         let transform = sprite.bevy_transform();
         let texture_path = PathBuf::from("sprite").join(&sprite.filepath);
@@ -205,14 +197,10 @@ pub fn add_sprites(
 }
 
 /// Bevy system which adds any needed Bevy components to correspond to the texts in
-/// `engine_state.texts`
+/// `engine.texts`
 #[doc(hidden)]
-pub fn add_texts(
-    commands: &mut Commands,
-    asset_server: &Res<AssetServer>,
-    engine_state: &mut EngineState,
-) {
-    for (_, text) in engine_state.texts.drain() {
+pub fn add_texts(commands: &mut Commands, asset_server: &Res<AssetServer>, engine: &mut Engine) {
+    for (_, text) in engine.texts.drain() {
         let transform = text.bevy_transform();
         let font_size = text.font_size;
         let text_string = text.value.clone();
@@ -236,15 +224,15 @@ pub fn add_texts(
     }
 }
 
-// system - update current window dimensions in the engine state, because people resize windows
+// system - update current window dimensions in the engine, because people resize windows
 #[doc(hidden)]
-pub fn update_window_dimensions(windows: Res<Windows>, mut engine_state: ResMut<EngineState>) {
+pub fn update_window_dimensions(windows: Res<Windows>, mut engine: ResMut<Engine>) {
     // Unwrap: If we can't access the primary window...there's no point to running Rusty Engine
     let window = windows.get_primary().unwrap();
     let screen_dimensions = Vec2::new(window.width(), window.height());
-    if screen_dimensions != engine_state.window_dimensions {
-        engine_state.window_dimensions = screen_dimensions;
-        info!("Set window dimensions: {}", engine_state.window_dimensions);
+    if screen_dimensions != engine.window_dimensions {
+        engine.window_dimensions = screen_dimensions;
+        info!("Set window dimensions: {}", engine.window_dimensions);
     }
 }
 
@@ -260,12 +248,12 @@ pub struct ColliderLines {
 /// Under the hood, Rusty Engine syncs the game data to Bevy to power most of the underlying
 /// functionality.
 ///
-/// [`Game`] forwards method calls to [`EngineState`] when it can, so you should be able to use all
-/// of the methods in [`EngineState`] on [`Game`] during your game setup in your `main()` function.
+/// [`Game`] forwards method calls to [`Engine`] when it can, so you should be able to use all
+/// of the methods in [`Engine`] on [`Game`] during your game setup in your `main()` function.
 pub struct Game<S: Send + Sync + 'static> {
     app: App,
-    engine_state: EngineState,
-    logic_functions: Vec<fn(&mut EngineState, &mut S)>,
+    engine: Engine,
+    logic_functions: Vec<fn(&mut Engine, &mut S)>,
     window_descriptor: WindowDescriptor,
 }
 
@@ -273,7 +261,7 @@ impl<S: Send + Sync + 'static> Default for Game<S> {
     fn default() -> Self {
         Self {
             app: App::new(),
-            engine_state: EngineState::default(),
+            engine: Engine::default(),
             logic_functions: vec![],
             window_descriptor: WindowDescriptor {
                 title: "Rusty Engine".into(),
@@ -284,7 +272,7 @@ impl<S: Send + Sync + 'static> Default for Game<S> {
 }
 
 impl<S: Send + Sync + 'static> Game<S> {
-    /// Create an empty [`Game`] with an empty [`EngineState`]
+    /// Create an empty [`Game`] with an empty [`Engine`]
     pub fn new() -> Self {
         if std::fs::read_dir("assets").is_err() {
             println!("FATAL: Could not find assets directory. Have you downloaded the assets?\nhttps://github.com/CleanCut/rusty_engine#you-must-download-the-assets-separately");
@@ -333,8 +321,8 @@ impl<S: Send + Sync + 'static> Game<S> {
             .world
             .spawn()
             .insert_bundle(OrthographicCameraBundle::new_2d());
-        let engine_state = std::mem::take(&mut self.engine_state);
-        self.app.insert_resource(engine_state);
+        let engine = std::mem::take(&mut self.engine);
+        self.app.insert_resource(engine);
         let logic_functions = std::mem::take(&mut self.logic_functions);
         self.app.insert_resource(logic_functions);
         self.app.run();
@@ -342,11 +330,11 @@ impl<S: Send + Sync + 'static> Game<S> {
 
     /// `logic_function` is a function or closure that takes two parameters:
     ///
-    /// - `engine_state: &mut EngineState`
+    /// - `engine: &mut Engine`
     /// - `game_state`, which is a mutable reference (`&mut`) to the game state struct you defined, or `&mut ()` if you didn't define one.
     ///
     /// If `false` is returned, no more logic functions are processed this frame.
-    pub fn add_logic(&mut self, logic_function: fn(&mut EngineState, &mut S)) {
+    pub fn add_logic(&mut self, logic_function: fn(&mut Engine, &mut S)) {
         self.logic_functions.push(logic_function);
     }
 }
@@ -356,9 +344,9 @@ impl<S: Send + Sync + 'static> Game<S> {
 fn game_logic_sync<S: Send + Sync + 'static>(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
-    mut engine_state: ResMut<EngineState>,
+    mut engine: ResMut<Engine>,
     mut game_state: ResMut<S>,
-    logic_functions: Res<Vec<fn(&mut EngineState, &mut S)>>,
+    logic_functions: Res<Vec<fn(&mut Engine, &mut S)>>,
     keyboard_state: Res<KeyboardState>,
     mouse_state: Res<MouseState>,
     time: Res<Time>,
@@ -371,10 +359,10 @@ fn game_logic_sync<S: Send + Sync + 'static>(
     )>,
 ) {
     // Update this frame's timing info
-    engine_state.delta = time.delta();
-    engine_state.delta_f32 = time.delta_seconds();
-    engine_state.time_since_startup = time.time_since_startup();
-    engine_state.time_since_startup_f64 = time.seconds_since_startup();
+    engine.delta = time.delta();
+    engine.delta_f32 = time.delta_seconds();
+    engine.time_since_startup = time.time_since_startup();
+    engine.time_since_startup_f64 = time.seconds_since_startup();
 
     // TODO: Transfer any changes to the Bevy components by the physics system over to the Sprites
     // for (mut sprite, mut transform) in sprite_query.iter_mut() {
@@ -385,55 +373,53 @@ fn game_logic_sync<S: Send + Sync + 'static>(
     //     sprite.scale = transform.scale.x;
     // }
 
-    // Copy keyboard state over to engine_state to give to users
-    engine_state.keyboard_state = keyboard_state.clone();
+    // Copy keyboard state over to engine to give to users
+    engine.keyboard_state = keyboard_state.clone();
 
-    // Copy mouse state over to engine_state to give to users
-    engine_state.mouse_state = mouse_state.clone();
+    // Copy mouse state over to engine to give to users
+    engine.mouse_state = mouse_state.clone();
 
-    // Copy all collision events over to the engine_state to give to users
-    engine_state.collision_events.clear();
+    // Copy all collision events over to the engine to give to users
+    engine.collision_events.clear();
     for collision_event in collision_events.iter() {
-        engine_state.collision_events.push(collision_event.clone());
+        engine.collision_events.push(collision_event.clone());
     }
 
-    // Copy all sprites over to the engine_state to give to users
-    engine_state.sprites.clear();
+    // Copy all sprites over to the engine to give to users
+    engine.sprites.clear();
     for (_, sprite, _) in query_set.q0().iter() {
-        let _ = engine_state
+        let _ = engine
             .sprites
             .insert(sprite.label.clone(), (*sprite).clone());
     }
 
-    // Copy all texts over to the engine_state to give to users
-    engine_state.texts.clear();
+    // Copy all texts over to the engine to give to users
+    engine.texts.clear();
     for (_, text, _, _) in query_set.q1().iter() {
-        let _ = engine_state
-            .texts
-            .insert(text.label.clone(), (*text).clone());
+        let _ = engine.texts.insert(text.label.clone(), (*text).clone());
     }
 
     // Perform all the user's game logic for this frame
     for func in logic_functions.iter() {
-        func(&mut engine_state, &mut game_state);
+        func(&mut engine, &mut game_state);
     }
 
-    if !engine_state.last_show_colliders && engine_state.show_colliders {
+    if !engine.last_show_colliders && engine.show_colliders {
         // Just turned on show_colliders -- create collider lines for all sprites
-        for sprite in engine_state.sprites.values_mut() {
+        for sprite in engine.sprites.values_mut() {
             add_collider_lines(&mut commands, sprite);
         }
-    } else if engine_state.last_show_colliders && !engine_state.show_colliders {
+    } else if engine.last_show_colliders && !engine.show_colliders {
         // Just turned off show_colliders -- delete collider lines for all sprites
         for (entity, _, _, _) in query_set.q2().iter_mut() {
             commands.entity(entity).despawn();
         }
     }
     // Update transform & line width of all collider lines
-    if engine_state.show_colliders {
+    if engine.show_colliders {
         // Delete collider lines for sprites which are missing, or whose colliders are dirty
         for (entity, _, _, collider_lines) in query_set.q2().iter_mut() {
-            if let Some(sprite) = engine_state.sprites.get(&collider_lines.sprite_label) {
+            if let Some(sprite) = engine.sprites.get(&collider_lines.sprite_label) {
                 if sprite.collider_dirty {
                     commands.entity(entity).despawn();
                 }
@@ -442,14 +428,14 @@ fn game_logic_sync<S: Send + Sync + 'static>(
             }
         }
         // Add collider lines for sprites whose colliders are dirty
-        for sprite in engine_state.sprites.values_mut() {
+        for sprite in engine.sprites.values_mut() {
             if sprite.collider_dirty {
                 add_collider_lines(&mut commands, sprite);
             }
         }
         // Update transform & line width
         for (_, mut draw_mode, mut transform, collider_lines) in query_set.q2().iter_mut() {
-            if let Some(sprite) = engine_state.sprites.get(&collider_lines.sprite_label) {
+            if let Some(sprite) = engine.sprites.get(&collider_lines.sprite_label) {
                 *transform = sprite.bevy_transform();
                 // We want collider lines to appear on top of the sprite they are for, so they need a
                 // slightly higher z value. We tell users to only use up to 999.0.
@@ -463,11 +449,11 @@ fn game_logic_sync<S: Send + Sync + 'static>(
             }
         }
     }
-    engine_state.last_show_colliders = engine_state.show_colliders;
+    engine.last_show_colliders = engine.show_colliders;
 
     // Transfer any changes in the user's Sprite copies to the Bevy Sprite and Transform components
     for (entity, mut sprite, mut transform) in query_set.q0().iter_mut() {
-        if let Some(sprite_copy) = engine_state.sprites.remove(&sprite.label) {
+        if let Some(sprite_copy) = engine.sprites.remove(&sprite.label) {
             *sprite = sprite_copy;
             *transform = sprite.bevy_transform();
         } else {
@@ -475,12 +461,12 @@ fn game_logic_sync<S: Send + Sync + 'static>(
         }
     }
 
-    // Add Bevy components for any new sprites remaining in engine_state.sprites
-    add_sprites(&mut commands, &asset_server, &mut engine_state);
+    // Add Bevy components for any new sprites remaining in engine.sprites
+    add_sprites(&mut commands, &asset_server, &mut engine);
 
     // Transfer any changes in the user's Texts to the Bevy Text and Transform components
     for (entity, mut text, mut transform, mut bevy_text_component) in query_set.q1().iter_mut() {
-        if let Some(text_copy) = engine_state.texts.remove(&text.label) {
+        if let Some(text_copy) = engine.texts.remove(&text.label) {
             *text = text_copy;
             *transform = text.bevy_transform();
             if text.value != bevy_text_component.sections[0].value {
@@ -500,26 +486,26 @@ fn game_logic_sync<S: Send + Sync + 'static>(
         }
     }
 
-    // Add Bevy components for any new texts remaining in engine_state.texts
-    add_texts(&mut commands, &asset_server, &mut engine_state);
+    // Add Bevy components for any new texts remaining in engine.texts
+    add_texts(&mut commands, &asset_server, &mut engine);
 
-    if engine_state.should_exit {
+    if engine.should_exit {
         app_exit_events.send(AppExit);
     }
 }
 
-// The Deref and DerefMut implementations make it so that you can call all the `EngineState` methods
+// The Deref and DerefMut implementations make it so that you can call all the `Engine` methods
 // on a `Game`, which is much more straightforward for game setup in `main()`
 impl<S: Send + Sync + 'static> Deref for Game<S> {
-    type Target = EngineState;
+    type Target = Engine;
 
     fn deref(&self) -> &Self::Target {
-        &self.engine_state
+        &self.engine
     }
 }
 
 impl<S: Send + Sync + 'static> DerefMut for Game<S> {
     fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.engine_state
+        &mut self.engine
     }
 }

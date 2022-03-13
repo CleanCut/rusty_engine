@@ -17,7 +17,7 @@ fn main() {
 
     let msg2 = game.add_text(
         "msg2",
-        "engine_state.audio_manager.play_music(MusicPreset::Classy8Bit, 1.0);",
+        "engine.audio_manager.play_music(MusicPreset::Classy8Bit, 1.0);",
     );
     msg2.translation.y = -50.0;
     msg2.font = "FiraMono-Medium.ttf".to_string();

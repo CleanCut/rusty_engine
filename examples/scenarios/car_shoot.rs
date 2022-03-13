@@ -51,72 +51,68 @@ fn main() {
 const MARBLE_SPEED: f32 = 600.0;
 const CAR_SPEED: f32 = 300.0;
 
-fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) {
+fn game_logic(engine: &mut Engine, game_state: &mut GameState) {
     // Handle marble gun movement
-    let player = engine_state.sprites.get_mut("player").unwrap();
-    if let Some(location) = engine_state.mouse_state.location() {
+    let player = engine.sprites.get_mut("player").unwrap();
+    if let Some(location) = engine.mouse_state.location() {
         player.translation.x = location.x;
     }
     let player_x = player.translation.x;
 
     // Shoot marbles!
-    if engine_state.mouse_state.just_pressed(MouseButton::Left) {
+    if engine.mouse_state.just_pressed(MouseButton::Left) {
         // Create the marble
         if let Some(label) = game_state.marbles_left.pop() {
-            let marble = engine_state.add_sprite(label, RollingBallBlue);
+            let marble = engine.add_sprite(label, RollingBallBlue);
             marble.translation.y = -275.0;
             marble.translation.x = player_x;
             marble.layer = 5.0;
             marble.collision = true;
-            engine_state.audio_manager.play_sfx(SfxPreset::Impact2, 0.7);
+            engine.audio_manager.play_sfx(SfxPreset::Impact2, 0.7);
         }
     }
 
     // Move marbles
-    for marble in engine_state
+    for marble in engine
         .sprites
         .values_mut()
         .filter(|marble| marble.label.starts_with("marble"))
     {
-        marble.translation.y += MARBLE_SPEED * engine_state.delta_f32;
+        marble.translation.y += MARBLE_SPEED * engine.delta_f32;
     }
 
     // Move cars across the screen
-    for car in engine_state
+    for car in engine
         .sprites
         .values_mut()
         .filter(|car| car.label.starts_with("car"))
     {
-        car.translation.x += CAR_SPEED * engine_state.delta_f32;
+        car.translation.x += CAR_SPEED * engine.delta_f32;
     }
 
     // Clean up sprites that have gone off the screen
     let mut labels_to_delete = vec![];
-    for sprite in engine_state.sprites.values() {
+    for sprite in engine.sprites.values() {
         if sprite.translation.y > 400.0 || sprite.translation.x > 750.0 {
             labels_to_delete.push(sprite.label.clone());
         }
     }
     for label in labels_to_delete {
-        engine_state.sprites.remove(&label);
+        engine.sprites.remove(&label);
         if label.starts_with("marble") {
             game_state.marbles_left.push(label);
         }
     }
 
     // Spawn cars
-    if game_state
-        .spawn_timer
-        .tick(engine_state.delta)
-        .just_finished()
-    {
+    if game_state.spawn_timer.tick(engine.delta).just_finished() {
         // Reset the timer to a new value
         game_state.spawn_timer = Timer::from_seconds(thread_rng().gen_range(0.1..1.25), false);
         // Get the next car
         if game_state.cars_left > 0 {
             game_state.cars_left -= 1;
             let label = format!("car{}", game_state.cars_left);
-            let cars_left_text = engine_state.texts.get_mut("cars left").unwrap();
+            let cars_left_text = engine.texts.get_mut("cars left").unwrap();
             cars_left_text.value = format!("Cars left: {}", game_state.cars_left);
             let car_choices = vec![
                 RacingCarBlack,
@@ -125,7 +121,7 @@ fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) {
                 RacingCarRed,
                 RacingCarYellow,
             ];
-            let car = engine_state.add_sprite(
+            let car = engine.add_sprite(
                 label,
                 car_choices
                     .iter()
@@ -140,23 +136,21 @@ fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) {
     }
 
     // Collide with things
-    for event in engine_state.collision_events.drain(..) {
+    for event in engine.collision_events.drain(..) {
         if event.state.is_end() {
             continue;
         }
         if !event.pair.one_starts_with("marble") {
             continue;
         }
-        engine_state.sprites.remove(&event.pair.0);
-        engine_state.sprites.remove(&event.pair.1);
+        engine.sprites.remove(&event.pair.0);
+        engine.sprites.remove(&event.pair.1);
         if event.pair.0.starts_with("marble") {
             game_state.marbles_left.push(event.pair.0);
         }
         if event.pair.1.starts_with("marble") {
             game_state.marbles_left.push(event.pair.1);
         }
-        engine_state
-            .audio_manager
-            .play_sfx(SfxPreset::Confirmation1, 0.5);
+        engine.audio_manager.play_sfx(SfxPreset::Confirmation1, 0.5);
     }
 }

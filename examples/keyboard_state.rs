@@ -22,7 +22,7 @@ fn main() {
     game.run(());
 }
 
-fn logic(game_state: &mut EngineState, _: &mut ()) {
+fn logic(game_state: &mut Engine, _: &mut ()) {
     // Compute how fast we should move, rotate, and scale
     let move_amount = 200.0 * game_state.delta_f32;
     let rotation_amount = PI * game_state.delta_f32;

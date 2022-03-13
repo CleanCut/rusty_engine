@@ -8,7 +8,7 @@ In short, feel free to change your text's transform attributes every frame witho
 
 `Text.translation` is a [`Vec2`](https://docs.rs/glam/latest/glam/f32/struct.Vec2.html) containing the X and Y coordinates of your text's position on the screen. This `Vec2` location is in the exact center of the text, both vertically and horizontally. In other words, text is always rendered with "centered" alignment on both axes.
 
-The coordinate system works just like it does in math class. `(0.0, 0.0)` is in the center of the screen. Positive X goes to the right side of the screen. Positive Y goes to the top of the screen. Every increment of `1.0` is one logical pixel on the screen. Hi-DPI screens may have more than one physical pixel per logical pixel. See the [`EngineState`](400-engine-state.md) section for details on how to check the logical pixel dimensions of your window.
+The coordinate system works just like it does in math class. `(0.0, 0.0)` is in the center of the screen. Positive X goes to the right side of the screen. Positive Y goes to the top of the screen. Every increment of `1.0` is one logical pixel on the screen. Hi-DPI screens may have more than one physical pixel per logical pixel. See the [`Engine`](400-engine.md) section for details on how to check the logical pixel dimensions of your window.
 
 ```rust,ignored
 let score_text = game.add_text("score_text", "Score: 0");
@@ -22,7 +22,7 @@ score_text.translation = Vec2::new(400.0, -325.0);
 *Bevy 0.5 does not support text rotation, so modifying this field is currently a no-op. Once Bevy 0.6 is released, and Rusty Engine is updated to use it, this will actually worked as described.
 
 ```rust,ignored
-let angled = engine_state.add_text("angled", "This text is at an angle.");
+let angled = engine.add_text("angled", "This text is at an angle.");
 score_text.rotation = std::f32::consts::PI / 4.0;
 ```
 
@@ -40,7 +40,7 @@ The main drawback of changing the scale is that since the font is not re-rendere
 *Bevy 0.5 does not support changing text scale, so modifying this field is currently a no-op. Once Bevy 0.6 is released, and Rusty Engine is updated to use it, this will actually worked as described.
 
 ```rust,ignored
-let zoomed = engine_state.add_text("zoomed", "This text is twice as big as normal.");
+let zoomed = engine.add_text("zoomed", "This text is twice as big as normal.");
 score_text.scale = 2.0;
 ```
 
@@ -61,7 +61,7 @@ const UI_TOP_LAYER: f32 = 4.0;
 When you create a `Text`, you get a mutable reference to the newly-created text that you can use to adjust it.
 
 ```rust,ignored
-let text = engine_state.add_text("msg", "This is an important message.");
+let text = engine.add_text("msg", "This is an important message.");
 text.translation = Vec2::new(0.0, -300.0);
 text.layer = UI_TOP_LAYER; // as in previous code snippet
 ```
@@ -73,24 +73,24 @@ text.translation.x = 0.0;
 player.translation.y = -300.0;
 ```
 
-NOTE: If you want to adjust your text's transform smoothly, you will need to multiply your change by the frame's delta value. See the [`EngineState`](400-engine-state.md) section for more details.
+NOTE: If you want to adjust your text's transform smoothly, you will need to multiply your change by the frame's delta value. See the [`Engine`](400-engine.md) section for more details.
 
 ### Adjusting an existing text
 
-To adjust a text which already exists, you need to get a mutable reference to it.  This is where that "label" comes in.  The `EngineState.texts` field is a hash map of labels to texts. You get a mutable reference to a text with the `HashMap::get_mut` method:
+To adjust a text which already exists, you need to get a mutable reference to it.  This is where that "label" comes in.  The `Engine.texts` field is a hash map of labels to texts. You get a mutable reference to a text with the `HashMap::get_mut` method:
 
 
 ```rust,ignored
 // Be careful with unwrap()! If the entry isn't there, this will crash your game.
-let spinning_message = engine_state.texts.get_mut("spinning_message").unwrap();
-spinning_message.rotation += TURN_SPEED_PER_SEC * engine_state.delta_f32;
+let spinning_message = engine.texts.get_mut("spinning_message").unwrap();
+spinning_message.rotation += TURN_SPEED_PER_SEC * engine.delta_f32;
 ```
 
 ### Deleting a text
 
-To delete a text, simply remove it from the `EngineState.texts` hash map.
+To delete a text, simply remove it from the `Engine.texts` hash map.
 
 ```rust,ignored
-engine_state.texts.remove("old_message");
+engine.texts.remove("old_message");
 ```
 

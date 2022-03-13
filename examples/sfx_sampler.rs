@@ -36,27 +36,23 @@ fn main() {
     game.run(game_state);
 }
 
-fn logic(engine_state: &mut EngineState, game_state: &mut GameState) {
+fn logic(engine: &mut Engine, game_state: &mut GameState) {
     for (i, timer) in game_state.sfx_timers.iter_mut().enumerate() {
         // None of the timers repeat, and they're all set to different times, so when the timer in
         // index X goes off, play sound effect in index X
-        if timer.tick(engine_state.delta).just_finished() {
+        if timer.tick(engine.delta).just_finished() {
             // Play a new sound effect
             let sfx = SfxPreset::variant_iter().nth(i).unwrap();
-            engine_state.audio_manager.play_sfx(sfx, 1.0);
+            engine.audio_manager.play_sfx(sfx, 1.0);
             // Update the text to show which sound effect we are playing
-            let sfx_label = engine_state.texts.get_mut("sfx_label").unwrap();
+            let sfx_label = engine.texts.get_mut("sfx_label").unwrap();
             sfx_label.value = format!("{:?}", sfx);
         }
     }
 
     // Are we all done?
-    if game_state
-        .end_timer
-        .tick(engine_state.delta)
-        .just_finished()
-    {
-        let sfx_label = engine_state.texts.get_mut("sfx_label").unwrap();
+    if game_state.end_timer.tick(engine.delta).just_finished() {
+        let sfx_label = engine.texts.get_mut("sfx_label").unwrap();
         sfx_label.value = "That's all! Press Esc to quit.".into();
     }
 }

@@ -18,14 +18,14 @@ let timer_repeating = Timer::from_seconds(3.0, true);
 
 ### Counting down & Finishing
 
-Timers must be ticked with the `tick` method to make them actually count down the time. The `tick` method takes a `Duration` of time that has gone by, which is exactly what `EngineState.delta` is for.  `tick` returns an immutable reference to the timer, so you can chain a method call to `finished` or `just_finished`.
+Timers must be ticked with the `tick` method to make them actually count down the time. The `tick` method takes a `Duration` of time that has gone by, which is exactly what `Engine.delta` is for.  `tick` returns an immutable reference to the timer, so you can chain a method call to `finished` or `just_finished`.
 
 ```rust,ignored
-if timer_once.tick(engine_state.delta).just_finished() {
+if timer_once.tick(engine.delta).just_finished() {
     // the one-shot timer just finished, do the thing
 }
 
-if timer_repeating.tick(engine_state.delta).just_finished() {
+if timer_repeating.tick(engine.delta).just_finished() {
     // the repeating timer finished (again), do the thing (again)
     // the timer has already begun counting down from the top again at this point
 }

@@ -1,13 +1,13 @@
 # Text Creation
 
-Text creation is quite similar to sprite creation. You create text through the [`EngineState.add_text`](400-engine-state.md) method.  Since `Game` implements `DerefMut<EngineState>`, you can also call all of `EngineState`'s creation methods through `Game` in your `main()` function. In either case, it looks something like this when you create text:
+Text creation is quite similar to sprite creation. You create text through the [`Engine.add_text`](400-engine.md) method.  Since `Game` implements `DerefMut<Engine>`, you can also call all of `Engine`'s creation methods through `Game` in your `main()` function. In either case, it looks something like this when you create text:
 
 ```rust,ignored
 // Through your `Game` in `main()`
 let _ = game.add_text("title", "The Fun Game");
 
-// Or later in a game logic function through the `EngineState`
-let _ = engine_state.add_text("score", "Score: 0");
+// Or later in a game logic function through the `Engine`
+let _ = engine.add_text("score", "Score: 0");
 ```
 
 The first parameter is a unique label. It is used in the same way as sprite labels are used (to identify the text later on). The second parameter is actual string value to render.

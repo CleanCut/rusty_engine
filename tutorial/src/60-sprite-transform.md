@@ -4,7 +4,7 @@ A "transform" is a fancy term for the way that you can position and size your sp
 
 ### Translation
 
-`Sprite.translation` is a [`Vec2`](https://docs.rs/glam/latest/glam/f32/struct.Vec2.html) containing the X and Y coordinates of your sprite's position on the screen. The coordinate system works just like it does in math class. `(0.0, 0.0)` is in the center of the screen. Positive X goes to the right side of the screen. Positive Y goes to the top of the screen. Every increment of `1.0` is one logical pixel on the screen. Hi-DPI screens may have more than one physical pixel per logical pixel. See the [`EngineState`](400-engine-state.md) section for details on how to check the logical pixel dimensions of your window.
+`Sprite.translation` is a [`Vec2`](https://docs.rs/glam/latest/glam/f32/struct.Vec2.html) containing the X and Y coordinates of your sprite's position on the screen. The coordinate system works just like it does in math class. `(0.0, 0.0)` is in the center of the screen. Positive X goes to the right side of the screen. Positive Y goes to the top of the screen. Every increment of `1.0` is one logical pixel on the screen. Hi-DPI screens may have more than one physical pixel per logical pixel. See the [`Engine`](400-engine.md) section for details on how to check the logical pixel dimensions of your window.
 
 ### Rotation
 
@@ -32,7 +32,7 @@ const UI_TOP_LAYER: f32 = 4.0;
 When you create a sprite, you get a mutable reference to the newly-created sprite that you can use to adjust it.
 
 ```rust,ignored
-let player = engine_state.add_sprite("my_player", SpritePreset::RacingCarBlue);
+let player = engine.add_sprite("my_player", SpritePreset::RacingCarBlue);
 player.translation = Vec2::new(200.0, 100.0); // Move the car up and to the right
 player.rotation = UP; // UP is one of the built-in constants you can use
 player.scale = 2.5; // It's a BIG car!
@@ -42,28 +42,28 @@ player.layer = CHARACTER_LAYER; // as in previous code snippet
 The `Vec2` type used for the `translation` field is from `glam`, and has [its own documentation](https://docs.rs/glam/latest/glam/f32/struct.Vec2.html) you can read up on if you're interested.  The thing you'll probably use the most are its `x` and `y` fields:
 
 ```rust,ignored
-player.translation.x += 45.0 * engine_state.delta_f32;
-player.translation.y -= 10.0 * engine_state.delta_f32;
+player.translation.x += 45.0 * engine.delta_f32;
+player.translation.y -= 10.0 * engine.delta_f32;
 ```
 
-NOTE: If you want to adjust your sprite smoothly, you will need to multiply it by the frame's delta value. See the [`EngineState`](400-engine-state.md) section for more details.
+NOTE: If you want to adjust your sprite smoothly, you will need to multiply it by the frame's delta value. See the [`Engine`](400-engine.md) section for more details.
 
 ### Adjusting an existing sprite
 
-To adjust a sprite which already exists, you need to get a mutable reference to it.  This is where that "label" comes in.  The `EngineState.sprites` field is a hash map of labels to sprites. You get a mutable reference to a sprite with the `HashMap::get_mut` method:
+To adjust a sprite which already exists, you need to get a mutable reference to it.  This is where that "label" comes in.  The `Engine.sprites` field is a hash map of labels to sprites. You get a mutable reference to a sprite with the `HashMap::get_mut` method:
 
 
 ```rust,ignored
 // Be careful with unwrap()! If the entry isn't there, this will crash your game.
-let player_reference = engine_state.sprites.get_mut("my_player").unwrap();
-player_reference.rotation += TURN_SPEED_PER_SEC * engine_state.delta_f32;
+let player_reference = engine.sprites.get_mut("my_player").unwrap();
+player_reference.rotation += TURN_SPEED_PER_SEC * engine.delta_f32;
 ```
 
 ### Deleting a sprite
 
-To delete a sprite, simply remove it from the `EngineState.sprites` hash map.
+To delete a sprite, simply remove it from the `Engine.sprites` hash map.
 
 ```rust,ignored
-engine_state.sprites.remove("my_player");
+engine.sprites.remove("my_player");
 ```
 

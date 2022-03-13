@@ -68,18 +68,18 @@ In your [`game_logic(...)` function](https://cleancut.github.io/rusty_engine/25-
 1. Move the marbles upwards (in the positive Y direction)
     1. Define a `MARBLE_SPEED` [constant](https://doc.rust-lang.org/std/keyword.const.html) (probably out in the module level) for how fast your marble should move and set it to the `f32` value of `600.0`.
     1. Loop through all the marble sprites (the sprites whose labels [start with](https://doc.rust-lang.org/std/string/struct.String.html#method.starts_with) `"marble"`), for each of them:
-        - increment the marble sprite's `translation.y` by `MARBLE_SPEED * engine_state.delta_f32`
+        - increment the marble sprite's `translation.y` by `MARBLE_SPEED * engine.delta_f32`
 1. Move cars right across the screen (in the positive X direction). No, we don't have any cars yet, but once we spawn them this code will move them! The logic for this section is _very_ similar to the previous section that moved marbles.
     1. Define a `CAR_SPEED` constant and set it to `250.0`
     1. Loop through all the car sprites (the sprites whose labels start with `"car"`), for each of them:
-        - increment the car sprite's `translation.x` by `CAR_SPEED * engine_state.delta_f32`
+        - increment the car sprite's `translation.x` by `CAR_SPEED * engine.delta_f32`
 1. Clean up sprites that have moved off the top or the right side of the screen.
     1. We can't modify a hash map of sprites while we're looping through its values, so let's create an empty vector of strings and fill it with labels of sprites that we want to delete. Once we're done examining the hash map, we can loop through the vector of labels and remove those hash map entries.
     1. Create a new vector `labels_to_delete`
     1. For every sprite [value in the hash map](https://doc.rust-lang.org/std/collections/struct.HashMap.html#method.values):
         - check to see if either the `translation.y > 400.0` or the `translation.x > 750.0`. If either of those conditions are true, push a clone of the label onto the `labels_to_delete` vector.
     1. For every label in `labels_to_delete`:
-        - [Remove the sprite entry.](https://cleancut.github.io/rusty_engine/60-sprite-transform.html#deleting-a-sprite) The hash map's `remove` method takes an immutable reference to the key type, so if you are looping through the label strings by value, you may need to add a `&` in front of your label variable: `engine_state.sprites.remove(&label)`
+        - [Remove the sprite entry.](https://cleancut.github.io/rusty_engine/60-sprite-transform.html#deleting-a-sprite) The hash map's `remove` method takes an immutable reference to the key type, so if you are looping through the label strings by value, you may need to add a `&` in front of your label variable: `engine.sprites.remove(&label)`
 1. Spawn a car if the `game_state.spawn_timer` just finished! So [tick the spawn timer and check to see if it just finished](https://cleancut.github.io/rusty_engine/250-timer.html#counting-down--finishing) -- if it did, then:
     1. Set `game_state.spawn_timer` to a new `Timer` with a random value between `0.1` and `1.25`
         - Add the `rand` crate as a dependency in your `Cargo.toml`
@@ -97,7 +97,7 @@ In your [`game_logic(...)` function](https://cleancut.github.io/rusty_engine/25-
             - `translation.x` to `-740.0`
             - `translation.y` to a random value from `-100.0` to `325.0` -- `thread_rng().gen_range(-100.0..325.0)`
             - `collision` to `true` so that the car will collide with marbles
-1. Now it's time to handle the collisions! For each [`CollisionEvent`](https://docs.rs/rusty_engine/latest/rusty_engine/physics/struct.CollisionEvent.html) in `engine_state.collision_events`:
+1. Now it's time to handle the collisions! For each [`CollisionEvent`](https://docs.rs/rusty_engine/latest/rusty_engine/physics/struct.CollisionEvent.html) in `engine.collision_events`:
     - We only care about the start of collisions, not the ending of them, so if `event.state.is_end()`, then `continue` the loop.
     - Similarly, if one of the event pair's labels _doesn't_ start with `"marble"`, then it's either two marbles or two cars colliding with each other, which we don't care about. So if `!event.pair.one_starts_with("marble")`, then `continue` the loop.
     - At this point we know that one of the pair is a marble and the other is a car, and they both need to be removed. So using the labels in the `event.pair` tuple, [delete both sprites](https://cleancut.github.io/rusty_engine/60-sprite-transform.html#deleting-a-sprite).
