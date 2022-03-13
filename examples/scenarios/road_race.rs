@@ -11,6 +11,7 @@ const PLAYER_SPEED: f32 = 250.0;
 
 struct GameState {
     health_amount: u8,
+    lost: bool,
 }
 
 fn main() {
@@ -57,19 +58,21 @@ fn main() {
     let health_message = game.add_text("health_message", "Health: 5");
     health_message.translation = Vec2::new(550.0, 320.0);
 
-    game.add_logic(lose_condition);
     game.add_logic(game_logic);
 
     // Run the game, which will run our game logic functions once every frame
-    game.run(GameState { health_amount: 5 });
+    game.run(GameState {
+        health_amount: 5,
+        lost: false,
+    });
 }
 
-fn lose_condition(_: &mut EngineState, game_state: &mut GameState) -> bool {
+fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) {
     // Don't run any more game logic if the game has ended
-    game_state.health_amount > 0
-}
+    if game_state.lost {
+        return;
+    }
 
-fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) -> bool {
     // Respond to keyboard events and set the direction
     let mut direction = 0.0;
     if engine_state
@@ -124,11 +127,10 @@ fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) -> boo
         }
     }
     if game_state.health_amount == 0 {
+        game_state.lost = true;
         let game_over = engine_state.add_text("game over", "Game Over");
         game_over.font_size = 128.0;
         engine_state.audio_manager.stop_music();
         engine_state.audio_manager.play_sfx(SfxPreset::Jingle3, 0.5);
     }
-
-    true
 }

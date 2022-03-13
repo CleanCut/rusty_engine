@@ -20,7 +20,7 @@ fn main() {
     game.run(());
 }
 
-fn logic(game_state: &mut EngineState, _: &mut ()) -> bool {
+fn logic(game_state: &mut EngineState, _: &mut ()) {
     // Get the race car sprite
     let race_car = game_state.sprites.get_mut("Race Car").unwrap();
 
@@ -55,5 +55,4 @@ fn logic(game_state: &mut EngineState, _: &mut ()) -> bool {
             );
         }
     }
-    true
 }

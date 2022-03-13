@@ -28,7 +28,7 @@ fn main() {
     game.run(initial_game_state);
 }
 
-fn logic(engine_state: &mut EngineState, game_state: &mut MyCustomGameStateStuff) -> bool {
+fn logic(engine_state: &mut EngineState, game_state: &mut MyCustomGameStateStuff) {
     // Get mutable references to the variables in the game state that we care about
     let race_car = engine_state.sprites.get_mut("Race Car").unwrap();
 
@@ -52,5 +52,4 @@ fn logic(engine_state: &mut EngineState, game_state: &mut MyCustomGameStateStuff
             game_state.turning = false;
         }
     }
-    true
 }

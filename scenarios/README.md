@@ -26,9 +26,8 @@ fn main() {
     game.run(GameState {});
 }
 
-fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) -> bool {
+fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) {
     // game logic goes here
-    true
 }
 ```
 

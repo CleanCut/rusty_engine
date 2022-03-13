@@ -41,7 +41,7 @@ fn main() {
     game.run(());
 }
 
-fn logic(engine_state: &mut EngineState, _: &mut ()) -> bool {
+fn logic(engine_state: &mut EngineState, _: &mut ()) {
     // If a collision event happened last frame, print it out and play a sound
     for collision_event in engine_state.collision_events.drain(..) {
         let text = engine_state.texts.get_mut("collision text").unwrap();
@@ -84,5 +84,4 @@ fn logic(engine_state: &mut EngineState, _: &mut ()) -> bool {
     if engine_state.keyboard_state.just_pressed(KeyCode::C) {
         engine_state.show_colliders = !engine_state.show_colliders;
     }
-    true
 }

@@ -66,7 +66,7 @@ Z - Print out Rust code of current level
     game.run(game_state);
 }
 
-fn logic(engine_state: &mut EngineState, game_state: &mut GameState) -> bool {
+fn logic(engine_state: &mut EngineState, game_state: &mut GameState) {
     // Gather keyboard input
     let mut reset = false;
     let mut print_level = false;
@@ -137,7 +137,7 @@ fn logic(engine_state: &mut EngineState, game_state: &mut GameState) -> bool {
                 sprite.layer,
             );
         }
-        println!("\n    game.add_logic(logic);\n    game.run(GameState {{}});\n}}\n\nfn logic(engine_state: &mut EngineState, game_state: &mut GameState) -> bool {{\n    // Game Logic Goes Here\n    true\n}}")
+        println!("\n    game.add_logic(logic);\n    game.run(GameState {{}});\n}}\n\nfn logic(engine_state: &mut EngineState, game_state: &mut GameState) {{\n    // Game Logic Goes Here\n}}")
     }
 
     // Handle current sprite that has not yet been placed
@@ -250,5 +250,4 @@ fn logic(engine_state: &mut EngineState, game_state: &mut GameState) -> bool {
         game_state.next_sprite_num += 1;
         engine_state.sprites.insert(sprite.label.clone(), sprite);
     }
-    true
 }

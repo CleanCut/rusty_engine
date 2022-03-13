@@ -265,7 +265,7 @@ pub struct ColliderLines {
 pub struct Game<S: Send + Sync + 'static> {
     app: App,
     engine_state: EngineState,
-    logic_functions: Vec<fn(&mut EngineState, &mut S) -> bool>,
+    logic_functions: Vec<fn(&mut EngineState, &mut S)>,
     window_descriptor: WindowDescriptor,
 }
 
@@ -346,7 +346,7 @@ impl<S: Send + Sync + 'static> Game<S> {
     /// - `game_state`, which is a mutable reference (`&mut`) to the game state struct you defined, or `&mut ()` if you didn't define one.
     ///
     /// If `false` is returned, no more logic functions are processed this frame.
-    pub fn add_logic(&mut self, logic_function: fn(&mut EngineState, &mut S) -> bool) {
+    pub fn add_logic(&mut self, logic_function: fn(&mut EngineState, &mut S)) {
         self.logic_functions.push(logic_function);
     }
 }
@@ -358,7 +358,7 @@ fn game_logic_sync<S: Send + Sync + 'static>(
     asset_server: Res<AssetServer>,
     mut engine_state: ResMut<EngineState>,
     mut game_state: ResMut<S>,
-    logic_functions: Res<Vec<fn(&mut EngineState, &mut S) -> bool>>,
+    logic_functions: Res<Vec<fn(&mut EngineState, &mut S)>>,
     keyboard_state: Res<KeyboardState>,
     mouse_state: Res<MouseState>,
     time: Res<Time>,
@@ -415,10 +415,7 @@ fn game_logic_sync<S: Send + Sync + 'static>(
 
     // Perform all the user's game logic for this frame
     for func in logic_functions.iter() {
-        // If the user returns false, abort the rest of the game logic
-        if !func(&mut engine_state, &mut game_state) {
-            break;
-        }
+        func(&mut engine_state, &mut game_state);
     }
 
     if !engine_state.last_show_colliders && engine_state.show_colliders {

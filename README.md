@@ -90,7 +90,7 @@ Write your game!
  // state struct (`&mut GameState` in this case). The function returns a `bool`.
  //
  // This function will be run once each frame.
- fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) -> bool {
+ fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) {
      // The `EngineState` contains all sorts of built-in goodies.
      // Get access to the player sprite...
      let player = engine_state.sprites.get_mut("player").unwrap();
@@ -100,8 +100,6 @@ Write your game!
      if player.translation.x > 100.0 {
          game_state.health -= 1;
      }
-     // Returning `true` means the next logic function in line should be run.
-     true
  }
 
 ```

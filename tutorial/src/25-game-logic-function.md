@@ -5,7 +5,7 @@ A game is divided up into _frames_. A _frame_ is one run through your game logic
 A game logic function definition looks like this:
 
 ```rust,ignore
-fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) -> bool {
+fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) {
     // your actual game logic goes here
 }
 ```
@@ -13,7 +13,7 @@ fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) -> boo
 If you passed in a unit struct for your game state, then use a unit struct in your logic function definition:
 
 ```rust,ignore
-fn game_logic(engine_state: &mut EngineState, game_state: &mut ()) -> bool {
+fn game_logic(engine_state: &mut EngineState, game_state: &mut ()) {
     // logic...without any state to look at.
 }
 ```
@@ -32,18 +32,6 @@ You can add multiple game logic functions, which will always run in the order th
 game.add_logic(menu_logic);
 game.add_logic(game_logic);
 ```
-
-After each logic function is run, Rusty Engine checks the return value to see if it should continue with the next logic function. Game logic functions return a `bool`. If the return value is `true`, that means "keep on going!" and run the next logic function. If the return value is `false`, then Rusty Engine skips the rest of the logic functions this frame. If you don't want your game logic to run while you are in a menu, then your make sure your menu logic runs first and returns `false` if you are in the menu, then the rest of the logic functions won't run that frame.
-
-Most of the time you want the next function to run, so most game logic functions end like this:
-
-```rust,ignore
-    // ...
-    true
-}
-```
-
-The return value of the last game logic function in the chain is ignored.
 
 ## Example
 
@@ -71,9 +59,8 @@ fn main() {
     game.run(game_state);
 }
 
-fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) -> bool {
+fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) {
     game_state.current_score += 1;
     println!("Current score: {}", game_state.current_score);
-    true
 }
 ```

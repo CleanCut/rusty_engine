@@ -82,7 +82,7 @@ fn main() {
     game.run(Default::default());
 }
 
-fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) -> bool {
+fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) {
     let sprite = engine_state.sprites.get_mut("sprite").unwrap();
     // Zoom levels
     if engine_state.keyboard_state.just_pressed(KeyCode::Key1) {
@@ -187,5 +187,4 @@ fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) -> boo
             );
         }
     }
-    true
 }

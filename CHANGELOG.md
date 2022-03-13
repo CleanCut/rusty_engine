@@ -1,6 +1,10 @@
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### BREAKING CHANGES
+
+- Logic functions no longer return a `bool` to simplify the learning curve. If you want logic functions to run conditionally, instead track your state in your `GameState` and use it to exit early from your logic function.
+
 ## [4.0.0] - 2022-01-29
 
 ### BREAKING CHANGES
