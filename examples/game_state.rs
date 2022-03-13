@@ -28,23 +28,18 @@ fn main() {
     game.run(initial_game_state);
 }
 
-fn logic(engine_state: &mut EngineState, game_state: &mut MyCustomGameStateStuff) {
+fn logic(engine: &mut Engine, game_state: &mut MyCustomGameStateStuff) {
     // Get mutable references to the variables in the game state that we care about
-    let race_car = engine_state.sprites.get_mut("Race Car").unwrap();
+    let race_car = engine.sprites.get_mut("Race Car").unwrap();
 
     // If we aren't turning, then tick the timer until it's time to start turning again
-    if !game_state.turning
-        && game_state
-            .change_timer
-            .tick(engine_state.delta)
-            .just_finished()
-    {
+    if !game_state.turning && game_state.change_timer.tick(engine.delta).just_finished() {
         game_state.turning = true;
     }
 
     // Rotate the player
     if game_state.turning {
-        race_car.rotation += engine_state.delta_f32 * 3.0;
+        race_car.rotation += engine.delta_f32 * 3.0;
         // If the player rotated all the way around, reset direction, stop turning
         // TAU == (2 * PI), which is exactly one rotation in radians
         if race_car.rotation > TAU {

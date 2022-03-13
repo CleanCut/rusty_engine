@@ -1,8 +1,8 @@
 # Game
 
-The `Game` struct exists to get your custom game state injected into Bevy, and to serve as a proxy for `EngineState` before the game has started.
+The `Game` struct exists to get your custom game state injected into Bevy, and to serve as a proxy for `Engine` before the game has started.
 
-Since `Game` implements `DerefMut<EngineState>`, any field or method not found on `Game` will be searched for on `EngineState` and used if it is found. So, in a sense, `Game` is also the `EngineState` while you are setting things up in `main`. However, there are a couple additional things that are unique to `Game`:
+Since `Game` implements `DerefMut<Engine>`, any field or method not found on `Game` will be searched for on `Engine` and used if it is found. So, in a sense, `Game` is also the `Engine` while you are setting things up in `main`. However, there are a couple additional things that are unique to `Game`:
 
 ### New
 

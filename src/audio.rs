@@ -9,10 +9,10 @@
 //! # use rusty_engine::prelude::*;
 //! #
 //! # fn main() {
-//! # let mut engine_state = Game::new();
+//! # let mut engine = Game::new();
 //! // Inside your logic function...
-//! engine_state.audio_manager.play_sfx("my_sound_effect.mp3", 1.0);
-//! # engine_state.run(());
+//! engine.audio_manager.play_sfx("my_sound_effect.mp3", 1.0);
+//! # engine.run(());
 //! # }
 //! ```
 //!
@@ -22,10 +22,10 @@
 //! # use rusty_engine::prelude::*;
 //! #
 //! # fn main() {
-//! # let mut engine_state = Game::new();
+//! # let mut engine = Game::new();
 //! // Inside your logic function...
-//! engine_state.audio_manager.play_music("my_game/spooky_loop.ogg", 1.0);
-//! # engine_state.run(());
+//! engine.audio_manager.play_music("my_game/spooky_loop.ogg", 1.0);
+//! # engine.run(());
 //! # }
 //! ```
 //!
@@ -36,16 +36,16 @@
 //! use rusty_engine::prelude::*;
 //!
 //! # fn main() {
-//! # let mut engine_state = Game::new();
+//! # let mut engine = Game::new();
 //! // Inside your logic function...
-//! engine_state.audio_manager.play_sfx(SfxPreset::Confirmation1, 1.0);
-//! engine_state.audio_manager.play_music(MusicPreset::Classy8Bit, 1.0);
-//! # engine_state.run(());
+//! engine.audio_manager.play_sfx(SfxPreset::Confirmation1, 1.0);
+//! engine.audio_manager.play_music(MusicPreset::Classy8Bit, 1.0);
+//! # engine.run(());
 //! # }
 //! ```
 //!
 
-use crate::prelude::EngineState;
+use crate::prelude::Engine;
 use bevy::prelude::*;
 use bevy_kira_audio::{Audio, AudioChannel};
 use std::array::IntoIter;
@@ -62,8 +62,8 @@ impl Plugin for AudioManagerPlugin {
 }
 
 /// You will interact with a [`AudioManager`] for all audio needs in Rusty Engine. It is exposed
-/// through the [`EngineState`](crate::prelude::EngineState) struct provided to your logic function
-/// each frame as the [`audio_manager`](crate::prelude::EngineState::audio_manager) field.
+/// through the [`Engine`](crate::prelude::Engine) struct provided to your logic function
+/// each frame as the [`audio_manager`](crate::prelude::Engine::audio_manager) field.
 #[derive(Debug, Default)]
 pub struct AudioManager {
     sfx_queue: Vec<(String, f32)>,
@@ -220,7 +220,7 @@ impl From<MusicPreset> for String {
 pub fn queue_managed_audio_system(
     asset_server: Res<AssetServer>,
     audio: Res<Audio>,
-    mut game_state: ResMut<EngineState>,
+    mut game_state: ResMut<Engine>,
 ) {
     for (sfx, volume) in game_state.audio_manager.sfx_queue.drain(..) {
         let sfx_path = format!("audio/{}", sfx);

@@ -73,7 +73,7 @@ Write your game!
  fn main() {
      // Create a game
      let mut game = Game::new();
-     // Set up your game. `Game` exposes all of the methods (but not fields) of `EngineState` as well.
+     // Set up your game. `Game` exposes all of the methods (but not fields) of `Engine` as well.
      let sprite = game.add_sprite("player", SpritePreset::RacingCarBlue);
      sprite.scale = 2.0;
      game.audio_manager.play_music(MusicPreset::Classy8Bit, 1.0);
@@ -86,16 +86,16 @@ Write your game!
  }
 
  // Your game logic functions can be named anything, but the first parameter is always a
- // `&mut EngineState`, and the second parameter is a mutable reference to your custom game
+ // `&mut Engine`, and the second parameter is a mutable reference to your custom game
  // state struct (`&mut GameState` in this case). The function returns a `bool`.
  //
  // This function will be run once each frame.
- fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) {
-     // The `EngineState` contains all sorts of built-in goodies.
+ fn game_logic(engine: &mut Engine, game_state: &mut GameState) {
+     // The `Engine` contains all sorts of built-in goodies.
      // Get access to the player sprite...
-     let player = engine_state.sprites.get_mut("player").unwrap();
+     let player = engine.sprites.get_mut("player").unwrap();
      // Rotate the player...
-     player.rotation += std::f32::consts::PI * engine_state.delta_f32;
+     player.rotation += std::f32::consts::PI * engine.delta_f32;
      // Damage the player if it is out of bounds...
      if player.translation.x > 100.0 {
          game_state.health -= 1;

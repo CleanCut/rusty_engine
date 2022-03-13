@@ -41,47 +41,47 @@ fn main() {
     game.run(());
 }
 
-fn logic(engine_state: &mut EngineState, _: &mut ()) {
+fn logic(engine: &mut Engine, _: &mut ()) {
     // If a collision event happened last frame, print it out and play a sound
-    for collision_event in engine_state.collision_events.drain(..) {
-        let text = engine_state.texts.get_mut("collision text").unwrap();
+    for collision_event in engine.collision_events.drain(..) {
+        let text = engine.texts.get_mut("collision text").unwrap();
         match collision_event.state {
             CollisionState::Begin => {
                 text.value = format!("{:?}", collision_event.pair);
-                engine_state.audio_manager.play_sfx(SfxPreset::Switch1, 1.0)
+                engine.audio_manager.play_sfx(SfxPreset::Switch1, 1.0)
             }
             CollisionState::End => {
                 text.value = "".into();
-                engine_state.audio_manager.play_sfx(SfxPreset::Switch2, 1.0)
+                engine.audio_manager.play_sfx(SfxPreset::Switch2, 1.0)
             }
         }
     }
 
-    if let Some(sprite) = engine_state.sprites.get_mut("Player") {
+    if let Some(sprite) = engine.sprites.get_mut("Player") {
         // Use the latest state of the mouse buttons to rotate the sprite
         let mut rotation_amount = 0.0;
-        if engine_state.mouse_state.pressed(MouseButton::Left) {
-            rotation_amount += ROTATION_SPEED * engine_state.delta_f32;
+        if engine.mouse_state.pressed(MouseButton::Left) {
+            rotation_amount += ROTATION_SPEED * engine.delta_f32;
         }
-        if engine_state.mouse_state.pressed(MouseButton::Right) {
-            rotation_amount -= ROTATION_SPEED * engine_state.delta_f32;
+        if engine.mouse_state.pressed(MouseButton::Right) {
+            rotation_amount -= ROTATION_SPEED * engine.delta_f32;
         }
         sprite.rotation += rotation_amount;
 
         // Use the latest state of the mouse wheel to scale the sprite
-        if let Some(location) = engine_state.mouse_state.location() {
+        if let Some(location) = engine.mouse_state.location() {
             sprite.translation = location
         }
 
         // Mousewheel scales the car
-        for mouse_wheel in &engine_state.mouse_wheel_events {
+        for mouse_wheel in &engine.mouse_wheel_events {
             sprite.scale *= 1.0 + (0.05 * mouse_wheel.y);
             sprite.scale = sprite.scale.clamp(0.1, 4.0);
         }
     }
 
     // Pressing C toggles sprite collider debug lines
-    if engine_state.keyboard_state.just_pressed(KeyCode::C) {
-        engine_state.show_colliders = !engine_state.show_colliders;
+    if engine.keyboard_state.just_pressed(KeyCode::C) {
+        engine.show_colliders = !engine.show_colliders;
     }
 }

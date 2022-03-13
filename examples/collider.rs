@@ -82,51 +82,51 @@ fn main() {
     game.run(Default::default());
 }
 
-fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) {
-    let sprite = engine_state.sprites.get_mut("sprite").unwrap();
+fn game_logic(engine: &mut Engine, game_state: &mut GameState) {
+    let sprite = engine.sprites.get_mut("sprite").unwrap();
     // Zoom levels
-    if engine_state.keyboard_state.just_pressed(KeyCode::Key1) {
+    if engine.keyboard_state.just_pressed(KeyCode::Key1) {
         sprite.scale = 1.0;
     }
-    if engine_state.keyboard_state.just_pressed(KeyCode::Key2) {
+    if engine.keyboard_state.just_pressed(KeyCode::Key2) {
         sprite.scale = 2.0;
     }
-    if engine_state.keyboard_state.just_pressed(KeyCode::Key3) {
+    if engine.keyboard_state.just_pressed(KeyCode::Key3) {
         sprite.scale = 3.0;
     }
-    if engine_state.keyboard_state.just_pressed(KeyCode::Key4) {
+    if engine.keyboard_state.just_pressed(KeyCode::Key4) {
         sprite.scale = 4.0;
     }
-    if engine_state.keyboard_state.just_pressed(KeyCode::Key5) {
+    if engine.keyboard_state.just_pressed(KeyCode::Key5) {
         sprite.scale = 5.0;
     }
-    if engine_state.keyboard_state.just_pressed(KeyCode::Key6) {
+    if engine.keyboard_state.just_pressed(KeyCode::Key6) {
         sprite.scale = 6.0;
     }
-    if engine_state.keyboard_state.just_pressed(KeyCode::Key7) {
+    if engine.keyboard_state.just_pressed(KeyCode::Key7) {
         sprite.scale = 7.0;
     }
-    if engine_state.keyboard_state.just_pressed(KeyCode::Key8) {
+    if engine.keyboard_state.just_pressed(KeyCode::Key8) {
         sprite.scale = 8.0;
     }
-    if engine_state.keyboard_state.just_pressed(KeyCode::Key9) {
+    if engine.keyboard_state.just_pressed(KeyCode::Key9) {
         sprite.scale = 9.0;
     }
     // Rotate
-    if engine_state.mouse_state.pressed(MouseButton::Right) {
-        sprite.rotation += engine_state.delta_f32 * 6.0;
+    if engine.mouse_state.pressed(MouseButton::Right) {
+        sprite.rotation += engine.delta_f32 * 6.0;
     }
     // Delete collider
-    if engine_state.keyboard_state.just_pressed(KeyCode::Delete)
-        || engine_state.keyboard_state.just_pressed(KeyCode::Back)
+    if engine.keyboard_state.just_pressed(KeyCode::Delete)
+        || engine.keyboard_state.just_pressed(KeyCode::Back)
     {
         sprite.collider = Collider::NoCollider;
         sprite.collider_dirty = true;
     }
     // Modify a collider point
-    if engine_state.mouse_state.just_pressed(MouseButton::Left) {
-        if let Some(location) = engine_state.mouse_state.location() {
-            if engine_state
+    if engine.mouse_state.just_pressed(MouseButton::Left) {
+        if let Some(location) = engine.mouse_state.location() {
+            if engine
                 .keyboard_state
                 .pressed_any(&[KeyCode::RShift, KeyCode::LShift])
             {
@@ -137,20 +137,19 @@ fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) {
         }
     }
     // Generate a circle collider
-    if engine_state.keyboard_state.just_pressed_any(&[
-        KeyCode::Plus,
-        KeyCode::Equals,
-        KeyCode::NumpadAdd,
-    ]) {
+    if engine
+        .keyboard_state
+        .just_pressed_any(&[KeyCode::Plus, KeyCode::Equals, KeyCode::NumpadAdd])
+    {
         game_state.circle_radius += 0.5;
     }
-    if engine_state
+    if engine
         .keyboard_state
         .just_pressed_any(&[KeyCode::Minus, KeyCode::NumpadSubtract])
     {
         game_state.circle_radius -= 0.5;
     }
-    if engine_state.keyboard_state.just_pressed_any(&[
+    if engine.keyboard_state.just_pressed_any(&[
         KeyCode::Plus,
         KeyCode::Equals,
         KeyCode::NumpadAdd,
@@ -161,7 +160,7 @@ fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) {
         sprite.collider = Collider::circle(game_state.circle_radius);
     }
     // Let the user know whether or not their collider is currently convex
-    let convex = engine_state.texts.get_mut("convex").unwrap();
+    let convex = engine.texts.get_mut("convex").unwrap();
     const CONVEX_MESSAGE: &str = "Convex!";
     const NOT_CONVEX_MESSAGE: &str = "Not a convex polygon. :-(";
     if sprite.collider.is_convex() {
@@ -174,7 +173,7 @@ fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) {
         }
     }
     // Write the collider file
-    if engine_state.keyboard_state.just_pressed(KeyCode::W) {
+    if engine.keyboard_state.just_pressed(KeyCode::W) {
         if sprite.write_collider() {
             println!(
                 "Successfully wrote the new collider file: {}",

@@ -28,7 +28,7 @@ pub struct Sprite {
     /// Relative to translation
     pub collider: Collider,
     /// If set to `true`, then the collider shown for this sprite will be regenerated (see also
-    /// [`EngineState.show_colliders`](crate::prelude::EngineState)). This needs to be done if you
+    /// [`Engine.show_colliders`](crate::prelude::Engine)). This needs to be done if you
     /// manually replace a `Sprite`'s [`Collider`] after the game has started.
     pub collider_dirty: bool,
 }
@@ -51,7 +51,7 @@ fn read_collider_from_file(filepath: &Path) -> Collider {
 
 impl Sprite {
     /// `label` should be a unique string (it will be used as a key in the hashmap
-    /// [`EngineState::sprites`](crate::prelude::EngineState)). `file_or_preset` should either be a
+    /// [`Engine::sprites`](crate::prelude::Engine)). `file_or_preset` should either be a
     /// [`SpritePreset`] variant, or a relative path to an image file inside the `assets/`
     /// directory. If a collider definition exists in a file with the same name as the image file,
     /// but with the `.collider` extension, then the collider will be loaded automatically. To

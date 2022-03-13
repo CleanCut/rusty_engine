@@ -20,7 +20,7 @@ fn main() {
     game.run(());
 }
 
-fn logic(game_state: &mut EngineState, _: &mut ()) {
+fn logic(game_state: &mut Engine, _: &mut ()) {
     // Get the race car sprite
     let race_car = game_state.sprites.get_mut("Race Car").unwrap();
 

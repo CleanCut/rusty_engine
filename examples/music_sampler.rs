@@ -20,10 +20,10 @@ fn main() {
     game.run(GameState { music_index: 0 });
 }
 
-fn logic(engine_state: &mut EngineState, game_state: &mut GameState) {
+fn logic(engine: &mut Engine, game_state: &mut GameState) {
     let mut should_play_new_song = false;
     // Play a new song because a key was pressed
-    for ev in engine_state.keyboard_events.drain(..) {
+    for ev in engine.keyboard_events.drain(..) {
         if ev.state != ElementState::Pressed {
             continue;
         }
@@ -32,14 +32,14 @@ fn logic(engine_state: &mut EngineState, game_state: &mut GameState) {
         break;
     }
 
-    if should_play_new_song || !engine_state.audio_manager.music_playing() {
+    if should_play_new_song || !engine.audio_manager.music_playing() {
         // Actually play the new song
         let music_preset = MusicPreset::variant_iter()
             .nth(game_state.music_index)
             .unwrap();
-        engine_state.audio_manager.play_music(music_preset, 1.0);
+        engine.audio_manager.play_music(music_preset, 1.0);
         // And make text saying what song we're playing
-        let note1 = engine_state.add_text("note1", format!("Looping: {:?}", music_preset));
+        let note1 = engine.add_text("note1", format!("Looping: {:?}", music_preset));
         note1.font_size = 75.0;
     }
 }

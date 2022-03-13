@@ -11,7 +11,7 @@ pub const TEXT_DEFAULT_FONT_SIZE: f32 = 30.0;
 pub struct Text {
     /// READONLY: A label to identify the text. This is not the text that is displayed! This is the
     /// label you use to retrieve and modify your text from the
-    /// [`EngineState::texts`](crate::prelude::EngineState::texts) HashMap.
+    /// [`Engine::texts`](crate::prelude::Engine::texts) HashMap.
     pub label: String,
     /// SYNCED: The actual text value you want to display.
     pub value: String,

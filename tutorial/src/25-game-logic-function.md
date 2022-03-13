@@ -5,7 +5,7 @@ A game is divided up into _frames_. A _frame_ is one run through your game logic
 A game logic function definition looks like this:
 
 ```rust,ignore
-fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) {
+fn game_logic(engine: &mut Engine, game_state: &mut GameState) {
     // your actual game logic goes here
 }
 ```
@@ -13,7 +13,7 @@ fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) {
 If you passed in a unit struct for your game state, then use a unit struct in your logic function definition:
 
 ```rust,ignore
-fn game_logic(engine_state: &mut EngineState, game_state: &mut ()) {
+fn game_logic(engine: &mut Engine, game_state: &mut ()) {
     // logic...without any state to look at.
 }
 ```
@@ -59,7 +59,7 @@ fn main() {
     game.run(game_state);
 }
 
-fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) {
+fn game_logic(engine: &mut Engine, game_state: &mut GameState) {
     game_state.current_score += 1;
     println!("Current score: {}", game_state.current_score);
 }

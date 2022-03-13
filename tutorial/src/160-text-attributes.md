@@ -2,7 +2,7 @@
 
 Changing the string value, the chosen font, or the font size causes the `Text` to be re-rendered as a new image at the end of the frame. This is relatively expensive in terms of performance, so you should avoid changing these attributes except when you actually need to.
 
-All existing text values can be accessed through the `EngineState.texts` vector.
+All existing text values can be accessed through the `Engine.texts` vector.
 
 
 ### Value
@@ -10,7 +10,7 @@ All existing text values can be accessed through the `EngineState.texts` vector.
 `Text.value` is the actual string that gets rendered to the screen. If you change the value, then the `Text` will be re-rendered as a new image at the end of the frame with the new value.
 
 ```rust,ignored
-let score_text = engine_state.texts.get_mut("score_text").unwrap();
+let score_text = engine.texts.get_mut("score_text").unwrap();
 score_text.value = format!("Score: {}", score);
 ```
 
@@ -25,7 +25,7 @@ The asset pack contains two fonts:
 
 
 ```rust,ignored
-let mono = engine_state.add_text("mono", "This text is using a monospace font");
+let mono = engine.add_text("mono", "This text is using a monospace font");
 mono.font = "FiraMono-Medium.ttf".to_string();
 ```
 
@@ -33,7 +33,7 @@ To use a custom font, place a valid `otf` or `ttf` file in `assets/font` and set
 
 ```rust,ignored
 // After placing `party.otf` in the `assets/font/` directory...
-let party = engine_state.add_text("party", "Let's Party!");
+let party = engine.add_text("party", "Let's Party!");
 mono.font = "party.otf".to_string();
 ```
 
@@ -50,6 +50,6 @@ If you change the font size, then the `Text` will be re-rendered as a new image 
 The default font size is `30.0`. Setting the font size doesn't require a lot of explanation:
 
 ```rust,ignored
-let large = engine_state.add_text("large", "This is a large font size!");
+let large = engine.add_text("large", "This is a large font size!");
 mono.font_size = 96.0;
 ```

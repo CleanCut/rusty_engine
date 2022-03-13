@@ -66,7 +66,7 @@ Z - Print out Rust code of current level
     game.run(game_state);
 }
 
-fn logic(engine_state: &mut EngineState, game_state: &mut GameState) {
+fn logic(engine: &mut Engine, game_state: &mut GameState) {
     // Gather keyboard input
     let mut reset = false;
     let mut print_level = false;
@@ -74,7 +74,7 @@ fn logic(engine_state: &mut EngineState, game_state: &mut GameState) {
     let mut place_sprite = false;
     let mut prev_preset = false;
     let mut next_preset = false;
-    for keyboard_event in &engine_state.keyboard_events {
+    for keyboard_event in &engine.keyboard_events {
         if let KeyboardInput {
             scan_code: _,
             key_code: Some(key_code),
@@ -122,7 +122,7 @@ fn logic(engine_state: &mut EngineState, game_state: &mut GameState) {
         println!(
             "---------------\n\nuse rusty_engine::prelude::*;\n\nstruct GameState {{}}\n\nfn main() {{\n    let mut game = Game::new();\n"
         );
-        for sprite in engine_state.sprites.values() {
+        for sprite in engine.sprites.values() {
             if sprite.label == game_state.current_label {
                 continue;
             }
@@ -137,11 +137,11 @@ fn logic(engine_state: &mut EngineState, game_state: &mut GameState) {
                 sprite.layer,
             );
         }
-        println!("\n    game.add_logic(logic);\n    game.run(GameState {{}});\n}}\n\nfn logic(engine_state: &mut EngineState, game_state: &mut GameState) {{\n    // Game Logic Goes Here\n}}")
+        println!("\n    game.add_logic(logic);\n    game.run(GameState {{}});\n}}\n\nfn logic(engine: &mut Engine, game_state: &mut GameState) {{\n    // Game Logic Goes Here\n}}")
     }
 
     // Handle current sprite that has not yet been placed
-    if let Some(sprite) = engine_state.sprites.get_mut(&game_state.current_label) {
+    if let Some(sprite) = engine.sprites.get_mut(&game_state.current_label) {
         // Should we print out the status of the sprite?
         if print_status {
             println!(
@@ -160,11 +160,11 @@ fn logic(engine_state: &mut EngineState, game_state: &mut GameState) {
         }
 
         // Handle translation via mouse location
-        for cursor_moved in &engine_state.mouse_location_events {
+        for cursor_moved in &engine.mouse_location_events {
             sprite.translation = cursor_moved.position;
         }
         // Handle rotation via mouse clicks
-        for mouse_button_input in &engine_state.mouse_button_events {
+        for mouse_button_input in &engine.mouse_button_events {
             if mouse_button_input.state != ElementState::Pressed {
                 break;
             }
@@ -181,7 +181,7 @@ fn logic(engine_state: &mut EngineState, game_state: &mut GameState) {
             println!("r: {:.8}", sprite.rotation);
         }
         // Handle scale via mousewheel
-        for mouse_wheel in &engine_state.mouse_wheel_events {
+        for mouse_wheel in &engine.mouse_wheel_events {
             let scale_amount = if game_state.shift_pressed { 0.01 } else { 0.1 };
             if mouse_wheel.y > 0.0 || mouse_wheel.x < 0.0 {
                 sprite.scale *= 1.0 + scale_amount;
@@ -196,7 +196,7 @@ fn logic(engine_state: &mut EngineState, game_state: &mut GameState) {
     // Change sprite to prev/next preset
     if prev_preset || next_preset {
         let old_sprite = {
-            engine_state
+            engine
                 .sprites
                 .get_mut(&game_state.current_label)
                 .unwrap()
@@ -226,19 +226,15 @@ fn logic(engine_state: &mut EngineState, game_state: &mut GameState) {
         new_sprite.translation = old_sprite.translation;
         new_sprite.rotation = old_sprite.rotation;
         new_sprite.scale = old_sprite.scale;
-        engine_state
-            .sprites
-            .insert(new_sprite.label.clone(), new_sprite);
-        engine_state
-            .sprites
-            .remove::<str>(old_sprite.label.as_ref());
+        engine.sprites.insert(new_sprite.label.clone(), new_sprite);
+        engine.sprites.remove::<str>(old_sprite.label.as_ref());
         println!("{:?}", new_preset);
     }
 
     // Place an sprite
     if place_sprite {
         let mut sprite = {
-            engine_state
+            engine
                 .sprites
                 .get_mut(&game_state.current_label)
                 .unwrap()
@@ -248,6 +244,6 @@ fn logic(engine_state: &mut EngineState, game_state: &mut GameState) {
         game_state.next_layer += 0.01;
         sprite.label = game_state.next_sprite_num.to_string();
         game_state.next_sprite_num += 1;
-        engine_state.sprites.insert(sprite.label.clone(), sprite);
+        engine.sprites.insert(sprite.label.clone(), sprite);
     }
 }

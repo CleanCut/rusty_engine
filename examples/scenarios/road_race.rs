@@ -67,7 +67,7 @@ fn main() {
     });
 }
 
-fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) {
+fn game_logic(engine: &mut Engine, game_state: &mut GameState) {
     // Don't run any more game logic if the game has ended
     if game_state.lost {
         return;
@@ -75,13 +75,13 @@ fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) {
 
     // Respond to keyboard events and set the direction
     let mut direction = 0.0;
-    if engine_state
+    if engine
         .keyboard_state
         .pressed_any(&[KeyCode::Up, KeyCode::W, KeyCode::Comma])
     {
         direction += 1.0;
     }
-    if engine_state
+    if engine
         .keyboard_state
         .pressed_any(&[KeyCode::Down, KeyCode::S, KeyCode::O])
     {
@@ -89,23 +89,23 @@ fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) {
     }
 
     // Move player1
-    let player1 = engine_state.sprites.get_mut("player1").unwrap();
-    player1.translation.y += direction * PLAYER_SPEED * engine_state.delta_f32;
+    let player1 = engine.sprites.get_mut("player1").unwrap();
+    player1.translation.y += direction * PLAYER_SPEED * engine.delta_f32;
     player1.rotation = direction * 0.15;
     if player1.translation.y < -360.0 || player1.translation.y > 360.0 {
         game_state.health_amount = 0;
     }
 
     // Move road objects
-    for sprite in engine_state.sprites.values_mut() {
+    for sprite in engine.sprites.values_mut() {
         if sprite.label.starts_with("roadline") {
-            sprite.translation.x -= ROAD_SPEED * engine_state.delta_f32;
+            sprite.translation.x -= ROAD_SPEED * engine.delta_f32;
             if sprite.translation.x < -675.0 {
                 sprite.translation.x += 1500.0;
             }
         }
         if sprite.label.starts_with("obstacle") {
-            sprite.translation.x -= ROAD_SPEED * engine_state.delta_f32;
+            sprite.translation.x -= ROAD_SPEED * engine.delta_f32;
             if sprite.translation.x < -800.0 {
                 sprite.translation.x = thread_rng().gen_range(800.0..1600.0);
                 sprite.translation.y = thread_rng().gen_range(-300.0..300.0);
@@ -114,8 +114,8 @@ fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) {
     }
 
     // Deal with collisions
-    let health_message = engine_state.texts.get_mut("health_message").unwrap();
-    for event in engine_state.collision_events.drain(..) {
+    let health_message = engine.texts.get_mut("health_message").unwrap();
+    for event in engine.collision_events.drain(..) {
         // We don't care if obstacles collide with each other or collisions end
         if !event.pair.either_contains("player1") || event.state.is_end() {
             continue;
@@ -123,14 +123,14 @@ fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) {
         if game_state.health_amount > 0 {
             game_state.health_amount -= 1;
             health_message.value = format!("Health: {}", game_state.health_amount);
-            engine_state.audio_manager.play_sfx(SfxPreset::Impact3, 0.5);
+            engine.audio_manager.play_sfx(SfxPreset::Impact3, 0.5);
         }
     }
     if game_state.health_amount == 0 {
         game_state.lost = true;
-        let game_over = engine_state.add_text("game over", "Game Over");
+        let game_over = engine.add_text("game over", "Game Over");
         game_over.font_size = 128.0;
-        engine_state.audio_manager.stop_music();
-        engine_state.audio_manager.play_sfx(SfxPreset::Jingle3, 0.5);
+        engine.audio_manager.stop_music();
+        engine.audio_manager.play_sfx(SfxPreset::Jingle3, 0.5);
     }
 }

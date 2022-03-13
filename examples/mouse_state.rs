@@ -39,20 +39,20 @@ fn main() {
     game.run(());
 }
 
-fn logic(engine_state: &mut EngineState, _: &mut ()) {
-    if let Some(sprite) = engine_state.sprites.get_mut("Race Car") {
+fn logic(engine: &mut Engine, _: &mut ()) {
+    if let Some(sprite) = engine.sprites.get_mut("Race Car") {
         // Use the latest state of the mouse buttons to rotate the sprite
         let mut rotation_amount = 0.0;
-        if engine_state.mouse_state.pressed(MouseButton::Left) {
-            rotation_amount += ROTATION_SPEED * engine_state.delta_f32;
+        if engine.mouse_state.pressed(MouseButton::Left) {
+            rotation_amount += ROTATION_SPEED * engine.delta_f32;
         }
-        if engine_state.mouse_state.pressed(MouseButton::Right) {
-            rotation_amount -= ROTATION_SPEED * engine_state.delta_f32;
+        if engine.mouse_state.pressed(MouseButton::Right) {
+            rotation_amount -= ROTATION_SPEED * engine.delta_f32;
         }
         sprite.rotation += rotation_amount;
 
         // Use the latest state of the mouse wheel to scale the sprite
-        if let Some(location) = engine_state.mouse_state.location() {
+        if let Some(location) = engine.mouse_state.location() {
             sprite.translation = location
         }
 
@@ -61,15 +61,15 @@ fn logic(engine_state: &mut EngineState, _: &mut ()) {
         // fast spins of the wheel. But here is how to use the mouse wheel state sort of like a
         // button. `wheel_direction` will be `1.0`, `0.0`, or `-1.0` depending on what's going on
         // with the mouse wheel.
-        let wheel_direction = engine_state.mouse_state.wheel().y;
+        let wheel_direction = engine.mouse_state.wheel().y;
         sprite.scale *= 1.0 + (wheel_direction * 0.1);
         sprite.scale = sprite.scale.clamp(0.1, 4.0);
     }
 
     // Offset the move indicator from the move indicator origin to visually represent the relative
     // mouse motion for the frame
-    if let Some(sprite) = engine_state.sprites.get_mut("move indicator") {
-        let motion = engine_state.mouse_state.motion();
+    if let Some(sprite) = engine.sprites.get_mut("move indicator") {
+        let motion = engine.mouse_state.motion();
         // There seems to be a Bevy 0.6 bug where every other frame we don't receive any mouse
         // motion events, so ignore those frames.
         // TODO: Follow up on this bug in upstream Bevy

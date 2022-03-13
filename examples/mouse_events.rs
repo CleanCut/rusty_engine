@@ -38,10 +38,10 @@ fn main() {
     game.run(());
 }
 
-fn logic(engine_state: &mut EngineState, _: &mut ()) {
-    if let Some(sprite) = engine_state.sprites.get_mut("Race Car") {
+fn logic(engine: &mut Engine, _: &mut ()) {
+    if let Some(sprite) = engine.sprites.get_mut("Race Car") {
         // Use mouse button events to rotate. Every click rotates the sprite by a fixed amount
-        for mouse_button_input in &engine_state.mouse_button_events {
+        for mouse_button_input in &engine.mouse_button_events {
             if mouse_button_input.state != ElementState::Pressed {
                 break;
             }
@@ -54,15 +54,15 @@ fn logic(engine_state: &mut EngineState, _: &mut ()) {
 
         // Use mouse location events to set the location of the sprite. This loop is effectively
         // discarding all but the last location. If that is what you want, you should use
-        // EngineState::mouse_state instead. See the mouse_state example for more details.
-        for cursor_moved in &engine_state.mouse_location_events {
+        // Engine::mouse_state instead. See the mouse_state example for more details.
+        for cursor_moved in &engine.mouse_location_events {
             sprite.translation = cursor_moved.position;
         }
 
         // Use the mouse wheel events to scale the sprite. Events are typically the best way to deal
         // with the mouse wheel, because then you can handle quick spins by processing each event
         // individually.
-        for mouse_wheel in &engine_state.mouse_wheel_events {
+        for mouse_wheel in &engine.mouse_wheel_events {
             sprite.scale *= 1.0 + (0.05 * mouse_wheel.y);
             sprite.scale = sprite.scale.clamp(0.1, 4.0);
         }
@@ -70,14 +70,14 @@ fn logic(engine_state: &mut EngineState, _: &mut ()) {
 
     // Offset the move indicator sprite from the move indicator origin to visually represent the
     // relative mouse motion for the frame
-    if let Some(sprite) = engine_state.sprites.get_mut("move indicator") {
+    if let Some(sprite) = engine.sprites.get_mut("move indicator") {
         // let motion = game_state.mouse_state.motion();
         // if motion != Vec2::ZERO {
         //     sprite.translation = motion + ORIGIN_LOCATION.into();
         // }
 
         let mut cumulative_motion = Vec2::ZERO;
-        for mouse_motion in &engine_state.mouse_motion_events {
+        for mouse_motion in &engine.mouse_motion_events {
             cumulative_motion += mouse_motion.delta
         }
         // There seems to be a Bevy 0.6 bug where every other frame we don't receive any mouse

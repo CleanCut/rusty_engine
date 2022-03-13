@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+for file in $(find examples -name '*.rs' | sort) ; do
+    example=$(basename $file | cut -d . -f 1)
+    extra_args=
+    if [ "$example" == "collider" ] ; then
+        extra_args="assets/sprite/racing/car_blue.png"
+    fi
+    echo "### $example $extra_args###"
+    if ! cargo run --release --example $example $extra_args ; then
+        echo "FAILED ON $example"
+        break
+    fi
+done

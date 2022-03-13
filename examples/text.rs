@@ -53,22 +53,22 @@ fn main() {
     game.run(game_state);
 }
 
-fn game_logic(engine_state: &mut EngineState, game_state: &mut GameState) {
-    if game_state.timer.tick(engine_state.delta).just_finished() {
-        let mut fps = engine_state.texts.get_mut("fps").unwrap();
-        fps.value = format!("FPS: {:.1}", 1.0 / engine_state.delta_f32);
+fn game_logic(engine: &mut Engine, game_state: &mut GameState) {
+    if game_state.timer.tick(engine.delta).just_finished() {
+        let mut fps = engine.texts.get_mut("fps").unwrap();
+        fps.value = format!("FPS: {:.1}", 1.0 / engine.delta_f32);
     }
 
-    let t = engine_state.texts.get_mut("translation").unwrap();
-    t.translation.x = 50.0 * (engine_state.time_since_startup_f64).sin() as f32 - 400.0;
-    t.translation.y = 50.0 * (engine_state.time_since_startup_f64).cos() as f32 - 230.0;
+    let t = engine.texts.get_mut("translation").unwrap();
+    t.translation.x = 50.0 * (engine.time_since_startup_f64).sin() as f32 - 400.0;
+    t.translation.y = 50.0 * (engine.time_since_startup_f64).cos() as f32 - 230.0;
 
-    let r = engine_state.texts.get_mut("rotation").unwrap();
-    r.rotation -= 1.5 * engine_state.delta_f32;
+    let r = engine.texts.get_mut("rotation").unwrap();
+    r.rotation -= 1.5 * engine.delta_f32;
 
-    let s = engine_state.texts.get_mut("scale").unwrap();
-    s.scale = 1.5 + ((engine_state.time_since_startup_f64 * 0.5).cos() as f32) * -1.0;
+    let s = engine.texts.get_mut("scale").unwrap();
+    s.scale = 1.5 + ((engine.time_since_startup_f64 * 0.5).cos() as f32) * -1.0;
 
-    let msg3 = engine_state.texts.get_mut("zoom_msg").unwrap();
-    msg3.font_size = 10.0 * (engine_state.time_since_startup_f64 * 0.5).cos() as f32 + 25.0;
+    let msg3 = engine.texts.get_mut("zoom_msg").unwrap();
+    msg3.font_size = 10.0 * (engine.time_since_startup_f64 * 0.5).cos() as f32 + 25.0;
 }

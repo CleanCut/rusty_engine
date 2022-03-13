@@ -834,8 +834,8 @@ fn main() {
 const TURN_RATE: f32 = 3.0;
 const ACCELERATION_RATE: f32 = 100.0;
 
-fn logic(engine_state: &mut EngineState, game_state: &mut GameState) {
-    let score_text = engine_state.texts.get_mut("score_text").unwrap();
+fn logic(engine: &mut Engine, game_state: &mut GameState) {
+    let score_text = engine.texts.get_mut("score_text").unwrap();
 
     // if game_state.won {
     //     for sprite in game_state.sprites.values_mut() {
@@ -853,43 +853,43 @@ fn logic(engine_state: &mut EngineState, game_state: &mut GameState) {
     }
 
     // Player movement
-    let player = engine_state.sprites.get_mut("player".into()).unwrap();
+    let player = engine.sprites.get_mut("player".into()).unwrap();
     let mut acceleration = 0.0;
     let mut rotation = 0.0;
     // Nested scope so the bare KeyCode variants only show up here where we want to use them
     {
         use KeyCode::*;
         // Acceleration input
-        if engine_state.keyboard_state.pressed_any(&[W, Up, Comma]) {
+        if engine.keyboard_state.pressed_any(&[W, Up, Comma]) {
             acceleration += 1.0;
         }
-        if engine_state.keyboard_state.pressed_any(&[S, Down, O]) {
+        if engine.keyboard_state.pressed_any(&[S, Down, O]) {
             acceleration -= 1.0;
         }
         // Rotation/Turning input
-        if engine_state.keyboard_state.pressed_any(&[A, Left]) {
+        if engine.keyboard_state.pressed_any(&[A, Left]) {
             rotation += 1.0;
         }
-        if engine_state.keyboard_state.pressed_any(&[D, Right, E]) {
+        if engine.keyboard_state.pressed_any(&[D, Right, E]) {
             rotation -= 1.0;
         }
     }
     let mut velocity_magnitude = game_state.velocity.length();
-    velocity_magnitude += (acceleration * ACCELERATION_RATE) * engine_state.delta_f32;
-    player.rotation += (rotation * TURN_RATE) * engine_state.delta_f32;
+    velocity_magnitude += (acceleration * ACCELERATION_RATE) * engine.delta_f32;
+    player.rotation += (rotation * TURN_RATE) * engine.delta_f32;
     game_state.velocity = Vec2::new(
         velocity_magnitude * player.rotation.cos(),
         velocity_magnitude * player.rotation.sin(),
     );
-    player.translation += game_state.velocity * engine_state.delta_f32;
+    player.translation += game_state.velocity * engine.delta_f32;
 
     // Make the shinies...shinier
-    for sprite in engine_state
+    for sprite in engine
         .sprites
         .values_mut()
         .filter(|a| a.label.starts_with("shiny"))
     {
-        sprite.scale = 0.25 + 0.03 * ((engine_state.time_since_startup_f64 * 6.0).cos() as f32);
+        sprite.scale = 0.25 + 0.03 * ((engine.time_since_startup_f64 * 6.0).cos() as f32);
     }
 
     // Don't do stuff past this point after we win
@@ -898,7 +898,7 @@ fn logic(engine_state: &mut EngineState, game_state: &mut GameState) {
     }
 
     // Process collisions
-    for event in engine_state.collision_events.drain(..) {
+    for event in engine.collision_events.drain(..) {
         if !event.pair.either_contains("player") {
             // if it doesn't involve the player, we don't care
             continue;
@@ -914,10 +914,8 @@ fn logic(engine_state: &mut EngineState, game_state: &mut GameState) {
             } else {
                 event.pair.1.clone()
             };
-            engine_state.sprites.remove(&shiny_label);
-            engine_state
-                .audio_manager
-                .play_sfx(SfxPreset::Confirmation1, 1.0);
+            engine.sprites.remove(&shiny_label);
+            engine.audio_manager.play_sfx(SfxPreset::Confirmation1, 1.0);
             game_state.score += 1;
             score_text.value = format!("Score: {}", game_state.score);
             if game_state.score >= game_state.win_amount {
@@ -929,15 +927,15 @@ fn logic(engine_state: &mut EngineState, game_state: &mut GameState) {
         // Crash!
         game_state.crashed = true;
         //game_state.add_text("crashed", "You crashed. You fail. :-(");
-        engine_state.audio_manager.play_sfx(SfxPreset::Jingle3, 1.0);
-        engine_state.audio_manager.stop_music();
+        engine.audio_manager.play_sfx(SfxPreset::Jingle3, 1.0);
+        engine.audio_manager.stop_music();
     }
 
     if game_state.won {
-        engine_state
+        engine
             .audio_manager
             .play_sfx(SfxPreset::Congratulations, 1.0);
-        let mut you_win = engine_state.add_text("you win", "You Win!");
+        let mut you_win = engine.add_text("you win", "You Win!");
         you_win.font_size = 120.0;
         you_win.translation.y = -50.0;
     }
