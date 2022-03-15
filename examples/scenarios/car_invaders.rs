@@ -14,6 +14,7 @@ fn main() {
     player.rotation = SOUTH_WEST;
     player.scale = 0.75;
     player.collision = true;
+    player.layer = 2.0;
 
     //car.translation.y = car.translation.y.clamp(-360.0, 360.0);
 
@@ -26,13 +27,15 @@ fn main() {
     }
     // pre-populate laser labels
     let mut game_state = GameState::default();
-    for i in 0..2 {
+    for i in 0..3 {
         game_state.laser_labels.push(format!("laser{}", i));
     }
 
     game.add_logic(game_logic);
     game.run(game_state);
 }
+
+const LASER_SPEED: f32 = 1000.0;
 
 fn game_logic(engine: &mut Engine, game_state: &mut GameState) {
     // Player movement
@@ -53,9 +56,30 @@ fn game_logic(engine: &mut Engine, game_state: &mut GameState) {
             let laser =
                 engine.add_sprite(format!("laser{}", label), SpritePreset::RacingBarrierWhite);
             laser.rotation = UP;
-            laser.scale = 0.25;
+            laser.scale = 0.2;
             laser.translation = player_translation;
+            laser.layer = 1.0;
+            engine.audio_manager.play_sfx(SfxPreset::Forcefield1, 0.4);
         }
+    }
+
+    // Move lasers
+    let mut laser_labels_to_recycle = Vec::new();
+    for laser in engine
+        .sprites
+        .values_mut()
+        .filter(|sprite| sprite.label.starts_with("laser"))
+    {
+        laser.translation.y += LASER_SPEED * engine.delta_f32;
+        if laser.translation.y > 400.0 {
+            laser_labels_to_recycle.push(laser.label.clone());
+        }
+    }
+
+    // Recycle lasers
+    for laser_label in laser_labels_to_recycle {
+        engine.sprites.remove(&laser_label);
+        game_state.laser_labels.push(laser_label);
     }
 }
 
