@@ -1,4 +1,4 @@
-use crate::prelude::GameState;
+use crate::prelude::Engine;
 use bevy::{prelude::*, utils::HashMap};
 
 // Re-export some Bevy types to use
@@ -7,15 +7,15 @@ pub use bevy::input::keyboard::{KeyCode, KeyboardInput};
 pub struct KeyboardPlugin;
 
 impl Plugin for KeyboardPlugin {
-    fn build(&self, app: &mut bevy::prelude::AppBuilder) {
+    fn build(&self, app: &mut bevy::prelude::App) {
         app.insert_resource::<KeyboardState>(KeyboardState::default())
-            .add_system(sync_keyboard_events.system().before("game_logic_sync"))
-            .add_system(sync_keyboard_state.system().before("game_logic_sync"));
+            .add_system(sync_keyboard_events.before("game_logic_sync"))
+            .add_system(sync_keyboard_state.before("game_logic_sync"));
     }
 }
 
 fn sync_keyboard_events(
-    mut game_state: ResMut<GameState>,
+    mut game_state: ResMut<Engine>,
     mut keyboard_input_events: EventReader<KeyboardInput>,
 ) {
     // Clear any events that weren't used last frame
@@ -45,9 +45,15 @@ impl KeyboardState {
         *self.this_frame.get(&key).unwrap_or(&false)
             && !*self.last_frame.get(&key).unwrap_or(&false)
     }
+    pub fn just_pressed_any(&self, key_codes: &[KeyCode]) -> bool {
+        key_codes.iter().any(|k| self.just_pressed(*k))
+    }
     pub fn just_released(&self, key: KeyCode) -> bool {
         !*self.this_frame.get(&key).unwrap_or(&false)
             && *self.last_frame.get(&key).unwrap_or(&false)
+    }
+    pub fn just_released_any(&self, key_codes: &[KeyCode]) -> bool {
+        key_codes.iter().any(|k| self.just_released(*k))
     }
 }
 

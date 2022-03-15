@@ -1,16 +1,25 @@
-use crate::actor::Actor;
+use crate::sprite::Sprite;
 use bevy::prelude::*;
-use std::{collections::HashSet, hash::Hash};
+use serde::{Deserialize, Serialize};
+use std::{
+    collections::HashSet,
+    f32::consts::{PI, TAU},
+    hash::Hash,
+};
 
 pub struct PhysicsPlugin;
 
 impl Plugin for PhysicsPlugin {
-    fn build(&self, app: &mut AppBuilder) {
+    fn build(&self, app: &mut App) {
         app.add_event::<CollisionEvent>()
-            .add_system(collision_detection.system());
+            .add_system(collision_detection);
     }
 }
 
+/// This is the struct that is generated when a collision occurs. Collisions only occur between two
+/// [Sprite]s which:
+/// - have colliders (you can use the `collider` example to create your own colliders)
+/// - have their `collision` flags set to `true`.
 #[derive(Debug, Clone)]
 pub struct CollisionEvent {
     pub state: CollisionState,
@@ -78,21 +87,22 @@ impl Hash for CollisionPair {
     }
 }
 
+// system - detect collisions and generate the collision events
 fn collision_detection(
     mut existing_collisions: Local<HashSet<CollisionPair>>,
     mut collision_events: EventWriter<CollisionEvent>,
-    query: Query<&Actor>,
+    query: Query<&Sprite>,
 ) {
     let mut current_collisions = HashSet::<CollisionPair>::new();
-    'outer: for actor1 in query.iter().filter(|a| a.collision) {
-        for actor2 in query.iter().filter(|a| a.collision) {
-            if actor1.label == actor2.label {
+    'outer: for sprite1 in query.iter().filter(|a| a.collision) {
+        for sprite2 in query.iter().filter(|a| a.collision) {
+            if sprite1.label == sprite2.label {
                 // We only need to compare one half of the matrix triangle
                 continue 'outer;
             }
-            if Collider::colliding(actor1, actor2) {
+            if Collider::colliding(sprite1, sprite2) {
                 current_collisions
-                    .insert(CollisionPair(actor1.label.clone(), actor2.label.clone()));
+                    .insert(CollisionPair(sprite1.label.clone(), sprite2.label.clone()));
             }
         }
     }
@@ -126,7 +136,9 @@ fn collision_detection(
     }
 }
 
-#[derive(Clone, Debug)]
+/// Represents the collider (or lack thereof) of a sprite. Two sprites need to have colliders AND
+/// have their `Sprite.collision` fields set to `true` to generate collision events.
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
 pub enum Collider {
     NoCollider,
     Poly(Vec<Vec2>),
@@ -139,6 +151,7 @@ impl Default for Collider {
 }
 
 impl Collider {
+    /// Generate a rectangular collider based on top-left and bottom-right points
     pub fn rect<T: Into<Vec2>>(topleft: T, bottomright: T) -> Self {
         let topleft = topleft.into();
         let bottomright = bottomright.into();
@@ -149,25 +162,103 @@ impl Collider {
             Vec2::new(topleft.x, bottomright.y),
         ])
     }
+    /// Convert a slice of Vec2's into a polygon collider. This is helpful if you want to hard-code
+    /// colliders in your code as arrays or vectors of Vec2.
     pub fn poly<T: Into<Vec2> + Copy>(points: &[T]) -> Self {
         Self::Poly(points.iter().map(|&x| x.into()).collect())
     }
+    /// Generate a polygon circle approximation with a specified amount of vertices
     pub fn circle_custom(radius: f32, vertices: usize) -> Self {
         let mut points = vec![];
-        for x in 0..=vertices {
-            let inner = 2.0 * std::f64::consts::PI / vertices as f64 * x as f64;
-            points.push(Vec2::new(
-                inner.cos() as f32 * radius,
-                inner.sin() as f32 * radius,
-            ));
+        for x in 0..vertices {
+            let inner = std::f64::consts::TAU / vertices as f64 * x as f64;
+            let mut inner_x = inner.cos() as f32 * radius;
+            let mut inner_y = inner.sin() as f32 * radius;
+            // Clamp near-zero values to zero when producing RON files: (-0.0000000000000044087286)
+            if (inner_x > -0.000001) && (inner_x < 0.000001) {
+                inner_x = 0.0;
+            }
+            if (inner_y > -0.000001) && (inner_y < 0.000001) {
+                inner_y = 0.0;
+            }
+            points.push(Vec2::new(inner_x, inner_y));
         }
         Self::Poly(points)
     }
+    /// Generate a 16-vertex polygon circle approximation. 16 was chosen as the default as it works
+    /// quite well with the circular sprites in the asset pack.
     pub fn circle(radius: f32) -> Self {
         Self::circle_custom(radius, 16)
     }
+    /// Whether or not the collider is a `Collider::Poly`.
     pub fn is_poly(&self) -> bool {
         matches!(self, Self::Poly(_))
+    }
+    /// Whether the points in the collider represent a convex polygon (not concave or complex).
+    /// This is important, because Rusty Engine's collision detection doesn't work correctly unless
+    /// colliders are convex polygons.
+    ///
+    /// Implementation based on Rory Daulton's answer on https://stackoverflow.com/questions/471962/how-do-i-efficiently-determine-if-a-polygon-is-convex-non-convex-or-complex?answertab=votes#tab-top
+    pub fn is_convex(&self) -> bool {
+        if let Collider::Poly(points) = self {
+            let length = points.len();
+            if length < 3 {
+                return false; // empty sets, points and lines are not convex polygons
+            }
+            // the source algorithm deals with individual x's and y's and the combined points in
+            // disjoint ways, so we need to follow the pattern unless we want to modify the
+            // algorithm itself.
+            let mut old_x = points[length - 2].x;
+            let mut old_y = points[length - 2].y;
+            let mut new_x = points[length - 1].x;
+            let mut new_y = points[length - 1].y;
+            let mut new_direction = (new_y - old_y).atan2(new_x - old_x);
+            let mut angle_sum = 0.0;
+            let mut old_direction;
+            let mut orientation = 0.0;
+            for (idx, newpoint) in points.iter().enumerate() {
+                // The fact that new_x and new_y are re-used at the top of the loop with the
+                // expectation that they have the last loop's values is why we can't use the
+                // newpoint loop variable directly. Messy. :-/
+                old_x = new_x;
+                old_y = new_y;
+                old_direction = new_direction;
+                new_x = newpoint.x;
+                new_y = newpoint.y;
+                new_direction = (new_y - old_y).atan2(new_x - old_x);
+                if (old_x == new_x) && (old_y == new_y) {
+                    return false; // repeated consecutive points
+                }
+                // Calculate & check the normalized deriction-change angle
+                let mut angle = new_direction - old_direction;
+                if angle <= -PI {
+                    angle += TAU; // make it in half-open interval (-Pi, Pi]
+                } else if angle > PI {
+                    angle -= TAU;
+                }
+                if idx == 0 {
+                    // if first time through loop, initialize orientation
+                    if angle == 0.0 {
+                        return false; // the source algorithm doesn't explain this one
+                    }
+                    if angle > 0.0 {
+                        orientation = 1.0;
+                    } else {
+                        orientation = -1.0;
+                    }
+                } else if orientation * angle <= 0.0 {
+                    // not both positive or both negative
+                    return false;
+                }
+
+                // Accumulate the direction-change angle
+                angle_sum += angle;
+            }
+            // Check that the total number of full turns is plus-or-minus 1
+            let full_turns = (angle_sum / TAU).abs();
+            return (full_turns > 0.9999) && (full_turns < 1.0001);
+        }
+        false
     }
     fn rotated(&self, rotation: f32) -> Vec<Vec2> {
         let mut rotated_points = Vec::new();
@@ -183,23 +274,32 @@ impl Collider {
         }
         rotated_points
     }
-    fn relative_to(&self, actor: &Actor) -> Vec<Vec2> {
-        self.rotated(actor.rotation)
+    #[doc(hidden)]
+    // Used internally to scale colliders to match a sprite's current transform
+    pub fn relative_to(&self, sprite: &Sprite) -> Vec<Vec2> {
+        self.rotated(sprite.rotation)
             .iter()
-            .map(|&v| v * actor.scale + actor.translation) // scale & translation
+            .map(|&v| v * sprite.scale + sprite.translation) // scale & translation
             .collect()
     }
-    pub fn colliding(actor1: &Actor, actor2: &Actor) -> bool {
+    pub fn points(&self) -> Vec<Vec2> {
+        if let Self::Poly(points) = self {
+            points.clone()
+        } else {
+            Vec::with_capacity(0)
+        }
+    }
+    pub fn colliding(sprite1: &Sprite, sprite2: &Sprite) -> bool {
         use Collider::*;
-        if let NoCollider = actor1.collider {
+        if let NoCollider = sprite1.collider {
             return false;
         }
-        if let NoCollider = actor2.collider {
+        if let NoCollider = sprite2.collider {
             return false;
         }
-        if actor1.collider.is_poly() && actor2.collider.is_poly() {
-            let poly1 = actor1.collider.relative_to(actor1);
-            let poly2 = actor2.collider.relative_to(actor2);
+        if sprite1.collider.is_poly() && sprite2.collider.is_poly() {
+            let poly1 = sprite1.collider.relative_to(sprite1);
+            let poly2 = sprite2.collider.relative_to(sprite2);
             // Polygon intersection algorithm adapted from
             // https://stackoverflow.com/questions/10962379/how-to-check-intersection-between-2-rotated-rectangles
             for poly in vec![poly1.clone(), poly2.clone()] {
