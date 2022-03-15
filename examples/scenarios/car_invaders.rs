@@ -1,29 +1,21 @@
 use rusty_engine::prelude::*;
 
-fn place_barrier(game: &mut Game, prefix: String, location: Vec2) {
-    for x in 0..5 {
-        for y in 0..3 {
-            if y == 2 && (x == 0 || x == 4) {
-                continue;
-            }
-            let block = game.add_actor(
-                format!("{}-{}-{}", prefix, x, y),
-                ActorPreset::RollingBlockSmall,
-            );
-            block.translation = Vec2::new(x as f32 * 32.0, y as f32 * 32.0) + location;
-        }
-    }
+#[derive(Default)]
+struct GameState {
+    laser_labels: Vec<String>,
 }
 
 fn main() {
     let mut game = Game::new();
 
     // create and position the player
-    let player = game.add_actor("player", ActorPreset::RollingBlockCorner);
+    let player = game.add_sprite("player", SpritePreset::RollingBlockCorner);
     player.translation.y = -335.0;
     player.rotation = SOUTH_WEST;
     player.scale = 0.75;
     player.collision = true;
+
+    //car.translation.y = car.translation.y.clamp(-360.0, 360.0);
 
     for i in 0..5 {
         place_barrier(
@@ -33,17 +25,19 @@ fn main() {
         );
     }
     // pre-populate laser labels
+    let mut game_state = GameState::default();
     for i in 0..2 {
-        game.game_state_mut().string_vec.push(format!("laser{}", i));
+        game_state.laser_labels.push(format!("laser{}", i));
     }
 
-    game.run(logic);
+    game.add_logic(game_logic);
+    game.run(game_state);
 }
 
-fn logic(game_state: &mut GameState) {
+fn game_logic(engine: &mut Engine, game_state: &mut GameState) {
     // Player movement
-    let player = game_state.actors.get_mut("player").unwrap();
-    if let Some(location) = game_state.mouse_state.location() {
+    let player = engine.sprites.get_mut("player").unwrap();
+    if let Some(location) = engine.mouse_state.location() {
         player.translation.x = player
             .translation
             .lerp(Vec2::new(location.x, player.translation.y), 0.1)
@@ -52,15 +46,30 @@ fn logic(game_state: &mut GameState) {
 
     // Lasers!!!
     let player_translation = player.translation;
-    if game_state.mouse_state.just_pressed(MouseButton::Left)
-        || game_state.keyboard_state.just_pressed(KeyCode::Space)
+    if engine.mouse_state.just_pressed(MouseButton::Left)
+        || engine.keyboard_state.just_pressed(KeyCode::Space)
     {
-        if let Some(label) = game_state.string_vec.pop() {
+        if let Some(label) = game_state.laser_labels.pop() {
             let laser =
-                game_state.add_actor(format!("laser{}", label), ActorPreset::RacingBarrierWhite);
+                engine.add_sprite(format!("laser{}", label), SpritePreset::RacingBarrierWhite);
             laser.rotation = UP;
             laser.scale = 0.25;
             laser.translation = player_translation;
+        }
+    }
+}
+
+fn place_barrier(game: &mut Game<GameState>, prefix: String, location: Vec2) {
+    for x in 0..5 {
+        for y in 0..3 {
+            if y == 2 && (x == 0 || x == 4) {
+                continue;
+            }
+            let block = game.add_sprite(
+                format!("{}-{}-{}", prefix, x, y),
+                SpritePreset::RollingBlockSmall,
+            );
+            block.translation = Vec2::new(x as f32 * 32.0, y as f32 * 32.0) + location;
         }
     }
 }
