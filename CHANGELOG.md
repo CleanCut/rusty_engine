@@ -1,9 +1,15 @@
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Improved
+
+- Implemented all the [common traits](https://rust-lang.github.io/api-guidelines/interoperability.html) on public `struct`s and `enum`s that made sense.
+- Added documentation for a few structs, enums, and methods that were missing it.
+
 ### Fixed
 
 - The `collider` example once again properly regenerates the visualization for circle colliders whenever they are created or altered.
+- Changed visibility of internal Bevy plugins from `pub` to `pub(crate)`. Technically this is a breaking change, but these wouldn't have been usable to anyone anyway so I'm ignoring the technicality.
 
 ## [5.0.0] - 2022-03-12
 

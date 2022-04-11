@@ -7,7 +7,7 @@ pub const TEXT_DEFAULT_LAYER: f32 = 900.0;
 pub const TEXT_DEFAULT_FONT_SIZE: f32 = 30.0;
 
 /// A [`Text`] is a bit of text that exists on the screen.
-#[derive(Clone, Component, Debug)]
+#[derive(Clone, Component, Debug, PartialEq)]
 pub struct Text {
     /// READONLY: A label to identify the text. This is not the text that is displayed! This is the
     /// label you use to retrieve and modify your text from the

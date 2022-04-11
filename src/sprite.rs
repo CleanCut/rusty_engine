@@ -4,7 +4,7 @@ use crate::physics::Collider;
 
 /// A [`Sprite`] is the basic abstraction for something that can be seen and interacted with.
 /// Players, obstacles, etc. are all sprites.
-#[derive(Clone, Component, Debug)]
+#[derive(Clone, Component, Debug, PartialEq)]
 pub struct Sprite {
     /// READONLY: A way to identify a sprite.
     pub label: String,

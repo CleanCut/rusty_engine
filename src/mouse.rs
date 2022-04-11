@@ -10,7 +10,7 @@ pub use bevy::{
     window::CursorMoved,
 };
 
-pub struct MousePlugin;
+pub(crate) struct MousePlugin;
 
 impl Plugin for MousePlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
@@ -41,7 +41,7 @@ pub struct MouseState {
 /// the mouse wheel as if scrolling in a direction were equivalent to clicking a mouse button, you
 /// probably want to use
 /// [`Engine::mouse_wheel_events`](crate::prelude::Engine::mouse_wheel_events) instead.
-#[derive(Clone, Copy, Debug, Default)]
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct MouseWheelState {
     /// The y component of the mouse wheel movement. This is the "normal" scrolling direction of a
     /// typical mouse wheel. This will be either `-1.0`, `0.0`, or `1.0`. For fine-grained
