@@ -1,6 +1,8 @@
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [5.0.1] - 2022-04-11
+
 ### Improved
 
 - Implemented all the [common traits](https://rust-lang.github.io/api-guidelines/interoperability.html) on public `struct`s and `enum`s that made sense.
@@ -209,7 +211,8 @@ specifying a path to a sound file relative to `assets/audio`.
 
 [Bevy]: https://bevyengine.org
 <!-- next-url -->
-[Unreleased]: https://github.com/CleanCut/rusty_engine/compare/v5.0.0...HEAD
+[Unreleased]: https://github.com/CleanCut/rusty_engine/compare/v5.0.1...HEAD
+[5.0.1]: https://github.com/CleanCut/rusty_engine/compare/v5.0.0...v5.0.1
 [5.0.0]: https://github.com/CleanCut/rusty_engine/compare/v4.0.0...v5.0.0
 [4.0.0]: https://github.com/CleanCut/rusty_engine/compare/v3.0.0...v4.0.0
 [3.0.0]: https://github.com/CleanCut/rusty_engine/compare/v2.0.1...v3.0.0
