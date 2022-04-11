@@ -36,7 +36,7 @@ In your `// game setup goes here` section of `main()`...
 1. Create a sprite using the [`.add_sprite()`](https://cleancut.github.io/rusty_engine/55-sprite-creation.html) method of `Game`  (`.add_sprite()` returns a mutable reference to the sprite you can use to access its fields)
     1. Label it `"player1"`
     1. Use the preset `SpritePreset::RacingCarBlue`
-1. Set the following [attributes](https://cleancut.github.io/rusty_engine/60-sprite-transform.html) on the `player1` sprite via the mutable reference:
+1. Set the following [attributes](https://cleancut.github.io/rusty_engine/60-sprite-placement.html) on the `player1` sprite via the mutable reference:
     1. Set `translation.x` to `-500.0` so the car will be near the left side of the screen
     1. Set the player sprite's `layer` to `10.0` so it will be on top of other sprites by default (higher layers are rendered on top of lower layers)
     1. Set the player sprite's `collision` to `true` so that `player1` will detect collisions with other sprites.

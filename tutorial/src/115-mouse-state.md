@@ -37,7 +37,7 @@ if engine.mouse_state.just_released_any(&[MouseButton::Left, MouseButton::Middle
 
 ### Location
 
-Use the `location` method to see where the mouse is. It returns an `Option<Vec2>`. If `None` is returned, then the mouse pointer isn't in the window. If present, the `Vec2` value is in the same 2D world coordinate system as the rest of the game. See the [section on sprite translation](60-sprite-transform.html) for more info about `Vec2` or the world coordinate system.
+Use the `location` method to see where the mouse is. It returns an `Option<Vec2>`. If `None` is returned, then the mouse pointer isn't in the window. If present, the `Vec2` value is in the same 2D world coordinate system as the rest of the game. See the [section on sprite translation](60-sprite-placement.html) for more info about `Vec2` or the world coordinate system.
 
 It is easy to demonstrate `location` by having a sprite appear wherever your mouse is located:
 

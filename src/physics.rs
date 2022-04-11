@@ -275,7 +275,7 @@ impl Collider {
         rotated_points
     }
     #[doc(hidden)]
-    // Used internally to scale colliders to match a sprite's current transform
+    // Used internally to scale colliders to match a sprite's current translation, rotation, and scale
     pub fn relative_to(&self, sprite: &Sprite) -> Vec<Vec2> {
         self.rotated(sprite.rotation)
             .iter()
