@@ -1,6 +1,10 @@
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixed
+
+- The `collider` example once again properly regenerates the visualization for circle colliders whenever they are created or altered.
+
 ## [5.0.0] - 2022-03-12
 
 ### BREAKING CHANGES

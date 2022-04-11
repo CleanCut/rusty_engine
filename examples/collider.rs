@@ -158,6 +158,7 @@ fn game_logic(engine: &mut Engine, game_state: &mut GameState) {
         KeyCode::C,
     ]) {
         sprite.collider = Collider::circle(game_state.circle_radius);
+        sprite.collider_dirty = true;
     }
     // Let the user know whether or not their collider is currently convex
     let convex = engine.texts.get_mut("convex").unwrap();
