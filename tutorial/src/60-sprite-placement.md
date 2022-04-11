@@ -1,6 +1,6 @@
-# Transform
+# Sprite Placement
 
-A "transform" is a fancy term for the way that you can position and size your sprite. There are four different fields you can use to position and size your sprite:
+There are four different fields you can use to position and size your sprite:
 
 ### Translation
 

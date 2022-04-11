@@ -49,7 +49,7 @@ In your `// game setup goes here` section of `main`...
 In your [`game_logic(...)` function](https://cleancut.github.io/rusty_engine/25-game-logic-function.html)...
 
 1. Have the "gun barrel" follow the mouse on the X axis by set the `translation.x` of the player sprite to the `x` value of the mouse location.
-    - Get a [mutable reference to the player sprite](https://cleancut.github.io/rusty_engine/60-sprite-transform.html#adjusting-an-existing-sprite)
+    - Get a [mutable reference to the player sprite](https://cleancut.github.io/rusty_engine/60-sprite-placement.html#adjusting-an-existing-sprite)
     - Get the mouse location via the [mouse state's `location` method](https://cleancut.github.io/rusty_engine/115-mouse-state.html#location)
     - Make a variable `player_x` and set it to the player's current `translation.x` so we can use it later on: `let player_x = player.translation.x;`
 
@@ -79,7 +79,7 @@ In your [`game_logic(...)` function](https://cleancut.github.io/rusty_engine/25-
     1. For every sprite [value in the hash map](https://doc.rust-lang.org/std/collections/struct.HashMap.html#method.values):
         - check to see if either the `translation.y > 400.0` or the `translation.x > 750.0`. If either of those conditions are true, push a clone of the label onto the `labels_to_delete` vector.
     1. For every label in `labels_to_delete`:
-        - [Remove the sprite entry.](https://cleancut.github.io/rusty_engine/60-sprite-transform.html#deleting-a-sprite) The hash map's `remove` method takes an immutable reference to the key type, so if you are looping through the label strings by value, you may need to add a `&` in front of your label variable: `engine.sprites.remove(&label)`
+        - [Remove the sprite entry.](https://cleancut.github.io/rusty_engine/60-sprite-placement.html#deleting-a-sprite) The hash map's `remove` method takes an immutable reference to the key type, so if you are looping through the label strings by value, you may need to add a `&` in front of your label variable: `engine.sprites.remove(&label)`
 1. Spawn a car if the `game_state.spawn_timer` just finished! So [tick the spawn timer and check to see if it just finished](https://cleancut.github.io/rusty_engine/250-timer.html#counting-down--finishing) -- if it did, then:
     1. Set `game_state.spawn_timer` to a new `Timer` with a random value between `0.1` and `1.25`
         - Add the `rand` crate as a dependency in your `Cargo.toml`
@@ -88,7 +88,7 @@ In your [`game_logic(...)` function](https://cleancut.github.io/rusty_engine/25-
         - [Create a non-repeating `Timer`](https://cleancut.github.io/rusty_engine/250-timer.html#creation) and assign it as the value to `game_state.spawn_timer`
     1. If there are any cars left (check the value of `game_state.cars_left`), then:
         1. Decrement `game_state.cars_left` by one
-        1. [Retrieve a mutable reference to the](https://cleancut.github.io/rusty_engine/165-text-transform.html#adjusting-an-existing-text) `Text` we labeled `"cars left"`
+        1. [Retrieve a mutable reference to the](https://cleancut.github.io/rusty_engine/165-text-placement.html#adjusting-an-existing-text) `Text` we labeled `"cars left"`
             - Set the `value` to `format!("Cars left: {}", game_state.cars_left)`
         1. Create a label for the current car that starts with `car`: `format!("car{}", game_state.cars_left)` (remember, a label starting with `car` is what the movement code is looking for).
         1. Create a vector of `SpritePreset`s of cars to randomly select from: `let car_choices = vec![SpritePreset::RacingCarBlack, SpritePreset::RacingCarBlue, SpritePreset::RacingCarGreen, SpritePreset::RacingCarRed, SpritePreset::RacingCarYellow];`
@@ -100,7 +100,7 @@ In your [`game_logic(...)` function](https://cleancut.github.io/rusty_engine/25-
 1. Now it's time to handle the collisions! For each [`CollisionEvent`](https://docs.rs/rusty_engine/latest/rusty_engine/physics/struct.CollisionEvent.html) in `engine.collision_events`:
     - We only care about the start of collisions, not the ending of them, so if `event.state.is_end()`, then `continue` the loop.
     - Similarly, if one of the event pair's labels _doesn't_ start with `"marble"`, then it's either two marbles or two cars colliding with each other, which we don't care about. So if `!event.pair.one_starts_with("marble")`, then `continue` the loop.
-    - At this point we know that one of the pair is a marble and the other is a car, and they both need to be removed. So using the labels in the `event.pair` tuple, [delete both sprites](https://cleancut.github.io/rusty_engine/60-sprite-transform.html#deleting-a-sprite).
+    - At this point we know that one of the pair is a marble and the other is a car, and they both need to be removed. So using the labels in the `event.pair` tuple, [delete both sprites](https://cleancut.github.io/rusty_engine/60-sprite-placement.html#deleting-a-sprite).
     - Now that a marble has been "destroyed", we are allowed to shoot it from the gun again, so grab whichever label of the `event.pair` tuple that starts with `"marble"` and [push](https://doc.rust-lang.org/std/vec/struct.Vec.html#method.push) a clone of it back onto the `game_state.marbles_left` vector.
     - [Play a sound effect](https://cleancut.github.io/rusty_engine/210-sfx.html#play) for successfully hitting a car with a marble. Use `SfxPreset::Confirmation1` with a volume of `0.5`
 

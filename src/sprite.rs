@@ -87,7 +87,7 @@ impl Sprite {
         }
     }
 
-    /// Do the math to translate from Rusty Engine translation+rotation+scale to Bevy's Transform
+    /// Do the math to convert from Rusty Engine translation+rotation+scale+layer to Bevy's Transform
     #[doc(hidden)]
     pub fn bevy_transform(&self) -> Transform {
         let mut transform = Transform::from_translation(self.translation.extend(self.layer));

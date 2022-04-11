@@ -1,8 +1,8 @@
-# Text Transform
+# Text Placement
 
-Text is rendered as an image. This rendering (or re-rendering) happens at the end of the frame after any of the [Value, Font & Font Size](160-text-attributes.md) attributes are changed.  However, when _transform_ values such as translation, rotation, scale, or layer are changed, the image remains the same and its representation on screen is manipulated in the GPU, which is high performance.
+Text is rendered as an image. This rendering (or re-rendering) happens at the end of the frame after any of the [Value, Font & Font Size](160-text-attributes.md) attributes are changed.  However, when values such as translation, rotation, scale, or layer are changed, the image remains the same and its representation on screen is manipulated in the GPU, which is high performance.
 
-In short, feel free to change your text's transform attributes every frame without any big hit in performance.
+In short, feel free to change your text's placement attributes every frame without any big hit in performance.
 
 ### Translation
 
@@ -32,7 +32,7 @@ score_text.rotation = std::f32::consts::PI / 4.0;
 
 Usually, you will want to leave text at a scale of `1.0`, but if you wish to have text zoom or shrink, modifying the scale has two important advantages compared to changing the font size:
 
-- Changing the scale is _fast_. The text image does not need to be re-rendered, and the size transformation is handled all in GPU hardware.
+- Changing the scale is _fast_. The text image does not need to be re-rendered, and the size change is handled all in GPU hardware.
 - Changing the scale doesn't cause weird re-rendering inconsistencies, so animating scale changes looks smooth.
 
 The main drawback of changing the scale is that since the font is not re-rendered, it looks pixellated when scaled up. Though, this could be considered as a stylistic plus as well.
@@ -73,7 +73,7 @@ text.translation.x = 0.0;
 player.translation.y = -300.0;
 ```
 
-NOTE: If you want to adjust your text's transform smoothly, you will need to multiply your change by the frame's delta value. See the [`Engine`](400-engine.md) section for more details.
+NOTE: If you want to adjust your text's placement smoothly, you will need to multiply your change by the frame's delta value. See the [`Engine`](400-engine.md) section for more details.
 
 ### Adjusting an existing text
 

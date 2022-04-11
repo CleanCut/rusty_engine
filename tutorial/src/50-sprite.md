@@ -1,6 +1,6 @@
 # Sprite
 
-A _sprite_ in Rusty Engine is a 2D image, its transform (translation, rotation, scale), its collider, and other associated metadata. You will use sprites for all the graphics in your game. Many sprites will represent some _thing_. For example, a race car sprite may represent your player character in your game.
+A _sprite_ in Rusty Engine is a 2D image, how it is placed on the screen (translation, rotation, scale, and layer), its collider, and other associated metadata. You will use sprites for all the graphics in your game. Many sprites will represent some _thing_. For example, a race car sprite may represent your player character in your game.
 
 ![green race car sprite](https://github.com/CleanCut/rusty_engine/raw/main/assets/sprite/racing/car_green.png)
 
