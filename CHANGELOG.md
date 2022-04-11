@@ -110,7 +110,6 @@ specifying a path to a sound file relative to `assets/audio`.
 - Renamed `Gamestate.delta_seconds` to `GameState.delta_f32`
 - Renamed `Gamestate.seconds_since_startup` to `GameState.time_since_startup_f64`
 
-
 ### Other Changes
 
 - Added `GameState::keyboard_state` (and a new `KeyboardState` struct), to determine the current state of the keyboard. This should be preferred over keyboard events when dealing with character movement, etc.
@@ -124,8 +123,6 @@ specifying a path to a sound file relative to `assets/audio`.
    - The `keyboard` example has been renamed to `keyboard_events` to distinguish it from the new `keyboard_state` example which uses `KeyboardState` for smooth movement
    - The `mouse` example has been renamed to `mouse_events` to distinguish it from the new `mouse_state` example which uses `MouseState` for smooth movement
 - Added now `level_creator` example to use as a rudimentary level creator (originally added in 1.1.0)
-- 
-
 
 ## [1.1.4] - 2021-08-26
 
