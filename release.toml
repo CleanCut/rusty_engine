@@ -1,5 +1,4 @@
 pre-release-commit-message = "{{crate_name}} {{version}}"
-no-dev-version = true
 tag-message = "{{tag_name}}"
 tag-name = "{{prefix}}v{{version}}"
 pre-release-replacements = [
