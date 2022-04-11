@@ -4,7 +4,7 @@ use bevy::{prelude::*, utils::HashMap};
 // Re-export some Bevy types to use
 pub use bevy::input::keyboard::{KeyCode, KeyboardInput};
 
-pub struct KeyboardPlugin;
+pub(crate) struct KeyboardPlugin;
 
 impl Plugin for KeyboardPlugin {
     fn build(&self, app: &mut bevy::prelude::App) {

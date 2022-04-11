@@ -7,7 +7,7 @@ use std::{
     hash::Hash,
 };
 
-pub struct PhysicsPlugin;
+pub(crate) struct PhysicsPlugin;
 
 impl Plugin for PhysicsPlugin {
     fn build(&self, app: &mut App) {
@@ -20,13 +20,14 @@ impl Plugin for PhysicsPlugin {
 /// [Sprite]s which:
 /// - have colliders (you can use the `collider` example to create your own colliders)
 /// - have their `collision` flags set to `true`.
-#[derive(Debug, Clone)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct CollisionEvent {
     pub state: CollisionState,
     pub pair: CollisionPair,
 }
 
-#[derive(Debug, Clone, Copy)]
+/// Indicates whether a [`CollisionEvent`] is at the beginning or ending of a collision.
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum CollisionState {
     Begin,
     End,
@@ -47,22 +48,27 @@ impl CollisionState {
     }
 }
 
+/// Contains the labels of the two sprites involved in the collision. As the labels are unordered,
+/// several convenience methods are provided for searching the values.
 #[derive(Debug, Default, Eq, Clone)]
 pub struct CollisionPair(pub String, pub String);
 
 impl CollisionPair {
-    pub fn either_contains<T: Into<String>>(&self, label: T) -> bool {
-        let label = label.into();
-        (self.0 == label) || (self.1 == label)
+    /// Whether either of the labels contains the text.
+    pub fn either_contains<T: Into<String>>(&self, text: T) -> bool {
+        let text = text.into();
+        (self.0 == text) || (self.1 == text)
     }
-    pub fn either_starts_with<T: Into<String>>(&self, label: T) -> bool {
-        let label = label.into();
-        self.0.starts_with(&label) || self.1.starts_with(&label)
+    /// Whether either of the labels starts with the text.
+    pub fn either_starts_with<T: Into<String>>(&self, text: T) -> bool {
+        let text = text.into();
+        self.0.starts_with(&text) || self.1.starts_with(&text)
     }
-    pub fn one_starts_with<T: Into<String>>(&self, label: T) -> bool {
-        let label = label.into();
-        let a_matches = self.0.starts_with(&label);
-        let b_matches = self.1.starts_with(&label);
+    /// Whether exactly one of the labels starts with the text.
+    pub fn one_starts_with<T: Into<String>>(&self, text: T) -> bool {
+        let text = text.into();
+        let a_matches = self.0.starts_with(&text);
+        let b_matches = self.1.starts_with(&text);
         (a_matches && !b_matches) || (!a_matches && b_matches)
     }
 }
