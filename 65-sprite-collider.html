@@ -163,10 +163,8 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1><a class="header" href="#sprite-collider" id="sprite-collider">Sprite Collider</a></h1>
-<p>Rusty Engine has an basic collision system. You may define one convex polygon shape to be a collider for a sprite. When two sprites with colliders whose <code>collision</code> fields are both set to <code>true</code> begin or end overlapping, a <a href="https://docs.rs/rusty_engine/latest/rusty_engine/physics/struct.CollisionEvent.html"><code>CollisionEvent</code></a> will be produced.  If either of the sprites lacks a collider, or if either of the sprites has their <code>collision</code> field set to <code>false</code>, then no collision event is produced.</p>
-<p>Colliders will be rendered as lines on the screen if <code>Engine.show_colliders</code> is set to <code>true</code>.</p>
-<p>Colliders are stored in files with the same name and path as the image file they are for, but with the <code>.collider</code> extension. If a valid collider file exists when a sprite is created, it will be loaded automatically. However, the <code>collision</code> field for a sprite always defaults to <code>false</code>, so you must opt in to the collision system by setting <code>collision</code> to <code>true</code> on your sprites.</p>
+                        <h1><a class="header" href="#sprite-collisions" id="sprite-collisions">Sprite Collisions</a></h1>
+<p>Rusty Engine has a basic system for detecting collisions between sprites. When two sprites with collision enabled begin or end overlapping, a <a href="https://docs.rs/rusty_engine/latest/rusty_engine/physics/struct.CollisionEvent.html"><code>CollisionEvent</code></a> will be produced. By default, collisions are disabled on sprites, so you need to set the sprite's <code>collision</code> field to <code>true</code> if you want it to emit <code>CollisionEvent</code>s.</p>
 <h3><a class="header" href="#processing-collision-events" id="processing-collision-events">Processing collision events</a></h3>
 <p>Your game logic should process collision events each frame. Collision events which you don't handle are discarded at the end of each frame. Collision events are accessed through the <code>Engine.collision_events</code> vector.</p>
 <p>Each <code>CollisionEvent</code> consists of a <code>CollisionState</code> (an enum of either <code>Begin</code> or <code>End</code>) and a <code>CollisionPair</code>, which is a tuple of the labels of the two sprites involved in the collision. It is up to you to figure out what to do with the information that a collision occurred.</p>
@@ -181,9 +179,13 @@
     }
 }
 </code></pre>
+<h3><a class="header" href="#colliders" id="colliders">Colliders</a></h3>
+<p>Colliders are convex polygons that are used to detect if a collision has occurred between two sprites. Colliders will be rendered as polygons with white lines on the screen if <code>Engine.show_colliders</code> is set to <code>true</code>.</p>
+<p>Colliders are stored in files with the same filename and path as the image file the sprite uses, but with a <code>.collider</code> extension. If a valid collider file exists, it will be loaded automatically. </p>
 <h3><a class="header" href="#creating-colliders" id="creating-colliders">Creating colliders</a></h3>
-<p>All of the sprite presets in the game already have colliders, so you don't need to worry about creating any of them.</p>
-<p>Creating colliders for custom sprites from scratch can be quite difficult, so there is an &quot;example&quot; program called <code>collider</code> that you can run to create the collider by clicking around a sprite!  Clone the <a href="https://github.com/CleanCut/rusty_engine/"><code>rusty_engine</code></a> repository, place your image file in the <code>assets/sprite</code> directory (let's call it <code>db.png</code>), and then run:</p>
+<p>All of the sprite presets in the game already have colliders, so you only have to set the <code>collision</code> field to true for sprite presets.</p>
+<p>If you create a new sprite using your own image, and you want it to produce <code>CollisionEvent</code>s, then you need to create a collider for that sprite.</p>
+<p>Creating colliders from scratch is quite tedius, so there is an &quot;example&quot; program called <code>collider</code> that you can use to create a collider! To run <code>collider</code>, clone the <a href="https://github.com/CleanCut/rusty_engine/"><code>rusty_engine</code></a> repository, place your image file in the <code>assets/sprite</code> directory (let's call it <code>db.png</code>), and then run:</p>
 <pre><code class="language-text">$ cargo run --release --example collider assets/sprite/db.png
 </code></pre>
 <p>Then follow the directions to create (or re-create) a collider and write it to a file.</p>
