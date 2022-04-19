@@ -1,10 +1,6 @@
-# Sprite Collider
+# Sprite Collisions
 
-Rusty Engine has an basic collision system. You may define one convex polygon shape to be a collider for a sprite. When two sprites with colliders whose `collision` fields are both set to `true` begin or end overlapping, a [`CollisionEvent`](https://docs.rs/rusty_engine/latest/rusty_engine/physics/struct.CollisionEvent.html) will be produced.  If either of the sprites lacks a collider, or if either of the sprites has their `collision` field set to `false`, then no collision event is produced.
-
-Colliders will be rendered as lines on the screen if `Engine.show_colliders` is set to `true`.
-
-Colliders are stored in files with the same name and path as the image file they are for, but with the `.collider` extension. If a valid collider file exists when a sprite is created, it will be loaded automatically. However, the `collision` field for a sprite always defaults to `false`, so you must opt in to the collision system by setting `collision` to `true` on your sprites.
+Rusty Engine has a basic system for detecting collisions between sprites. When two sprites with collision enabled begin or end overlapping, a [`CollisionEvent`](https://docs.rs/rusty_engine/latest/rusty_engine/physics/struct.CollisionEvent.html) will be produced. By default, collisions are disabled on sprites, so you need to set the sprite's `collision` field to `true` if you want it to emit `CollisionEvent`s.
 
 ### Processing collision events
 
@@ -26,11 +22,19 @@ for event in engine.collision_events.drain(..) {
 }
 ```
 
+### Colliders
+
+Colliders are convex polygons that are used to detect if a collision has occurred between two sprites. Colliders will be rendered as polygons with white lines on the screen if `Engine.show_colliders` is set to `true`.
+
+Colliders are stored in files with the same filename and path as the image file the sprite uses, but with a `.collider` extension. If a valid collider file exists, it will be loaded automatically. 
+
 ### Creating colliders
 
-All of the sprite presets in the game already have colliders, so you don't need to worry about creating any of them.
+All of the sprite presets in the game already have colliders, so you only have to set the `collision` field to true for sprite presets.
 
-Creating colliders for custom sprites from scratch can be quite difficult, so there is an "example" program called `collider` that you can run to create the collider by clicking around a sprite!  Clone the [`rusty_engine`](https://github.com/CleanCut/rusty_engine/) repository, place your image file in the `assets/sprite` directory (let's call it `db.png`), and then run:
+If you create a new sprite using your own image, and you want it to produce `CollisionEvent`s, then you need to create a collider for that sprite.
+
+Creating colliders from scratch is quite tedius, so there is an "example" program called `collider` that you can use to create a collider! To run `collider`, clone the [`rusty_engine`](https://github.com/CleanCut/rusty_engine/) repository, place your image file in the `assets/sprite` directory (let's call it `db.png`), and then run:
 
 ```text
 $ cargo run --release --example collider assets/sprite/db.png
