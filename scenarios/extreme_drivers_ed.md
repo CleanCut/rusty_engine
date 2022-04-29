@@ -12,14 +12,16 @@ Navigate a driving course full of obstacles. Carefully avoid the obstacles while
 
 ## Level Setup
 
-It can be _really_ tedious to set up dozens of obstacles via code and guessing coordinates. Instead, clone the `rusty_engine` repository and use the `level_creator` example to place several dozen obstacles and emit the level code for you to copy-and-paste into your own project.
+It can be _really_ tedious to set up dozens of obstacles via code and guessing coordinates. Instead, use `rusty_engine`'s `level_creator` example to place several dozen obstacles and emit the level code for you to copy-and-paste into your own project.
 
 The sprite preset `SpritePreset::RollingHoleStart` are the goals for collecting (you _want_ to run into them). All other sprites will be obstacles.
 
 ```
-git clone https://github.com/CleanCut/rusty_engine.git
-cd rusty_engine
-cargo run --release --example level_creator
+# You only need to install the level creator once
+cargo install rusty_engine --example level_creator
+
+# Then use it to create a level
+level_creator
 ```
 
 ## Engine Initialization

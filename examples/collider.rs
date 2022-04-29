@@ -1,8 +1,16 @@
-//! To run this code, clone the rusty_engine repository and run the command:
+//! To run this code in your own project, first install it:
 //!
-//!     cargo run --release --example collider path/to/some_image.png
+//!     cargo install rusty_engine --example collider
 //!
-//!  ...where that image is somewhere under assets/
+//! Then run it in your own project (with the asset pack present) with an image
+//! placed somewhere in your `assets/` directory.
+//!
+//!     collider assets/some_image.png
+//!
+//! Of course, you could also clone the rusty_engine repository, place your image
+//! in `assets/` somewhere, and run:
+//!
+//! cargo run --release --example collider assets/some_image.png
 
 use std::path::PathBuf;
 

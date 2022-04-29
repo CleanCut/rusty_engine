@@ -37,10 +37,14 @@ If you create a new sprite using your own image, and you want it to produce `Col
 Creating colliders from scratch is quite tedius, so there is an "example" program called `collider` that you can use to create a collider! To run `collider`, clone the [`rusty_engine`](https://github.com/CleanCut/rusty_engine/) repository, place your image file in the `assets` directory (let's call it `db.png`), and then run:
 
 ```text
-$ cargo run --release --example collider assets/db.png
+# Install the collider example (you only need to do this once)
+$ cargo install rusty_engine --example collider
+
+# Inside your project, run the collider example
+$ collider assets/db.png
 ```
 
-Then follow the directions to create (or re-create) a collider and write it to a file.
+Then follow the example's console instructions to create (or re-create) a collider and write it to a file.
 
 <img width="1392" alt="Screen Shot 2021-12-26 at 10 45 40 PM" src="https://user-images.githubusercontent.com/5838512/147438683-c8af2db7-66dd-463c-a269-d03f37869496.png">
 
