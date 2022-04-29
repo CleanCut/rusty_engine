@@ -1,6 +1,14 @@
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### New
+
+- The `collider` example can be installed globally with `cargo install rusty_engine --example collider` and run in the root of your own project with `collider assets/some-image.png`.
+
+### Fixed
+
+- The `collider` example can now load sprites from anywhere inside `assets/`, instead of only from inside `assets/sprite/`.
+
 ## [5.0.1] - 2022-04-11
 
 ### Improved

@@ -187,7 +187,7 @@ pub fn add_sprites(commands: &mut Commands, asset_server: &Res<AssetServer>, eng
     for (_, sprite) in engine.sprites.drain() {
         // Create the sprite
         let transform = sprite.bevy_transform();
-        let texture_path = PathBuf::from("sprite").join(&sprite.filepath);
+        let texture_path = sprite.filepath.clone();
         commands.spawn().insert(sprite).insert_bundle(SpriteBundle {
             texture: asset_server.load(texture_path),
             transform,

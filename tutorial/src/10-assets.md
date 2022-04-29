@@ -27,10 +27,9 @@ assets
     └── rolling
 ```
 
-All audio files should be stored in `assets/audio`*. The asset pack divides sounds into `music` and `sfx` subdirectories.
+You can organize your own custom files wherever you like, but the asset pack will always be organized like this:
 
-All font files should be stored in `assets/font`*.
+- Audio files in `assets/audio`. The asset pack divides sounds into `music` and `sfx` subdirectories.
+- Font files in `assets/font`.
+- Sprites (images and colliders) in `assets/sprite`.
 
-All sprites should be stored in `assets/sprite`*.
-
-*Additional subdirectories may be used for organization inside of these directories, as the asset pack does in some cases.

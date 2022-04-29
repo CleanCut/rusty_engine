@@ -2,7 +2,7 @@
 //!
 //!     cargo run --release --example collider path/to/some_image.png
 //!
-//!  ...where that image is somewhere under assets/sprite
+//!  ...where that image is somewhere under assets/
 
 use std::path::PathBuf;
 
@@ -21,27 +21,32 @@ impl Default for GameState {
 }
 
 fn main() {
+    // Some trickiness to make assets load relative to the current working directory, which
+    // makes using it from `cargo install rusty_engine --example collider` possible.
+    // This takes advantage of bevy's hard-coded asset loading behavior, and may break in future
+    // bevy versions.
+    std::env::set_var(
+        "CARGO_MANIFEST_DIR",
+        std::env::var("PWD").unwrap_or_default(),
+    );
+    // Make engine logging a bit quieter since we've got console instructions we want folks to see.
+    std::env::set_var("RUST_LOG", "error");
     // We need an image file to work with, so the user must pass in the path of an image
     let args = std::env::args().skip(1).collect::<Vec<_>>();
     if args.len() != 1 {
         println!(
-            "Please pass in the path of an image inside the `assets/sprite` directory! For example:\n\
+            "Please pass in the path of an image inside the `assets/` directory! For example:\n\
             cargo run --release --example collider assets/sprite/racing/car_green.png"
         );
         std::process::exit(1);
     }
 
-    // If the user passed in `assets/sprite/something...` then we need to strip `assets/` (the asset loader will prepend `assets/`)
+    // If the user passed in `assets/something...` then we need to strip `assets/` (the asset loader will prepend `assets/`)
     let mut path = PathBuf::from(args[0].clone());
-    if path.starts_with("assets/sprite") {
-        path = path
-            .strip_prefix("assets")
-            .unwrap()
-            .strip_prefix("sprite")
-            .unwrap()
-            .to_path_buf();
+    if path.starts_with("assets") {
+        path = path.strip_prefix("assets").unwrap().to_path_buf();
     }
-    if !(PathBuf::from("assets/sprite").join(&path)).exists() {
+    if !(PathBuf::from("assets").join(&path)).exists() {
         println!("Couldn't find the file {}", path.to_string_lossy());
         std::process::exit(1);
     }
@@ -57,18 +62,18 @@ fn main() {
 
     // Print instructions to the console
     println!("\n\
-    Instructions:\n\
+    Collider Instructions:\n\
     \n\
     1-9: Set Zoom level (sprite scale) to this amount.\n\
     Del/Backspace: Delete existing collider.*\n\
     Mouse Click: Add a collider point. Add points in a CLOCKWISE direction. Must be a CONVEX polygon to work correctly!\n\
     - Hold SHIFT while clicking the mouse to change the LAST point added.\n\
-    c: Generate a circle collider at the current radius (radius starts at 16.0)*\n\
+    c: Generate a circle collider at the current radius (radius defaults to 16.0)*\n\
     +: Increase the radius by 0.5 and generate a circle collider*\n\
     -: Decrease the radius by 0.5 and generate a circle collider*\n\
     w: Write the collider file. NOTE: This will overwrite the existing collider file (if any), so make a backup if you need the old one!\n\
     \n\
-    *These all delete the current collider in memory. Only writing the collider file will affect the on-disk collider.\n");
+    *This command deletes the current collider in memory, but only writing the collider file will affect the collider file on disk.");
 
     // Tell the user to look to the console for the instructions
     let msg = game.add_text("msg", "See console output for instructions.");

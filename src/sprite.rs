@@ -63,7 +63,7 @@ impl Sprite {
         let filepath = file_or_preset.into();
         let mut collider_filepath = filepath.clone();
         collider_filepath.set_extension("collider");
-        let actual_collider_filepath = PathBuf::from("assets/sprite").join(&collider_filepath);
+        let actual_collider_filepath = PathBuf::from("assets").join(&collider_filepath);
         let collider = if actual_collider_filepath.exists() {
             read_collider_from_file(actual_collider_filepath.as_path())
         } else {
@@ -103,7 +103,7 @@ impl Sprite {
             return false;
         }
         // Bevy's asset system is relative from the assets/ subdirectory, so we must be too
-        let filepath = PathBuf::from("assets/sprite").join(self.collider_filepath.clone());
+        let filepath = PathBuf::from("assets").join(self.collider_filepath.clone());
         let mut fh = match File::create(filepath) {
             Ok(fh) => fh,
             Err(e) => {
