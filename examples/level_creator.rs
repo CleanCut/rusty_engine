@@ -1,4 +1,12 @@
-//! To run this code, clone the rusty_engine repository and run the command:
+//! To run this code in your own project, first install it:
+//!
+//!     cargo install rusty_engine --example level_creator
+//!
+//! Then run it in your own project (with the asset pack present).
+//!
+//!     level_creator
+//!
+//! Alterantely, clone the rusty_engine repository and run the command:
 //!
 //!     cargo run --release --example level_creator
 
@@ -27,6 +35,17 @@ impl Default for GameState {
 const MAX_LAYER: f32 = 900.0;
 
 fn main() {
+    // Some trickiness to make assets load relative to the current working directory, which
+    // makes using it from `cargo install rusty_engine --example collider` possible.
+    // This takes advantage of bevy's hard-coded asset loading behavior, and may break in future
+    // bevy versions.
+    std::env::set_var(
+        "CARGO_MANIFEST_DIR",
+        std::env::var("PWD").unwrap_or_default(),
+    );
+    // Make engine logging a bit quieter since we've got console instructions we want folks to see.
+    std::env::set_var("RUST_LOG", "error");
+
     let mut game = Game::new();
 
     println!(

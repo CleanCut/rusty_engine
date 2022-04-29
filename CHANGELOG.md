@@ -1,6 +1,14 @@
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### New
+
+- The `level_creator` example can be installed globally with `cargo install rusty_engine --example level_creator` and run in the root of your own project with `level_creator`.
+
+### Fixed
+
+- Fixed sprite preset paths which broke due to the changes in 5.0.2
+
 ## [5.0.2] - 2022-04-29
 
 ### New

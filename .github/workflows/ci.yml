@@ -15,7 +15,7 @@ jobs:
   tests:
     name: Tests
     runs-on: ${{ matrix.os }}
-    continue-on-error: ${{ matrix.toolchain == 'nightly' }}
+    continue-on-error: ${{ matrix.toolchain == 'nightly' || matrix.toolchain == 'beta' }}
     strategy:
       fail-fast: false
       matrix:
