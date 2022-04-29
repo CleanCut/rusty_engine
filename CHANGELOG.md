@@ -1,6 +1,8 @@
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [5.0.3] - 2022-04-29
+
 ### New
 
 - The `level_creator` example can be installed globally with `cargo install rusty_engine --example level_creator` and run in the root of your own project with `level_creator`.
@@ -226,7 +228,8 @@ specifying a path to a sound file relative to `assets/audio`.
 
 [Bevy]: https://bevyengine.org
 <!-- next-url -->
-[Unreleased]: https://github.com/CleanCut/rusty_engine/compare/v5.0.2...HEAD
+[Unreleased]: https://github.com/CleanCut/rusty_engine/compare/v5.0.3...HEAD
+[5.0.3]: https://github.com/CleanCut/rusty_engine/compare/v5.0.2...v5.0.3
 [5.0.2]: https://github.com/CleanCut/rusty_engine/compare/v5.0.1...v5.0.2
 [5.0.1]: https://github.com/CleanCut/rusty_engine/compare/v5.0.0...v5.0.1
 [5.0.0]: https://github.com/CleanCut/rusty_engine/compare/v4.0.0...v5.0.0
