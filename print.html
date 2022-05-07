@@ -162,7 +162,7 @@
 <li>Create a new Rust project and add <code>rusty_engine</code> as a dependency (see the <a href="05-config.html">Configuration</a> page for more details)</li>
 </ul>
 <pre><code class="language-toml"># In your [dependencies] section of Cargo.toml
-rusty_engine = &quot;5.0.2&quot;
+rusty_engine = &quot;5.0.3&quot;
 </code></pre>
 <ul>
 <li>Download the Asset Pack to your project (see the <a href="10-assets.html">Asset Pack</a> page for more details).</li>
@@ -225,7 +225,7 @@ rusty_engine = &quot;5.0.2&quot;
 <li>In your <code>Cargo.toml</code> file, add <code>rusty_engine</code> to your <code>[dependencies]</code> section:</li>
 </ul>
 <pre><code class="language-toml"># In your [dependencies] section of Cargo.toml
-rusty_engine = &quot;5.0.2&quot;
+rusty_engine = &quot;5.0.3&quot;
 </code></pre>
 <h3 id="optional-make-dev-profile-act-like-release"><a class="header" href="#optional-make-dev-profile-act-like-release">(Optional) Make <code>dev</code> profile act like <code>release</code></a></h3>
 <p>If you don't want to have remember to constantly add <code>--release</code> to your <code>cargo build</code> and <code>cargo run</code> commands, you can add this config section to your <code>Cargo.toml</code> to make your <code>dev</code> profile act like the <code>release</code> profile:</p>
@@ -475,9 +475,13 @@ player_reference.rotation += TURN_SPEED_PER_SEC * engine.delta_f32;
 <p>All of the sprite presets in the game already have colliders, so you only have to set the <code>collision</code> field to true for sprite presets.</p>
 <p>If you create a new sprite using your own image, and you want it to produce <code>CollisionEvent</code>s, then you need to create a collider for that sprite.</p>
 <p>Creating colliders from scratch is quite tedius, so there is an &quot;example&quot; program called <code>collider</code> that you can use to create a collider! To run <code>collider</code>, clone the <a href="https://github.com/CleanCut/rusty_engine/"><code>rusty_engine</code></a> repository, place your image file in the <code>assets</code> directory (let's call it <code>db.png</code>), and then run:</p>
-<pre><code class="language-text">$ cargo run --release --example collider assets/db.png
+<pre><code class="language-text"># Install the collider example (you only need to do this once)
+$ cargo install rusty_engine --example collider
+
+# Inside your project, run the collider example
+$ collider assets/db.png
 </code></pre>
-<p>Then follow the directions to create (or re-create) a collider and write it to a file.</p>
+<p>Then follow the example's console instructions to create (or re-create) a collider and write it to a file.</p>
 <img width="1392" alt="Screen Shot 2021-12-26 at 10 45 40 PM" src="https://user-images.githubusercontent.com/5838512/147438683-c8af2db7-66dd-463c-a269-d03f37869496.png">
 <p>Once you have a good collider created, copy (or move) both your image and <code>.collider</code> files to your own project, under the <code>assets/</code> directory somewhere, and then <a href="55-sprite-creation.html">add the sprite to your game</a></p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="input"><a class="header" href="#input">Input</a></h1>
