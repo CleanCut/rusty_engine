@@ -10,7 +10,6 @@ use bevy::{
     },
     utils::HashMap,
 };
-use bevy_kira_audio::*;
 use bevy_prototype_lyon::prelude::*;
 use std::{
     ops::{Deref, DerefMut},
@@ -297,12 +296,9 @@ impl<S: Send + Sync + 'static> Game<S> {
             .insert_resource::<S>(initial_game_state);
         self.app
             // Built-ins
-            .add_plugins_with(DefaultPlugins, |group| {
-                group.disable::<bevy::audio::AudioPlugin>()
-            })
+            .add_plugins(DefaultPlugins)
             .add_system(exit_on_esc_system)
             // External Plugins
-            .add_plugin(AudioPlugin) // kira_bevy_audio
             .add_plugin(ShapePlugin) // bevy_prototype_lyon, for displaying sprite colliders
             // Rusty Engine Plugins
             .add_plugin(AudioManagerPlugin)

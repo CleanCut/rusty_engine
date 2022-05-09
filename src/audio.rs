@@ -9,10 +9,10 @@
 //! # use rusty_engine::prelude::*;
 //! #
 //! # fn main() {
-//! # let mut engine = Game::new();
+//! # let mut game = Game::new();
 //! // Inside your logic function...
-//! engine.audio_manager.play_sfx("my_sound_effect.mp3", 1.0);
-//! # engine.run(());
+//! game.audio_manager.play_sfx("my_sound_effect.mp3", 1.0);
+//! # game.run(());
 //! # }
 //! ```
 //!
@@ -22,10 +22,10 @@
 //! # use rusty_engine::prelude::*;
 //! #
 //! # fn main() {
-//! # let mut engine = Game::new();
+//! # let mut game = Game::new();
 //! // Inside your logic function...
-//! engine.audio_manager.play_music("my_game/spooky_loop.ogg", 1.0);
-//! # engine.run(());
+//! game.audio_manager.play_music("my_game/spooky_loop.ogg", 1.0);
+//! # game.run(());
 //! # }
 //! ```
 //!
@@ -36,19 +36,18 @@
 //! use rusty_engine::prelude::*;
 //!
 //! # fn main() {
-//! # let mut engine = Game::new();
+//! # let mut game = Game::new();
 //! // Inside your logic function...
-//! engine.audio_manager.play_sfx(SfxPreset::Confirmation1, 1.0);
-//! engine.audio_manager.play_music(MusicPreset::Classy8Bit, 1.0);
-//! # engine.run(());
+//! game.audio_manager.play_sfx(SfxPreset::Confirmation1, 1.0);
+//! game.audio_manager.play_music(MusicPreset::Classy8Bit, 1.0);
+//! # game.run(());
 //! # }
 //! ```
 //!
 
 use crate::prelude::Engine;
-use bevy::prelude::*;
-use bevy_kira_audio::{Audio, AudioChannel};
-use std::array::IntoIter;
+use bevy::{audio::AudioSink, prelude::*};
+use std::{array::IntoIter, fmt::Debug};
 
 #[derive(Default)]
 #[doc(hidden)]
@@ -64,12 +63,22 @@ impl Plugin for AudioManagerPlugin {
 /// You will interact with a [`AudioManager`] for all audio needs in Rusty Engine. It is exposed
 /// through the [`Engine`](crate::prelude::Engine) struct provided to your logic function
 /// each frame as the [`audio_manager`](crate::prelude::Engine::audio_manager) field.
-#[derive(Debug, Default)]
+#[derive(Default)]
 pub struct AudioManager {
     sfx_queue: Vec<(String, f32)>,
     music_queue: Vec<Option<(String, f32)>>,
-    playing: AudioChannel,
+    playing: Option<Handle<AudioSink>>,
     music_playing: bool,
+}
+
+impl Debug for AudioManager {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("AudioManager")
+            .field("sfx_queue", &self.sfx_queue)
+            .field("music_queue", &self.music_queue)
+            .field("music_playing", &self.music_playing)
+            .finish()
+    }
 }
 
 impl AudioManager {
@@ -107,7 +116,7 @@ impl AudioManager {
 /// `sfx` example by cloning the `rusty_engine` repository and running the following command:
 ///
 /// ```text
-/// cargo run --release --example sfx
+/// cargo run --release --example sfx_sampler
 /// ```
 pub enum SfxPreset {
     Click,
@@ -185,7 +194,7 @@ impl From<SfxPreset> for String {
 /// by cloning the `rusty_engine` repository and running the following command:
 ///
 /// ```text
-/// cargo run --release --example music
+/// cargo run --release --example music_sampler
 /// ```
 #[derive(Copy, Clone, Debug)]
 pub enum MusicPreset {
@@ -208,9 +217,9 @@ impl MusicPreset {
 impl From<MusicPreset> for String {
     fn from(music_preset: MusicPreset) -> String {
         match music_preset {
-            MusicPreset::Classy8Bit => "music/Classy 8-Bit.oga".into(),
-            MusicPreset::MysteriousMagic => "music/Mysterious Magic.oga".into(),
-            MusicPreset::WhimsicalPopsicle => "music/Whimsical Popsicle.oga".into(),
+            MusicPreset::Classy8Bit => "music/Classy 8-Bit.ogg".into(),
+            MusicPreset::MysteriousMagic => "music/Mysterious Magic.ogg".into(),
+            MusicPreset::WhimsicalPopsicle => "music/Whimsical Popsicle.ogg".into(),
         }
     }
 }
@@ -220,30 +229,41 @@ impl From<MusicPreset> for String {
 pub fn queue_managed_audio_system(
     asset_server: Res<AssetServer>,
     audio: Res<Audio>,
+    audio_sinks: Res<Assets<AudioSink>>,
     mut game_state: ResMut<Engine>,
 ) {
     for (sfx, volume) in game_state.audio_manager.sfx_queue.drain(..) {
         let sfx_path = format!("audio/{}", sfx);
         let sfx_handle = asset_server.load(sfx_path.as_str());
-        // To be able to set the volume of a sound effect, we need the channel it is being played
-        // in. We'll start by naively creating a new channel for every single sound effect. If this
-        // ends up being a performance or correctness problem, we'll need to circle back and do
-        // something more sophisticated (like keep a set number of channels around at different
-        // volumes).
-        let new_sfx_channel = AudioChannel::new(sfx_path);
-        audio.set_volume_in_channel(volume, &new_sfx_channel);
-        audio.play_in_channel(sfx_handle, &new_sfx_channel);
+        audio.play_with_settings(
+            sfx_handle,
+            PlaybackSettings {
+                volume,
+                ..Default::default()
+            },
+        );
     }
-    let mut playing_music = game_state.audio_manager.playing.clone();
-    for item in game_state.audio_manager.music_queue.drain(..) {
-        audio.stop_channel(&playing_music);
+    #[allow(clippy::for_loops_over_fallibles)]
+    for item in game_state.audio_manager.music_queue.drain(..).last() {
+        // stop any music currently playing
+        if let Some(sink_handle) = &game_state.audio_manager.playing {
+            if let Some(sink) = audio_sinks.get(sink_handle) {
+                sink.stop();
+            }
+        }
+        // start the new music...if we have some
         if let Some((music, volume)) = item {
             let music_path = format!("audio/{}", music);
             let music_handle = asset_server.load(music_path.as_str());
-            playing_music = AudioChannel::new(music_path);
-            audio.set_volume_in_channel(volume, &playing_music);
-            audio.play_looped_in_channel(music_handle, &playing_music);
+            let sink_handle = audio_sinks.get_handle(audio.play_with_settings(
+                music_handle,
+                PlaybackSettings {
+                    repeat: true,
+                    volume,
+                    ..Default::default()
+                },
+            ));
+            game_state.audio_manager.playing = Some(sink_handle);
         }
     }
-    game_state.audio_manager.playing = playing_music;
 }
