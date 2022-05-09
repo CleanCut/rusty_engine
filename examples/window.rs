@@ -17,7 +17,6 @@ fn main() {
             max_height: 300.0,
         },
         title: "Custom Window Settings".into(),
-        vsync: false,
         resizable: true,
         decorations: false,
         cursor_visible: false,

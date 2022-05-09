@@ -5,8 +5,8 @@ use bevy::{
     prelude::{
         info, App, AssetServer, Color, Commands, Component, DefaultPlugins, Entity, EventReader,
         EventWriter, HorizontalAlign, OrthographicCameraBundle, ParallelSystemDescriptorCoercion,
-        QuerySet, QueryState, Res, ResMut, SpriteBundle, Text as BevyText, Text2dBundle,
-        TextAlignment, TextStyle, Transform, Vec2, VerticalAlign, Windows,
+        ParamSet, Query, Res, ResMut, SpriteBundle, Text as BevyText, Text2dBundle, TextAlignment,
+        TextStyle, Transform, Vec2, VerticalAlign, Windows,
     },
     utils::HashMap,
 };
@@ -170,7 +170,7 @@ fn add_collider_lines(commands: &mut Commands, sprite: &mut Sprite) {
         let transform = sprite.bevy_transform();
         commands
             .spawn_bundle(GeometryBuilder::build_as(
-                &line.0, // can be changed to `&line` once bevy_prototype_lyon > 0.4 is released
+                &line,
                 DrawMode::Stroke(StrokeMode::new(Color::WHITE, 1.0 / transform.scale.x)),
                 transform,
             ))
@@ -352,10 +352,10 @@ fn game_logic_sync<S: Send + Sync + 'static>(
     time: Res<Time>,
     mut app_exit_events: EventWriter<AppExit>,
     mut collision_events: EventReader<CollisionEvent>,
-    mut query_set: QuerySet<(
-        QueryState<(Entity, &mut Sprite, &mut Transform)>,
-        QueryState<(Entity, &mut Text, &mut Transform, &mut BevyText)>,
-        QueryState<(Entity, &mut DrawMode, &mut Transform, &ColliderLines)>,
+    mut query_set: ParamSet<(
+        Query<(Entity, &mut Sprite, &mut Transform)>,
+        Query<(Entity, &mut Text, &mut Transform, &mut BevyText)>,
+        Query<(Entity, &mut DrawMode, &mut Transform, &ColliderLines)>,
     )>,
 ) {
     // Update this frame's timing info
@@ -387,7 +387,7 @@ fn game_logic_sync<S: Send + Sync + 'static>(
 
     // Copy all sprites over to the engine to give to users
     engine.sprites.clear();
-    for (_, sprite, _) in query_set.q0().iter() {
+    for (_, sprite, _) in query_set.p0().iter() {
         let _ = engine
             .sprites
             .insert(sprite.label.clone(), (*sprite).clone());
@@ -395,7 +395,7 @@ fn game_logic_sync<S: Send + Sync + 'static>(
 
     // Copy all texts over to the engine to give to users
     engine.texts.clear();
-    for (_, text, _, _) in query_set.q1().iter() {
+    for (_, text, _, _) in query_set.p1().iter() {
         let _ = engine.texts.insert(text.label.clone(), (*text).clone());
     }
 
@@ -411,14 +411,14 @@ fn game_logic_sync<S: Send + Sync + 'static>(
         }
     } else if engine.last_show_colliders && !engine.show_colliders {
         // Just turned off show_colliders -- delete collider lines for all sprites
-        for (entity, _, _, _) in query_set.q2().iter_mut() {
+        for (entity, _, _, _) in query_set.p2().iter_mut() {
             commands.entity(entity).despawn();
         }
     }
     // Update transform & line width of all collider lines
     if engine.show_colliders {
         // Delete collider lines for sprites which are missing, or whose colliders are dirty
-        for (entity, _, _, collider_lines) in query_set.q2().iter_mut() {
+        for (entity, _, _, collider_lines) in query_set.p2().iter_mut() {
             if let Some(sprite) = engine.sprites.get(&collider_lines.sprite_label) {
                 if sprite.collider_dirty {
                     commands.entity(entity).despawn();
@@ -434,7 +434,7 @@ fn game_logic_sync<S: Send + Sync + 'static>(
             }
         }
         // Update transform & line width
-        for (_, mut draw_mode, mut transform, collider_lines) in query_set.q2().iter_mut() {
+        for (_, mut draw_mode, mut transform, collider_lines) in query_set.p2().iter_mut() {
             if let Some(sprite) = engine.sprites.get(&collider_lines.sprite_label) {
                 *transform = sprite.bevy_transform();
                 // We want collider lines to appear on top of the sprite they are for, so they need a
@@ -452,7 +452,7 @@ fn game_logic_sync<S: Send + Sync + 'static>(
     engine.last_show_colliders = engine.show_colliders;
 
     // Transfer any changes in the user's Sprite copies to the Bevy Sprite and Transform components
-    for (entity, mut sprite, mut transform) in query_set.q0().iter_mut() {
+    for (entity, mut sprite, mut transform) in query_set.p0().iter_mut() {
         if let Some(sprite_copy) = engine.sprites.remove(&sprite.label) {
             *sprite = sprite_copy;
             *transform = sprite.bevy_transform();
@@ -465,7 +465,7 @@ fn game_logic_sync<S: Send + Sync + 'static>(
     add_sprites(&mut commands, &asset_server, &mut engine);
 
     // Transfer any changes in the user's Texts to the Bevy Text and Transform components
-    for (entity, mut text, mut transform, mut bevy_text_component) in query_set.q1().iter_mut() {
+    for (entity, mut text, mut transform, mut bevy_text_component) in query_set.p1().iter_mut() {
         if let Some(text_copy) = engine.texts.remove(&text.label) {
             *text = text_copy;
             *transform = text.bevy_transform();

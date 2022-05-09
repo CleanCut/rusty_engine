@@ -21,7 +21,7 @@ exclude = [
 ]
 
 [dependencies]
-bevy = { version = "0.6.1", default-features = false, features = [
+bevy = { version = "0.7.0", default-features = false, features = [
     #"bevy_audio"
     "bevy_dynamic_plugin",
     "bevy_gilrs",
@@ -33,13 +33,13 @@ bevy = { version = "0.6.1", default-features = false, features = [
     "mp3",
     "x11",
 ] }
-bevy_kira_audio = { version = "0.8", features = [
+bevy_kira_audio = { version = "0.9", features = [
     "flac",
     "mp3",
     "ogg",
     "wav",
 ] }
-bevy_prototype_lyon = "0.4"
+bevy_prototype_lyon = "0.5"
 lazy_static = "1.4"
 log = "0.4"
 ron = "0.7"

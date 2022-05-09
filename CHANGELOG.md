@@ -1,6 +1,10 @@
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Improved
+
+- Updated to bevy 0.7, bevy_kira_audio 0.9, and bevy_prototype_lyon 0.5
+
 ## [5.0.3] - 2022-04-29
 
 ### New
