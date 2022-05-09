@@ -1,6 +1,8 @@
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [5.0.4] - 2022-05-09
+
 ### Improved
 
 - Updated to bevy 0.7 and bevy_prototype_lyon 0.5
@@ -239,7 +241,8 @@ specifying a path to a sound file relative to `assets/audio`.
 
 [Bevy]: https://bevyengine.org
 <!-- next-url -->
-[Unreleased]: https://github.com/CleanCut/rusty_engine/compare/v5.0.3...HEAD
+[Unreleased]: https://github.com/CleanCut/rusty_engine/compare/v5.0.4...HEAD
+[5.0.4]: https://github.com/CleanCut/rusty_engine/compare/v5.0.3...v5.0.4
 [5.0.3]: https://github.com/CleanCut/rusty_engine/compare/v5.0.2...v5.0.3
 [5.0.2]: https://github.com/CleanCut/rusty_engine/compare/v5.0.1...v5.0.2
 [5.0.1]: https://github.com/CleanCut/rusty_engine/compare/v5.0.0...v5.0.1
