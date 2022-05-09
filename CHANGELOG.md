@@ -3,7 +3,14 @@
 
 ### Improved
 
-- Updated to bevy 0.7, bevy_kira_audio 0.9, and bevy_prototype_lyon 0.5
+- Updated to bevy 0.7 and bevy_prototype_lyon 0.5
+- Stopped using bevy_kira_audio in favor of the built-in bevy audio which nows has all the features we need.
+
+### BREAKING CHANGES
+
+Yes, I know I shouldn't be releasing breaking changes in a patch release...but no one should be using any 5.x versions until I start teaching classes with it publicly...so I'm going to break it until I start teaching with 5.x.
+
+- Renamed the music file extensions to `.ogg` since [bevy doesn't support that file extension yet](https://github.com/bevyengine/bevy/pull/4703) -- this means the asset pack is now different.
 
 ## [5.0.3] - 2022-04-29
 
