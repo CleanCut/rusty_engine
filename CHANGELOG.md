@@ -1,6 +1,10 @@
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Improved
+
+- Dropped the lazy_static, log, and env_logger dependencies.
+
 ### BREAKING CHANGES
 
 Yes, I know I shouldn't be releasing breaking changes in a patch release...but no one should be using any 5.x versions until I start teaching classes with it publicly...so I'm going to break it until I start teaching with 5.x.

@@ -285,7 +285,6 @@ impl<S: Send + Sync + 'static> Game<S> {
     /// more information.
     pub fn window_settings(&mut self, window_descriptor: WindowDescriptor) -> &mut Self {
         self.window_descriptor = window_descriptor;
-        log::debug!("window descriptor is: {:?}", self.window_descriptor);
         self
     }
 
