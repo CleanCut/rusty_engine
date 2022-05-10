@@ -1,6 +1,8 @@
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [5.0.5] - 2022-05-10
+
 ### Improved
 
 - Dropped the lazy_static, log, and env_logger dependencies.
@@ -249,7 +251,8 @@ specifying a path to a sound file relative to `assets/audio`.
 
 [Bevy]: https://bevyengine.org
 <!-- next-url -->
-[Unreleased]: https://github.com/CleanCut/rusty_engine/compare/v5.0.4...HEAD
+[Unreleased]: https://github.com/CleanCut/rusty_engine/compare/v5.0.5...HEAD
+[5.0.5]: https://github.com/CleanCut/rusty_engine/compare/v5.0.4...v5.0.5
 [5.0.4]: https://github.com/CleanCut/rusty_engine/compare/v5.0.3...v5.0.4
 [5.0.3]: https://github.com/CleanCut/rusty_engine/compare/v5.0.2...v5.0.3
 [5.0.2]: https://github.com/CleanCut/rusty_engine/compare/v5.0.1...v5.0.2
