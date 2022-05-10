@@ -20,19 +20,19 @@ If you change the font, then the `Text` will be re-rendered as a new image at th
 
 The asset pack contains two fonts:
 
-- `FiraMono-Medium.ttf`
-- `FiraSans-Bold.ttf` (the default font if none is specified)
+- `font/FiraMono-Medium.ttf`
+- `font/FiraSans-Bold.ttf` (the default font if none is specified)
 
 
 ```rust,ignored
 let mono = engine.add_text("mono", "This text is using a monospace font");
-mono.font = "FiraMono-Medium.ttf".to_string();
+mono.font = "font/FiraMono-Medium.ttf".to_string();
 ```
 
-To use a custom font, place a valid `otf` or `ttf` file in `assets/font` and set it on your `Text`.
+To use a custom font, place a valid `otf` or `ttf` file in `assets/` and set it on your `Text`.
 
 ```rust,ignored
-// After placing `party.otf` in the `assets/font/` directory...
+// After placing `party.otf` in the `assets/` directory...
 let party = engine.add_text("party", "Let's Party!");
 mono.font = "party.otf".to_string();
 ```

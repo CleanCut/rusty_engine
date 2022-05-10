@@ -20,7 +20,7 @@ fn main() {
         "engine.audio_manager.play_music(MusicPreset::Classy8Bit, 1.0);",
     );
     msg2.translation.y = -50.0;
-    msg2.font = "FiraMono-Medium.ttf".to_string();
+    msg2.font = "font/FiraMono-Medium.ttf".to_string();
 
     game.audio_manager.play_music(MusicPreset::Classy8Bit, 1.0);
 

@@ -203,7 +203,7 @@ pub fn add_texts(commands: &mut Commands, asset_server: &Res<AssetServer>, engin
         let transform = text.bevy_transform();
         let font_size = text.font_size;
         let text_string = text.value.clone();
-        let font_path = format!("font/{}", text.font);
+        let font_path = text.font.clone();
         commands.spawn().insert(text).insert_bundle(Text2dBundle {
             text: BevyText::with_section(
                 text_string,
@@ -285,7 +285,6 @@ impl<S: Send + Sync + 'static> Game<S> {
     /// more information.
     pub fn window_settings(&mut self, window_descriptor: WindowDescriptor) -> &mut Self {
         self.window_descriptor = window_descriptor;
-        log::debug!("window descriptor is: {:?}", self.window_descriptor);
         self
     }
 
@@ -472,8 +471,7 @@ fn game_logic_sync<S: Send + Sync + 'static>(
             if text.font_size != bevy_text_component.sections[0].style.font_size {
                 bevy_text_component.sections[0].style.font_size = text.font_size;
             }
-            let font_path = format!("font/{}", text.font);
-            let font = asset_server.load(font_path.as_str());
+            let font = asset_server.load(text.font.as_str());
             if bevy_text_component.sections[0].style.font != font {
                 bevy_text_component.sections[0].style.font = font;
             }
