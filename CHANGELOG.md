@@ -1,6 +1,12 @@
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### BREAKING CHANGES
+
+Yes, I know I shouldn't be releasing breaking changes in a patch release...but no one should be using any 5.x versions until I start teaching classes with it publicly...so I'm going to break it until I start teaching with 5.x.
+
+- Updated font loading to be rooted in `assets/` instead of `assets/font/`
+
 ## [5.0.4] - 2022-05-09
 
 ### Improved
@@ -9,8 +15,6 @@
 - Stopped using bevy_kira_audio in favor of the built-in bevy audio which nows has all the features we need.
 
 ### BREAKING CHANGES
-
-Yes, I know I shouldn't be releasing breaking changes in a patch release...but no one should be using any 5.x versions until I start teaching classes with it publicly...so I'm going to break it until I start teaching with 5.x.
 
 - Renamed the music file extensions to `.ogg` since [bevy doesn't support that file extension yet](https://github.com/bevyengine/bevy/pull/4703) -- this means the asset pack is now different.
 
