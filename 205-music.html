@@ -143,19 +143,19 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="music"><a class="header" href="#music">Music</a></h1>
-<p>One music file may be played at a time.  Music always loops repeatedly until explicitly stopped (or the program exits). As with other <code>Engine</code> fields, the audio manager is also available through the <code>Game</code> in your <code>main</code> function:</p>
+<p>One music file may be played at a time.  Music always loops repeatedly until explicitly stopped (or the program exits). As with other <code>Engine</code> fields, the audio manager is also available through the <code>Game</code> struct in your <code>main</code> function.</p>
 <h3 id="play"><a class="header" href="#play">Play</a></h3>
-<p>The <code>play_music</code> method starts playing looping music. The first parameter should be a <code>MusicPreset</code> enum variant or a music file path relative to <code>assets/audio</code>. All music from the asset pack have variants present in the <code>MusicPreset</code> enum for convenience.</p>
+<p>The <code>play_music</code> method starts playing looping music. The first parameter should be a <code>MusicPreset</code> enum variant or a music file path relative to <code>assets/</code>. All music from the asset pack have variants present in the <code>MusicPreset</code> enum for convenience.</p>
 <p>The second parameter is the volume, which should be a value between <code>0.0</code> (silent) and <code>1.0</code> full volume.</p>
 <pre><code class="language-rust ignored">// using a preset
 game.audio_manager.play_music(MusicPreset::Classy8Bit, 1.0);
 
-// using a filepath relative to `assets/audio`
-game.audio_manager.play_music(&quot;music/Classy 8-Bit.oga&quot;, 1.0);
+// using a filepath relative to `assets/`
+game.audio_manager.play_music(&quot;audio/music/Classy 8-Bit.ogg&quot;, 1.0);
 </code></pre>
-<p>Any music already playing will be stopped to play a new music selection.</p>
+<p>Any music already playing will be stopped when <code>play_music</code> is called.</p>
 <h3 id="stop"><a class="header" href="#stop">Stop</a></h3>
-<p>The <code>stop_music</code> method stops any music that is playing. If no music is playing, it is a no-op.</p>
+<p>The <code>stop_music</code> method stops any music that is already playing.</p>
 <pre><code class="language-rust ignored">engine.audio_manager.stop_music();
 </code></pre>
 <h3 id="music-playing-status"><a class="header" href="#music-playing-status">Music playing status</a></h3>

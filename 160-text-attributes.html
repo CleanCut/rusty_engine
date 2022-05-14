@@ -154,14 +154,14 @@ score_text.value = format!(&quot;Score: {}&quot;, score);
 <p>If you change the font, then the <code>Text</code> will be re-rendered as a new image at the end of the frame with the new value.</p>
 <p>The asset pack contains two fonts:</p>
 <ul>
-<li><code>FiraMono-Medium.ttf</code></li>
-<li><code>FiraSans-Bold.ttf</code> (the default font if none is specified)</li>
+<li><code>font/FiraMono-Medium.ttf</code></li>
+<li><code>font/FiraSans-Bold.ttf</code> (the default font if none is specified)</li>
 </ul>
 <pre><code class="language-rust ignored">let mono = engine.add_text(&quot;mono&quot;, &quot;This text is using a monospace font&quot;);
-mono.font = &quot;FiraMono-Medium.ttf&quot;.to_string();
+mono.font = &quot;font/FiraMono-Medium.ttf&quot;.to_string();
 </code></pre>
-<p>To use a custom font, place a valid <code>otf</code> or <code>ttf</code> file in <code>assets/font</code> and set it on your <code>Text</code>.</p>
-<pre><code class="language-rust ignored">// After placing `party.otf` in the `assets/font/` directory...
+<p>To use a custom font, place a valid <code>otf</code> or <code>ttf</code> file in <code>assets/</code> and set it on your <code>Text</code>.</p>
+<pre><code class="language-rust ignored">// After placing `party.otf` in the `assets/` directory...
 let party = engine.add_text(&quot;party&quot;, &quot;Let's Party!&quot;);
 mono.font = &quot;party.otf&quot;.to_string();
 </code></pre>

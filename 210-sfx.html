@@ -145,15 +145,15 @@
                         <h1 id="sound-effects"><a class="header" href="#sound-effects">Sound Effects</a></h1>
 <p>At least a dozen sound effects can play concurrently. The exact number is probably dependent on the particular hardware you have available on your local machine. Sound effects are played in a &quot;fire and forget&quot; manner, and will each play in a separate channel (if available) and terminate once reaching the end of the audio source.</p>
 <h3 id="play"><a class="header" href="#play">Play</a></h3>
-<p>The <code>play_sfx</code> method plays a sound effect. The first parameter should be a <code>SfxPreset</code> enum variant or a music file path relative to <code>assets/audio</code>. All sound effects from the asset pack have variants present in the <code>SfxPreset</code> enum for convenience.</p>
+<p>The <code>play_sfx</code> method plays a sound effect. The first parameter should be a <code>SfxPreset</code> enum variant or a music file path relative to <code>assets/</code>. All sound effects from the asset pack have variants present in the <code>SfxPreset</code> enum for convenience.</p>
 <p>The second parameter is the volume, which should be a value between <code>0.0</code> (silent) and <code>1.0</code> full volume.</p>
 <pre><code class="language-rust ignored">// using a preset
 engine.audio_manager.play_sfx(SfxPreset::Jingle1, 1.0);
 
-// using a filepath relative to `assets/audio`
-engine.audio_manager.play_sfx(&quot;sfx/jingle1.ogg&quot;, 1.0);
+// using a filepath relative to `assets/`
+engine.audio_manager.play_sfx(&quot;audio/sfx/jingle1.ogg&quot;, 1.0);
 </code></pre>
-<p>There is no way to interact with sound effects to monitor status or stop them early.</p>
+<p>There is no way to interact with sound effects.</p>
 
                     </main>
 
