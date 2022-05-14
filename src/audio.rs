@@ -1,9 +1,9 @@
 //! Facilities for interacting with audio, including: [`AudioManager`], [`MusicPreset`], and
 //! [`SfxPreset`]
 //!
-//! You may add your own sound files to the `assets/audio` directory or any of its subdirectories
+//! You may add your own sound files to the `assets/` directory or any of its subdirectories
 //! and play them as sound effects or music by providing the relative path to the file. For example,
-//!  if you place a file named `my_sound_effect.mp3` in this directory, you could play it with:
+//!  if you place a file named `my_sound_effect.mp3` in `assets/`, you can play it with:
 //!
 //! ```rust,no_run
 //! # use rusty_engine::prelude::*;
@@ -16,7 +16,8 @@
 //! # }
 //! ```
 //!
-//! Or, if you create a `my_game/` subdirectory and place a file named `spooky_loop.ogg`, you could play it as continuous music with:
+//! Or, if you create a `assets/my_game/` subdirectory and place a file named `spooky_loop.ogg`, you
+//! could play it as continuous music with:
 //!
 //! ```rust,no_run
 //! # use rusty_engine::prelude::*;
@@ -29,7 +30,8 @@
 //! # }
 //! ```
 //!
-//! The sound effects provided in this asset pack have convenient `enum`s defined that you can use instead of a path to the file: `SfxPreset` and `MusicPreset`. For example:
+//! The sound effects provided in this asset pack have convenient `enum`s defined that you can use
+//! instead of a path to the file: `SfxPreset` and `MusicPreset`. For example:
 //!
 //! ```rust,no_run
 //! // Import the enums into scope first
@@ -60,9 +62,10 @@ impl Plugin for AudioManagerPlugin {
     }
 }
 
-/// You will interact with a [`AudioManager`] for all audio needs in Rusty Engine. It is exposed
+/// You will interact with the [`AudioManager`] for all audio needs in Rusty Engine. It is exposed
 /// through the [`Engine`](crate::prelude::Engine) struct provided to your logic function
-/// each frame as the [`audio_manager`](crate::prelude::Engine::audio_manager) field.
+/// each frame as the [`audio_manager`](crate::prelude::Engine::audio_manager) field. It is also
+/// accessible through the [`Game`](crate::prelude::Game) struct in your `main` function.
 #[derive(Default)]
 pub struct AudioManager {
     sfx_queue: Vec<(String, f32)>,
@@ -83,7 +86,7 @@ impl Debug for AudioManager {
 
 impl AudioManager {
     /// Play a sound effect. `volume` ranges from `0.0` to `1.0`. `sfx` can be an [`SfxPreset`] or a
-    /// string containing the relative path/filename of a sound file within the `assets/audio`
+    /// string containing the relative path/filename of a sound file within the `assets/`
     /// directory. Sound effects are "fire and forget". They will play to completion and then stop.
     /// Multiple sound effects will be mixed and play simultaneously.
     pub fn play_sfx<S: Into<String>>(&mut self, sfx: S, volume: f32) {
@@ -92,7 +95,7 @@ impl AudioManager {
     /// Play looping music. `volume` ranges from `0.0` to `1.0`. Music will loop until stopped with
     /// [`stop_music`](AudioManager::stop_music). Playing music stops any previously playing music.
     /// `music` can be a [`MusicPreset`] or a string containing the relative path/filename of a
-    /// sound file within the `assets/audio` directory.
+    /// sound file within the `assets/` directory.
     pub fn play_music<S: Into<String>>(&mut self, music: S, volume: f32) {
         self.music_playing = true;
         self.music_queue
@@ -224,7 +227,7 @@ impl From<MusicPreset> for String {
     }
 }
 
-// The Bevy system that checks and see if there is any audio management that needs to be done.
+/// The Bevy system that checks to see if there is any audio management that needs to be done.
 #[doc(hidden)]
 pub fn queue_managed_audio_system(
     asset_server: Res<AssetServer>,

@@ -24,7 +24,7 @@ curl -L https://github.com/CleanCut/rusty_engine/archive/refs/heads/main.tar.gz 
      // Create a game
      let mut game = Game::new();
 
-     // Set up your game. `Game` exposes all of the methods (but not fields) of `Engine`
+     // Set up your game. `Game` exposes all of the methods and fields of `Engine`
      let sprite = game.add_sprite("player", SpritePreset::RacingCarBlue);
      sprite.scale = 2.0;
 

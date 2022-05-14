@@ -3,7 +3,7 @@
 
 ### Improved
 
-- Clarified the audio sections of the tutorial.
+- Made a pass through the API documentation and Tutorials, clarifying, correcting, and filling in blanks.
 
 ## [5.0.5] - 2022-05-10
 

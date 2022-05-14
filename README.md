@@ -1,5 +1,3 @@
-If you like Rusty Engine, please sponsor me [on GitHub] or [on Patreon], or [take one of my courses](https://agileperception.com). 💖
-
 # Rusty Engine
 
 Rusty Engine is a simple, 2D game engine for those who are learning Rust. Create simple game prototypes using straightforward Rust code without needing to learning difficult game engine concepts! It works on macOS, Linux, and Windows. Rusty Engine is a simplification wrapper over [Bevy], which I encourage you to use directly for more serious game engine needs.
@@ -7,6 +5,13 @@ Rusty Engine is a simple, 2D game engine for those who are learning Rust. Create
 [Questions], [bug reports], and contributions are most welcome!
 
 https://user-images.githubusercontent.com/5838512/122880590-651bae00-d2f7-11eb-8e5c-4810b3777828.mp4
+
+## Documentation
+
+- [Tutorial](https://cleancut.github.io/rusty_engine/)
+- [API Reference](https://docs.rs/rusty_engine/latest/rusty_engine/)
+- [Code Examples](https://github.com/CleanCut/rusty_engine/tree/main/examples)
+- [Game Scenarios](https://github.com/CleanCut/rusty_engine/tree/main/scenarios)
 
 ## Features
 
@@ -26,16 +31,12 @@ https://user-images.githubusercontent.com/5838512/122880590-651bae00-d2f7-11eb-8
 
 ## Courses
 
+If you like Rusty Engine, please sponsor me [on GitHub] or [on Patreon], or take one of my courses below!
+
 The following courses use Rusty Engine in their curriculum:
 
 - [Ultimate Rust 2: Intermediate Concepts](https://www.udemy.com/course/ultimate-rust-2/?referralCode=8ED694EBE5637F954414) on Udemy (the sequel to [Ultimate Rust Crash Course](https://www.udemy.com/course/ultimate-rust-crash-course/?referralCode=AF30FAD8C6CCCC2C94F0))
 - [Rust in 3 Weeks](https://agileperception.com) conducted live on O'Reilly Online approximately once each quarter.
-
-## Documentation
-
-- [Rusty Engine Tutorial](https://cleancut.github.io/rusty_engine/)
-- [Rusty Engine API Reference](https://docs.rs/rusty_engine/latest/rusty_engine/)
-- [Game Scenarios](https://github.com/CleanCut/rusty_engine/tree/main/scenarios)
 
 ## Linux Dependencies (Including WSL 2)
 
@@ -44,10 +45,11 @@ If you are using Linux or Windows Subsystem for Linux 2, please visit Bevy's [In
 ## Quick Start
 
 ### You MUST download the assets separately!!!
+
 Here are three different ways to download the assets (pick any of them--it should end up the same in the end):
 - Clone the `rusty_engine` repository and copy/move the `assets/` directory over to your own project
 - Download a [zip file](https://github.com/CleanCut/rusty_engine/archive/refs/heads/main.zip) or [tarball](https://github.com/CleanCut/rusty_engine/archive/refs/heads/main.tar.gz) of the `rusty_engine` repository, extract it, and copy/move the `assets/` directory over to your own project.
-- On a posix compatible shell, run this command inside your project directory:
+- (My favorite!) On a posix compatible shell, run this command inside your project directory:
 ```shell
 curl -L https://github.com/CleanCut/rusty_engine/archive/refs/heads/main.tar.gz | tar -zxv --strip-components=1 rusty_engine-main/assets
 ```
@@ -73,7 +75,7 @@ Write your game!
  fn main() {
      // Create a game
      let mut game = Game::new();
-     // Set up your game. `Game` exposes all of the methods (but not fields) of `Engine` as well.
+     // Set up your game. `Game` exposes all of the methods and fields of `Engine`.
      let sprite = game.add_sprite("player", SpritePreset::RacingCarBlue);
      sprite.scale = 2.0;
      game.audio_manager.play_music(MusicPreset::Classy8Bit, 1.0);
@@ -87,7 +89,7 @@ Write your game!
 
  // Your game logic functions can be named anything, but the first parameter is always a
  // `&mut Engine`, and the second parameter is a mutable reference to your custom game
- // state struct (`&mut GameState` in this case). The function returns a `bool`.
+ // state struct (`&mut GameState` in this case).
  //
  // This function will be run once each frame.
  fn game_logic(engine: &mut Engine, game_state: &mut GameState) {
@@ -101,7 +103,6 @@ Write your game!
          game_state.health -= 1;
      }
  }
-
 ```
 
 Run your game with `cargo run --release`!
@@ -109,7 +110,7 @@ Run your game with `cargo run --release`!
 <img width="1348" alt="example screenshot" src="https://user-images.githubusercontent.com/5838512/146858022-1d91c7f4-8b21-4f85-a72a-c4b93edcabc6.png">
 
 
-See also the [game scenarios](https://github.com/CleanCut/rusty_engine/tree/main/scenarios), [code examples](https://github.com/CleanCut/rusty_engine/tree/main/examples) and the [API documentation](https://docs.rs/rusty_engine/latest/rusty_engine/)
+See also the [tutorial](https://cleancut.github.io/rusty_engine/), [game scenarios](https://github.com/CleanCut/rusty_engine/tree/main/scenarios), [code examples](https://github.com/CleanCut/rusty_engine/tree/main/examples) and the [API documentation](https://docs.rs/rusty_engine/latest/rusty_engine/)
 
 ## Contribution
 

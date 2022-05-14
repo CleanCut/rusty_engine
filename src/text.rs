@@ -1,3 +1,4 @@
+/// Facilities for dealing with text
 use bevy::prelude::{Component, Quat, Transform, Vec2, Vec3};
 
 /// Default depth of the text, positioned so it will be on top of other default layers. Depth
@@ -11,30 +12,27 @@ pub const TEXT_DEFAULT_FONT_SIZE: f32 = 30.0;
 pub struct Text {
     /// READONLY: A label to identify the text. This is not the text that is displayed! This is the
     /// label you use to retrieve and modify your text from the
-    /// [`Engine::texts`](crate::prelude::Engine::texts) HashMap.
+    /// [`Engine::texts`](crate::prelude::Engine::texts) HashMap. This must be *unique* or the game
+    /// will crash.
     pub label: String,
     /// SYNCED: The actual text value you want to display.
     pub value: String,
-    /// CREATION: The font to use when creating this text. Should be a file name of an .otf or
-    /// .ttf font located within the assets/font folder. Defaults to "font/FiraSans-Bold.ttf" (included
-    /// in the default asset pack).
+    /// SYNCED: The font to use. Should be a file name of an .otf or .ttf font located within the
+    /// assets/ folder somewhere. Defaults to "font/FiraSans-Bold.ttf" (included in the asset pack).
     pub font: String,
     /// SYNCED: The font size of the text you want to display. WARNING: As font sizes get larger,
     /// the sprites we generate for them get slower to create. Very large sizes will crash. The
     /// default font size is `30.0`.
     pub font_size: f32,
-    /// SYNCED: Where you are in 2D game space. Positive x is right. Positive y is up. (0.0, 0.0) is the
-    /// center of the screen.
+    /// SYNCED: Where you are in 2D game space. Positive x is right. Positive y is up. (0.0, 0.0)
+    /// is the center of the screen.
     pub translation: Vec2,
     /// SYNCED: Depth of the text. 0.0 (back) to 999.0 (front)  Defaults to [`TEXT_DEFAULT_LAYER`]
     pub layer: f32,
     /// SYNCED: Direction you face in radians. Defaults to [`RIGHT`](crate::RIGHT). See also
     /// the [direction constants](https://docs.rs/rusty_engine/latest/rusty_engine/#constants).
-    /// WARNING: This field will not affect text rotation until Bevy 0.6 is released and Rusty
-    /// Engine is updated to use it.
     pub rotation: f32,
-    /// SYNCED: 1.0 is the normal 100%. WARNING: This field will not affect text scale
-    /// until Bevy 0.6 is released and Rusty Engine is updated to use it.
+    /// SYNCED: `1.0` is the normal 100%.
     pub scale: f32,
 }
 

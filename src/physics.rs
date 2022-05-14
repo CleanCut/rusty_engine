@@ -1,3 +1,5 @@
+//! Rusty Engine's custom collision detection implementation.
+
 use crate::sprite::Sprite;
 use bevy::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -15,6 +17,9 @@ impl Plugin for PhysicsPlugin {
             .add_system(collision_detection);
     }
 }
+
+// TODO: Replace the handmade 2D overlap detection with real rapier2d physics
+// can now be multiline.
 
 /// This is the struct that is generated when a collision occurs. Collisions only occur between two
 /// [Sprite]s which:
@@ -34,12 +39,14 @@ pub enum CollisionState {
 }
 
 impl CollisionState {
+    /// Returns true if the value is [`CollisionState::Begin`]
     pub fn is_begin(&self) -> bool {
         match self {
             CollisionState::Begin => true,
             CollisionState::End => false,
         }
     }
+    /// Returns true if the value is [`CollisionState::End`]
     pub fn is_end(&self) -> bool {
         match self {
             CollisionState::Begin => false,
@@ -93,7 +100,7 @@ impl Hash for CollisionPair {
     }
 }
 
-// system - detect collisions and generate the collision events
+/// system - detect collisions and generate the collision events
 fn collision_detection(
     mut existing_collisions: Local<HashSet<CollisionPair>>,
     mut collision_events: EventWriter<CollisionEvent>,
@@ -143,7 +150,8 @@ fn collision_detection(
 }
 
 /// Represents the collider (or lack thereof) of a sprite. Two sprites need to have colliders AND
-/// have their `Sprite.collision` fields set to `true` to generate collision events.
+/// have their `Sprite.collision` fields set to `true` to generate collision events. See the
+/// `collider` example to create your own colliders
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
 pub enum Collider {
     NoCollider,
@@ -173,7 +181,7 @@ impl Collider {
     pub fn poly<T: Into<Vec2> + Copy>(points: &[T]) -> Self {
         Self::Poly(points.iter().map(|&x| x.into()).collect())
     }
-    /// Generate a polygon circle approximation with a specified amount of vertices
+    /// Generate a polygon circle approximation with the specified radius and amount of vertices
     pub fn circle_custom(radius: f32, vertices: usize) -> Self {
         let mut points = vec![];
         for x in 0..vertices {
@@ -204,7 +212,7 @@ impl Collider {
     /// This is important, because Rusty Engine's collision detection doesn't work correctly unless
     /// colliders are convex polygons.
     ///
-    /// Implementation based on Rory Daulton's answer on https://stackoverflow.com/questions/471962/how-do-i-efficiently-determine-if-a-polygon-is-convex-non-convex-or-complex?answertab=votes#tab-top
+    /// This implementation is based on Rory Daulton's answer on https://stackoverflow.com/questions/471962/how-do-i-efficiently-determine-if-a-polygon-is-convex-non-convex-or-complex?answertab=votes#tab-top
     pub fn is_convex(&self) -> bool {
         if let Collider::Poly(points) = self {
             let length = points.len();
@@ -266,6 +274,7 @@ impl Collider {
         }
         false
     }
+    /// Return the points rotated by a number of radians
     fn rotated(&self, rotation: f32) -> Vec<Vec2> {
         let mut rotated_points = Vec::new();
         if let Self::Poly(points) = self {
@@ -281,13 +290,15 @@ impl Collider {
         rotated_points
     }
     #[doc(hidden)]
-    // Used internally to scale colliders to match a sprite's current translation, rotation, and scale
+    /// Used internally to scale colliders to match a sprite's current translation, rotation, and scale
     pub fn relative_to(&self, sprite: &Sprite) -> Vec<Vec2> {
         self.rotated(sprite.rotation)
             .iter()
             .map(|&v| v * sprite.scale + sprite.translation) // scale & translation
             .collect()
     }
+    /// Returns a `Vec<Vec2>` containing the points of the collider, or an empty `Vec` if there is
+    /// no collider.
     pub fn points(&self) -> Vec<Vec2> {
         if let Self::Poly(points) = self {
             points.clone()
@@ -295,6 +306,8 @@ impl Collider {
             Vec::with_capacity(0)
         }
     }
+    /// Whether or not two sprites are currently colliding. This method ignores the `collision`
+    /// field of the sprites.
     pub fn colliding(sprite1: &Sprite, sprite2: &Sprite) -> bool {
         use Collider::*;
         if let NoCollider = sprite1.collider {

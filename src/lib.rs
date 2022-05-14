@@ -21,7 +21,7 @@
 //! fn main() {
 //!     // Create a game
 //!     let mut game = Game::new();
-//!     // Set up your game. `Game` exposes all of the methods (but not fields) of `Engine` as well.
+//!     // Set up your game. `Game` exposes all of the methods and fields of `Engine`.
 //!     let sprite = game.add_sprite("player", SpritePreset::RacingCarBlue);
 //!     sprite.scale = 2.0;
 //!     game.audio_manager.play_music(MusicPreset::Classy8Bit, 1.0);

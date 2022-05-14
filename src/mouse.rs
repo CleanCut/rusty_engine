@@ -1,3 +1,5 @@
+//! Facilities for dealing with mouse input
+
 use crate::prelude::Engine;
 use bevy::{prelude::*, utils::HashSet};
 
@@ -37,10 +39,9 @@ pub struct MouseState {
     just_released: HashSet<MouseButton>,
 }
 
-/// A simplification of mouse wheel events for a frame into a single state. Unless you are treating
-/// the mouse wheel as if scrolling in a direction were equivalent to clicking a mouse button, you
-/// probably want to use
-/// [`Engine::mouse_wheel_events`](crate::prelude::Engine::mouse_wheel_events) instead.
+/// A simplification of mouse wheel events over a frame into a single state. Unless you are treating
+/// the mouse wheel as if scrolling were equivalent to clicking a mouse button, you probably want to
+///  use [`Engine::mouse_wheel_events`](crate::prelude::Engine::mouse_wheel_events) instead.
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct MouseWheelState {
     /// The y component of the mouse wheel movement. This is the "normal" scrolling direction of a
@@ -58,8 +59,7 @@ pub struct MouseWheelState {
 impl MouseState {
     /// Final location of the mouse this frame. If you want to process _all_ the locations the mouse
     /// was at during this frame, see
-    /// [`Engine::mouse_location_events`](crate::prelude::Engine::mouse_location_events)
-    /// instead.
+    /// [`Engine::mouse_location_events`](crate::prelude::Engine::mouse_location_events) instead.
     pub fn location(&self) -> Option<Vec2> {
         self.location
     }
@@ -101,6 +101,7 @@ impl MouseState {
     }
 }
 
+/// Gather the mouse events from bevy and store them for our own use
 fn sync_mouse_events(
     mut game_state: ResMut<Engine>,
     mut mouse_button_events: EventReader<MouseButtonInput>,
@@ -135,6 +136,7 @@ fn sync_mouse_events(
     }
 }
 
+/// Gather the mouse state from bevy and store it for our own use
 fn sync_mouse_state(
     mouse_button_input: Res<Input<MouseButton>>,
     mut mouse_state: ResMut<MouseState>,

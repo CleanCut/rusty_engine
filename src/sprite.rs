@@ -1,3 +1,4 @@
+/// Sprites are the images that make up a game
 use bevy::prelude::{Component, Quat, Transform, Vec2, Vec3};
 
 use crate::physics::Collider;
@@ -6,7 +7,7 @@ use crate::physics::Collider;
 /// Players, obstacles, etc. are all sprites.
 #[derive(Clone, Component, Debug, PartialEq)]
 pub struct Sprite {
-    /// READONLY: A way to identify a sprite.
+    /// READONLY: A way to identify a sprite. This must be unique, or else the game will crash.
     pub label: String,
     /// READONLY: File used for this sprite's image
     pub filepath: PathBuf,
@@ -25,14 +26,16 @@ pub struct Sprite {
     pub scale: f32,
     /// Whether or not to calculate collisions
     pub collision: bool,
-    /// Relative to translation
+    /// The actual collider for this sprite
     pub collider: Collider,
     /// If set to `true`, then the collider shown for this sprite will be regenerated (see also
-    /// [`Engine.show_colliders`](crate::prelude::Engine)). This needs to be done if you
-    /// manually replace a `Sprite`'s [`Collider`] after the game has started.
+    /// [`Engine.show_colliders`](crate::prelude::Engine)). Normally you shouldn't touch this, but
+    /// if you manually replace a `Sprite`'s [`Collider`] in a game logic function, then you need to
+    /// set this to true.
     pub collider_dirty: bool,
 }
 
+/// Reads the collider file and creates the collider
 fn read_collider_from_file(filepath: &Path) -> Collider {
     match File::open(filepath) {
         Ok(fh) => match ron::de::from_reader::<_, Collider>(fh) {
@@ -186,7 +189,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-/// Sprite presets using the asset pack have a all have images and colliders
+/// Sprite presets using the asset pack all have colliders
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum SpritePreset {
     RacingBarrelBlue,
@@ -269,6 +272,7 @@ impl SpritePreset {
         SPRITE_PRESETS.into_iter()
     }
 
+    /// The core logic of both `next` and `prev`
     fn shifted_by(&self, amount: isize) -> SpritePreset {
         let len = SpritePreset::variant_iter().len();
         let index = SpritePreset::variant_iter()

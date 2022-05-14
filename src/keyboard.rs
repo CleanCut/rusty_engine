@@ -1,3 +1,5 @@
+//! Facilities for dealing with keyboard input
+
 use crate::prelude::Engine;
 use bevy::{prelude::*, utils::HashMap};
 
@@ -14,20 +16,22 @@ impl Plugin for KeyboardPlugin {
     }
 }
 
+/// Sync any keyboard events to the engine
 fn sync_keyboard_events(
-    mut game_state: ResMut<Engine>,
+    mut engine: ResMut<Engine>,
     mut keyboard_input_events: EventReader<KeyboardInput>,
 ) {
     // Clear any events that weren't used last frame
-    game_state.keyboard_events.clear();
+    engine.keyboard_events.clear();
 
     // Populate this frame's events
     for event in keyboard_input_events.iter() {
-        game_state.keyboard_events.push(event.clone());
+        engine.keyboard_events.push(event.clone());
     }
 }
 
-/// Represents the end-state of all keys during the last frame.
+/// Represents the end-state of all keys during the last frame. Access it through
+/// [`Engine.keyboard_state`](crate::prelude::Engine) in your game logic function.
 #[derive(Clone, Debug, Default)]
 pub struct KeyboardState {
     this_frame: HashMap<KeyCode, bool>,
@@ -35,28 +39,35 @@ pub struct KeyboardState {
 }
 
 impl KeyboardState {
+    /// Returns true if a key is currently pressed
     pub fn pressed(&self, key: KeyCode) -> bool {
         *self.this_frame.get(&key).unwrap_or(&false)
     }
+    /// Returns true if any of the keys are currently pressed
     pub fn pressed_any(&self, key_codes: &[KeyCode]) -> bool {
         key_codes.iter().any(|k| self.pressed(*k))
     }
+    /// Returns true if a key started being pressed this frame
     pub fn just_pressed(&self, key: KeyCode) -> bool {
         *self.this_frame.get(&key).unwrap_or(&false)
             && !*self.last_frame.get(&key).unwrap_or(&false)
     }
+    /// Returns true if any of the indicated keys started being pressed this frame
     pub fn just_pressed_any(&self, key_codes: &[KeyCode]) -> bool {
         key_codes.iter().any(|k| self.just_pressed(*k))
     }
+    /// Returns true if a key started being released this frame
     pub fn just_released(&self, key: KeyCode) -> bool {
         !*self.this_frame.get(&key).unwrap_or(&false)
             && *self.last_frame.get(&key).unwrap_or(&false)
     }
+    /// Returns true if any of the indicated keys started being released this frame
     pub fn just_released_any(&self, key_codes: &[KeyCode]) -> bool {
         key_codes.iter().any(|k| self.just_released(*k))
     }
 }
 
+/// store bevy's keyboard state for our own use
 fn sync_keyboard_state(
     keyboard_input: Res<Input<KeyCode>>,
     mut keyboard_state: ResMut<KeyboardState>,
