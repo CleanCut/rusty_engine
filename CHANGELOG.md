@@ -1,6 +1,8 @@
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [5.0.6] - 2022-05-19
+
 ### Improved
 
 - Made a pass through the API documentation and Tutorials, clarifying, correcting, and filling in blanks.
@@ -256,7 +258,8 @@ specifying a path to a sound file relative to `assets/audio`.
 
 [Bevy]: https://bevyengine.org
 <!-- next-url -->
-[Unreleased]: https://github.com/CleanCut/rusty_engine/compare/v5.0.5...HEAD
+[Unreleased]: https://github.com/CleanCut/rusty_engine/compare/v5.0.6...HEAD
+[5.0.6]: https://github.com/CleanCut/rusty_engine/compare/v5.0.5...v5.0.6
 [5.0.5]: https://github.com/CleanCut/rusty_engine/compare/v5.0.4...v5.0.5
 [5.0.4]: https://github.com/CleanCut/rusty_engine/compare/v5.0.3...v5.0.4
 [5.0.3]: https://github.com/CleanCut/rusty_engine/compare/v5.0.2...v5.0.3
