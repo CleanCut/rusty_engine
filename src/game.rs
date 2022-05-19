@@ -3,7 +3,7 @@ use bevy::{
     core::Time,
     input::system::exit_on_esc_system,
     prelude::{
-        info, App, AssetServer, Color, Commands, Component, DefaultPlugins, Entity, EventReader,
+        debug, App, AssetServer, Color, Commands, Component, DefaultPlugins, Entity, EventReader,
         EventWriter, HorizontalAlign, OrthographicCameraBundle, ParallelSystemDescriptorCoercion,
         ParamSet, Query, Res, ResMut, SpriteBundle, Text as BevyText, Text2dBundle, TextAlignment,
         TextStyle, Transform, Vec2, VerticalAlign, Windows,
@@ -235,7 +235,7 @@ pub fn update_window_dimensions(windows: Res<Windows>, mut engine: ResMut<Engine
     let screen_dimensions = Vec2::new(window.width(), window.height());
     if screen_dimensions != engine.window_dimensions {
         engine.window_dimensions = screen_dimensions;
-        info!("Set window dimensions: {}", engine.window_dimensions);
+        debug!("Set window dimensions: {}", engine.window_dimensions);
     }
 }
 

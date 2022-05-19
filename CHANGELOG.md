@@ -4,6 +4,7 @@
 ### Improved
 
 - Made a pass through the API documentation and Tutorials, clarifying, correcting, and filling in blanks.
+- Reduced the debug level of logging the window dimension resizing from info to debug
 
 ## [5.0.5] - 2022-05-10
 
