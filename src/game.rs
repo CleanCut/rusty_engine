@@ -80,19 +80,19 @@ pub struct Engine {
     pub mouse_motion_events: Vec<MouseMotion>,
     /// INFO - All the mouse wheel events that occurred this frame.
     pub mouse_wheel_events: Vec<MouseWheel>,
+    /// INFO - The current state of all the keys on the keyboard. Use this to control movement in
+    /// your games!  A [`KeyboardState`] has helper methods you should use to query the state of
+    /// specific [`KeyCode`](crate::prelude::KeyCode)s.
+    pub keyboard_state: KeyboardState,
     /// INFO - All the keyboard input events. These are text-processor-like events. If you are
     /// looking for keyboard events to control movement in a game character, you should use
     /// [`Engine::keyboard_state`] instead. For example, one pressed event will fire when you
     /// start holding down a key, and then after a short delay additional pressed events will occur
     /// at the same rate that additional letters would show up in a word processor. When the key is
     /// finally released, a single released event is emitted.
-    pub keyboard_state: KeyboardState,
+    pub keyboard_events: Vec<KeyboardInput>,
     /// INFO - The delta time (time between frames) for the current frame as a [`Duration`], perfect
     /// for use with [`Timer`](crate::prelude::Timer)s
-    pub keyboard_events: Vec<KeyboardInput>,
-    /// INFO - The current state of all the keys on the keyboard. Use this to control movement in
-    /// your games!  A [`KeyboardState`] has helper methods you should use to query the state of
-    /// specific [`KeyCode`](crate::prelude::KeyCode)s.
     pub delta: Duration,
     /// INFO - The delta time (time between frames) for the current frame as an [`f32`], perfect for
     /// use in math with other `f32`'s. A cheap and quick way to approximate smooth movement

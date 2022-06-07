@@ -1,6 +1,10 @@
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Improved
+
+- Fixed documentation for a few fields of the `Engine` struct which were in the wrong place.
+
 ## [5.0.6] - 2022-05-19
 
 ### Improved
