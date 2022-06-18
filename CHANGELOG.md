@@ -1,6 +1,8 @@
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [5.1.0] - 2022-06-18
+
 ### Improved
 
 - Fixed `CollisionPair::either_contains` to use `.contains` instead of `==`, contributed by [@etnt](https://github.com/etnt) in [#51](https://github.com/CleanCut/rusty_engine/pull/51)
@@ -265,7 +267,8 @@ specifying a path to a sound file relative to `assets/audio`.
 
 [Bevy]: https://bevyengine.org
 <!-- next-url -->
-[Unreleased]: https://github.com/CleanCut/rusty_engine/compare/v5.0.6...HEAD
+[Unreleased]: https://github.com/CleanCut/rusty_engine/compare/v5.1.0...HEAD
+[5.1.0]: https://github.com/CleanCut/rusty_engine/compare/v5.0.6...v5.1.0
 [5.0.6]: https://github.com/CleanCut/rusty_engine/compare/v5.0.5...v5.0.6
 [5.0.5]: https://github.com/CleanCut/rusty_engine/compare/v5.0.4...v5.0.5
 [5.0.4]: https://github.com/CleanCut/rusty_engine/compare/v5.0.3...v5.0.4
