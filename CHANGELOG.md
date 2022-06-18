@@ -3,6 +3,8 @@
 
 ### Improved
 
+- Fixed `CollisionPair::either_contains` to use `.contains` instead of `==`, contributed by [@etnt](https://github.com/etnt) in [#51](https://github.com/CleanCut/rusty_engine/pull/51)
+- Added `CollisionPair::either_equals_to` which uses `==`, contributed by [@etnt](https://github.com/etnt) in [#51](https://github.com/CleanCut/rusty_engine/pull/51)
 - Fixed documentation for a few fields of the `Engine` struct which were in the wrong place.
 
 ## [5.0.6] - 2022-05-19
