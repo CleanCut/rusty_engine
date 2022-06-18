@@ -1,5 +1,6 @@
+.cargo/config.toml
 .vscode
 **/*.rs.bk
 **/target
 Cargo.lock
-.cargo/config.toml
+tutorial/book

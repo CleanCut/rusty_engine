@@ -1,253 +1,70 @@
+use bevy::{
+    app::AppExit,
+    core::Time,
+    input::system::exit_on_esc_system,
+    prelude::{
+        debug, App, AssetServer, Color, Commands, Component, DefaultPlugins, Entity, EventReader,
+        EventWriter, HorizontalAlign, OrthographicCameraBundle, ParallelSystemDescriptorCoercion,
+        ParamSet, Query, Res, ResMut, SpriteBundle, Text as BevyText, Text2dBundle, TextAlignment,
+        TextStyle, Transform, Vec2, VerticalAlign, Windows,
+    },
+    utils::HashMap,
+};
+use bevy_prototype_lyon::prelude::*;
+use std::{
+    ops::{Deref, DerefMut},
+    path::PathBuf,
+    time::Duration,
+};
+
 use crate::{
-    actor::{Actor, ActorPreset},
     audio::AudioManager,
     mouse::{CursorMoved, MouseButtonInput, MouseMotion, MousePlugin, MouseWheel},
     prelude::{
         AudioManagerPlugin, CollisionEvent, KeyboardInput, KeyboardPlugin, KeyboardState,
         MouseState, PhysicsPlugin,
     },
-    text_actor::TextActor,
+    sprite::Sprite,
+    text::Text,
 };
-use bevy::{app::AppExit, input::system::exit_on_esc_system, prelude::*, utils::HashMap};
-use bevy_kira_audio::*;
-use lazy_static::lazy_static;
-use log::{debug, info};
-use std::{sync::Mutex, time::Duration};
 
-pub type GameLogicFunction = fn(&mut GameState);
+// Public re-export
 pub use bevy::window::{WindowDescriptor, WindowMode, WindowResizeConstraints};
 
-// TODO: Find a way to connect outside logic with the Bevy system in a more elegant way if possible
-lazy_static! {
-    pub(crate) static ref GAME_LOGIC_FUNCTIONS: Mutex<Vec<GameLogicFunction>> = Mutex::new(vec![]);
-}
-
-/// A [`Game`] represents the entire game and its data.
-/// By default the game will spawn an empty window, and exit upon Esc or closing of the window.
-/// Under the hood, Rusty Engine syncs the game data to Bevy to power most of the underlying
-/// functionality.
-pub struct Game {
-    app_builder: AppBuilder,
-    game_state: GameState,
-    window_descriptor: WindowDescriptor,
-}
-
-impl Default for Game {
-    fn default() -> Self {
-        Self {
-            app_builder: App::build(),
-            game_state: GameState::default(),
-            window_descriptor: WindowDescriptor {
-                title: "Rusty Engine".into(),
-                ..Default::default()
-            },
-        }
-    }
-}
-
-impl Game {
-    /// Create an empty [`Game`] with an empty [`GameState`] and an empty vector of [`Actor`]s
-    pub fn new() -> Self {
-        if std::fs::read_dir("assets").is_err() {
-            println!("FATAL: Could not find assets directory. Have you downloaded the assets?\nhttps://github.com/CleanCut/rusty_engine#you-must-download-the-assets-separately");
-            std::process::exit(1);
-        }
-        Default::default()
-    }
-
-    #[must_use]
-    /// Add an [`Actor`] before the game has begun. Use the `&mut Actor` that is returned to set
-    /// the translation, rotation, etc.
-    pub fn add_actor<T: Into<String>>(&mut self, label: T, preset: ActorPreset) -> &mut Actor {
-        let label = label.into();
-        self.game_state
-            .actors
-            .insert(label.clone(), preset.build(label.clone()));
-        // Unwrap: Can't crash because we just inserted the actor
-        self.game_state.actors.get_mut(&label).unwrap()
-    }
-
-    #[must_use]
-    /// Add a [`TextActor`] before the game has begun. Use the `&mut TextActor` that is returned to
-    /// set the translation, rotation, etc.
-    pub fn add_text_actor<T, S>(&mut self, label: T, text: S) -> &mut TextActor
-    where
-        T: Into<String>,
-        S: Into<String>,
-    {
-        let label = label.into();
-        let text = text.into();
-        let text_actor = TextActor {
-            label: label.clone(),
-            text,
-            ..Default::default()
-        };
-        self.game_state
-            .text_actors
-            .insert(label.clone(), text_actor);
-        // Unwrap: Can't crash because we just inserted the actor
-        self.game_state.text_actors.get_mut(&label).unwrap()
-    }
-
-    /// Use to get a `&mut GameState` to set up game state before the game has begun.
-    pub fn game_state_mut(&mut self) -> &mut GameState {
-        &mut self.game_state
-    }
-
-    /// Use this to set properties of the native OS window before running the game. See the
-    /// [window](https://github.com/CleanCut/rusty_engine/blob/main/examples/window.rs) example for
-    /// more information.
-    pub fn window_settings(&mut self, window_descriptor: WindowDescriptor) -> &mut Self {
-        self.window_descriptor = window_descriptor;
-        debug!("window descriptor is: {:?}", self.window_descriptor);
-        self
-    }
-
-    /// Start the game. This method never returns.  [`GameLogicFunction`] should be a function or
-    /// closure which accepts one parameter, a `&mut GameState` and returns nothing.
-    ///
-    /// # Examples
-    ///
-    /// There are much more interesting and complete examples in [the `examples/` directory.](https://github.com/CleanCut/rusty_engine/tree/main/examples)
-    ///
-    /// You can write a function for your game logic.
-    ///
-    /// ```no_run
-    /// use rusty_engine::prelude::*;
-    ///
-    /// fn game_logic(game_state: &mut GameState) {
-    ///     println!("This game has been running for: {:.2}", game_state.time_since_startup_f64);
-    /// }
-    ///
-    /// fn main() {
-    ///     let mut game = Game::new();
-    ///     game.run(game_logic);
-    /// }
-    /// ```
-    ///
-    /// You can write a closure for your game logic, if and only if your closure doesn't capture
-    /// any variables.
-    ///
-    /// ```no_run
-    /// # use rusty_engine::prelude::*;
-    /// let mut game = Game::new();
-    /// game.run(|game_state| {
-    ///     println!("This game has been running for: {:.2}", game_state.time_since_startup_f64);
-    /// });
-    /// ```
-    ///
-    /// If you don't want to do anything, you can use the closure `|_| {}`
-    ///
-    /// ```no_run
-    /// # use rusty_engine::prelude::*;
-    /// let mut game = Game::new();
-    /// game.run(|_| {});
-    /// ```
-    pub fn run(&mut self, func: GameLogicFunction) {
-        self.app_builder
-            .insert_resource::<WindowDescriptor>(self.window_descriptor.clone());
-        self.app_builder
-            // Built-ins
-            .add_plugins_with(DefaultPlugins, |group| {
-                group.disable::<bevy::audio::AudioPlugin>()
-            })
-            .add_system(exit_on_esc_system.system())
-            // External Plugins
-            .add_plugin(AudioPlugin) // kira_bevy_audio
-            // Rusty Engine Plugins
-            .add_plugin(AudioManagerPlugin)
-            .add_plugin(KeyboardPlugin)
-            .add_plugin(MousePlugin)
-            .add_plugin(PhysicsPlugin)
-            //.insert_resource(ReportExecutionOrderAmbiguities) // for debugging
-            .add_system(game_logic_sync.system().label("game_logic_sync"))
-            .add_startup_system(setup.system());
-        // Unwrap: Can't crash, we're the only thread using the lock, so it can't be poisoned.
-        GAME_LOGIC_FUNCTIONS.lock().unwrap().push(func);
-        let world = self.app_builder.world_mut();
-        world
-            .spawn()
-            .insert_bundle(OrthographicCameraBundle::new_2d());
-        let game_state = std::mem::take(&mut self.game_state);
-        self.app_builder.insert_resource(game_state);
-        self.app_builder.run();
-    }
-}
-
-/// GameState is the primary way that you will interact with Rusty Engine. Every frame this struct
-/// is provided to the "game logic" function or closure that you provided to [`Game::run`]. The
+/// Engine is the primary way that you will interact with Rusty Engine. Each frame this struct
+/// is provided to the "logic" functions (or closures) that you provided to [`Game::add_logic`]. The
 /// fields in this struct are divided into two groups:
 ///
-/// 1. `USER` fields
-///
-/// These fields are only used by you, the developer of the game, and are persistent across frames.
-///
-/// The names of the fields in this first group begin with the name of the type you can store (e.g.
-/// `f32`), and end in either `_vec` or `_map` to indicate that the field is a vector or hash map,
-/// respectively. All hash map keys are [`String`]s. These fields are intended for you to use if you
-/// need to carry state across frames. For example, in one frame you may add a bunch of message
-/// strings to `.string_vec`, and then in later frames you may take these strings and render
-/// messages in the game once the player has had time to read them. Rusty Engine won't touch
-/// anything in these fields, so how you use them is completely up to you.
-///
-/// 2. `SYNCED` fields.
+/// 1. `SYNCED` fields.
 ///
 /// These fields are marked with `SYNCED`. These fields are shared between you and the engine. Each
 /// frame Rusty Engine will populate these fields, then provide them to the user's game logic
-/// function, and then examine any changes the user made and take action on what changed. This is
-/// your primary way to interact with the engine.
+/// function, and then examine any changes the user made and sync those changes back to the engine.
 ///
-/// 3. `INFO` fields
+/// 2. `INFO` fields
 ///
-/// INFO fields are provided as fresh, readable information to you each. Since information in these
-/// fields are overwritten every frame, any changes are ignored. This makes it convenient to ////
-/// you can feel free to, e.g. consume all the events out of the `.mouse_butten_events` vector.
+/// INFO fields are provided as fresh, readable information to you each frame. Since information in
+/// these fields are overwritten every frame, any changes to them are ignored. Thus, you can feel
+/// free to, e.g. consume all the events out of the `collision_events` vector.
 #[derive(Default, Debug)]
-pub struct GameState {
-    // Empty collections for users
-    /// USER -- hash map of [`String`] to [`bool`]
-    pub bool_map: HashMap<String, bool>,
-    /// USER -- hash map of [`String`] to [`f32`]
-    pub f32_map: HashMap<String, f32>,
-    /// USER -- hash map of [`String`] to [`i32`]
-    pub i32_map: HashMap<String, i32>,
-    /// USER -- hash map of [`String`] to [`u8`]
-    pub u8_map: HashMap<String, u8>,
-    /// USER -- hash map of [`String`] to [`u32`]
-    pub u32_map: HashMap<String, u32>,
-    /// USER -- hash map of [`String`] to [`usize`]
-    pub usize_map: HashMap<String, usize>,
-    /// USER -- hash map of [`String`] to [`String`]
-    pub string_map: HashMap<String, String>,
-    /// USER -- hash map of [`String`] to [`Timer`]
-    pub timer_map: HashMap<String, Timer>,
-    /// USER -- hash map of [`String`] to [`Vec2`]
-    pub vec2_map: HashMap<String, Vec2>,
-    /// USER -- vector of [`bool`]
-    pub bool_vec: Vec<bool>,
-    /// USER -- vector of [`f32`]
-    pub f32_vec: Vec<f32>,
-    /// USER -- vector of [`i32`]
-    pub i32_vec: Vec<i32>,
-    /// USER -- vector of [`u8`]
-    pub u8_vec: Vec<u8>,
-    /// USER -- vector of [`u32`]
-    pub u32_vec: Vec<u32>,
-    /// USER -- vector of [`usize`]
-    pub usize_vec: Vec<usize>,
-    /// USER -- vector of [`String`]
-    pub string_vec: Vec<String>,
-    /// USER -- vector of [`Timer`]
-    pub timer_vec: Vec<Timer>,
-    /// USER -- vector of [`Vec2`]
-    pub vec2_vec: Vec<Vec2>,
-    /// SYNCED - The state of all actors this frame
-    pub actors: HashMap<String, Actor>,
-    /// SYNCED - The state of all text actors this frame
-    pub text_actors: HashMap<String, TextActor>,
+pub struct Engine {
+    /// SYNCED - The state of all sprites this frame. To add a sprite, use the
+    /// [`add_sprite`](Engine::add_sprite) method. Modify & remove sprites as you like.
+    pub sprites: HashMap<String, Sprite>,
+    /// SYNCED - The state of all texts this frame. For convenience adding a text, use the
+    /// [`add_text`](Engine::add_text) method. Modify & remove text as you like.
+    pub texts: HashMap<String, Text>,
+    /// SYNCED - If set to `true`, the game exits. Note: the current frame will run to completion first.
+    pub should_exit: bool,
+    /// SYNCED - If set to `true`, then debug lines are shown depicting sprite colliders
+    pub show_colliders: bool,
+    // so we can tell if the value changed this frame
+    last_show_colliders: bool,
     /// INFO - All the collision events that occurred this frame. For collisions to be generated
-    /// between actors, both actors must have [`Actor.collision`] set to `true`. Collision events
-    /// are generated when two actors' colliders begin or end overlapping in 2D space.
+    /// between sprites, both sprites must have [`Sprite.collision`] set to `true` and both sprites
+    /// must have colliders (use the collider example to create a collider for your own images).
+    /// Collision events are generated when two sprites' colliders begin or end overlapping in 2D
+    /// space.
     pub collision_events: Vec<CollisionEvent>,
     /// INFO - The current state of mouse location and buttons. Useful for input handling that only
     /// cares about the final state of the mouse each frame, and not the intermediate states.
@@ -263,19 +80,19 @@ pub struct GameState {
     pub mouse_motion_events: Vec<MouseMotion>,
     /// INFO - All the mouse wheel events that occurred this frame.
     pub mouse_wheel_events: Vec<MouseWheel>,
+    /// INFO - The current state of all the keys on the keyboard. Use this to control movement in
+    /// your games!  A [`KeyboardState`] has helper methods you should use to query the state of
+    /// specific [`KeyCode`](crate::prelude::KeyCode)s.
+    pub keyboard_state: KeyboardState,
     /// INFO - All the keyboard input events. These are text-processor-like events. If you are
     /// looking for keyboard events to control movement in a game character, you should use
-    /// [`GameState::keyboard_state`] instead. For example, one pressed event will fire when you
+    /// [`Engine::keyboard_state`] instead. For example, one pressed event will fire when you
     /// start holding down a key, and then after a short delay additional pressed events will occur
     /// at the same rate that additional letters would show up in a word processor. When the key is
     /// finally released, a single released event is emitted.
-    pub keyboard_state: KeyboardState,
-    /// INFO - The delta time (time between frames) for the current frame as a [`Duration`], perfect
-    /// for use with [`Timer`]s
     pub keyboard_events: Vec<KeyboardInput>,
-    /// INFO - The current state of all the keys on the keyboard. Use this to control movement in
-    /// your games!  A [`KeyboardState`] has helper methods you should use to query the state of
-    /// specific [`KeyCode`]s.
+    /// INFO - The delta time (time between frames) for the current frame as a [`Duration`], perfect
+    /// for use with [`Timer`](crate::prelude::Timer)s
     pub delta: Duration,
     /// INFO - The delta time (time between frames) for the current frame as an [`f32`], perfect for
     /// use in math with other `f32`'s. A cheap and quick way to approximate smooth movement
@@ -289,222 +106,394 @@ pub struct GameState {
     pub time_since_startup_f64: f64,
     /// A struct with methods to play sound effects and music
     pub audio_manager: AudioManager,
-    /// INFO - Screen dimensions in pixels
-    pub screen_dimensions: Vec2,
-    // Used by internal methods
-    should_exit: bool,
+    /// INFO - Window dimensions in logical pixels. On high DPI screens, there will often be four
+    /// physical pixels per logical pixel. On low DPI screens, one logical pixel is one physical
+    /// pixel.
+    pub window_dimensions: Vec2,
 }
 
-impl GameState {
-    pub fn exit(&mut self) {
-        self.should_exit = true;
-    }
-
+impl Engine {
     #[must_use]
-    /// Add an [`Actor`]. Use the `&mut Actor` that is returned to set the translation, rotation,
-    /// etc. Attempting to add two actors with the same label will crash.
-    pub fn add_actor<T: Into<String>>(&mut self, label: T, preset: ActorPreset) -> &mut Actor {
+    /// Create and add a [`Sprite`] to the game. Use the `&mut Sprite` that is returned to adjust
+    /// the translation, rotation, etc. Use a *unique* label for each sprite. Attempting to add two
+    /// sprites with the same label will cause a crash.
+    pub fn add_sprite<T: Into<String>, P: Into<PathBuf>>(
+        &mut self,
+        label: T,
+        file_or_preset: P,
+    ) -> &mut Sprite {
         let label = label.into();
-        self.actors
-            .insert(label.clone(), preset.build(label.clone()));
-        // Unwrap: Can't crash because we just inserted the actor
-        self.actors.get_mut(&label).unwrap()
+        self.sprites
+            .insert(label.clone(), Sprite::new(label.clone(), file_or_preset));
+        // Unwrap: Can't crash because we just inserted the sprite
+        self.sprites.get_mut(&label).unwrap()
     }
 
     #[must_use]
-    /// Add a [`TextActor`]. Use the `&mut TextActor` that is returned to set the translation,
-    /// rotation, etc. Attempting to add two text actors with the same label will crash.
-    pub fn add_text_actor<T, S>(&mut self, label: T, text: S) -> &mut TextActor
+    /// Create and add a [`Text`] to the game. Use the `&mut Text` that is returned to adjust the
+    /// translation, rotation, etc. Use a *unique* label for each text. Attempting to add two texts
+    /// with the same label will cause a crash.
+    pub fn add_text<T, S>(&mut self, label: T, text: S) -> &mut Text
     where
         T: Into<String>,
         S: Into<String>,
     {
         let label = label.into();
         let text = text.into();
-        let text_actor = TextActor {
+        let curr_text = Text {
             label: label.clone(),
-            text,
+            value: text,
             ..Default::default()
         };
-        self.text_actors.insert(label.clone(), text_actor);
-        // Unwrap: Can't crash because we just inserted the actor
-        self.text_actors.get_mut(&label).unwrap()
+        self.texts.insert(label.clone(), curr_text);
+        // Unwrap: Can't crash because we just inserted the text
+        self.texts.get_mut(&label).unwrap()
     }
 }
 
-// startup system - grab window settings, initialize all the starting actors
-fn setup(
-    mut commands: Commands,
-    asset_server: Res<AssetServer>,
-    materials: ResMut<Assets<ColorMaterial>>,
-    windows: Res<Windows>,
-    mut game_state: ResMut<GameState>,
-) {
-    // Unwrap: If we can't access the primary window...there's no point to running Rusty Engine
-    let window = windows.get_primary().unwrap();
-    game_state.screen_dimensions = Vec2::new(window.width(), window.height());
-    info!("Window dimensions: {}", game_state.screen_dimensions);
-    add_actors(&mut commands, &asset_server, materials, &mut game_state);
-    add_text_actors(&mut commands, &asset_server, &mut game_state);
+/// startup system - grab window settings, initialize all the starting sprites
+#[doc(hidden)]
+pub fn setup(mut commands: Commands, asset_server: Res<AssetServer>, mut engine: ResMut<Engine>) {
+    add_sprites(&mut commands, &asset_server, &mut engine);
+    add_texts(&mut commands, &asset_server, &mut engine);
 }
 
-// system - the magic that connects Rusty Engine to Bevy, frame by frame
-#[allow(clippy::type_complexity, clippy::too_many_arguments)]
-fn game_logic_sync(
-    mut commands: Commands,
-    asset_server: Res<AssetServer>,
-    materials: ResMut<Assets<ColorMaterial>>,
-    mut game_state: ResMut<GameState>,
-    keyboard_state: Res<KeyboardState>,
-    mouse_state: Res<MouseState>,
-    time: Res<Time>,
-    mut app_exit_events: EventWriter<AppExit>,
-    mut collision_events: EventReader<CollisionEvent>,
-    // mut actor_query: Query<(&mut Actor, &mut Transform)>,
-    // mut text_actor_query: Query<(&mut TextActor, &mut Transform)>,
-    mut query_set: QuerySet<(
-        Query<&Actor>,
-        Query<&TextActor>,
-        Query<(Entity, &mut Actor, &mut Transform)>,
-        Query<(Entity, &mut TextActor, &mut Transform, &mut Text)>,
-    )>,
-) {
-    // Update this frame's timing info
-    game_state.delta = time.delta();
-    game_state.delta_f32 = time.delta_seconds();
-    game_state.time_since_startup = time.time_since_startup();
-    game_state.time_since_startup_f64 = time.seconds_since_startup();
-
-    // TODO: Transfer any changes to the Bevy components by the physics system over to the Actors
-    // for (mut actor, mut transform) in actor_query.iter_mut() {
-    //     actor.translation = Vec2::from(transform.translation);
-    //     actor.layer = transform.translation.z;
-    //     // transform.rotation = Quat::from_axis_angle(Vec3::Z, actor.rotation);
-    //     actor.rotation = ???
-    //     actor.scale = transform.scale.x;
-    // }
-
-    // Copy keyboard state over to game_state to give to users
-    game_state.keyboard_state = keyboard_state.clone();
-
-    // Copy mouse state over to game_state to give to users
-    game_state.mouse_state = mouse_state.clone();
-
-    // Copy all collision events over to the game_state to give to users
-    game_state.collision_events.clear();
-    for collision_event in collision_events.iter() {
-        game_state.collision_events.push(collision_event.clone());
-    }
-
-    // Copy all actors over to the game_state to give to users
-    game_state.actors.clear();
-    for actor in query_set.q0().iter() {
-        let _ = game_state
-            .actors
-            .insert(actor.label.clone(), (*actor).clone());
-    }
-
-    // Copy all text_actors over to the game_state to give to users
-    game_state.text_actors.clear();
-    for text_actor in query_set.q1().iter() {
-        let _ = game_state
-            .text_actors
-            .insert(text_actor.label.clone(), (*text_actor).clone());
-    }
-
-    // Perform all the user's game logic for this frame
-    // Unwrap: Can't crash, we're the only thread using the lock, so it can't be poisoned.
-    for func in GAME_LOGIC_FUNCTIONS.lock().unwrap().iter() {
-        func(&mut game_state);
-    }
-
-    // Transfer any changes in the user's Actor copies to the Bevy Actor and Transform components
-    for (entity, mut actor, mut transform) in query_set.q2_mut().iter_mut() {
-        if let Some(actor_copy) = game_state.actors.remove(&actor.label) {
-            *actor = actor_copy;
-            *transform = actor.bevy_transform();
-        } else {
-            commands.entity(entity).despawn();
+/// Add visible lines representing a collider
+fn add_collider_lines(commands: &mut Commands, sprite: &mut Sprite) {
+    // Add the collider lines, a visual representation of the sprite's collider
+    let points = sprite.collider.points(); // will be empty vector if NoCollider
+    if points.len() >= 2 {
+        let mut path_builder = PathBuilder::new();
+        path_builder.move_to(points[0]);
+        for point in &points[1..] {
+            path_builder.line_to(*point);
         }
+        path_builder.close(); // draws the line from the last point to the first point
+        let line = path_builder.build();
+        let transform = sprite.bevy_transform();
+        commands
+            .spawn_bundle(GeometryBuilder::build_as(
+                &line,
+                DrawMode::Stroke(StrokeMode::new(Color::WHITE, 1.0 / transform.scale.x)),
+                transform,
+            ))
+            .insert(ColliderLines {
+                sprite_label: sprite.label.clone(),
+            });
     }
-
-    // Transfer any changes in the user's TextActor copies to the Bevy TextActor and Transform components
-    for (entity, mut text_actor, mut transform, mut text) in query_set.q3_mut().iter_mut() {
-        if let Some(text_actor_copy) = game_state.text_actors.remove(&text_actor.label) {
-            *text_actor = text_actor_copy;
-            *transform = text_actor.bevy_transform();
-            if text_actor.text != text.sections[0].value {
-                text.sections[0].value = text_actor.text.clone();
-            }
-            #[allow(clippy::float_cmp)]
-            if text_actor.font_size != text.sections[0].style.font_size {
-                text.sections[0].style.font_size = text_actor.font_size;
-            }
-        } else {
-            commands.entity(entity).despawn();
-        }
-    }
-
-    // Add Bevy components for any new actors remaining in game_state.actors
-    add_actors(&mut commands, &asset_server, materials, &mut game_state);
-
-    // Add Bevy components for any new text_actors remaining in game_state.text_actors
-    add_text_actors(&mut commands, &asset_server, &mut game_state);
-
-    if game_state.should_exit {
-        app_exit_events.send(AppExit);
-    }
+    sprite.collider_dirty = false;
 }
 
-// helper function: Add Bevy components for all the actors in game_state.actors
-fn add_actors(
-    commands: &mut Commands,
-    asset_server: &Res<AssetServer>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
-    game_state: &mut GameState,
-) {
-    for (_, actor) in game_state.actors.drain() {
-        // let mut transform = Transform::from_translation(actor.translation.extend(actor.layer));
-        // transform.rotation = Quat::from_axis_angle(Vec3::Z, actor.rotation);
-        // transform.scale = Vec3::splat(actor.scale);
-        let transform = actor.bevy_transform();
-        let texture_handle = asset_server.load(actor.filename.as_str());
-        commands.spawn().insert(actor).insert_bundle(SpriteBundle {
-            material: materials.add(texture_handle.into()),
+/// helper function: Add Bevy components for all the sprites in engine.sprites
+#[doc(hidden)]
+pub fn add_sprites(commands: &mut Commands, asset_server: &Res<AssetServer>, engine: &mut Engine) {
+    for (_, sprite) in engine.sprites.drain() {
+        // Create the sprite
+        let transform = sprite.bevy_transform();
+        let texture_path = sprite.filepath.clone();
+        commands.spawn().insert(sprite).insert_bundle(SpriteBundle {
+            texture: asset_server.load(texture_path),
             transform,
             ..Default::default()
         });
     }
 }
 
-// helper function: Add Bevy components for all the actors in game_state.text_actors
-fn add_text_actors(
-    commands: &mut Commands,
-    asset_server: &Res<AssetServer>,
-    game_state: &mut GameState,
-) {
-    for (_, text_actor) in game_state.text_actors.drain() {
-        let transform = text_actor.bevy_transform();
-        let font_size = text_actor.font_size;
-        let text = text_actor.text.clone();
-        commands
-            .spawn()
-            .insert(text_actor)
-            .insert_bundle(Text2dBundle {
-                text: Text::with_section(
-                    text,
-                    TextStyle {
-                        font: asset_server.load("fonts/FiraSans-Bold.ttf"),
-                        font_size,
-                        color: Color::WHITE,
-                    },
-                    TextAlignment {
-                        vertical: VerticalAlign::Center,
-                        horizontal: HorizontalAlign::Center,
-                    },
-                ),
-                transform,
+/// Bevy system which adds any needed Bevy components to correspond to the texts in
+/// `engine.texts`
+#[doc(hidden)]
+pub fn add_texts(commands: &mut Commands, asset_server: &Res<AssetServer>, engine: &mut Engine) {
+    for (_, text) in engine.texts.drain() {
+        let transform = text.bevy_transform();
+        let font_size = text.font_size;
+        let text_string = text.value.clone();
+        let font_path = text.font.clone();
+        commands.spawn().insert(text).insert_bundle(Text2dBundle {
+            text: BevyText::with_section(
+                text_string,
+                TextStyle {
+                    font: asset_server.load(font_path.as_str()),
+                    font_size,
+                    color: Color::WHITE,
+                },
+                TextAlignment {
+                    vertical: VerticalAlign::Center,
+                    horizontal: HorizontalAlign::Center,
+                },
+            ),
+            transform,
+            ..Default::default()
+        });
+    }
+}
+
+/// system - update current window dimensions in the engine, because people resize windows
+#[doc(hidden)]
+pub fn update_window_dimensions(windows: Res<Windows>, mut engine: ResMut<Engine>) {
+    // Unwrap: If we can't access the primary window...there's no point to running Rusty Engine
+    let window = windows.get_primary().unwrap();
+    let screen_dimensions = Vec2::new(window.width(), window.height());
+    if screen_dimensions != engine.window_dimensions {
+        engine.window_dimensions = screen_dimensions;
+        debug!("Set window dimensions: {}", engine.window_dimensions);
+    }
+}
+
+/// Component to add to the collider lines visualizations to link them to the sprite they represent
+#[derive(Component)]
+#[doc(hidden)]
+pub struct ColliderLines {
+    sprite_label: String,
+}
+
+/// A [`Game`] represents the entire game and its data.
+/// By default the game will spawn an empty window, and exit upon Esc or closing of the window.
+/// Under the hood, Rusty Engine syncs the game data to [Bevy](https://bevyengine.org/) to power
+/// most of the underlying functionality.
+///
+/// [`Game`] forwards method calls to [`Engine`] when it can, so you should be able to use all
+/// of the methods from [`Engine`] on [`Game`] during your game setup in your `main()` function.
+pub struct Game<S: Send + Sync + 'static> {
+    app: App,
+    engine: Engine,
+    logic_functions: Vec<fn(&mut Engine, &mut S)>,
+    window_descriptor: WindowDescriptor,
+}
+
+impl<S: Send + Sync + 'static> Default for Game<S> {
+    fn default() -> Self {
+        Self {
+            app: App::new(),
+            engine: Engine::default(),
+            logic_functions: vec![],
+            window_descriptor: WindowDescriptor {
+                title: "Rusty Engine".into(),
                 ..Default::default()
-            });
+            },
+        }
+    }
+}
+
+impl<S: Send + Sync + 'static> Game<S> {
+    /// Create an new, empty [`Game`] with an empty [`Engine`]
+    pub fn new() -> Self {
+        if std::fs::read_dir("assets").is_err() {
+            println!("FATAL: Could not find assets directory. Have you downloaded the assets?\nhttps://github.com/CleanCut/rusty_engine#you-must-download-the-assets-separately");
+            std::process::exit(1);
+        }
+        Default::default()
+    }
+
+    /// Use this to set properties of the native OS window before running the game. See the
+    /// [window](https://github.com/CleanCut/rusty_engine/blob/main/examples/window.rs) example for
+    /// more information.
+    pub fn window_settings(&mut self, window_descriptor: WindowDescriptor) -> &mut Self {
+        self.window_descriptor = window_descriptor;
+        self
+    }
+
+    /// Start the game.
+    pub fn run(&mut self, initial_game_state: S) {
+        self.app
+            .insert_resource::<WindowDescriptor>(self.window_descriptor.clone())
+            .insert_resource::<S>(initial_game_state);
+        self.app
+            // Built-ins
+            .add_plugins(DefaultPlugins)
+            .add_system(exit_on_esc_system)
+            // External Plugins
+            .add_plugin(ShapePlugin) // bevy_prototype_lyon, for displaying sprite colliders
+            // Rusty Engine Plugins
+            .add_plugin(AudioManagerPlugin)
+            .add_plugin(KeyboardPlugin)
+            .add_plugin(MousePlugin)
+            .add_plugin(PhysicsPlugin)
+            //.insert_resource(ReportExecutionOrderAmbiguities) // for debugging
+            .add_system(
+                update_window_dimensions
+                    .label("update_window_dimensions")
+                    .before("game_logic_sync"),
+            )
+            .add_system(game_logic_sync::<S>.label("game_logic_sync"))
+            .add_startup_system(setup);
+        self.app
+            .world
+            .spawn()
+            .insert_bundle(OrthographicCameraBundle::new_2d());
+        let engine = std::mem::take(&mut self.engine);
+        self.app.insert_resource(engine);
+        let logic_functions = std::mem::take(&mut self.logic_functions);
+        self.app.insert_resource(logic_functions);
+        self.app.run();
+    }
+
+    /// `logic_function` is a function or closure that takes two parameters and returns nothing:
+    ///
+    /// - `engine: &mut Engine`
+    /// - `game_state`, which is a mutable reference (`&mut`) to the game state struct you defined,
+    ///    or `&mut ()` if you didn't define one.
+    pub fn add_logic(&mut self, logic_function: fn(&mut Engine, &mut S)) {
+        self.logic_functions.push(logic_function);
+    }
+}
+
+/// system - the magic that connects Rusty Engine to Bevy, frame by frame
+#[allow(clippy::type_complexity, clippy::too_many_arguments)]
+fn game_logic_sync<S: Send + Sync + 'static>(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut engine: ResMut<Engine>,
+    mut game_state: ResMut<S>,
+    logic_functions: Res<Vec<fn(&mut Engine, &mut S)>>,
+    keyboard_state: Res<KeyboardState>,
+    mouse_state: Res<MouseState>,
+    time: Res<Time>,
+    mut app_exit_events: EventWriter<AppExit>,
+    mut collision_events: EventReader<CollisionEvent>,
+    mut query_set: ParamSet<(
+        Query<(Entity, &mut Sprite, &mut Transform)>,
+        Query<(Entity, &mut Text, &mut Transform, &mut BevyText)>,
+        Query<(Entity, &mut DrawMode, &mut Transform, &ColliderLines)>,
+    )>,
+) {
+    // Update this frame's timing info
+    engine.delta = time.delta();
+    engine.delta_f32 = time.delta_seconds();
+    engine.time_since_startup = time.time_since_startup();
+    engine.time_since_startup_f64 = time.seconds_since_startup();
+
+    // Copy keyboard state over to engine to give to users
+    engine.keyboard_state = keyboard_state.clone();
+
+    // Copy mouse state over to engine to give to users
+    engine.mouse_state = mouse_state.clone();
+
+    // Copy all collision events over to the engine to give to users
+    engine.collision_events.clear();
+    for collision_event in collision_events.iter() {
+        engine.collision_events.push(collision_event.clone());
+    }
+
+    // Copy all sprites over to the engine to give to users
+    engine.sprites.clear();
+    for (_, sprite, _) in query_set.p0().iter() {
+        let _ = engine
+            .sprites
+            .insert(sprite.label.clone(), (*sprite).clone());
+    }
+
+    // Copy all texts over to the engine to give to users
+    engine.texts.clear();
+    for (_, text, _, _) in query_set.p1().iter() {
+        let _ = engine.texts.insert(text.label.clone(), (*text).clone());
+    }
+
+    // Perform all the user's game logic for this frame
+    for func in logic_functions.iter() {
+        func(&mut engine, &mut game_state);
+    }
+
+    if !engine.last_show_colliders && engine.show_colliders {
+        // Just turned on show_colliders -- create collider lines for all sprites
+        for sprite in engine.sprites.values_mut() {
+            add_collider_lines(&mut commands, sprite);
+        }
+    } else if engine.last_show_colliders && !engine.show_colliders {
+        // Just turned off show_colliders -- delete collider lines for all sprites
+        for (entity, _, _, _) in query_set.p2().iter_mut() {
+            commands.entity(entity).despawn();
+        }
+    }
+    // Update transform & line width of all collider lines
+    if engine.show_colliders {
+        // Delete collider lines for sprites which are missing, or whose colliders are dirty
+        for (entity, _, _, collider_lines) in query_set.p2().iter_mut() {
+            if let Some(sprite) = engine.sprites.get(&collider_lines.sprite_label) {
+                if sprite.collider_dirty {
+                    commands.entity(entity).despawn();
+                }
+            } else {
+                commands.entity(entity).despawn();
+            }
+        }
+        // Add collider lines for sprites whose colliders are dirty
+        for sprite in engine.sprites.values_mut() {
+            if sprite.collider_dirty {
+                add_collider_lines(&mut commands, sprite);
+            }
+        }
+        // Update transform & line width
+        for (_, mut draw_mode, mut transform, collider_lines) in query_set.p2().iter_mut() {
+            if let Some(sprite) = engine.sprites.get(&collider_lines.sprite_label) {
+                *transform = sprite.bevy_transform();
+                // We want collider lines to appear on top of the sprite they are for, so they need a
+                // slightly higher z value. We tell users to only use up to 999.0.
+                transform.translation.z = (transform.translation.z + 0.1).clamp(0.0, 999.1);
+            }
+            // Stroke line width gets scaled with the transform, but we want it to appear to be the same
+            // regardless of scale, so we have to counter the scale.
+            if let DrawMode::Stroke(ref mut stroke_mode) = *draw_mode {
+                let line_width = 1.0 / transform.scale.x;
+                *stroke_mode = StrokeMode::new(Color::WHITE, line_width);
+            }
+        }
+    }
+    engine.last_show_colliders = engine.show_colliders;
+
+    // Transfer any changes in the user's Sprite copies to the Bevy Sprite and Transform components
+    for (entity, mut sprite, mut transform) in query_set.p0().iter_mut() {
+        if let Some(sprite_copy) = engine.sprites.remove(&sprite.label) {
+            *sprite = sprite_copy;
+            *transform = sprite.bevy_transform();
+        } else {
+            commands.entity(entity).despawn();
+        }
+    }
+
+    // Add Bevy components for any new sprites remaining in engine.sprites
+    add_sprites(&mut commands, &asset_server, &mut engine);
+
+    // Transfer any changes in the user's Texts to the Bevy Text and Transform components
+    for (entity, mut text, mut transform, mut bevy_text_component) in query_set.p1().iter_mut() {
+        if let Some(text_copy) = engine.texts.remove(&text.label) {
+            *text = text_copy;
+            *transform = text.bevy_transform();
+            if text.value != bevy_text_component.sections[0].value {
+                bevy_text_component.sections[0].value = text.value.clone();
+            }
+            #[allow(clippy::float_cmp)]
+            if text.font_size != bevy_text_component.sections[0].style.font_size {
+                bevy_text_component.sections[0].style.font_size = text.font_size;
+            }
+            let font = asset_server.load(text.font.as_str());
+            if bevy_text_component.sections[0].style.font != font {
+                bevy_text_component.sections[0].style.font = font;
+            }
+        } else {
+            commands.entity(entity).despawn();
+        }
+    }
+
+    // Add Bevy components for any new texts remaining in engine.texts
+    add_texts(&mut commands, &asset_server, &mut engine);
+
+    if engine.should_exit {
+        app_exit_events.send(AppExit);
+    }
+}
+
+// The Deref and DerefMut implementations make it so that you can call all the `Engine` methods
+// on a `Game`, which is much more straightforward for game setup in `main()`
+impl<S: Send + Sync + 'static> Deref for Game<S> {
+    type Target = Engine;
+
+    fn deref(&self) -> &Self::Target {
+        &self.engine
+    }
+}
+
+impl<S: Send + Sync + 'static> DerefMut for Game<S> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.engine
     }
 }
