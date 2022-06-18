@@ -64,6 +64,11 @@ impl CollisionPair {
     /// Whether either of the labels contains the text.
     pub fn either_contains<T: Into<String>>(&self, text: T) -> bool {
         let text = text.into();
+        self.0.contains(&text) || self.1.contains(&text)
+    }
+    /// Whether either of the labels equals to the text.
+    pub fn either_equals_to<T: Into<String>>(&self, text: T) -> bool {
+        let text = text.into();
         (self.0 == text) || (self.1 == text)
     }
     /// Whether either of the labels starts with the text.
