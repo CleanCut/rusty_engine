@@ -117,6 +117,7 @@ See also the [tutorial](https://cleancut.github.io/rusty_engine/), [game scenari
 Show off the project you made with Rusty Engine! Learning Rust can be fun. 😄 Just [send me a link](https://agileperception.com/contact) and I'll add it to the list!
 
 - [Rusty Asteroids](https://github.com/etnt/rusty-asteroids) by [@etnt](https://github.com/etnt)
+- [Rusty Breakout](https://github.com/etnt/rusty-breakout) by [@etnt](https://github.com/etnt)
 
 ## Contribution
 
