@@ -20,7 +20,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [macos-latest, windows-latest, ubuntu-latest]
-        toolchain: [stable, beta, nightly]
+        toolchain: [stable]
         include:
           - os: macos-latest
             MACOS: true
@@ -57,12 +57,12 @@ jobs:
 
       - name: Install sccache (windows)
         run: |
-            Set-Location "$Env:USERPROFILE"
-            $Env:SCCACHE_FILE = "sccache-$Env:SCCACHE_VERSION-x86_64-$Env:SCCACHE_TARGET"
-            $client = new-object System.Net.WebClient
-            $client.DownloadFile("$Env:URL_BASE/$Env:SCCACHE_VERSION/$Env:SCCACHE_FILE.tar.gz", "$pwd\sccache.tar.gz")
-            tar -xvzf .\sccache.tar.gz
-            Move-Item -Path .\$Env:SCCACHE_FILE\sccache.exe -Destination .\.cargo\bin\sccache.exe
+          Set-Location "$Env:USERPROFILE"
+          $Env:SCCACHE_FILE = "sccache-$Env:SCCACHE_VERSION-x86_64-$Env:SCCACHE_TARGET"
+          $client = new-object System.Net.WebClient
+          $client.DownloadFile("$Env:URL_BASE/$Env:SCCACHE_VERSION/$Env:SCCACHE_FILE.tar.gz", "$pwd\sccache.tar.gz")
+          tar -xvzf .\sccache.tar.gz
+          Move-Item -Path .\$Env:SCCACHE_FILE\sccache.exe -Destination .\.cargo\bin\sccache.exe
         if: matrix.os == 'windows-latest'
 
       - name: Install Linux deps alsa and udev
@@ -79,16 +79,17 @@ jobs:
           override: true
 
       - name: Fetch cargo registry cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         continue-on-error: false
         with:
           path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            Cargo.lock
-          key: ${{ runner.os }}-cargo-${{ matrix.toolchain }}-${{ hashFiles('**/Cargo.toml') }}
-          restore-keys: |
-            ${{ runner.os }}-cargo-${{ matrix.toolchain }}-
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+            ${{ matrix.sccache-path }}
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
         if: runner.os != 'windows'
 
       - name: Fetch cargo registry cache (windows)
@@ -96,22 +97,14 @@ jobs:
         continue-on-error: false
         with:
           path: |
-            C:\Rust\.cargo\registry
-            C:\Rust\.cargo\git
-            Cargo.lock
-          key: ${{ runner.os }}-cargo-${{ matrix.toolchain }}-${{ hashFiles('**/Cargo.toml') }}
-          restore-keys: |
-            ${{ runner.os }}-cargo-${{ matrix.toolchain }}-
+            C:\Rust\.cargo\bin
+            C:\Rust\.cargo\registry\index
+            C:\Rust\.cargo\registry\cache
+            C:\Rust\.cargo\git\db
+            target
+            ${{ matrix.sccache-path }}
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
         if: runner.os == 'windows'
-
-      - name: Fetch sccache cache
-        uses: actions/cache@v2
-        continue-on-error: false
-        with:
-          path: ${{ matrix.sccache-path }}
-          key: ${{ runner.os }}-sccache-${{ matrix.toolchain }}-${{ hashFiles('**/Cargo.toml') }}
-          restore-keys: |
-            ${{ runner.os }}-sccache-${{ matrix.toolchain }}-
 
       - name: Start sccache server
         run: sccache --start-server
