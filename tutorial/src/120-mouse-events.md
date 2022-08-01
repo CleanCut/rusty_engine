@@ -11,7 +11,7 @@ You usually want to use [mouse state](115-mouse-state.md) for mouse buttons, whi
 
 ```rust,ignored
 for mouse_button_input in &engine.mouse_button_events {
-    if mouse_button_input.state != ElementState::Pressed {
+    if mouse_button_input.state != ButtonState::Pressed {
         break;
     }
     match mouse_button_input.button {

@@ -7,7 +7,7 @@ use bevy::{prelude::*, utils::HashSet};
 pub use bevy::{
     input::{
         mouse::{MouseButton, MouseButtonInput, MouseMotion, MouseWheel},
-        ElementState,
+        ButtonState,
     },
     window::CursorMoved,
 };

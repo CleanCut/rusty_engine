@@ -100,7 +100,7 @@ fn logic(engine: &mut Engine, game_state: &mut GameState) {
             state,
         } = keyboard_event
         {
-            if *state == ElementState::Pressed {
+            if *state == ButtonState::Pressed {
                 match key_code {
                     KeyCode::Z | KeyCode::Semicolon => {
                         print_level = true;
@@ -184,7 +184,7 @@ fn logic(engine: &mut Engine, game_state: &mut GameState) {
         }
         // Handle rotation via mouse clicks
         for mouse_button_input in &engine.mouse_button_events {
-            if mouse_button_input.state != ElementState::Pressed {
+            if mouse_button_input.state != ButtonState::Pressed {
                 break;
             }
             let rotate_amount = if game_state.shift_pressed {

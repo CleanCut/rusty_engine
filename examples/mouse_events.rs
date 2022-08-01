@@ -42,7 +42,7 @@ fn logic(engine: &mut Engine, _: &mut ()) {
     if let Some(sprite) = engine.sprites.get_mut("Race Car") {
         // Use mouse button events to rotate. Every click rotates the sprite by a fixed amount
         for mouse_button_input in &engine.mouse_button_events {
-            if mouse_button_input.state != ElementState::Pressed {
+            if mouse_button_input.state != ButtonState::Pressed {
                 break;
             }
             match mouse_button_input.button {

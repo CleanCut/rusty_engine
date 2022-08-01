@@ -11,7 +11,7 @@ for keyboard_event in game_state.keyboard_events.drain(..) {
     if let KeyboardInput {
         scan_code: _,
         key_code: Some(key_code),
-        state: ElementState::Pressed,
+        state: ButtonState::Pressed,
     } = keyboard_event
     {
         match key_code {
