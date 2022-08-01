@@ -58,7 +58,7 @@ Add `rusty_engine` as a dependency
 
 ```toml
 # In your [dependencies] section of Cargo.toml
-rusty_engine = "5.0.5"
+rusty_engine = "5.1.0"
 ```
 
 Write your game!
@@ -111,6 +111,13 @@ Run your game with `cargo run --release`!
 
 
 See also the [tutorial](https://cleancut.github.io/rusty_engine/), [game scenarios](https://github.com/CleanCut/rusty_engine/tree/main/scenarios), [code examples](https://github.com/CleanCut/rusty_engine/tree/main/examples) and the [API documentation](https://docs.rs/rusty_engine/latest/rusty_engine/)
+
+## Student Showcase
+
+Show off the project you made with Rusty Engine! Learning Rust can be fun. 😄 Just [send me a link](https://agileperception.com/contact) and I'll add it to the list!
+
+- [Rusty Asteroids](https://github.com/etnt/rusty-asteroids) by [@etnt](https://github.com/etnt)
+- [Rusty Breakout](https://github.com/etnt/rusty-breakout) by [@etnt](https://github.com/etnt)
 
 ## Contribution
 

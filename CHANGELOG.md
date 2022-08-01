@@ -1,10 +1,26 @@
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## Improved
+
+- Updated to `bevy 0.8` and `bevy_prototype_lyon 0.6` under the hood, which resolves the occasional stuttering problem.
+
+
+## [5.1.0] - 2022-06-18
+
+### Improved
+
+- Fixed `CollisionPair::either_contains` to use `.contains` instead of `==`, contributed by [@etnt](https://github.com/etnt) in [#51](https://github.com/CleanCut/rusty_engine/pull/51)
+- Added `CollisionPair::either_equals_to` which uses `==`, contributed by [@etnt](https://github.com/etnt) in [#51](https://github.com/CleanCut/rusty_engine/pull/51)
+- Fixed documentation for a few fields of the `Engine` struct which were in the wrong place.
+- Improved CI caching. Builds should now generally complete in under 3 minutes.
+
+## [5.0.6] - 2022-05-19
+
 ### Improved
 
 - Made a pass through the API documentation and Tutorials, clarifying, correcting, and filling in blanks.
-- Updated to `bevy 0.8` and `bevy_prototype_lyon 0.6` under the hood, which resolves the occasional stuttering problem.
+- Reduced the debug level of logging the window dimension resizing from info to debug
 
 ## [5.0.5] - 2022-05-10
 
@@ -256,7 +272,9 @@ specifying a path to a sound file relative to `assets/audio`.
 
 [Bevy]: https://bevyengine.org
 <!-- next-url -->
-[Unreleased]: https://github.com/CleanCut/rusty_engine/compare/v5.0.5...HEAD
+[Unreleased]: https://github.com/CleanCut/rusty_engine/compare/v5.1.0...HEAD
+[5.1.0]: https://github.com/CleanCut/rusty_engine/compare/v5.0.6...v5.1.0
+[5.0.6]: https://github.com/CleanCut/rusty_engine/compare/v5.0.5...v5.0.6
 [5.0.5]: https://github.com/CleanCut/rusty_engine/compare/v5.0.4...v5.0.5
 [5.0.4]: https://github.com/CleanCut/rusty_engine/compare/v5.0.3...v5.0.4
 [5.0.3]: https://github.com/CleanCut/rusty_engine/compare/v5.0.2...v5.0.3

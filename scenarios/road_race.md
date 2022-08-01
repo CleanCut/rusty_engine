@@ -1,7 +1,7 @@
 # Road Race
 ### Difficulty level: Easy
 
-How far can you race without running into obstacles?
+How far can you race your car without running into too many obstacles?
 
 Race your car down the road.  Your car is on the left side of the screen facing towards the right side, and is continuously driving down a road. Hitting obstacles lowers your health. If your health reaches zero, the race ends.
 
@@ -26,7 +26,10 @@ struct GameState {
 }
 
 // ...inside main()
-game.run( GameState { health_amount: 5, lost: false });
+game.run(GameState {
+    health_amount: 5,
+    lost: false,
+});
 ```
 
 ## Create Player Sprite
@@ -34,19 +37,19 @@ game.run( GameState { health_amount: 5, lost: false });
 In your `// game setup goes here` section of `main()`...
 
 1. Create a sprite using the [`.add_sprite()`](https://cleancut.github.io/rusty_engine/55-sprite-creation.html) method of `Game`  (`.add_sprite()` returns a mutable reference to the sprite you can use to access its fields)
-    1. Label it `"player1"`
-    1. Use the preset `SpritePreset::RacingCarBlue`
-1. Set the following [attributes](https://cleancut.github.io/rusty_engine/60-sprite-placement.html) on the `player1` sprite via the mutable reference:
+    1. For the first argument, use the label `"player1"`
+    1. For the second argument, use the preset `SpritePreset::RacingCarBlue`
+1. Set the following [attributes](https://cleancut.github.io/rusty_engine/60-sprite-placement.html) on the `player1` sprite via the mutable reference returned by `.add_sprite()`:
     1. Set `translation.x` to `-500.0` so the car will be near the left side of the screen
-    1. Set the player sprite's `layer` to `10.0` so it will be on top of other sprites by default (higher layers are rendered on top of lower layers)
-    1. Set the player sprite's `collision` to `true` so that `player1` will detect collisions with other sprites.
+    1. Set `layer` to `10.0` so that the sprite will be on top of other sprites which we will put on lower layers.
+    1. Set `collision` to `true` so that the player sprite will be able to collide with other sprites.
 1. [Play some music](https://cleancut.github.io/rusty_engine/205-music.html) in the background of the game if you like!  The recommended music for this scenario is `MusicPreset::WhimsicalPopsicle` at 20% volume.
 1. Try it! You should hear your music and see a blue race car on the left side of the screen.
     * `cargo run --release`
 
 ```rust
 // Create the player sprite
-let player1 = game.add_sprite("player1", RacingCarBlue);
+let player1 = game.add_sprite("player1", SpritePreset::RacingCarBlue);
 player1.translation.x = -500.0;
 player1.layer = 10.0;
 player1.collision = true;
@@ -72,7 +75,7 @@ Let's look at the player input and store it for using to move the player later. 
     1. First, define a constant near the top of your file at module level named `PLAYER_SPEED` and set it to something like `250.0` (you can set it higher or lower depending on your preference for how fast you can move). This is our up-and-down movement speed in pixels per second.
     1. Back in `game_logic`, get a mutable reference to the player sprite. We used the label "player1", and it's in the `Engine.sprites` [hash map](https://doc.rust-lang.org/std/collections/struct.HashMap.html#).
     1. Change the player's `translation.y` by `direction * PLAYER_SPEED * engine.delta_f32`
-        * Multiplying by `direction` will do nothing if we're moving up, reverse the sign if we're moving down, or zero out the entire product if we're not moving.
+        * Multiplying by `direction` will leave the result positive if we're moving up, reverse the sign to negative if we're moving down, or zero out the entire product if we're not moving.
         * Multiplying by `engine.delta_f32` will make it so we move smoothly even as frame rates jitter around.
     1. If the car is moving up (or down), let's rotate it a bit so it looks like it actually turned in that direction. Set the player sprite's `rotation` to `direction * 0.15`
     1. If the (center of the) player leaves the top or bottom of the screen, then the player dies. Set the game state's `health_amount` to `0` if the player's `translation.y` value is greater than `360.0` or less than `-360.0`
@@ -118,7 +121,7 @@ It doesn't really look like the car is driving down a road, yet. Let's fix that 
 ```rust
 // In your `main` function...
 
-// Road lines
+// Create the road lines
 for i in 0..10 {
     let roadline = game.add_sprite(format!("roadline{}", i), SpritePreset::RacingBarrierWhite);
     roadline.scale = 0.1;
@@ -129,7 +132,7 @@ for i in 0..10 {
 Now we need to make the lines move (yes, the lines will move to the left instead of the car moving to the right to create the illusion of moving down a road). 
 1. Add a constant near the top of your `main.rs` file called `ROAD_SPEED` and set it to `400.0`. This represents the speed our car is moving horizontally (even though it's "the road" that we're going to move)
     * `const ROAD_SPEED: f32 = 400.0;`
-1. Back at the bottom of the `game_logic` function, loop through all the `sprites` HashMap values with `sprites.values_mut()` using a mutable reference, and:
+1. Back at the bottom of the `game_logic` function, loop through all the `sprites` HashMap values with `engine.sprites.values_mut()` using a mutable reference, and:
     1. If the `sprite.label` starts with `"roadline"`, then:
        * Subtract `ROAD_SPEED * engine.delta_f32` from the sprite's `translation.x`
     1. If the sprite's `translation.x` is less than `-675.0` (meaning it has gone off the left side of the screen) then add `1500.0` to it  (moving it off the right side of the screen), so it can rush across the screen again.
@@ -159,10 +162,10 @@ for sprite in engine.sprites.values_mut() {
 
 Now it's time to add some obstacles. Interesting obstacles will be in random locations, so first we need to:
 1. Add `rand` to the `[dependencies]` section of `Cargo.toml`
-1. Add `use rand::prelude::*` to the top of your `main.rs` file.  While we're adding `use` statements, go ahead and add `use SpritePreset::*;` as well since we'll be using a bunch of presets.
+1. Add `use rand::prelude::*` to the top of your `main.rs` file.
 1. In the `main()` function, in your `// game setup goes here` section:
 1. Make a vector of some `SpritePreset` variants to use as obstacles.
-    * `let obstacle_presets = vec![RacingBarrelBlue, RacingBarrelRed, RacingConeStraight];`
+    * `let obstacle_presets = vec![SpritePreset::RacingBarrelBlue, SpritePreset::RacingBarrelRed, SpritePreset::RacingConeStraight];`
     * You can add more variants than that, depending how challenging you would like the game to be.
 1. Loop through the presets, enumerating them so you have their index.
     * `for (i, preset) in obstacle_presets.into_iter().enumerate() { }`
@@ -178,11 +181,11 @@ Now it's time to add some obstacles. Interesting obstacles will be in random loc
 // in `main`
 let obstacle_presets = vec![RacingBarrelBlue, RacingBarrelRed, RacingConeStraight];
 for (i, preset) in obstacle_presets.into_iter().enumerate() {
-    let sprite = game.add_sprite(format!("obstacle{}", i), preset);
-    sprite.layer = 5.0;
-    sprite.collision = true;
-    sprite.translation.x = thread_rng().gen_range(800.0..1600.0);
-    sprite.translation.y = thread_rng().gen_range(-300.0..300.0);
+    let obstacle = game.add_sprite(format!("obstacle{}", i), preset);
+    obstacle.layer = 5.0;
+    obstacle.collision = true;
+    obstacle.translation.x = thread_rng().gen_range(800.0..1600.0);
+    obstacle.translation.y = thread_rng().gen_range(-300.0..300.0);
 }
 ```
 
@@ -204,6 +207,9 @@ if sprite.label.starts_with("obstacle") {
 }
 ```
 
+
+<img width="1392" alt="with obstacles" src="https://user-images.githubusercontent.com/5838512/170616371-0833ef53-8aec-4b2d-8bf1-88adb64afe28.png">
+
 ## Health
 
 Let's get ready to handle the player's health.
@@ -222,14 +228,14 @@ health_message.translation = Vec2::new(550.0, 320.0);
 Now we need to actually handle the health.  At **_the bottom_** of the `game_logic` function we'll deal with collisions:
 1. Get a mutable reference to the health message
     * `let health_message = engine.texts.get_mut("health_message").unwrap();`
-1. Loop through all the `collision_events` in the engine.
-    1. Ignore events (by doing a `continue` in the `for` loop) that contain `"player1"` in the collision pair or where the event state is the ending of a collision.
+1. Loop through all the collision events in a `for` loop using `engine.collision_events.drain(..)`
+    1. Ignore events (by doing a `continue` in the `for` loop) that contain `"player1"` in the collision pair OR where the event state is the ending of a collision.
         * `if !event.pair.either_contains("player1") || event.state.is_end() { continue; }`
     1. If `game_state.health_amount` is greater than `0` (we don't want to try to subtract from an unsigned number without checking first)
         1. Subtract `1` from `game_state.health_amount`
         1. Set the `value` of the `health_message` to the string `"Health: {}"`, where `{}` is the value of `game_state.health_amount`.
-        1. Use the `audio_manager` to play `SfxPreset::Impact3` at full volume. The value for volume ranges from `0.0` (silent) to `1.0` (full volume).
-1. Try it!  The game should mostly work, just with a sort of odd, frozen ending, with music still playing.
+        1. Use the `audio_manager` to play `SfxPreset::Impact3` at a volume of `0.5`.
+1. Try it!  The game should mostly work, except that after you get to zero health, you can keep on driving forever.
     * `cargo run --release`
 
 ```rust
@@ -257,6 +263,7 @@ First, at the very _top_ of the `game_logic function let's stop the game if we h
 1. If `game_state.lost` is `true` then `return` from the game logic function. This will effectively "pause" everything, since none of the rest of our game logic will run.
 
 ```rust
+// Don't run any more game logic if the game has ended
 if game_state.lost {
     return;
 }
