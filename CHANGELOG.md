@@ -4,6 +4,7 @@
 ### Improved
 
 - Made a pass through the API documentation and Tutorials, clarifying, correcting, and filling in blanks.
+- Updated to `bevy 0.8` and `bevy_prototype_lyon 0.6` under the hood, which resolves the occasional stuttering problem.
 
 ## [5.0.5] - 2022-05-10
 

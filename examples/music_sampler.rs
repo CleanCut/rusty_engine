@@ -24,7 +24,7 @@ fn logic(engine: &mut Engine, game_state: &mut GameState) {
     let mut should_play_new_song = false;
     // Play a new song because a key was pressed
     for ev in engine.keyboard_events.drain(..) {
-        if ev.state != ElementState::Pressed {
+        if ev.state != ButtonState::Pressed {
             continue;
         }
         game_state.music_index = (game_state.music_index + 1) % MusicPreset::variant_iter().count();

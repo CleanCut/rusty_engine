@@ -1,14 +1,15 @@
 use bevy::{
     app::AppExit,
-    core::Time,
-    input::system::exit_on_esc_system,
     prelude::{
-        info, App, AssetServer, Color, Commands, Component, DefaultPlugins, Entity, EventReader,
-        EventWriter, HorizontalAlign, OrthographicCameraBundle, ParallelSystemDescriptorCoercion,
-        ParamSet, Query, Res, ResMut, SpriteBundle, Text as BevyText, Text2dBundle, TextAlignment,
-        TextStyle, Transform, Vec2, VerticalAlign, Windows,
+        info, App, AssetServer, Camera2dBundle, Color, Commands, Component, DefaultPlugins, Entity,
+        EventReader, EventWriter, HorizontalAlign, ParallelSystemDescriptorCoercion, ParamSet,
+        Query, Res, ResMut, SpriteBundle, Text as BevyText, Text2dBundle, TextAlignment, TextStyle,
+        Transform, Vec2, VerticalAlign, Windows,
     },
+    render::texture::ImageSettings,
+    time::Time,
     utils::HashMap,
+    window::close_on_esc,
 };
 use bevy_prototype_lyon::prelude::*;
 use std::{
@@ -209,18 +210,18 @@ pub fn add_texts(commands: &mut Commands, asset_server: &Res<AssetServer>, engin
         let text_string = text.value.clone();
         let font_path = text.font.clone();
         commands.spawn().insert(text).insert_bundle(Text2dBundle {
-            text: BevyText::with_section(
+            text: BevyText::from_section(
                 text_string,
                 TextStyle {
                     font: asset_server.load(font_path.as_str()),
                     font_size,
                     color: Color::WHITE,
                 },
-                TextAlignment {
-                    vertical: VerticalAlign::Center,
-                    horizontal: HorizontalAlign::Center,
-                },
-            ),
+            )
+            .with_alignment(TextAlignment {
+                vertical: VerticalAlign::Center,
+                horizontal: HorizontalAlign::Center,
+            }),
             transform,
             ..Default::default()
         });
@@ -230,12 +231,13 @@ pub fn add_texts(commands: &mut Commands, asset_server: &Res<AssetServer>, engin
 /// system - update current window dimensions in the engine, because people resize windows
 #[doc(hidden)]
 pub fn update_window_dimensions(windows: Res<Windows>, mut engine: ResMut<Engine>) {
-    // Unwrap: If we can't access the primary window...there's no point to running Rusty Engine
-    let window = windows.get_primary().unwrap();
-    let screen_dimensions = Vec2::new(window.width(), window.height());
-    if screen_dimensions != engine.window_dimensions {
-        engine.window_dimensions = screen_dimensions;
-        info!("Set window dimensions: {}", engine.window_dimensions);
+    // It's possible to not have window dimensions for the first frame or two
+    if let Some(window) = windows.get_primary() {
+        let screen_dimensions = Vec2::new(window.width(), window.height());
+        if screen_dimensions != engine.window_dimensions {
+            engine.window_dimensions = screen_dimensions;
+            info!("Set window dimensions: {}", engine.window_dimensions);
+        }
     }
 }
 
@@ -296,11 +298,12 @@ impl<S: Send + Sync + 'static> Game<S> {
     pub fn run(&mut self, initial_game_state: S) {
         self.app
             .insert_resource::<WindowDescriptor>(self.window_descriptor.clone())
+            .insert_resource(ImageSettings::default_nearest())
             .insert_resource::<S>(initial_game_state);
         self.app
             // Built-ins
             .add_plugins(DefaultPlugins)
-            .add_system(exit_on_esc_system)
+            .add_system(close_on_esc)
             // External Plugins
             .add_plugin(ShapePlugin) // bevy_prototype_lyon, for displaying sprite colliders
             // Rusty Engine Plugins
@@ -319,7 +322,7 @@ impl<S: Send + Sync + 'static> Game<S> {
         self.app
             .world
             .spawn()
-            .insert_bundle(OrthographicCameraBundle::new_2d());
+            .insert_bundle(Camera2dBundle::default());
         let engine = std::mem::take(&mut self.engine);
         self.app.insert_resource(engine);
         let logic_functions = std::mem::take(&mut self.logic_functions);

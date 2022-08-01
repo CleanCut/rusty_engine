@@ -29,7 +29,7 @@ fn logic(game_state: &mut Engine, _: &mut ()) {
         if let KeyboardInput {
             scan_code: _,
             key_code: Some(key_code),
-            state: ElementState::Pressed,
+            state: ButtonState::Pressed,
         } = keyboard_event
         {
             // Handle various keypresses. The extra keys are for the Dvorak keyboard layout. ;-)
