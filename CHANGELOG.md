@@ -1,6 +1,8 @@
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [5.1.1] - 2022-08-01
+
 ## Improved
 
 - Updated to `bevy 0.8` and `bevy_prototype_lyon 0.6` under the hood, which resolves the occasional stuttering problem.
@@ -272,7 +274,8 @@ specifying a path to a sound file relative to `assets/audio`.
 
 [Bevy]: https://bevyengine.org
 <!-- next-url -->
-[Unreleased]: https://github.com/CleanCut/rusty_engine/compare/v5.1.0...HEAD
+[Unreleased]: https://github.com/CleanCut/rusty_engine/compare/v5.1.1...HEAD
+[5.1.1]: https://github.com/CleanCut/rusty_engine/compare/v5.1.0...v5.1.1
 [5.1.0]: https://github.com/CleanCut/rusty_engine/compare/v5.0.6...v5.1.0
 [5.0.6]: https://github.com/CleanCut/rusty_engine/compare/v5.0.5...v5.0.6
 [5.0.5]: https://github.com/CleanCut/rusty_engine/compare/v5.0.4...v5.0.5

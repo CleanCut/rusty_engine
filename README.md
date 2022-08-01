@@ -58,7 +58,7 @@ Add `rusty_engine` as a dependency
 
 ```toml
 # In your [dependencies] section of Cargo.toml
-rusty_engine = "5.1.0"
+rusty_engine = "5.1.1"
 ```
 
 Write your game!
