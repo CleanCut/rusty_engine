@@ -74,10 +74,10 @@ fn game_logic(engine: &mut Engine, game_state: &mut GameState) {
     let mut direction = 0.0;
     engine
         .keyboard_state
-        .pressed_any_do(&[KeyCode::Up, KeyCode::W, KeyCode::Comma], || {
+        .pressed_any_do(&[KeyCode::Up, KeyCode::W, KeyCode::Comma], |_| {
             direction += 1.0;
         })
-        .pressed_any_do(&[KeyCode::Down, KeyCode::S, KeyCode::O], || {
+        .pressed_any_do(&[KeyCode::Down, KeyCode::S, KeyCode::O], |_| {
             direction -= 1.0;
         });
 

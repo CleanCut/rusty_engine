@@ -46,10 +46,10 @@ fn logic(engine: &mut Engine, _: &mut ()) {
 
         engine
             .mouse_state
-            .pressed_do(MouseButton::Left, || {
+            .pressed_do(MouseButton::Left, |_| {
                 rotation_amount += ROTATION_SPEED * engine.delta_f32;
             })
-            .pressed_do(MouseButton::Right, || {
+            .pressed_do(MouseButton::Right, |_| {
                 rotation_amount -= ROTATION_SPEED * engine.delta_f32;
             });
 

@@ -68,49 +68,61 @@ impl KeyboardState {
     // -----------------------------------
     /// Calls the closure if a key is currently pressed
     #[inline]
-    pub fn pressed_do(&self, key: KeyCode, mut f: impl FnMut()) -> &Self {
+    pub fn pressed_do(&self, key: KeyCode, mut f: impl FnMut(&KeyboardState)) -> &Self {
         if self.pressed(key) {
-            f();
+            f(self);
         }
         self
     }
     /// Calls the closure if any of the keys are currently pressed
     #[inline]
-    pub fn pressed_any_do(&self, key_codes: &[KeyCode], mut f: impl FnMut()) -> &Self {
+    pub fn pressed_any_do(
+        &self,
+        key_codes: &[KeyCode],
+        mut f: impl FnMut(&KeyboardState),
+    ) -> &Self {
         if self.pressed_any(key_codes) {
-            f();
+            f(self);
         }
         self
     }
     /// Calls the closure if a key started being pressed this frame
     #[inline]
-    pub fn just_pressed_do(&self, key: KeyCode, mut f: impl FnMut()) -> &Self {
+    pub fn just_pressed_do(&self, key: KeyCode, mut f: impl FnMut(&KeyboardState)) -> &Self {
         if self.just_pressed(key) {
-            f();
+            f(self);
         }
         self
     }
     /// Calls the closure if any of the indicated keys started being pressed this frame
     #[inline]
-    pub fn just_pressed_any_do(&self, key_codes: &[KeyCode], mut f: impl FnMut()) -> &Self {
+    pub fn just_pressed_any_do(
+        &self,
+        key_codes: &[KeyCode],
+        mut f: impl FnMut(&KeyboardState),
+    ) -> &Self {
         if self.just_pressed_any(key_codes) {
-            f();
+            f(self);
         }
         self
     }
     /// Calls the closure if a key started being released this frame
     #[inline]
-    pub fn just_released_do(&self, key: KeyCode, mut f: impl FnMut()) -> &Self {
+    pub fn just_released_do(&self, key: KeyCode, mut f: impl FnMut(&KeyboardState)) -> &Self {
         if self.just_released(key) {
-            f();
+            f(self);
         }
         self
     }
     /// Calls the closure if any of the indicated keys started being released this frame
     #[inline]
-    pub fn just_released_any_do(&self, key_codes: &[KeyCode], mut f: impl FnMut()) -> &Self {
+    pub fn just_released_any_do(
+        &self,
+        key_codes: &[KeyCode],
+        mut f: impl FnMut(&KeyboardState),
+    ) -> &Self {
         if self.just_released_any(key_codes) {
-            f();
+            f(self);
         }
         self
     }

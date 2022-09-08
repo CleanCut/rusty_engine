@@ -35,28 +35,28 @@ fn logic(game_state: &mut Engine, _: &mut ()) {
     let ks = &mut game_state.keyboard_state;
 
     ks //
-        .pressed_any_do(&[KeyCode::A, KeyCode::Left], || {
+        .pressed_any_do(&[KeyCode::A, KeyCode::Left], |_| {
             race_car.translation.x -= move_amount;
         })
-        .pressed_any_do(&[KeyCode::D, KeyCode::Right, KeyCode::E], || {
+        .pressed_any_do(&[KeyCode::D, KeyCode::Right, KeyCode::E], |_| {
             race_car.translation.x += move_amount;
         })
-        .pressed_any_do(&[KeyCode::O, KeyCode::Down, KeyCode::S], || {
+        .pressed_any_do(&[KeyCode::O, KeyCode::Down, KeyCode::S], |_| {
             race_car.translation.y -= move_amount;
         })
-        .pressed_any_do(&[KeyCode::W, KeyCode::Up, KeyCode::Comma], || {
+        .pressed_any_do(&[KeyCode::W, KeyCode::Up, KeyCode::Comma], |_| {
             race_car.translation.y += move_amount;
         })
-        .pressed_any_do(&[KeyCode::Z, KeyCode::Semicolon], || {
+        .pressed_any_do(&[KeyCode::Z, KeyCode::Semicolon], |_| {
             race_car.rotation += rotation_amount;
         })
-        .pressed_any_do(&[KeyCode::C, KeyCode::J], || {
+        .pressed_any_do(&[KeyCode::C, KeyCode::J], |_| {
             race_car.rotation -= rotation_amount;
         })
-        .pressed_any_do(&[KeyCode::Plus, KeyCode::Equals], || {
+        .pressed_any_do(&[KeyCode::Plus, KeyCode::Equals], |_| {
             race_car.scale *= 1.0 + scale_amount;
         })
-        .pressed_any_do(&[KeyCode::Minus, KeyCode::Underline], || {
+        .pressed_any_do(&[KeyCode::Minus, KeyCode::Underline], |_| {
             race_car.scale *= 1.0 - scale_amount;
         });
 

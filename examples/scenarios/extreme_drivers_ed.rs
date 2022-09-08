@@ -862,17 +862,17 @@ fn logic(engine: &mut Engine, game_state: &mut GameState) {
         // Acceleration input
         engine
             .keyboard_state
-            .pressed_any_do(&[W, Up, Comma], || {
+            .pressed_any_do(&[W, Up, Comma], |_| {
                 acceleration += 1.0;
             })
-            .pressed_any_do(&[S, Down, O], || {
+            .pressed_any_do(&[S, Down, O], |_| {
                 acceleration -= 1.0;
             })
             // Rotation/Turning input
-            .pressed_any_do(&[A, Left], || {
+            .pressed_any_do(&[A, Left], |_| {
                 rotation += 1.0;
             })
-            .pressed_any_do(&[D, Right, E], || {
+            .pressed_any_do(&[D, Right, E], |_| {
                 rotation -= 1.0;
             });
     }
