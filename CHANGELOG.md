@@ -1,6 +1,16 @@
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## Added
+
+- Added `_do` variants to all of the `[just_]pressed[_any]` methods of `KeyboardState` and `MouseState`. These new variants accept closures to perform the logic, and can be chained. Contributed by [@just-do-halee](https://github.com/just-do-halee) in [#55].
+
+## Improved
+
+- `CollisionPair` now implements `IntoIterator`, so you can do, for example: `for label in event.pair { ... }`. Contributed by [@just-do-halee](https://github.com/just-do-halee) in [#55].
+
+[#55]: https://github.com/CleanCut/rusty_engine/pull/55
+
 ## [5.1.1] - 2022-08-01
 
 ## Improved
