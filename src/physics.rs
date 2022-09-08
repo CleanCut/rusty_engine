@@ -25,14 +25,14 @@ impl Plugin for PhysicsPlugin {
 /// [Sprite]s which:
 /// - have colliders (you can use the `collider` example to create your own colliders)
 /// - have their `collision` flags set to `true`.
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct CollisionEvent {
     pub state: CollisionState,
     pub pair: CollisionPair,
 }
 
 /// Indicates whether a [`CollisionEvent`] is at the beginning or ending of a collision.
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum CollisionState {
     Begin,
     End,
