@@ -83,6 +83,21 @@ impl CollisionPair {
         let b_matches = self.1.starts_with(&text);
         (a_matches && !b_matches) || (!a_matches && b_matches)
     }
+
+    pub fn array(&self) -> [&str; 2] {
+        [self.0.as_str(), self.1.as_str()]
+    }
+    pub fn array_mut(&mut self) -> [&mut String; 2] {
+        [&mut self.0, &mut self.1]
+    }
+}
+
+impl IntoIterator for CollisionPair {
+    type Item = String;
+    type IntoIter = std::array::IntoIter<Self::Item, 2>;
+    fn into_iter(self) -> Self::IntoIter {
+        [self.0, self.1].into_iter()
+    }
 }
 
 impl PartialEq for CollisionPair {
