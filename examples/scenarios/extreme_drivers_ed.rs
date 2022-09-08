@@ -860,19 +860,21 @@ fn logic(engine: &mut Engine, game_state: &mut GameState) {
     {
         use KeyCode::*;
         // Acceleration input
-        if engine.keyboard_state.pressed_any(&[W, Up, Comma]) {
-            acceleration += 1.0;
-        }
-        if engine.keyboard_state.pressed_any(&[S, Down, O]) {
-            acceleration -= 1.0;
-        }
-        // Rotation/Turning input
-        if engine.keyboard_state.pressed_any(&[A, Left]) {
-            rotation += 1.0;
-        }
-        if engine.keyboard_state.pressed_any(&[D, Right, E]) {
-            rotation -= 1.0;
-        }
+        engine
+            .keyboard_state
+            .pressed_any_do(&[W, Up, Comma], || {
+                acceleration += 1.0;
+            })
+            .pressed_any_do(&[S, Down, O], || {
+                acceleration -= 1.0;
+            })
+            // Rotation/Turning input
+            .pressed_any_do(&[A, Left], || {
+                rotation += 1.0;
+            })
+            .pressed_any_do(&[D, Right, E], || {
+                rotation -= 1.0;
+            });
     }
     let mut velocity_magnitude = game_state.velocity.length();
     velocity_magnitude += (acceleration * ACCELERATION_RATE) * engine.delta_f32;
