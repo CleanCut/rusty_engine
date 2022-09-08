@@ -72,14 +72,18 @@ fn game_logic(engine: &mut Engine, game_state: &mut GameState) {
 
     // Collect keyboard input
     let mut direction = 0.0;
-    engine
+    if engine
         .keyboard_state
-        .pressed_any_do(&[KeyCode::Up, KeyCode::W, KeyCode::Comma], |_| {
-            direction += 1.0;
-        })
-        .pressed_any_do(&[KeyCode::Down, KeyCode::S, KeyCode::O], |_| {
-            direction -= 1.0;
-        });
+        .pressed_any(&[KeyCode::Up, KeyCode::W, KeyCode::Comma])
+    {
+        direction += 1.0;
+    }
+    if engine
+        .keyboard_state
+        .pressed_any(&[KeyCode::Down, KeyCode::S, KeyCode::O])
+    {
+        direction -= 1.0;
+    }
 
     // Move the player sprite
     let player1 = engine.sprites.get_mut("player1").unwrap();

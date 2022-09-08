@@ -33,32 +33,41 @@ fn logic(game_state: &mut Engine, _: &mut ()) {
 
     // Handle keyboard input
     let ks = &mut game_state.keyboard_state;
+    if ks.pressed_any(&[KeyCode::A, KeyCode::Left]) {
+        race_car.translation.x -= move_amount;
+    }
+    if ks.pressed_any(&[KeyCode::D, KeyCode::Right, KeyCode::E]) {
+        race_car.translation.x += move_amount;
+    }
+    if ks.pressed_any(&[KeyCode::O, KeyCode::Down, KeyCode::S]) {
+        race_car.translation.y -= move_amount;
+    }
+    if ks.pressed_any(&[KeyCode::W, KeyCode::Up, KeyCode::Comma]) {
+        race_car.translation.y += move_amount;
+    }
+    if ks.pressed_any(&[KeyCode::Z, KeyCode::Semicolon]) {
+        race_car.rotation += rotation_amount;
+    }
+    if ks.pressed_any(&[KeyCode::C, KeyCode::J]) {
+        race_car.rotation -= rotation_amount;
+    }
+    if ks.pressed_any(&[KeyCode::Plus, KeyCode::Equals]) {
+        race_car.scale *= 1.0 + scale_amount;
+    }
+    if ks.pressed_any(&[KeyCode::Minus, KeyCode::Underline]) {
+        race_car.scale *= 1.0 - scale_amount;
+    }
 
-    ks //
-        .pressed_any_do(&[KeyCode::A, KeyCode::Left], |_| {
-            race_car.translation.x -= move_amount;
-        })
-        .pressed_any_do(&[KeyCode::D, KeyCode::Right, KeyCode::E], |_| {
-            race_car.translation.x += move_amount;
-        })
-        .pressed_any_do(&[KeyCode::O, KeyCode::Down, KeyCode::S], |_| {
-            race_car.translation.y -= move_amount;
-        })
-        .pressed_any_do(&[KeyCode::W, KeyCode::Up, KeyCode::Comma], |_| {
-            race_car.translation.y += move_amount;
-        })
-        .pressed_any_do(&[KeyCode::Z, KeyCode::Semicolon], |_| {
-            race_car.rotation += rotation_amount;
-        })
-        .pressed_any_do(&[KeyCode::C, KeyCode::J], |_| {
-            race_car.rotation -= rotation_amount;
-        })
-        .pressed_any_do(&[KeyCode::Plus, KeyCode::Equals], |_| {
-            race_car.scale *= 1.0 + scale_amount;
-        })
-        .pressed_any_do(&[KeyCode::Minus, KeyCode::Underline], |_| {
-            race_car.scale *= 1.0 - scale_amount;
-        });
+    // If you prefer a more functional style, there are also methods ending in `_do` that accept a
+    // closure to perform your logic with and are chainable, like this:
+    //
+    // ks.pressed_any_do(&[KeyCode::A, KeyCode::Left], |_| {
+    //     race_car.translation.x -= move_amount;
+    // })
+    // .pressed_any_do(&[KeyCode::D, KeyCode::Right, KeyCode::E], |_| {
+    //     race_car.translation.x += move_amount;
+    // })
+    // ...etc
 
     // Clamp the scale to a certain range so the scaling is reasonable
     race_car.scale = race_car.scale.clamp(0.1, 3.0);

@@ -43,16 +43,12 @@ fn logic(engine: &mut Engine, _: &mut ()) {
     if let Some(sprite) = engine.sprites.get_mut("Race Car") {
         // Use the latest state of the mouse buttons to rotate the sprite
         let mut rotation_amount = 0.0;
-
-        engine
-            .mouse_state
-            .pressed_do(MouseButton::Left, |_| {
-                rotation_amount += ROTATION_SPEED * engine.delta_f32;
-            })
-            .pressed_do(MouseButton::Right, |_| {
-                rotation_amount -= ROTATION_SPEED * engine.delta_f32;
-            });
-
+        if engine.mouse_state.pressed(MouseButton::Left) {
+            rotation_amount += ROTATION_SPEED * engine.delta_f32;
+        }
+        if engine.mouse_state.pressed(MouseButton::Right) {
+            rotation_amount -= ROTATION_SPEED * engine.delta_f32;
+        }
         sprite.rotation += rotation_amount;
 
         // Use the latest state of the mouse wheel to scale the sprite
