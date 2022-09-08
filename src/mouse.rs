@@ -99,6 +99,59 @@ impl MouseState {
     pub fn just_released_any(&self, mouse_buttons: &[MouseButton]) -> bool {
         mouse_buttons.iter().any(|k| self.just_released(*k))
     }
+    // -------------------------
+    /// Calls the closure if the mouse button was pressed
+    #[inline]
+    pub fn pressed_do(&self, mouse_button: MouseButton, mut f: impl FnMut()) -> &Self {
+        if self.pressed(mouse_button) {
+            f();
+        }
+        self
+    }
+    /// Calls the closure if any of the indicated mouse buttons were pressed
+    #[inline]
+    pub fn pressed_any_do(&self, mouse_buttons: &[MouseButton], mut f: impl FnMut()) -> &Self {
+        if self.pressed_any(mouse_buttons) {
+            f();
+        }
+        self
+    }
+    /// Calls the closure if the mouse button started being pressed during the last frame
+    #[inline]
+    pub fn just_pressed_do(&self, mouse_button: MouseButton, mut f: impl FnMut()) -> &Self {
+        if self.just_pressed(mouse_button) {
+            f();
+        }
+        self
+    }
+    /// Calls the closure if any of the indicated mouse buttons were just pressed this frame
+    #[inline]
+    pub fn just_pressed_any_do(&self, mouse_buttons: &[MouseButton], mut f: impl FnMut()) -> &Self {
+        if self.just_pressed_any(mouse_buttons) {
+            f();
+        }
+        self
+    }
+    /// Calls the closure if the mouse button started being released during the last frame
+    #[inline]
+    pub fn just_released_do(&self, mouse_button: MouseButton, mut f: impl FnMut()) -> &Self {
+        if self.just_released(mouse_button) {
+            f();
+        }
+        self
+    }
+    /// Calls the closure if any of the indicated mouse buttons were just released this frame
+    #[inline]
+    pub fn just_released_any_do(
+        &self,
+        mouse_buttons: &[MouseButton],
+        mut f: impl FnMut(),
+    ) -> &Self {
+        if self.just_released_any(mouse_buttons) {
+            f();
+        }
+        self
+    }
 }
 
 /// Gather the mouse events from bevy and store them for our own use
