@@ -58,16 +58,17 @@ fn logic(game_state: &mut Engine, _: &mut ()) {
         race_car.scale *= 1.0 - scale_amount;
     }
 
-    // If you prefer a more functional style, there are also methods ending in `_do` that accept a
+    // If you prefer a more functional style, there are also method `if_` that accept a
     // closure to perform your logic with and are chainable, like this:
     //
-    // ks.pressed_any_do(&[KeyCode::A, KeyCode::Left], |_| {
-    //     race_car.translation.x -= move_amount;
-    // })
-    // .pressed_any_do(&[KeyCode::D, KeyCode::Right, KeyCode::E], |_| {
-    //     race_car.translation.x += move_amount;
-    // })
-    // ...etc
+    // ks.if_()
+    //     .pressed_any(&[KeyCode::A, KeyCode::Left], |_| {
+    //         race_car.translation.x -= move_amount;
+    //     })
+    //     .pressed_any(&[KeyCode::D, KeyCode::Right, KeyCode::E], |_| {
+    //         race_car.translation.x += move_amount;
+    //     });
+    //      ...etc
 
     // Clamp the scale to a certain range so the scaling is reasonable
     race_car.scale = race_car.scale.clamp(0.1, 3.0);
