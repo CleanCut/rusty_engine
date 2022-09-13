@@ -21,7 +21,7 @@ exclude = [
 ]
 
 [dependencies]
-bevy = { version = "0.8.0", default-features = false, features = [
+bevy = { version = "0.8.1", default-features = false, features = [
     "bevy_audio",
     "bevy_gilrs",
     "bevy_gltf",
