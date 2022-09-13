@@ -1,6 +1,8 @@
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [5.2.0] - 2022-09-13
+
 ## Added
 
 - Added `KeyboardStateChain` and `MouseStateChain` to provide a functional interface for dealing with user input. Call `.chain()` on  `KeyboardState` or `MouseState` to access them. These new structs have methods with the same names as in their `Chain`-less variants which accept closures to perform the logic, and can be chained. Contributed by [@just-do-halee](https://github.com/just-do-halee) in [#55].
@@ -284,7 +286,8 @@ specifying a path to a sound file relative to `assets/audio`.
 
 [Bevy]: https://bevyengine.org
 <!-- next-url -->
-[Unreleased]: https://github.com/CleanCut/rusty_engine/compare/v5.1.1...HEAD
+[Unreleased]: https://github.com/CleanCut/rusty_engine/compare/v5.2.0...HEAD
+[5.2.0]: https://github.com/CleanCut/rusty_engine/compare/v5.1.1...v5.2.0
 [5.1.1]: https://github.com/CleanCut/rusty_engine/compare/v5.1.0...v5.1.1
 [5.1.0]: https://github.com/CleanCut/rusty_engine/compare/v5.0.6...v5.1.0
 [5.0.6]: https://github.com/CleanCut/rusty_engine/compare/v5.0.5...v5.0.6
