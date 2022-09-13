@@ -132,7 +132,8 @@ fn game_logic(engine: &mut Engine, game_state: &mut GameState) {
         if !event.pair.one_starts_with("marble") {
             continue;
         }
-        for label in [event.pair.0, event.pair.1] {
+
+        for label in event.pair {
             engine.sprites.remove(&label);
             if label.starts_with("marble") {
                 game_state.marble_labels.push(label);

@@ -22,6 +22,79 @@ impl Plugin for MousePlugin {
     }
 }
 
+pub struct MouseStateChain(MouseState);
+
+impl MouseStateChain {
+    /// Calls the closure if the mouse button was pressed
+    #[inline]
+    pub fn pressed(&self, mouse_button: MouseButton, mut then: impl FnMut(&MouseState)) -> &Self {
+        if self.0.pressed(mouse_button) {
+            then(&self.0);
+        }
+        self
+    }
+    /// Calls the closure if any of the indicated mouse buttons were pressed
+    #[inline]
+    pub fn pressed_any(
+        &self,
+        mouse_buttons: &[MouseButton],
+        mut then: impl FnMut(&MouseState),
+    ) -> &Self {
+        if self.0.pressed_any(mouse_buttons) {
+            then(&self.0);
+        }
+        self
+    }
+    /// Calls the closure if the mouse button started being pressed during the last frame
+    #[inline]
+    pub fn just_pressed(
+        &self,
+        mouse_button: MouseButton,
+        mut then: impl FnMut(&MouseState),
+    ) -> &Self {
+        if self.0.just_pressed(mouse_button) {
+            then(&self.0);
+        }
+        self
+    }
+    /// Calls the closure if any of the indicated mouse buttons were just pressed this frame
+    #[inline]
+    pub fn just_pressed_any(
+        &self,
+        mouse_buttons: &[MouseButton],
+        mut then: impl FnMut(&MouseState),
+    ) -> &Self {
+        if self.0.just_pressed_any(mouse_buttons) {
+            then(&self.0);
+        }
+        self
+    }
+    /// Calls the closure if the mouse button started being released during the last frame
+    #[inline]
+    pub fn just_released(
+        &self,
+        mouse_button: MouseButton,
+        mut then: impl FnMut(&MouseState),
+    ) -> &Self {
+        if self.0.just_released(mouse_button) {
+            then(&self.0);
+        }
+        self
+    }
+    /// Calls the closure if any of the indicated mouse buttons were just released this frame
+    #[inline]
+    pub fn just_released_any(
+        &self,
+        mouse_buttons: &[MouseButton],
+        mut then: impl FnMut(&MouseState),
+    ) -> &Self {
+        if self.0.just_released_any(mouse_buttons) {
+            then(&self.0);
+        }
+        self
+    }
+}
+
 /// `MouseState` represents the end-state of the mouse during the last frame. This should be used
 /// for "real time" processing of most input (except mousewheel scrolling), where you only care
 /// about the final state of buttons or mouse position for your logic.
@@ -98,6 +171,9 @@ impl MouseState {
     /// Returns true if any of the indicated mouse buttons were just released this frame
     pub fn just_released_any(&self, mouse_buttons: &[MouseButton]) -> bool {
         mouse_buttons.iter().any(|k| self.just_released(*k))
+    }
+    pub fn chain(&self) -> MouseStateChain {
+        MouseStateChain(self.clone())
     }
 }
 

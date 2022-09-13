@@ -190,7 +190,7 @@ use std::{
 };
 
 /// Sprite presets using the asset pack all have colliders
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum SpritePreset {
     RacingBarrelBlue,
     RacingBarrelRed,
