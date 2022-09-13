@@ -22,9 +22,9 @@ impl Plugin for MousePlugin {
     }
 }
 
-pub struct MouseStateChainer(MouseState);
+pub struct MouseStateChain(MouseState);
 
-impl MouseStateChainer {
+impl MouseStateChain {
     /// Calls the closure if the mouse button was pressed
     #[inline]
     pub fn pressed(&self, mouse_button: MouseButton, mut then: impl FnMut(&MouseState)) -> &Self {
@@ -172,8 +172,8 @@ impl MouseState {
     pub fn just_released_any(&self, mouse_buttons: &[MouseButton]) -> bool {
         mouse_buttons.iter().any(|k| self.just_released(*k))
     }
-    pub fn if_(&self) -> MouseStateChainer {
-        MouseStateChainer(self.clone())
+    pub fn chain(&self) -> MouseStateChain {
+        MouseStateChain(self.clone())
     }
 }
 

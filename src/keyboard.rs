@@ -30,9 +30,9 @@ fn sync_keyboard_events(
     }
 }
 
-pub struct KeyboardStateChainer(KeyboardState);
+pub struct KeyboardStateChain(KeyboardState);
 
-impl KeyboardStateChainer {
+impl KeyboardStateChain {
     /// Calls the closure if a key is currently pressed
     #[inline]
     pub fn pressed(&self, key: KeyCode, mut then: impl FnMut(&KeyboardState)) -> &Self {
@@ -130,8 +130,8 @@ impl KeyboardState {
     pub fn just_released_any(&self, key_codes: &[KeyCode]) -> bool {
         key_codes.iter().any(|k| self.just_released(*k))
     }
-    pub fn if_(&self) -> KeyboardStateChainer {
-        KeyboardStateChainer(self.clone())
+    pub fn chain(&self) -> KeyboardStateChain {
+        KeyboardStateChain(self.clone())
     }
 }
 

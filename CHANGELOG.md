@@ -3,7 +3,7 @@
 
 ## Added
 
-- Added `_do` variants to all of the `[just_]pressed[_any]` methods of `KeyboardState` and `MouseState`. These new variants accept closures to perform the logic, and can be chained. Contributed by [@just-do-halee](https://github.com/just-do-halee) in [#55].
+- Added `KeyboardStateChain` and `MouseStateChain` to provide a functional interface for dealing with user input. Call `.chain()` on  `KeyboardState` or `MouseState` to access them. These new structs have methods with the same names as in their `Chain`-less variants which accept closures to perform the logic, and can be chained. Contributed by [@just-do-halee](https://github.com/just-do-halee) in [#55].
 
 ## Improved
 
