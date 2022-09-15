@@ -52,12 +52,12 @@ where
     // -------
     #[inline]
     fn values(&self) -> Values<String, T> {
-        self.inner().values()
+        self.iter()
     }
     // -------
     #[inline]
     fn values_mut(&mut self) -> ValuesMut<String, T> {
-        self.inner_mut().values_mut()
+        self.iter_mut()
     }
     // -------
     #[inline]
@@ -179,40 +179,40 @@ where
     // -------
     #[inline]
     fn find_many(&self, predicate: impl FnMut(&&T) -> bool) -> Vec<&T> {
-        self.inner().values().filter(predicate).collect()
+        self.iter().filter(predicate).collect()
     }
     #[inline]
     fn find(&self, predicate: impl FnMut(&&T) -> bool) -> Option<&T> {
-        self.inner().values().find(predicate)
+        self.iter().find(predicate)
     }
     // -------
     #[inline]
     fn find_mut_many(&mut self, predicate: impl FnMut(&&mut T) -> bool) -> Vec<&mut T> {
-        self.inner_mut().values_mut().filter(predicate).collect()
+        self.iter_mut().filter(predicate).collect()
     }
     #[inline]
     fn find_mut(&mut self, predicate: impl FnMut(&&mut T) -> bool) -> Option<&mut T> {
-        self.inner_mut().values_mut().find(predicate)
+        self.iter_mut().find(predicate)
     }
     // -------
     #[inline]
     fn filter<O: FnMut(&&T) -> bool>(&self, predicate: O) -> Filter<Values<'_, String, T>, O> {
-        self.inner().values().filter(predicate)
+        self.iter().filter(predicate)
     }
     #[inline]
     fn filter_mut<O: FnMut(&&mut T) -> bool>(
         &mut self,
         predicate: O,
     ) -> Filter<ValuesMut<'_, String, T>, O> {
-        self.inner_mut().values_mut().filter(predicate)
+        self.iter_mut().filter(predicate)
     }
     // -------
     #[inline]
     fn for_each(&self, f: impl FnMut(&T)) {
-        self.inner().values().for_each(f)
+        self.iter().for_each(f)
     }
     #[inline]
     fn for_each_mut(&mut self, f: impl FnMut(&mut T)) {
-        self.inner_mut().values_mut().for_each(f)
+        self.iter_mut().for_each(f)
     }
 }

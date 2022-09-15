@@ -52,7 +52,6 @@ fn main() {
         obstacle.translation.x = thread_rng().gen_range(800.0..1600.0);
         obstacle.translation.y = thread_rng().gen_range(-300.0..300.0);
     }
-
     // Create the health message
     let health_message = game.add_text("health_message", "Health: 5");
     health_message.translation = Vec2::new(550.0, 320.0);
