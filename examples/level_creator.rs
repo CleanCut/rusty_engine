@@ -227,12 +227,10 @@ fn logic(engine: &mut Engine, game_state: &mut GameState) {
             .unwrap();
         let new_idx = if next_preset {
             (idx + 1) % SpritePreset::variant_iter().count()
+        } else if idx == 0 {
+            SpritePreset::variant_iter().count() - 1
         } else {
-            if idx == 0 {
-                SpritePreset::variant_iter().count() - 1
-            } else {
-                idx - 1
-            }
+            idx - 1
         };
         let new_preset = SpritePreset::variant_iter().nth(new_idx).unwrap();
 

@@ -181,10 +181,8 @@ fn game_logic(engine: &mut Engine, game_state: &mut GameState) {
         if convex.value != CONVEX_MESSAGE {
             convex.value = CONVEX_MESSAGE.into();
         }
-    } else {
-        if convex.value != NOT_CONVEX_MESSAGE {
-            convex.value = NOT_CONVEX_MESSAGE.into();
-        }
+    } else if convex.value != NOT_CONVEX_MESSAGE {
+        convex.value = NOT_CONVEX_MESSAGE.into();
     }
     // Write the collider file
     if engine.keyboard_state.just_pressed(KeyCode::W) {

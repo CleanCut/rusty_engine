@@ -112,11 +112,7 @@ fn game_logic(engine: &mut Engine, game_state: &mut GameState) {
                 RacingCarRed,
                 RacingCarYellow,
             ];
-            let sprite_preset = car_choices
-                .iter()
-                .choose(&mut thread_rng())
-                .unwrap()
-                .clone();
+            let sprite_preset = *car_choices.iter().choose(&mut thread_rng()).unwrap();
             let car = engine.add_sprite(label, sprite_preset);
             car.translation.x = -740.0;
             car.translation.y = thread_rng().gen_range(-100.0..325.0);
