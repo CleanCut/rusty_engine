@@ -69,12 +69,19 @@ pub mod game;
 pub mod keyboard;
 pub mod mouse;
 pub mod physics;
+pub mod repositories;
 pub mod sprite;
 pub mod text;
+pub mod traits;
+
+#[macro_use]
+pub mod macros;
 
 // Public prelude
 pub mod prelude {
-    pub use crate::{audio::*, game::*, keyboard::*, mouse::*, physics::*, sprite::*, text::*};
+    pub use crate::{
+        audio::*, game::*, keyboard::*, mouse::*, physics::*, sprite::*, text::*, traits::*,
+    };
     pub use crate::{
         DOWN, EAST, LEFT, NORTH, NORTH_EAST, NORTH_WEST, RIGHT, SOUTH, SOUTH_EAST, SOUTH_WEST, UP,
         WEST,

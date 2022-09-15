@@ -1,6 +1,8 @@
 /// Facilities for dealing with text
 use bevy::prelude::{Component, Quat, Transform, Vec2, Vec3};
 
+use crate::traits::Entity;
+
 /// Default depth of the text, positioned so it will be on top of other default layers. Depth
 /// can range from `0.0` (back) to `999.0` (front)
 pub const TEXT_DEFAULT_LAYER: f32 = 900.0;
@@ -34,6 +36,23 @@ pub struct Text {
     pub rotation: f32,
     /// SYNCED: `1.0` is the normal 100%.
     pub scale: f32,
+}
+
+impl Entity for Text {
+    type Source = String;
+    fn new<L: Into<String>, S: Into<Self::Source>>(label: L, text: S) -> Self {
+        let label = label.into();
+        let text = text.into();
+        Self {
+            label,
+            value: text,
+            ..Default::default()
+        }
+    }
+    #[inline]
+    fn label(&self) -> &str {
+        &self.label
+    }
 }
 
 impl Default for Text {

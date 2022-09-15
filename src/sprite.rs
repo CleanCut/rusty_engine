@@ -1,7 +1,7 @@
 /// Sprites are the images that make up a game
 use bevy::prelude::{Component, Quat, Transform, Vec2, Vec3};
 
-use crate::physics::Collider;
+use crate::{physics::Collider, traits::Entity};
 
 /// A [`Sprite`] is the basic abstraction for something that can be seen and interacted with.
 /// Players, obstacles, etc. are all sprites.
@@ -52,7 +52,8 @@ fn read_collider_from_file(filepath: &Path) -> Collider {
     }
 }
 
-impl Sprite {
+impl Entity for Sprite {
+    type Source = PathBuf;
     /// `label` should be a unique string (it will be used as a key in the hashmap
     /// [`Engine::sprites`](crate::prelude::Engine)). `file_or_preset` should either be a
     /// [`SpritePreset`] variant, or a relative path to an image file inside the `assets/`
@@ -61,7 +62,7 @@ impl Sprite {
     /// create a collider file you can either run the `collider` example, or
     /// programmatically create a [`Collider`], set the sprite's `.collider` field to it, and call
     /// the sprite's `.write_collider()` method.  All presets have collider files already.
-    pub fn new<S: Into<String>, P: Into<PathBuf>>(label: S, file_or_preset: P) -> Self {
+    fn new<L: Into<String>, S: Into<Self::Source>>(label: L, file_or_preset: S) -> Self {
         let label = label.into();
         let filepath = file_or_preset.into();
         let mut collider_filepath = filepath.clone();
@@ -89,7 +90,13 @@ impl Sprite {
             collider_dirty: true,
         }
     }
+    #[inline]
+    fn label(&self) -> &str {
+        &self.label
+    }
+}
 
+impl Sprite {
     /// Do the math to convert from Rusty Engine translation+rotation+scale+layer to Bevy's Transform
     #[doc(hidden)]
     pub fn bevy_transform(&self) -> Transform {

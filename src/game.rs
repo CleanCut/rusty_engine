@@ -2,13 +2,13 @@ use bevy::{
     app::AppExit,
     prelude::{
         debug, App, AssetServer, Camera2dBundle, Color, Commands, Component, DefaultPlugins,
-        Entity, EventReader, EventWriter, HorizontalAlign, ParallelSystemDescriptorCoercion,
-        ParamSet, Query, Res, ResMut, SpriteBundle, Text as BevyText, Text2dBundle, TextAlignment,
-        TextStyle, Transform, Vec2, VerticalAlign, Windows,
+        Entity as BevyEntity, EventReader, EventWriter, HorizontalAlign,
+        ParallelSystemDescriptorCoercion, ParamSet, Query, Res, ResMut, SpriteBundle,
+        Text as BevyText, Text2dBundle, TextAlignment, TextStyle, Transform, Vec2, VerticalAlign,
+        Windows,
     },
     render::texture::ImageSettings,
     time::Time,
-    utils::HashMap,
     window::close_on_esc,
 };
 use bevy_prototype_lyon::prelude::*;
@@ -25,8 +25,10 @@ use crate::{
         AudioManagerPlugin, CollisionEvent, KeyboardInput, KeyboardPlugin, KeyboardState,
         MouseState, PhysicsPlugin,
     },
+    repositories::{Sprites, Texts},
     sprite::Sprite,
     text::Text,
+    traits::*,
 };
 
 // Public re-export
@@ -51,10 +53,10 @@ pub use bevy::window::{WindowDescriptor, WindowMode, WindowResizeConstraints};
 pub struct Engine {
     /// SYNCED - The state of all sprites this frame. To add a sprite, use the
     /// [`add_sprite`](Engine::add_sprite) method. Modify & remove sprites as you like.
-    pub sprites: HashMap<String, Sprite>,
+    pub sprites: Sprites,
     /// SYNCED - The state of all texts this frame. For convenience adding a text, use the
     /// [`add_text`](Engine::add_text) method. Modify & remove text as you like.
-    pub texts: HashMap<String, Text>,
+    pub texts: Texts,
     /// SYNCED - If set to `true`, the game exits. Note: the current frame will run to completion first.
     pub should_exit: bool,
     /// SYNCED - If set to `true`, then debug lines are shown depicting sprite colliders
@@ -115,6 +117,7 @@ pub struct Engine {
 
 impl Engine {
     #[must_use]
+    #[inline]
     /// Create and add a [`Sprite`] to the game. Use the `&mut Sprite` that is returned to adjust
     /// the translation, rotation, etc. Use a *unique* label for each sprite. Attempting to add two
     /// sprites with the same label will cause a crash.
@@ -123,14 +126,11 @@ impl Engine {
         label: T,
         file_or_preset: P,
     ) -> &mut Sprite {
-        let label = label.into();
-        self.sprites
-            .insert(label.clone(), Sprite::new(label.clone(), file_or_preset));
-        // Unwrap: Can't crash because we just inserted the sprite
-        self.sprites.get_mut(&label).unwrap()
+        self.sprites.add(label, file_or_preset)
     }
 
     #[must_use]
+    #[inline]
     /// Create and add a [`Text`] to the game. Use the `&mut Text` that is returned to adjust the
     /// translation, rotation, etc. Use a *unique* label for each text. Attempting to add two texts
     /// with the same label will cause a crash.
@@ -139,16 +139,7 @@ impl Engine {
         T: Into<String>,
         S: Into<String>,
     {
-        let label = label.into();
-        let text = text.into();
-        let curr_text = Text {
-            label: label.clone(),
-            value: text,
-            ..Default::default()
-        };
-        self.texts.insert(label.clone(), curr_text);
-        // Unwrap: Can't crash because we just inserted the text
-        self.texts.get_mut(&label).unwrap()
+        self.texts.add(label, text)
     }
 }
 
@@ -188,7 +179,7 @@ fn add_collider_lines(commands: &mut Commands, sprite: &mut Sprite) {
 /// helper function: Add Bevy components for all the sprites in engine.sprites
 #[doc(hidden)]
 pub fn add_sprites(commands: &mut Commands, asset_server: &Res<AssetServer>, engine: &mut Engine) {
-    for (_, sprite) in engine.sprites.drain() {
+    for sprite in engine.sprites.drain_all() {
         // Create the sprite
         let transform = sprite.bevy_transform();
         let texture_path = sprite.filepath.clone();
@@ -204,7 +195,7 @@ pub fn add_sprites(commands: &mut Commands, asset_server: &Res<AssetServer>, eng
 /// `engine.texts`
 #[doc(hidden)]
 pub fn add_texts(commands: &mut Commands, asset_server: &Res<AssetServer>, engine: &mut Engine) {
-    for (_, text) in engine.texts.drain() {
+    for text in engine.texts.drain_all() {
         let transform = text.bevy_transform();
         let font_size = text.font_size;
         let text_string = text.value.clone();
@@ -354,9 +345,9 @@ fn game_logic_sync<S: Send + Sync + 'static>(
     mut app_exit_events: EventWriter<AppExit>,
     mut collision_events: EventReader<CollisionEvent>,
     mut query_set: ParamSet<(
-        Query<(Entity, &mut Sprite, &mut Transform)>,
-        Query<(Entity, &mut Text, &mut Transform, &mut BevyText)>,
-        Query<(Entity, &mut DrawMode, &mut Transform, &ColliderLines)>,
+        Query<(BevyEntity, &mut Sprite, &mut Transform)>,
+        Query<(BevyEntity, &mut Text, &mut Transform, &mut BevyText)>,
+        Query<(BevyEntity, &mut DrawMode, &mut Transform, &ColliderLines)>,
     )>,
 ) {
     // Update this frame's timing info
@@ -379,17 +370,15 @@ fn game_logic_sync<S: Send + Sync + 'static>(
 
     // Copy all sprites over to the engine to give to users
     engine.sprites.clear();
-    for (_, sprite, _) in query_set.p0().iter() {
-        let _ = engine
-            .sprites
-            .insert(sprite.label.clone(), (*sprite).clone());
-    }
+    query_set.p0().iter().for_each(|(_, sprite, _)| {
+        engine.sprites.add_clod(sprite.clone());
+    });
 
     // Copy all texts over to the engine to give to users
     engine.texts.clear();
-    for (_, text, _, _) in query_set.p1().iter() {
-        let _ = engine.texts.insert(text.label.clone(), (*text).clone());
-    }
+    query_set.p1().iter().for_each(|(_, text, _, _)| {
+        engine.texts.add_clod(text.clone());
+    });
 
     // Perform all the user's game logic for this frame
     for func in logic_functions.iter() {
@@ -398,9 +387,9 @@ fn game_logic_sync<S: Send + Sync + 'static>(
 
     if !engine.last_show_colliders && engine.show_colliders {
         // Just turned on show_colliders -- create collider lines for all sprites
-        for sprite in engine.sprites.values_mut() {
-            add_collider_lines(&mut commands, sprite);
-        }
+        engine
+            .sprites
+            .for_each_mut(|sprite| add_collider_lines(&mut commands, sprite))
     } else if engine.last_show_colliders && !engine.show_colliders {
         // Just turned off show_colliders -- delete collider lines for all sprites
         for (entity, _, _, _) in query_set.p2().iter_mut() {
@@ -420,11 +409,12 @@ fn game_logic_sync<S: Send + Sync + 'static>(
             }
         }
         // Add collider lines for sprites whose colliders are dirty
-        for sprite in engine.sprites.values_mut() {
-            if sprite.collider_dirty {
-                add_collider_lines(&mut commands, sprite);
-            }
-        }
+
+        engine
+            .sprites
+            .filter_mut(|sprite| sprite.collider_dirty)
+            .for_each(|sprite| add_collider_lines(&mut commands, sprite));
+
         // Update transform & line width
         for (_, mut draw_mode, mut transform, collider_lines) in query_set.p2().iter_mut() {
             if let Some(sprite) = engine.sprites.get(&collider_lines.sprite_label) {
