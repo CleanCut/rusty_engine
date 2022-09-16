@@ -2,10 +2,9 @@ use bevy::{
     app::AppExit,
     prelude::{
         debug, App, AssetServer, Camera2dBundle, Color, Commands, Component, DefaultPlugins,
-        Entity as BevyEntity, EventReader, EventWriter, HorizontalAlign,
-        ParallelSystemDescriptorCoercion, ParamSet, Query, Res, ResMut, SpriteBundle,
-        Text as BevyText, Text2dBundle, TextAlignment, TextStyle, Transform, Vec2, VerticalAlign,
-        Windows,
+        Entity, EventReader, EventWriter, HorizontalAlign, ParallelSystemDescriptorCoercion,
+        ParamSet, Query, Res, ResMut, SpriteBundle, Text as BevyText, Text2dBundle, TextAlignment,
+        TextStyle, Transform, Vec2, VerticalAlign, Windows,
     },
     render::texture::ImageSettings,
     time::Time,
@@ -25,10 +24,9 @@ use crate::{
         AudioManagerPlugin, CollisionEvent, KeyboardInput, KeyboardPlugin, KeyboardState,
         MouseState, PhysicsPlugin,
     },
-    repositories::{Sprites, Texts},
     sprite::Sprite,
     text::Text,
-    traits::*,
+    traits::EngineRepo,
 };
 
 // Public re-export
@@ -53,10 +51,10 @@ pub use bevy::window::{WindowDescriptor, WindowMode, WindowResizeConstraints};
 pub struct Engine {
     /// SYNCED - The state of all sprites this frame. To add a sprite, use the
     /// [`add_sprite`](Engine::add_sprite) method. Modify & remove sprites as you like.
-    pub sprites: Sprites,
+    pub sprites: EngineRepo<Sprite, PathBuf>,
     /// SYNCED - The state of all texts this frame. For convenience adding a text, use the
     /// [`add_text`](Engine::add_text) method. Modify & remove text as you like.
-    pub texts: Texts,
+    pub texts: EngineRepo<Text, String>,
     /// SYNCED - If set to `true`, the game exits. Note: the current frame will run to completion first.
     pub should_exit: bool,
     /// SYNCED - If set to `true`, then debug lines are shown depicting sprite colliders
@@ -126,7 +124,11 @@ impl Engine {
         label: T,
         file_or_preset: P,
     ) -> &mut Sprite {
-        self.sprites.add(label, file_or_preset)
+        let label = label.into();
+        self.sprites
+            .insert(label.clone(), Sprite::new(label.clone(), file_or_preset));
+        // Unwrap: Can't crash because we just inserted the sprite
+        self.sprites.get_mut(&label).unwrap()
     }
 
     #[must_use]
@@ -139,7 +141,35 @@ impl Engine {
         T: Into<String>,
         S: Into<String>,
     {
-        self.texts.add(label, text)
+        let label = label.into();
+        self.texts
+            .insert(label.clone(), Text::new(label.clone(), text));
+        // Unwrap: Can't crash because we just inserted the sprite
+        self.texts.get_mut(&label).unwrap()
+    }
+
+    #[inline]
+    /// Create and add a [`Sprite`] to the game. Use the `&mut Sprite` that is returned to adjust
+    /// the translation, rotation, etc. Use a *unique* label for each sprite. Attempting to add two
+    /// sprites with the same label will cause a crash.
+    pub fn add_sprite_clod<T: Into<Sprite>>(&mut self, sprite: T) -> &mut Sprite {
+        let sprite = sprite.into();
+        let label = sprite.label.clone();
+        self.sprites.insert(label.clone(), sprite);
+        // Unwrap: Can't crash because we just inserted the sprite
+        self.sprites.get_mut(&label).unwrap()
+    }
+
+    #[inline]
+    /// Create and add a [`Sprite`] to the game. Use the `&mut Sprite` that is returned to adjust
+    /// the translation, rotation, etc. Use a *unique* label for each sprite. Attempting to add two
+    /// sprites with the same label will cause a crash.
+    pub fn add_text_clod<T: Into<Text>>(&mut self, text: T) -> &mut Text {
+        let text = text.into();
+        let label = text.label.clone();
+        self.texts.insert(label.clone(), text);
+        // Unwrap: Can't crash because we just inserted the sprite
+        self.texts.get_mut(&label).unwrap()
     }
 }
 
@@ -345,9 +375,9 @@ fn game_logic_sync<S: Send + Sync + 'static>(
     mut app_exit_events: EventWriter<AppExit>,
     mut collision_events: EventReader<CollisionEvent>,
     mut query_set: ParamSet<(
-        Query<(BevyEntity, &mut Sprite, &mut Transform)>,
-        Query<(BevyEntity, &mut Text, &mut Transform, &mut BevyText)>,
-        Query<(BevyEntity, &mut DrawMode, &mut Transform, &ColliderLines)>,
+        Query<(Entity, &mut Sprite, &mut Transform)>,
+        Query<(Entity, &mut Text, &mut Transform, &mut BevyText)>,
+        Query<(Entity, &mut DrawMode, &mut Transform, &ColliderLines)>,
     )>,
 ) {
     // Update this frame's timing info
@@ -371,13 +401,13 @@ fn game_logic_sync<S: Send + Sync + 'static>(
     // Copy all sprites over to the engine to give to users
     engine.sprites.clear();
     query_set.p0().iter().for_each(|(_, sprite, _)| {
-        engine.sprites.add_clod(sprite.clone());
+        engine.add_sprite_clod(sprite.clone());
     });
 
     // Copy all texts over to the engine to give to users
     engine.texts.clear();
     query_set.p1().iter().for_each(|(_, text, _, _)| {
-        engine.texts.add_clod(text.clone());
+        engine.add_text_clod(text.clone());
     });
 
     // Perform all the user's game logic for this frame

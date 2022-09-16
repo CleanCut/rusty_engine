@@ -243,11 +243,8 @@ fn logic(engine: &mut Engine, game_state: &mut GameState) {
         new_sprite.translation = old_sprite.translation;
         new_sprite.rotation = old_sprite.rotation;
         new_sprite.scale = old_sprite.scale;
-        engine
-            .sprites
-            .inner_mut()
-            .insert(new_sprite.label.clone(), new_sprite);
-        engine.sprites.remove(old_sprite.label);
+        engine.sprites.insert(new_sprite.label.clone(), new_sprite);
+        engine.sprites.remove::<str>(old_sprite.label.as_ref());
         println!("{:?}", new_preset);
     }
 
@@ -264,9 +261,6 @@ fn logic(engine: &mut Engine, game_state: &mut GameState) {
         game_state.next_layer += 0.01;
         sprite.label = game_state.next_sprite_num.to_string();
         game_state.next_sprite_num += 1;
-        engine
-            .sprites
-            .inner_mut()
-            .insert(sprite.label.clone(), sprite);
+        engine.sprites.insert(sprite.label.clone(), sprite);
     }
 }

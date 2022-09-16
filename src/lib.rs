@@ -69,7 +69,6 @@ pub mod game;
 pub mod keyboard;
 pub mod mouse;
 pub mod physics;
-pub mod repositories;
 pub mod sprite;
 pub mod text;
 pub mod traits;

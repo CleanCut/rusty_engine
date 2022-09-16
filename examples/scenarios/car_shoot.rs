@@ -82,7 +82,7 @@ fn game_logic(engine: &mut Engine, game_state: &mut GameState) {
 
     // Clean up sprites that have gone off the screen
     let mut labels_to_delete = Vec::new();
-    for (label, sprite) in engine.sprites.inner_iter() {
+    for (label, sprite) in engine.sprites.iter() {
         if sprite.translation.y > 400.0 || sprite.translation.x > 750.0 {
             labels_to_delete.push(label.clone());
         }

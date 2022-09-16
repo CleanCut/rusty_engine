@@ -1,11 +1,17 @@
 /// Sprites are the images that make up a game
 use bevy::prelude::{Component, Quat, Transform, Vec2, Vec3};
 
-use crate::{physics::Collider, traits::Entity};
+use crate::{physics::Collider, traits::EngineEntity};
+
+impl EngineEntity for Sprite {
+    fn label(&self) -> &str {
+        &self.label
+    }
+}
 
 /// A [`Sprite`] is the basic abstraction for something that can be seen and interacted with.
 /// Players, obstacles, etc. are all sprites.
-#[derive(Clone, Component, Debug, PartialEq)]
+#[derive(Clone, Component, Debug, PartialEq, Default)]
 pub struct Sprite {
     /// READONLY: A way to identify a sprite. This must be unique, or else the game will crash.
     pub label: String,
@@ -52,8 +58,7 @@ fn read_collider_from_file(filepath: &Path) -> Collider {
     }
 }
 
-impl Entity for Sprite {
-    type Source = PathBuf;
+impl Sprite {
     /// `label` should be a unique string (it will be used as a key in the hashmap
     /// [`Engine::sprites`](crate::prelude::Engine)). `file_or_preset` should either be a
     /// [`SpritePreset`] variant, or a relative path to an image file inside the `assets/`
@@ -62,7 +67,7 @@ impl Entity for Sprite {
     /// create a collider file you can either run the `collider` example, or
     /// programmatically create a [`Collider`], set the sprite's `.collider` field to it, and call
     /// the sprite's `.write_collider()` method.  All presets have collider files already.
-    fn new<L: Into<String>, S: Into<Self::Source>>(label: L, file_or_preset: S) -> Self {
+    pub fn new<L: Into<String>, S: Into<PathBuf>>(label: L, file_or_preset: S) -> Self {
         let label = label.into();
         let filepath = file_or_preset.into();
         let mut collider_filepath = filepath.clone();
@@ -90,13 +95,7 @@ impl Entity for Sprite {
             collider_dirty: true,
         }
     }
-    #[inline]
-    fn label(&self) -> &str {
-        &self.label
-    }
-}
 
-impl Sprite {
     /// Do the math to convert from Rusty Engine translation+rotation+scale+layer to Bevy's Transform
     #[doc(hidden)]
     pub fn bevy_transform(&self) -> Transform {
