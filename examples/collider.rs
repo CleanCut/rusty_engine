@@ -18,12 +18,14 @@ use rusty_engine::prelude::*;
 
 struct GameState {
     circle_radius: f32,
+    scale: f32,
 }
 
 impl Default for GameState {
     fn default() -> Self {
         Self {
             circle_radius: 16.0,
+            scale: 1.0,
         }
     }
 }
@@ -96,35 +98,38 @@ fn main() {
 }
 
 fn game_logic(engine: &mut Engine, game_state: &mut GameState) {
-    let sprite = engine.sprites.get_mut("sprite").unwrap();
     // Zoom levels
     if engine.keyboard_state.just_pressed(KeyCode::Key1) {
-        sprite.scale = 1.0;
+        game_state.scale = 1.0;
     }
     if engine.keyboard_state.just_pressed(KeyCode::Key2) {
-        sprite.scale = 2.0;
+        game_state.scale = 2.0;
     }
     if engine.keyboard_state.just_pressed(KeyCode::Key3) {
-        sprite.scale = 3.0;
+        game_state.scale = 3.0;
     }
     if engine.keyboard_state.just_pressed(KeyCode::Key4) {
-        sprite.scale = 4.0;
+        game_state.scale = 4.0;
     }
     if engine.keyboard_state.just_pressed(KeyCode::Key5) {
-        sprite.scale = 5.0;
+        game_state.scale = 5.0;
     }
     if engine.keyboard_state.just_pressed(KeyCode::Key6) {
-        sprite.scale = 6.0;
+        game_state.scale = 6.0;
     }
     if engine.keyboard_state.just_pressed(KeyCode::Key7) {
-        sprite.scale = 7.0;
+        game_state.scale = 7.0;
     }
     if engine.keyboard_state.just_pressed(KeyCode::Key8) {
-        sprite.scale = 8.0;
+        game_state.scale = 8.0;
     }
     if engine.keyboard_state.just_pressed(KeyCode::Key9) {
-        sprite.scale = 9.0;
+        game_state.scale = 9.0;
     }
+    // Update scale
+    let sprite = engine.sprites.get_mut("sprite").unwrap();
+    sprite.scale = game_state.scale;
+
     // Rotate
     if engine.mouse_state.pressed(MouseButton::Right) {
         sprite.rotation += engine.delta_f32 * 6.0;
@@ -139,6 +144,7 @@ fn game_logic(engine: &mut Engine, game_state: &mut GameState) {
     // Modify a collider point
     if engine.mouse_state.just_pressed(MouseButton::Left) {
         if let Some(location) = engine.mouse_state.location() {
+            let location = (((location / game_state.scale) * 2.0).round() * 0.5) * game_state.scale;
             if engine
                 .keyboard_state
                 .pressed_any(&[KeyCode::RShift, KeyCode::LShift])
