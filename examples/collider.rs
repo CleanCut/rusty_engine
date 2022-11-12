@@ -32,7 +32,7 @@ impl Default for GameState {
 }
 
 // If the user passed in `./assets/something...` then we need to strip `./assets/` (the asset loader will prepend `assets/`)
-const REDUNDANT_PATH_SEGMENTS: &str = r"^[.\\/]*(assets)?[/\\]+";
+const REDUNDANT_PATH_SEGMENTS: &str = r"^(.[/\\]+)?assets[/\\]+";
 
 fn main() {
     // Some trickiness to make assets load relative to the current working directory, which
@@ -221,8 +221,10 @@ mod test {
     fn redundant_path_segments_dont_match_absolute_paths() {
         // Map of absolute paths that should not be touched by the regex
         let paths = vec![
-            "C:\\Users\\User\\Documents\\Game\\assets\\sprite\\sprite.png",
             "C:/Users/User/Documents/Game/assets/sprite/sprite.png",
+            "C:\\Users\\User\\Documents\\Game\\assets\\sprite\\sprite.png",
+            "/assets/sprite/sprite.png",
+            "\\assets\\sprite\\sprite.png",
         ];
 
         let replacer = Regex::new(REDUNDANT_PATH_SEGMENTS).unwrap();
