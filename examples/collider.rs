@@ -12,6 +12,7 @@
 //!
 //! cargo run --release --example collider assets/some_image.png
 
+use regex::Regex;
 use std::path::PathBuf;
 
 use rusty_engine::prelude::*;
@@ -29,6 +30,9 @@ impl Default for GameState {
         }
     }
 }
+
+// If the user passed in `./assets/something...` then we need to strip `./assets/` (the asset loader will prepend `assets/`)
+const REDUNDANT_PATH_SEGMENTS: &str = r"^[.\\/]*(assets)?[/\\]+";
 
 fn main() {
     // Some trickiness to make assets load relative to the current working directory, which
@@ -51,11 +55,12 @@ fn main() {
         std::process::exit(1);
     }
 
-    // If the user passed in `assets/something...` then we need to strip `assets/` (the asset loader will prepend `assets/`)
-    let mut path = PathBuf::from(args[0].clone());
-    if path.starts_with("assets") {
-        path = path.strip_prefix("assets").unwrap().to_path_buf();
-    }
+    // Remove redundant path segments
+    let replacer = Regex::new(REDUNDANT_PATH_SEGMENTS).unwrap();
+    let path = replacer.replace_all(args[0].as_str(), "").to_string();
+
+    // Make sure that the file exists
+    let path = PathBuf::from(path);
     if !(PathBuf::from("assets").join(&path)).exists() {
         println!("Couldn't find the file {}", path.to_string_lossy());
         std::process::exit(1);
@@ -204,6 +209,51 @@ fn game_logic(engine: &mut Engine, game_state: &mut GameState) {
                 "Error: unable to write the collider file: {}",
                 sprite.collider_filepath.to_string_lossy()
             );
+        }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn redundant_path_segments_dont_match_absolute_paths() {
+        // Map of absolute paths that should not be touched by the regex
+        let paths = vec![
+            "C:\\Users\\User\\Documents\\Game\\assets\\sprite\\sprite.png",
+            "C:/Users/User/Documents/Game/assets/sprite/sprite.png",
+        ];
+
+        let replacer = Regex::new(REDUNDANT_PATH_SEGMENTS).unwrap();
+        // Loop through paths
+        for input in paths {
+            // Replace the redundant path segments
+            let output = replacer.replace_all(input, "").to_string();
+            // Make sure the path is not changed
+            assert_eq!(output, input);
+        }
+    }
+
+    #[test]
+    fn redundant_path_segments_match_cross_platform_paths() {
+        // Map of relative paths to their expected stripped paths
+        let paths = vec![
+            ("assets/sprite/sprite.png", "sprite/sprite.png"),
+            ("assets\\sprite\\sprite.png", "sprite\\sprite.png"),
+            ("./assets/sprite/sprite.png", "sprite/sprite.png"),
+            (".\\assets\\sprite\\sprite.png", "sprite\\sprite.png"),
+            ("./assets\\sprite\\sprite.png", "sprite\\sprite.png"),
+            (".\\assets/sprite/sprite.png", "sprite/sprite.png"),
+        ];
+
+        let replacer = Regex::new(REDUNDANT_PATH_SEGMENTS).unwrap();
+        // Loop through paths
+        for (input, expected) in paths {
+            // Replace the redundant path segments
+            let output = replacer.replace_all(input, "").to_string();
+            // Make sure the result matches the expected path
+            assert_eq!(output, expected);
         }
     }
 }

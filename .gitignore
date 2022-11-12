@@ -1,5 +1,6 @@
 .cargo/config.toml
 .vscode
+.idea
 **/*.rs.bk
 **/target
 Cargo.lock
