@@ -32,7 +32,7 @@ impl Default for GameState {
 }
 
 // If the user passed in `./assets/something...` then we need to strip `./assets/` (the asset loader will prepend `assets/`)
-const REDUNDANT_PATH_SEGMENTS: &str = r"^(.[/\\]+)?assets[/\\]+";
+const REDUNDANT_PATH_SEGMENTS: &str = r"^(\.[/\\]+)?assets[/\\]+";
 
 fn main() {
     // Some trickiness to make assets load relative to the current working directory, which
@@ -247,6 +247,31 @@ mod test {
             (".\\assets\\sprite\\sprite.png", "sprite\\sprite.png"),
             ("./assets\\sprite\\sprite.png", "sprite\\sprite.png"),
             (".\\assets/sprite/sprite.png", "sprite/sprite.png"),
+        ];
+
+        let replacer = Regex::new(REDUNDANT_PATH_SEGMENTS).unwrap();
+        // Loop through paths
+        for (input, expected) in paths {
+            // Replace the redundant path segments
+            let output = replacer.replace_all(input, "").to_string();
+            // Make sure the result matches the expected path
+            assert_eq!(output, expected);
+        }
+    }
+
+    #[test]
+    fn dont_strip_lookalikes() {
+        // Map of relative paths to their expected stripped paths
+        let paths = vec![
+            (
+                "assets-lookalike/sprite/sprite.png",
+                "assets-lookalike/sprite/sprite.png",
+            ),
+            (
+                "b/assets\\sprite\\sprite.png",
+                "b/assets\\sprite\\sprite.png",
+            ),
+            ("b\\assets/sprite/sprite.png", "b\\assets/sprite/sprite.png"),
         ];
 
         let replacer = Regex::new(REDUNDANT_PATH_SEGMENTS).unwrap();
