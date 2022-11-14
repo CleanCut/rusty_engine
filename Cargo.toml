@@ -36,10 +36,10 @@ bevy = { version = "0.8.1", default-features = false, features = [
 bevy_prototype_lyon = "0.6"
 ron = "0.7"
 serde = { version = "1.0", features = [ "derive" ] }
-regex = "1.7"
 
 [dev-dependencies]
 rand = "0.8"
+regex = "1.7"
 
 [[example]]
 name = "car_shoot"
