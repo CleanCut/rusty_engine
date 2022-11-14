@@ -32,7 +32,7 @@ impl Default for GameState {
 }
 
 // If the user passed in `./assets/something...` then we need to strip `./assets/` (the asset loader will prepend `assets/`)
-const REDUNDANT_PATH_SEGMENTS: &str = r"^(\.[/\\]+)?assets[/\\]+";
+const REDUNDANT_PATH_SEGMENTS: &str = r"^(\.[/\\]{1})?assets[/\\]+";
 
 fn main() {
     // Some trickiness to make assets load relative to the current working directory, which
