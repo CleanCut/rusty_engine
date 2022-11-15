@@ -1,6 +1,8 @@
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [5.2.1] - 2022-11-15
+
 ### Improved
 
 - The `collider` (example) editor now snaps to half-pixels.
@@ -293,7 +295,8 @@ specifying a path to a sound file relative to `assets/audio`.
 
 [Bevy]: https://bevyengine.org
 <!-- next-url -->
-[Unreleased]: https://github.com/CleanCut/rusty_engine/compare/v5.2.0...HEAD
+[Unreleased]: https://github.com/CleanCut/rusty_engine/compare/v5.2.1...HEAD
+[5.2.1]: https://github.com/CleanCut/rusty_engine/compare/v5.2.0...v5.2.1
 [5.2.0]: https://github.com/CleanCut/rusty_engine/compare/v5.1.1...v5.2.0
 [5.1.1]: https://github.com/CleanCut/rusty_engine/compare/v5.1.0...v5.1.1
 [5.1.0]: https://github.com/CleanCut/rusty_engine/compare/v5.0.6...v5.1.0
