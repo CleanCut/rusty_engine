@@ -4,6 +4,9 @@
 ### Improved
 
 - The `collider` (example) editor now snaps to half-pixels.
+- The `collider` (example) editor now handles relative paths that begin with `./` or `.\`, which was especially vexing to powershell users. Contributed by [@webbertakken](https://github.com/webbertakken) in [#59].
+
+[#59]: https://github.com/CleanCut/rusty_engine/pull/59
 
 ## [5.2.0] - 2022-09-13
 
