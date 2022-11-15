@@ -12,7 +12,6 @@
 //!
 //! cargo run --release --example collider assets/some_image.png
 
-use regex::Regex;
 use std::path::PathBuf;
 
 use rusty_engine::prelude::*;
@@ -29,12 +28,6 @@ impl Default for GameState {
             scale: 1.0,
         }
     }
-}
-
-// Remove a leading `./` or `.\`, which represent the current working directory on posix or windows
-fn remove_curdir(path: &str) -> PathBuf {
-    let r = Regex::new(r"^\./|\.\\").unwrap();
-    PathBuf::from(r.replace(path, "").as_ref())
 }
 
 fn main() {
@@ -59,7 +52,11 @@ fn main() {
     }
 
     // Remove "./" or ".\" from the start of the argument if necessary.
-    let mut path = remove_curdir(args[0].as_str());
+    let mut path: PathBuf = args[0]
+        .as_str()
+        .trim_start_matches("./")
+        .trim_start_matches(r".\")
+        .into();
 
     // If the user passed in `assets/something...` then we need to strip `assets/` (the asset loader will prepend `assets/`)
     if path.starts_with("assets") {
@@ -213,34 +210,6 @@ fn game_logic(engine: &mut Engine, game_state: &mut GameState) {
                 "Error: unable to write the collider file: {}",
                 sprite.collider_filepath.to_string_lossy()
             );
-        }
-    }
-}
-
-#[cfg(test)]
-mod test {
-    use super::*;
-
-    #[test]
-    fn remove_curdir_works_as_expected() {
-        // remove_curdir() should only remove ./ or .\
-        let paths = vec![
-            ("C:/assets/sprite.png", "C:/assets/sprite.png"), // unchanged
-            (r"C:\assets\sprite.png", r"C:\assets\sprite.png"), // unchanged
-            ("/assets/sprite/sprite.png", "/assets/sprite/sprite.png"), // unchanged
-            (r"\assets\sprite\sprite.png", r"\assets\sprite\sprite.png"), // unchanged
-            ("assets/sprite/sprite.png", "assets/sprite/sprite.png"), // unchanged
-            (r"assets\sprite\sprite.png", r"assets\sprite\sprite.png"), // unchanged
-            ("./assets/sprite/sprite.png", "assets/sprite/sprite.png"),
-            (r".\assets\sprite\sprite.png", r"assets\sprite\sprite.png"),
-        ];
-
-        // Loop through paths
-        for (input, expected) in paths {
-            // Replace the redundant path segments
-            let output = remove_curdir(input);
-            // Make sure the result matches the expected path
-            assert_eq!(output, PathBuf::from(expected));
         }
     }
 }
