@@ -51,8 +51,14 @@ fn main() {
         std::process::exit(1);
     }
 
+    // Remove "./" or ".\" from the start of the argument if necessary.
+    let mut path: PathBuf = args[0]
+        .as_str()
+        .trim_start_matches("./")
+        .trim_start_matches(r".\")
+        .into();
+
     // If the user passed in `assets/something...` then we need to strip `assets/` (the asset loader will prepend `assets/`)
-    let mut path = PathBuf::from(args[0].clone());
     if path.starts_with("assets") {
         path = path.strip_prefix("assets").unwrap().to_path_buf();
     }
