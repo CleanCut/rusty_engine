@@ -1,6 +1,6 @@
 # Keyboard State
 
-You can think of keyboard _state_ as a snapshot of exactly which keys are pressed (or not) at the start of the frame. Keyboard state is best for interactive things like character movement.  If you need to process every single keystroke (like when entering text), check out the [Keyboard Event](110-keyboard-event.md) section instead.
+You can think of keyboard _state_ as a snapshot of exactly which keys are pressed (or not) at the start of the frame. Keyboard state is best for interactive things like character movement.  If you need to process every single keystroke (like when entering text), check out the [Keyboard Event](110-keyboard-events.md) section instead.
 
 The `Engine.keyboard_state` field is a struct through which you query the state of the key(s) you are interested in.
 
