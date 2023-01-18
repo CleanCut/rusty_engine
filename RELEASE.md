@@ -8,7 +8,7 @@ cargo install cargo-release
 
 # Configuration
 
-Configuration goes in the `[package.metadata.release]` section of `Cargo.toml`
+Configuration goes in `release.toml`
 
 # Releasing
 
