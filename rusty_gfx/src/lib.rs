@@ -9,7 +9,7 @@ use glium::{
             VirtualKeyCode as GLVirtualKeyCode, WindowEvent as GLWindowEvent,
         },
         event_loop::{ControlFlow, EventLoop},
-        platform::desktop::EventLoopExtDesktop,
+        platform::run_return::EventLoopExtRunReturn,
         window::WindowBuilder,
         ContextBuilder,
     },
@@ -474,7 +474,7 @@ impl Window {
         let display = Display::new(window, context, &event_loop).unwrap();
 
         let current_monitor = display.gl_window().window().current_monitor();
-        let scale_factor: f64 = current_monitor.scale_factor();
+        let scale_factor: f64 = current_monitor.expect("no monitor found").scale_factor();
 
         // Create a closure that captures current screen information to use to
         // do local screen coordinate conversion for us.
