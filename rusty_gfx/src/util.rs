@@ -18,7 +18,7 @@ pub fn angle_facing(v1: &Vec2, v2: &Vec2) -> f32 {
 /// somewhere within it.
 pub fn rand_in_square<T: Rng>(dimension: f32, rng: &mut T) -> Vec2 {
     Vec2::new(
-        rng.gen_range(-dimension, dimension),
-        rng.gen_range(-dimension, dimension),
+        rng.gen_range(-dimension..dimension),
+        rng.gen_range(-dimension..dimension),
     )
 }
