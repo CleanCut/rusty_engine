@@ -97,7 +97,7 @@ impl KeyboardStateChain {
 
 /// Represents the end-state of all keys during the last frame. Access it through
 /// [`Engine.keyboard_state`](crate::prelude::Engine) in your game logic function.
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug, Default, Resource)]
 pub struct KeyboardState {
     this_frame: HashMap<KeyCode, bool>,
     last_frame: HashMap<KeyCode, bool>,

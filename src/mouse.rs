@@ -102,7 +102,7 @@ impl MouseStateChain {
 /// If you need to process all mouse events that occurred during a single frame, use the
 /// `mouse_button_events`, `mouse_location_events`, `mouse_motion_events`, or `mouse_wheel_events`
 /// fields on [`Engine`](crate::prelude::Engine).
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug, Default, Resource)]
 pub struct MouseState {
     location: Option<Vec2>,
     motion: Vec2,

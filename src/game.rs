@@ -2,14 +2,13 @@ use bevy::{
     app::AppExit,
     prelude::{
         debug, App, AssetServer, Camera2dBundle, Color, Commands, Component, DefaultPlugins,
-        Entity, EventReader, EventWriter, HorizontalAlign, ParallelSystemDescriptorCoercion,
-        ParamSet, Query, Res, ResMut, SpriteBundle, Text as BevyText, Text2dBundle, TextAlignment,
+        Entity, EventReader, EventWriter, HorizontalAlign, ImagePlugin, ParamSet, PluginGroup,
+        Query, Res, ResMut, Resource, SpriteBundle, Text as BevyText, Text2dBundle, TextAlignment,
         TextStyle, Transform, Vec2, VerticalAlign, Windows,
     },
-    render::texture::ImageSettings,
     time::Time,
     utils::HashMap,
-    window::close_on_esc,
+    window::{close_on_esc, WindowPlugin},
 };
 use bevy_prototype_lyon::prelude::*;
 use std::{
@@ -47,7 +46,7 @@ pub use bevy::window::{WindowDescriptor, WindowMode, WindowResizeConstraints};
 /// INFO fields are provided as fresh, readable information to you each frame. Since information in
 /// these fields are overwritten every frame, any changes to them are ignored. Thus, you can feel
 /// free to, e.g. consume all the events out of the `collision_events` vector.
-#[derive(Default, Debug)]
+#[derive(Default, Debug, Resource)]
 pub struct Engine {
     /// SYNCED - The state of all sprites this frame. To add a sprite, use the
     /// [`add_sprite`](Engine::add_sprite) method. Modify & remove sprites as you like.
@@ -173,7 +172,7 @@ fn add_collider_lines(commands: &mut Commands, sprite: &mut Sprite) {
         let line = path_builder.build();
         let transform = sprite.bevy_transform();
         commands
-            .spawn_bundle(GeometryBuilder::build_as(
+            .spawn(GeometryBuilder::build_as(
                 &line,
                 DrawMode::Stroke(StrokeMode::new(Color::WHITE, 1.0 / transform.scale.x)),
                 transform,
@@ -192,11 +191,14 @@ pub fn add_sprites(commands: &mut Commands, asset_server: &Res<AssetServer>, eng
         // Create the sprite
         let transform = sprite.bevy_transform();
         let texture_path = sprite.filepath.clone();
-        commands.spawn().insert(sprite).insert_bundle(SpriteBundle {
-            texture: asset_server.load(texture_path),
-            transform,
-            ..Default::default()
-        });
+        commands.spawn((
+            sprite,
+            SpriteBundle {
+                texture: asset_server.load(texture_path),
+                transform,
+                ..Default::default()
+            },
+        ));
     }
 }
 
@@ -209,22 +211,25 @@ pub fn add_texts(commands: &mut Commands, asset_server: &Res<AssetServer>, engin
         let font_size = text.font_size;
         let text_string = text.value.clone();
         let font_path = text.font.clone();
-        commands.spawn().insert(text).insert_bundle(Text2dBundle {
-            text: BevyText::from_section(
-                text_string,
-                TextStyle {
-                    font: asset_server.load(font_path.as_str()),
-                    font_size,
-                    color: Color::WHITE,
-                },
-            )
-            .with_alignment(TextAlignment {
-                vertical: VerticalAlign::Center,
-                horizontal: HorizontalAlign::Center,
-            }),
-            transform,
-            ..Default::default()
-        });
+        commands.spawn((
+            text,
+            Text2dBundle {
+                text: BevyText::from_section(
+                    text_string,
+                    TextStyle {
+                        font: asset_server.load(font_path.as_str()),
+                        font_size,
+                        color: Color::WHITE,
+                    },
+                )
+                .with_alignment(TextAlignment {
+                    vertical: VerticalAlign::Center,
+                    horizontal: HorizontalAlign::Center,
+                }),
+                transform,
+                ..Default::default()
+            },
+        ));
     }
 }
 
@@ -296,13 +301,17 @@ impl<S: Send + Sync + 'static> Game<S> {
 
     /// Start the game.
     pub fn run(&mut self, initial_game_state: S) {
-        self.app
-            .insert_resource::<WindowDescriptor>(self.window_descriptor.clone())
-            .insert_resource(ImageSettings::default_nearest())
-            .insert_resource::<S>(initial_game_state);
+        self.app.insert_resource::<S>(initial_game_state);
         self.app
             // Built-ins
-            .add_plugins(DefaultPlugins)
+            .add_plugins(
+                DefaultPlugins
+                    .set(WindowPlugin {
+                        window: self.window_descriptor.clone(),
+                        ..Default::default()
+                    })
+                    .set(ImagePlugin::default_nearest()),
+            )
             .add_system(close_on_esc)
             // External Plugins
             .add_plugin(ShapePlugin) // bevy_prototype_lyon, for displaying sprite colliders
@@ -312,17 +321,10 @@ impl<S: Send + Sync + 'static> Game<S> {
             .add_plugin(MousePlugin)
             .add_plugin(PhysicsPlugin)
             //.insert_resource(ReportExecutionOrderAmbiguities) // for debugging
-            .add_system(
-                update_window_dimensions
-                    .label("update_window_dimensions")
-                    .before("game_logic_sync"),
-            )
-            .add_system(game_logic_sync::<S>.label("game_logic_sync"))
+            .add_system(update_window_dimensions)
+            .add_system(game_logic_sync) // TODO: ensure after update_window_dimensions
             .add_startup_system(setup);
-        self.app
-            .world
-            .spawn()
-            .insert_bundle(Camera2dBundle::default());
+        self.app.world.spawn(Camera2dBundle::default());
         let engine = std::mem::take(&mut self.engine);
         self.app.insert_resource(engine);
         let logic_functions = std::mem::take(&mut self.logic_functions);
@@ -350,7 +352,7 @@ fn game_logic_sync<S: Send + Sync + 'static>(
     logic_functions: Res<Vec<fn(&mut Engine, &mut S)>>,
     keyboard_state: Res<KeyboardState>,
     mouse_state: Res<MouseState>,
-    time: Res<Time>,
+    time: Time,
     mut app_exit_events: EventWriter<AppExit>,
     mut collision_events: EventReader<CollisionEvent>,
     mut query_set: ParamSet<(
@@ -362,8 +364,8 @@ fn game_logic_sync<S: Send + Sync + 'static>(
     // Update this frame's timing info
     engine.delta = time.delta();
     engine.delta_f32 = time.delta_seconds();
-    engine.time_since_startup = time.time_since_startup();
-    engine.time_since_startup_f64 = time.seconds_since_startup();
+    engine.time_since_startup = time.elapsed();
+    engine.time_since_startup_f64 = time.elapsed_seconds_f64();
 
     // Copy keyboard state over to engine to give to users
     engine.keyboard_state = keyboard_state.clone();
