@@ -11,8 +11,8 @@ pub(crate) struct KeyboardPlugin;
 impl Plugin for KeyboardPlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
         app.insert_resource::<KeyboardState>(KeyboardState::default())
-            .add_system(sync_keyboard_events.before("game_logic_sync"))
-            .add_system(sync_keyboard_state.before("game_logic_sync"));
+            .add_system(sync_keyboard_events)
+            .add_system(sync_keyboard_state);
     }
 }
 

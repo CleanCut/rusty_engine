@@ -71,7 +71,7 @@ fn main() {
     // Start with the "game" part
     let mut game = Game::new();
     game.show_colliders = true;
-    game.window_settings(WindowDescriptor {
+    game.window_settings(Window {
         title: "Collider Creator".into(),
         ..Default::default()
     });

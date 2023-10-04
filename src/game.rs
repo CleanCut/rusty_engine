@@ -1,14 +1,9 @@
 use bevy::{
     app::AppExit,
-    prelude::{
-        debug, App, AssetServer, Camera2dBundle, Color, Commands, Component, DefaultPlugins,
-        Entity, EventReader, EventWriter, HorizontalAlign, ImagePlugin, ParamSet, PluginGroup,
-        Query, Res, ResMut, Resource, SpriteBundle, Text as BevyText, Text2dBundle, TextAlignment,
-        TextStyle, Transform, Vec2, VerticalAlign, Windows,
-    },
+    prelude::{Text as BevyText, *},
     time::Time,
     utils::HashMap,
-    window::{close_on_esc, WindowPlugin},
+    window::{close_on_esc, PrimaryWindow, WindowPlugin},
 };
 use bevy_prototype_lyon::prelude::*;
 use std::{
@@ -29,7 +24,7 @@ use crate::{
 };
 
 // Public re-export
-pub use bevy::window::{WindowDescriptor, WindowMode, WindowResizeConstraints};
+pub use bevy::window::{Cursor, Window, WindowMode, WindowResolution};
 
 /// Engine is the primary way that you will interact with Rusty Engine. Each frame this struct
 /// is provided to the "logic" functions (or closures) that you provided to [`Game::add_logic`]. The
@@ -172,11 +167,19 @@ fn add_collider_lines(commands: &mut Commands, sprite: &mut Sprite) {
         let line = path_builder.build();
         let transform = sprite.bevy_transform();
         commands
-            .spawn(GeometryBuilder::build_as(
-                &line,
-                DrawMode::Stroke(StrokeMode::new(Color::WHITE, 1.0 / transform.scale.x)),
-                transform,
+            .spawn((
+                ShapeBundle {
+                    path: GeometryBuilder::new().add(&line).build(),
+                    transform,
+                    ..Default::default()
+                },
+                Stroke::new(Color::WHITE, 1.0 / transform.scale.x),
             ))
+            // .spawn(GeometryBuilder::build_as(
+            //     &line,
+            //     DrawMode::Stroke(StrokeMode::new(Color::WHITE, 1.0 / transform.scale.x)),
+            //     transform,
+            // ))
             .insert(ColliderLines {
                 sprite_label: sprite.label.clone(),
             });
@@ -222,10 +225,7 @@ pub fn add_texts(commands: &mut Commands, asset_server: &Res<AssetServer>, engin
                         color: Color::WHITE,
                     },
                 )
-                .with_alignment(TextAlignment {
-                    vertical: VerticalAlign::Center,
-                    horizontal: HorizontalAlign::Center,
-                }),
+                .with_alignment(TextAlignment::Center),
                 transform,
                 ..Default::default()
             },
@@ -235,14 +235,18 @@ pub fn add_texts(commands: &mut Commands, asset_server: &Res<AssetServer>, engin
 
 /// system - update current window dimensions in the engine, because people resize windows
 #[doc(hidden)]
-pub fn update_window_dimensions(windows: Res<Windows>, mut engine: ResMut<Engine>) {
-    // It's possible to not have window dimensions for the first frame or two
-    if let Some(window) = windows.get_primary() {
-        let screen_dimensions = Vec2::new(window.width(), window.height());
-        if screen_dimensions != engine.window_dimensions {
-            engine.window_dimensions = screen_dimensions;
-            debug!("Set window dimensions: {}", engine.window_dimensions);
-        }
+pub fn update_window_dimensions(
+    window_query: Query<&Window, With<PrimaryWindow>>,
+    mut engine: ResMut<Engine>,
+) {
+    // It's possible to not have a window for the first frame or two
+    let Ok(window) = window_query.get_single() else {
+        return;
+    };
+    let screen_dimensions = Vec2::new(window.width(), window.height());
+    if screen_dimensions != engine.window_dimensions {
+        engine.window_dimensions = screen_dimensions;
+        debug!("Set window dimensions: {}", engine.window_dimensions);
     }
 }
 
@@ -264,7 +268,7 @@ pub struct Game<S: Resource + Send + Sync + 'static> {
     app: App,
     engine: Engine,
     logic_functions: LogicFuncVec<S>,
-    window_descriptor: WindowDescriptor,
+    window: Window,
 }
 
 impl<S: Resource + Send + Sync + 'static> Default for Game<S> {
@@ -273,7 +277,7 @@ impl<S: Resource + Send + Sync + 'static> Default for Game<S> {
             app: App::new(),
             engine: Engine::default(),
             logic_functions: LogicFuncVec(vec![]),
-            window_descriptor: WindowDescriptor {
+            window: Window {
                 title: "Rusty Engine".into(),
                 ..Default::default()
             },
@@ -294,8 +298,8 @@ impl<S: Resource + Send + Sync + 'static> Game<S> {
     /// Use this to set properties of the native OS window before running the game. See the
     /// [window](https://github.com/CleanCut/rusty_engine/blob/main/examples/window.rs) example for
     /// more information.
-    pub fn window_settings(&mut self, window_descriptor: WindowDescriptor) -> &mut Self {
-        self.window_descriptor = window_descriptor;
+    pub fn window_settings(&mut self, window: Window) -> &mut Self {
+        self.window = window;
         self
     }
 
@@ -307,7 +311,7 @@ impl<S: Resource + Send + Sync + 'static> Game<S> {
             .add_plugins(
                 DefaultPlugins
                     .set(WindowPlugin {
-                        window: self.window_descriptor.clone(),
+                        primary_window: Some(self.window.clone()),
                         ..Default::default()
                     })
                     .set(ImagePlugin::default_nearest()),
@@ -322,7 +326,7 @@ impl<S: Resource + Send + Sync + 'static> Game<S> {
             .add_plugin(PhysicsPlugin)
             //.insert_resource(ReportExecutionOrderAmbiguities) // for debugging
             .add_system(update_window_dimensions)
-            .add_system(game_logic_sync::<S>) // TODO: ensure after update_window_dimensions
+            .add_system(game_logic_sync::<S>) // this should happen after all the rest of the systems
             .add_startup_system(setup);
         self.app.world.spawn(Camera2dBundle::default());
         let engine = std::mem::take(&mut self.engine);
@@ -359,7 +363,7 @@ fn game_logic_sync<S: Resource + Send + Sync + 'static>(
     mut query_set: ParamSet<(
         Query<(Entity, &mut Sprite, &mut Transform)>,
         Query<(Entity, &mut Text, &mut Transform, &mut BevyText)>,
-        Query<(Entity, &mut DrawMode, &mut Transform, &ColliderLines)>,
+        Query<(Entity, &mut Stroke, &mut Transform, &ColliderLines)>,
     )>,
 ) {
     // Update this frame's timing info
@@ -429,7 +433,7 @@ fn game_logic_sync<S: Resource + Send + Sync + 'static>(
             }
         }
         // Update transform & line width
-        for (_, mut draw_mode, mut transform, collider_lines) in query_set.p2().iter_mut() {
+        for (_, mut stroke, mut transform, collider_lines) in query_set.p2().iter_mut() {
             if let Some(sprite) = engine.sprites.get(&collider_lines.sprite_label) {
                 *transform = sprite.bevy_transform();
                 // We want collider lines to appear on top of the sprite they are for, so they need a
@@ -438,10 +442,7 @@ fn game_logic_sync<S: Resource + Send + Sync + 'static>(
             }
             // Stroke line width gets scaled with the transform, but we want it to appear to be the same
             // regardless of scale, so we have to counter the scale.
-            if let DrawMode::Stroke(ref mut stroke_mode) = *draw_mode {
-                let line_width = 1.0 / transform.scale.x;
-                *stroke_mode = StrokeMode::new(Color::WHITE, line_width);
-            }
+            stroke.options.line_width = 1.0 / transform.scale.x;
         }
     }
     engine.last_show_colliders = engine.show_colliders;

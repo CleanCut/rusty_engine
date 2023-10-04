@@ -10,17 +10,17 @@ struct GameState {}
 fn main() {
     let mut game = Game::new();
 
-    let mut car1 = game.add_sprite("car1", SpritePreset::RacingCarRed);
+    let car1 = game.add_sprite("car1", SpritePreset::RacingCarRed);
     car1.translation = Vec2::new(-300.0, 0.0);
     car1.rotation = UP;
     car1.scale = 1.0;
 
-    let mut car2 = game.add_sprite("car2", SpritePreset::RacingCarGreen);
+    let car2 = game.add_sprite("car2", SpritePreset::RacingCarGreen);
     car2.translation = Vec2::new(0.0, 0.0);
     car2.rotation = UP;
     car2.scale = 1.0;
 
-    let mut car3 = game.add_sprite("car3", SpritePreset::RacingCarBlue);
+    let car3 = game.add_sprite("car3", SpritePreset::RacingCarBlue);
     car3.translation = Vec2::new(300.0, 0.0);
     car3.rotation = UP;
     car3.scale = 1.0;

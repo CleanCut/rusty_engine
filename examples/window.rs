@@ -10,24 +10,20 @@ struct GameState {}
 fn main() {
     let mut game = Game::new();
 
-    game.window_settings(WindowDescriptor {
-        width: 800.0,
-        height: 200.0,
-        resize_constraints: WindowResizeConstraints {
-            min_width: 700.0,
-            min_height: 150.0,
-            max_width: 900.0,
-            max_height: 300.0,
-        },
+    let mut cursor = Cursor::default();
+    cursor.visible = false;
+
+    game.window_settings(Window {
+        resolution: WindowResolution::new(800.0, 200.0),
         title: "Custom Window Settings".into(),
-        resizable: true,
+        resizable: false,
         decorations: false,
-        cursor_visible: false,
-        ..Default::default() // for the rest of the options, see https://docs.rs/bevy/0.5.0/bevy/window/struct.WindowDescriptor.html
+        cursor,
+        ..Default::default() // for the rest of the options, see https://docs.rs/bevy/0.11.3/bevy/window/struct.Window.html
     });
     let _ = game.add_text(
         "message",
-        "This is a heavily-customized window.\nYou may resize it a little bit.\nPress Esc to exit.",
+        "This is a heavily-customized window.\nResizing and window decorations have been disabled.\nPress Esc to exit.",
     );
     game.run(GameState {});
 }
