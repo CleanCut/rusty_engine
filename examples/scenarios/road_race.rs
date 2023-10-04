@@ -8,6 +8,7 @@ use rusty_engine::prelude::*;
 const PLAYER_SPEED: f32 = 250.0;
 const ROAD_SPEED: f32 = 400.0;
 
+#[derive(Resource)]
 struct GameState {
     health_amount: u8,
     lost: bool,

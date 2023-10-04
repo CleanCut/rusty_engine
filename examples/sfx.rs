@@ -7,6 +7,9 @@
 
 use rusty_engine::prelude::*;
 
+#[derive(Resource)]
+struct GameState {}
+
 fn main() {
     let mut game = Game::new();
     let msg = game.add_text(
@@ -24,5 +27,5 @@ fn main() {
 
     game.audio_manager.play_sfx(SfxPreset::Jingle1, 1.0);
 
-    game.run(());
+    game.run(GameState {});
 }

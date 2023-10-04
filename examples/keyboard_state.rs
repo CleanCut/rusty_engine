@@ -6,10 +6,13 @@ use std::f32::consts::PI;
 
 use rusty_engine::prelude::*;
 
+#[derive(Resource)]
+struct GameState {}
+
 fn main() {
     let mut game = Game::new();
 
-    let mut race_car = game.add_sprite("Race Car", SpritePreset::RacingCarGreen);
+    let race_car = game.add_sprite("Race Car", SpritePreset::RacingCarGreen);
     race_car.translation = Vec2::new(0.0, 0.0);
     race_car.rotation = UP;
     race_car.scale = 1.0;
@@ -19,20 +22,20 @@ fn main() {
     text.translation.y = 250.0;
 
     game.add_logic(logic);
-    game.run(());
+    game.run(GameState {});
 }
 
-fn logic(game_state: &mut Engine, _: &mut ()) {
+fn logic(engine: &mut Engine, _: &mut GameState) {
     // Compute how fast we should move, rotate, and scale
-    let move_amount = 200.0 * game_state.delta_f32;
-    let rotation_amount = PI * game_state.delta_f32;
-    let scale_amount = 1.0 * game_state.delta_f32;
+    let move_amount = 200.0 * engine.delta_f32;
+    let rotation_amount = PI * engine.delta_f32;
+    let scale_amount = 1.0 * engine.delta_f32;
 
     // Get the race car sprite
-    let race_car = game_state.sprites.get_mut("Race Car").unwrap();
+    let race_car = engine.sprites.get_mut("Race Car").unwrap();
 
     // Handle keyboard input
-    let ks = &mut game_state.keyboard_state;
+    let ks = &mut engine.keyboard_state;
     if ks.pressed_any(&[KeyCode::W, KeyCode::Up, KeyCode::Comma]) {
         race_car.translation.y += move_amount;
     }
@@ -67,7 +70,7 @@ fn logic(game_state: &mut Engine, _: &mut ()) {
 
     // Clamp the translation so that the car stays on the screen
     race_car.translation = race_car.translation.clamp(
-        -game_state.window_dimensions * 0.5,
-        game_state.window_dimensions * 0.5,
+        -engine.window_dimensions * 0.5,
+        engine.window_dimensions * 0.5,
     );
 }

@@ -4,6 +4,9 @@
 
 use rusty_engine::prelude::*;
 
+#[derive(Resource)]
+struct GameState {}
+
 fn main() {
     let mut game = Game::new();
 
@@ -15,14 +18,14 @@ fn main() {
             }
             let sprite_preset = sprite_presets_iter.next().unwrap();
             let sprite_string = format!("{:?}", sprite_preset);
-            let mut sprite = game.add_sprite(&sprite_string, sprite_preset);
+            let sprite = game.add_sprite(&sprite_string, sprite_preset);
             sprite.translation = Vec2::new(x as f32, (-y) as f32);
 
-            let mut text = game.add_text(&sprite_string, &sprite_string);
+            let text = game.add_text(&sprite_string, &sprite_string);
             text.translation = Vec2::new(x as f32, (-y - 75) as f32);
             text.font_size = 22.0;
         }
     }
 
-    game.run(());
+    game.run(GameState {});
 }

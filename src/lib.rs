@@ -81,7 +81,7 @@ pub mod prelude {
     };
     pub use bevy::{
         self,
-        prelude::{Time, Timer, Vec2},
+        prelude::{Resource, Time, Timer, TimerMode, Vec2},
     };
 }
 

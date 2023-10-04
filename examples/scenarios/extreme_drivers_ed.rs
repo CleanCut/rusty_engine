@@ -4,6 +4,7 @@
 
 use rusty_engine::prelude::*;
 
+#[derive(Resource)]
 struct GameState {
     score: u32,
     win_amount: u32,
@@ -935,7 +936,7 @@ fn logic(engine: &mut Engine, game_state: &mut GameState) {
         engine
             .audio_manager
             .play_sfx(SfxPreset::Congratulations, 1.0);
-        let mut you_win = engine.add_text("you win", "You Win!");
+        let you_win = engine.add_text("you win", "You Win!");
         you_win.font_size = 120.0;
         you_win.translation.y = -50.0;
     }

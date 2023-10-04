@@ -16,6 +16,7 @@ use std::path::PathBuf;
 
 use rusty_engine::prelude::*;
 
+#[derive(Resource)]
 struct GameState {
     circle_radius: f32,
     scale: f32,

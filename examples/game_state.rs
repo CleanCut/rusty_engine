@@ -8,6 +8,7 @@ use rusty_engine::prelude::*;
 
 // You can name your game state struct whatever you want, and it can contain many different types as
 // its fields
+#[derive(Resource)]
 struct MyCustomGameStateStuff {
     // Use a timer to tell when to start/stop turning
     change_timer: Timer,
@@ -20,7 +21,7 @@ fn main() {
     let _ = game.add_sprite("Race Car", SpritePreset::RacingCarGreen);
 
     let initial_game_state = MyCustomGameStateStuff {
-        change_timer: Timer::from_seconds(1.0, true),
+        change_timer: Timer::from_seconds(1.0, TimerMode::Repeating),
         turning: false,
     };
 

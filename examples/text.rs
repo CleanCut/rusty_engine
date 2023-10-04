@@ -4,6 +4,7 @@
 
 use rusty_engine::prelude::*;
 
+#[derive(Resource)]
 struct GameState {
     timer: Timer,
 }
@@ -47,7 +48,7 @@ fn main() {
     scale.translation = Vec2::new(400.0, -230.0);
 
     let game_state = GameState {
-        timer: Timer::from_seconds(0.2, true),
+        timer: Timer::from_seconds(0.2, TimerMode::Repeating),
     };
     game.add_logic(game_logic);
     game.run(game_state);
@@ -55,7 +56,7 @@ fn main() {
 
 fn game_logic(engine: &mut Engine, game_state: &mut GameState) {
     if game_state.timer.tick(engine.delta).just_finished() {
-        let mut fps = engine.texts.get_mut("fps").unwrap();
+        let fps = engine.texts.get_mut("fps").unwrap();
         fps.value = format!("FPS: {:.1}", 1.0 / engine.delta_f32);
     }
 

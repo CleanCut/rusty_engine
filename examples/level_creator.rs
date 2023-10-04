@@ -12,6 +12,7 @@
 
 use rusty_engine::prelude::*;
 
+#[derive(Resource)]
 struct GameState {
     current_label: String,
     // Use an incrementing index (converted to a string) for the unique label of the sprites
@@ -77,7 +78,7 @@ Z - Print out Rust code of current level
     let game_state = GameState::default();
 
     // Get our first sprite onto the board
-    let mut curr_sprite = game.add_sprite("0".to_string(), SpritePreset::RacingCarRed);
+    let curr_sprite = game.add_sprite("0".to_string(), SpritePreset::RacingCarRed);
     //curr_sprite.scale = 0.5;
     curr_sprite.layer = MAX_LAYER;
 

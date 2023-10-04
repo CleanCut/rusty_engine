@@ -4,6 +4,9 @@
 
 use rusty_engine::prelude::*;
 
+#[derive(Resource)]
+struct GameState {}
+
 fn main() {
     let mut game = Game::new();
 
@@ -23,10 +26,10 @@ fn main() {
     car3.scale = 1.0;
 
     game.add_logic(logic);
-    game.run(());
+    game.run(GameState {});
 }
 
-fn logic(engine: &mut Engine, _: &mut ()) {
+fn logic(engine: &mut Engine, _: &mut GameState) {
     let car1 = engine.sprites.get_mut("car1").unwrap();
     car1.translation.x = -300.0 + (engine.time_since_startup_f64.cos() * 100.0) as f32;
     car1.translation.y = (engine.time_since_startup_f64.sin() * 100.0) as f32;

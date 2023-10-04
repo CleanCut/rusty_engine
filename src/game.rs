@@ -260,19 +260,19 @@ pub struct ColliderLines {
 ///
 /// [`Game`] forwards method calls to [`Engine`] when it can, so you should be able to use all
 /// of the methods from [`Engine`] on [`Game`] during your game setup in your `main()` function.
-pub struct Game<S: Send + Sync + 'static> {
+pub struct Game<S: Resource + Send + Sync + 'static> {
     app: App,
     engine: Engine,
-    logic_functions: Vec<fn(&mut Engine, &mut S)>,
+    logic_functions: LogicFuncVec<S>,
     window_descriptor: WindowDescriptor,
 }
 
-impl<S: Send + Sync + 'static> Default for Game<S> {
+impl<S: Resource + Send + Sync + 'static> Default for Game<S> {
     fn default() -> Self {
         Self {
             app: App::new(),
             engine: Engine::default(),
-            logic_functions: vec![],
+            logic_functions: LogicFuncVec(vec![]),
             window_descriptor: WindowDescriptor {
                 title: "Rusty Engine".into(),
                 ..Default::default()
@@ -281,7 +281,7 @@ impl<S: Send + Sync + 'static> Default for Game<S> {
     }
 }
 
-impl<S: Send + Sync + 'static> Game<S> {
+impl<S: Resource + Send + Sync + 'static> Game<S> {
     /// Create an new, empty [`Game`] with an empty [`Engine`]
     pub fn new() -> Self {
         if std::fs::read_dir("assets").is_err() {
@@ -322,12 +322,13 @@ impl<S: Send + Sync + 'static> Game<S> {
             .add_plugin(PhysicsPlugin)
             //.insert_resource(ReportExecutionOrderAmbiguities) // for debugging
             .add_system(update_window_dimensions)
-            .add_system(game_logic_sync) // TODO: ensure after update_window_dimensions
+            .add_system(game_logic_sync::<S>) // TODO: ensure after update_window_dimensions
             .add_startup_system(setup);
         self.app.world.spawn(Camera2dBundle::default());
         let engine = std::mem::take(&mut self.engine);
         self.app.insert_resource(engine);
-        let logic_functions = std::mem::take(&mut self.logic_functions);
+        let mut logic_functions = LogicFuncVec(vec![]);
+        std::mem::swap(&mut self.logic_functions, &mut logic_functions);
         self.app.insert_resource(logic_functions);
         self.app.run();
     }
@@ -338,21 +339,21 @@ impl<S: Send + Sync + 'static> Game<S> {
     /// - `game_state`, which is a mutable reference (`&mut`) to the game state struct you defined,
     ///    or `&mut ()` if you didn't define one.
     pub fn add_logic(&mut self, logic_function: fn(&mut Engine, &mut S)) {
-        self.logic_functions.push(logic_function);
+        self.logic_functions.0.push(logic_function);
     }
 }
 
 /// system - the magic that connects Rusty Engine to Bevy, frame by frame
 #[allow(clippy::type_complexity, clippy::too_many_arguments)]
-fn game_logic_sync<S: Send + Sync + 'static>(
+fn game_logic_sync<S: Resource + Send + Sync + 'static>(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut engine: ResMut<Engine>,
     mut game_state: ResMut<S>,
-    logic_functions: Res<Vec<fn(&mut Engine, &mut S)>>,
+    logic_functions: Res<LogicFuncVec<S>>,
     keyboard_state: Res<KeyboardState>,
     mouse_state: Res<MouseState>,
-    time: Time,
+    time: Res<Time>,
     mut app_exit_events: EventWriter<AppExit>,
     mut collision_events: EventReader<CollisionEvent>,
     mut query_set: ParamSet<(
@@ -394,7 +395,7 @@ fn game_logic_sync<S: Send + Sync + 'static>(
     }
 
     // Perform all the user's game logic for this frame
-    for func in logic_functions.iter() {
+    for func in logic_functions.0.iter() {
         func(&mut engine, &mut game_state);
     }
 
@@ -489,7 +490,7 @@ fn game_logic_sync<S: Send + Sync + 'static>(
 
 // The Deref and DerefMut implementations make it so that you can call all the `Engine` methods
 // on a `Game`, which is much more straightforward for game setup in `main()`
-impl<S: Send + Sync + 'static> Deref for Game<S> {
+impl<S: Resource + Send + Sync + 'static> Deref for Game<S> {
     type Target = Engine;
 
     fn deref(&self) -> &Self::Target {
@@ -497,8 +498,11 @@ impl<S: Send + Sync + 'static> Deref for Game<S> {
     }
 }
 
-impl<S: Send + Sync + 'static> DerefMut for Game<S> {
+impl<S: Resource + Send + Sync + 'static> DerefMut for Game<S> {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.engine
     }
 }
+
+#[derive(Resource)]
+struct LogicFuncVec<S: Resource + Send + Sync + 'static>(Vec<fn(&mut Engine, &mut S)>);

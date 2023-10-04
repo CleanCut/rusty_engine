@@ -4,6 +4,9 @@
 
 use rusty_engine::prelude::*;
 
+#[derive(Resource)]
+struct GameState {}
+
 fn main() {
     let mut game = Game::new();
 
@@ -26,5 +29,5 @@ fn main() {
         "message",
         "This is a heavily-customized window.\nYou may resize it a little bit.\nPress Esc to exit.",
     );
-    game.run(());
+    game.run(GameState {});
 }

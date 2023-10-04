@@ -247,7 +247,7 @@ pub fn queue_managed_audio_system(
         );
     }
     #[allow(clippy::for_loops_over_fallibles)]
-    for item in game_state.audio_manager.music_queue.drain(..).last() {
+    if let Some(item) = game_state.audio_manager.music_queue.drain(..).last() {
         // stop any music currently playing
         if let Some(sink_handle) = &game_state.audio_manager.playing {
             if let Some(sink) = audio_sinks.get(sink_handle) {

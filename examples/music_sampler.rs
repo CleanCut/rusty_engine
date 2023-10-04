@@ -4,6 +4,7 @@
 
 use rusty_engine::prelude::*;
 
+#[derive(Resource)]
 struct GameState {
     music_index: usize,
 }

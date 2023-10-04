@@ -7,6 +7,9 @@ use rusty_engine::prelude::*;
 const ORIGIN_LOCATION: (f32, f32) = (0.0, -200.0);
 const ROTATION_SPEED: f32 = 3.0;
 
+#[derive(Resource)]
+struct GameState {}
+
 fn main() {
     let mut game = Game::new();
 
@@ -36,10 +39,10 @@ fn main() {
     msg2.translation.y = 275.0;
 
     game.add_logic(logic);
-    game.run(());
+    game.run(GameState {});
 }
 
-fn logic(engine: &mut Engine, _: &mut ()) {
+fn logic(engine: &mut Engine, _: &mut GameState) {
     if let Some(sprite) = engine.sprites.get_mut("Race Car") {
         // Use the latest state of the mouse buttons to rotate the sprite
         let mut rotation_amount = 0.0;
