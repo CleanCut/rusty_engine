@@ -260,7 +260,7 @@ for event in engine.collision_events.drain(..) {
 ## Game Over
 
 First, at the very _top_ of the `game_logic function let's stop the game if we have lost.
-1. If `game_state.lost` is `true` then `return` from the game logic function. This will effectively "pause" everything, since none of the rest of our game logic will run.
+1. If `game_state.lost` is `true` then `return` from the game logic function. This will effectively "pause" everything since none of the rest of our game logic will run.
 
 ```rust
 // Don't run any more game logic if the game has ended
@@ -270,7 +270,7 @@ if game_state.lost {
 ```
 
 Finally, at the very _bottom_ of the `game_logic` function we need to detect whether we lost and clean up a few things if we did.
-1. If `game.health_amount` is `0`
+1. If `game_state.health_amount` is `0`
     1. Set `game_state.lost` to `true`
     1. Create a `Text`, and set its value to `"Game Over"`
     1. Using the mutable reference from creating the text, set its `font_size` to `128.0` (if this crashes on your system, reduce the font size to a smaller number)
