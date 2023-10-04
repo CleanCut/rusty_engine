@@ -16,7 +16,7 @@ Race your car down the road.  Your car is on the left side of the screen facing 
 1. We need to keep track of the player's health, so we'll store it in our `GameState` struct. Add a `health_amount: u8` field to the `GameState` struct definition.
 1. We want to stop the game when the player loses. Add a `lost: bool` field to the `GameState` struct definition.
 1. When you run the game, provide `5` for the initial value of the `health_amount` field, and `false` for the `lost` field. You can hit five obstacles before you lose the game, and you haven't lost yet.
-1. Try it! At this point you should still be presented with a blank window, but it should compile and run!
+1. Try it! At this point, you should still be presented with a blank window, but it should compile and run!
     * `cargo run --release`
 
 ```rust
@@ -63,7 +63,7 @@ game.audio_manager
 
 ## Player input
 
-Let's look at the player input and store it for using to move the player later. This section is all done in your [game logic function](https://cleancut.github.io/rusty_engine/25-game-logic-function.html), which is called once every frame.
+Let's look at the player input and store it for using it to move the player later. This section is all done in your [game logic function](https://cleancut.github.io/rusty_engine/25-game-logic-function.html), which is called once every frame.
 
 1. Make a mutable variable `direction` of type `f32` and initialize it to `0.0`.
     1. `1.0` means up (positive `y` direction). `0.0` means not moving up or down. `-1.0` means down (negative `y` direction)
@@ -166,7 +166,7 @@ Now it's time to add some obstacles. Interesting obstacles will be in random loc
 1. In the `main()` function, in your `// game setup goes here` section:
 1. Make a vector of some `SpritePreset` variants to use as obstacles.
     * `let obstacle_presets = vec![SpritePreset::RacingBarrelBlue, SpritePreset::RacingBarrelRed, SpritePreset::RacingConeStraight];`
-    * You can add more variants than that, depending how challenging you would like the game to be.
+    * You can add more variants than that, depending on how challenging you would like the game to be.
 1. Loop through the presets, enumerating them so you have their index.
     * `for (i, preset) in obstacle_presets.into_iter().enumerate() { }`
     1. For each preset:
@@ -229,7 +229,7 @@ Now we need to actually handle the health.  At **_the bottom_** of the `game_log
 1. Get a mutable reference to the health message
     * `let health_message = engine.texts.get_mut("health_message").unwrap();`
 1. Loop through all the collision events in a `for` loop using `engine.collision_events.drain(..)`
-    1. Ignore events (by doing a `continue` in the `for` loop) that contain `"player1"` in the collision pair OR where the event state is the ending of a collision.
+    1. Ignore events (by doing a `continue` in the `for` loop) that do not contain `"player1"` in the collision pair OR where the event state is the ending of a collision.
         * `if !event.pair.either_contains("player1") || event.state.is_end() { continue; }`
     1. If `game_state.health_amount` is greater than `0` (we don't want to try to subtract from an unsigned number without checking first)
         1. Subtract `1` from `game_state.health_amount`
@@ -291,7 +291,7 @@ if game_state.health_amount == 0 {
 
 <img width="1392" alt="screenshot5" src="https://user-images.githubusercontent.com/5838512/147838675-a3d85aef-c2e5-4257-aef1-51ca983d3044.png">
 
-That's it! You've done it!  At this point you should have a fully-functional game prototype.  Feel free to continue changing things and having some fun.  Below is a list of challenge ideas to get you thinking about other things you could do.
+That's it! You've done it!  At this point, you should have a fully functional game prototype.  Feel free to continue changing things and having some fun.  Below is a list of challenge ideas to get you thinking about other things you could do.
 
 # Troubleshooting
 
@@ -313,13 +313,13 @@ Having trouble getting the scenario above to work?  Check out the [reference imp
     * Hazard B: Anti-Powerup - hitting the anti-powerup causes a new type of obstacle to appear
     * Hazard C: Afterburners - road speed increases
 * Polish
-    * Make the car turn (rotate) smoothly instead of suddenly, and have the speed the car moves in the y direction vary proportianally to how much the car is rotated.
+    * Make the car turn (rotate) smoothly instead of suddenly, and have the speed the car moves in the y direction vary proportionally to how much the car is rotated.
     * Randomize the rotation of the obstacles
     * Add support for driving the car via mouse input
     * Add controls to change or turn off the music
     * Add text indicators of things that happen (collisions, powerups, etc.)
     * Add the ability to pause and resume the game
-    * Collect points for every obstacle that you pass, display the score in the corner during the game, add an end screen showing the final score.
+    * Collect points for every obstacle that you pass, display the score in the corner during the game, and add an end screen showing the final score.
     * Instead of ignoring obstacles that collide with each other, take one of the colliding items and set it to a new random starting position.
     * Make it so you can't hit the same obstacle twice (currently if you wiggle back and forth you can run into the same obstacle multiple times)
 
