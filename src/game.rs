@@ -170,7 +170,7 @@ fn add_collider_lines(commands: &mut Commands, sprite: &mut Sprite) {
             .spawn((
                 ShapeBundle {
                     path: GeometryBuilder::new().add(&line).build(),
-                    transform,
+                    spatial: SpatialBundle::from_transform(transform),
                     ..Default::default()
                 },
                 Stroke::new(Color::WHITE, 1.0 / transform.scale.x),
@@ -220,7 +220,7 @@ pub fn add_texts(commands: &mut Commands, asset_server: &Res<AssetServer>, engin
                 text: BevyText::from_section(
                     text_string,
                     TextStyle {
-                        font: asset_server.load(font_path.as_str()),
+                        font: asset_server.load(font_path),
                         font_size,
                         color: Color::WHITE,
                     },
@@ -307,6 +307,8 @@ impl<S: Resource + Send + Sync + 'static> Game<S> {
     pub fn run(&mut self, initial_game_state: S) {
         self.app.insert_resource::<S>(initial_game_state);
         self.app
+            // TODO: Remove this to use the new, darker default color once the videos have been remastered
+            .insert_resource(ClearColor(Color::rgb(0.4, 0.4, 0.4)))
             // Built-ins
             .add_plugins(
                 DefaultPlugins
@@ -386,7 +388,7 @@ fn game_logic_sync<S: Resource + Send + Sync + 'static>(
 
     // Copy all collision events over to the engine to give to users
     engine.collision_events.clear();
-    for collision_event in collision_events.iter() {
+    for collision_event in collision_events.read() {
         engine.collision_events.push(collision_event.clone());
     }
 
@@ -478,7 +480,7 @@ fn game_logic_sync<S: Resource + Send + Sync + 'static>(
             if text.font_size != bevy_text_component.sections[0].style.font_size {
                 bevy_text_component.sections[0].style.font_size = text.font_size;
             }
-            let font = asset_server.load(text.font.as_str());
+            let font = asset_server.load(text.font.clone());
             if bevy_text_component.sections[0].style.font != font {
                 bevy_text_component.sections[0].style.font = font;
             }

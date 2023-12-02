@@ -242,9 +242,8 @@ pub fn queue_managed_audio_system(
     mut game_state: ResMut<Engine>,
 ) {
     for (sfx, volume) in game_state.audio_manager.sfx_queue.drain(..) {
-        let sfx_path = format!("audio/{}", sfx);
         commands.spawn(AudioBundle {
-            source: asset_server.load(sfx_path.as_str()),
+            source: asset_server.load(format!("audio/{}", sfx)),
             settings: PlaybackSettings {
                 mode: PlaybackMode::Despawn,
                 volume: Volume::new_relative(volume),
@@ -261,10 +260,9 @@ pub fn queue_managed_audio_system(
         }
         // start the new music...if we have some
         if let Some((music, volume)) = item {
-            let music_path = format!("audio/{}", music);
             let entity = commands
                 .spawn(AudioBundle {
-                    source: asset_server.load(music_path.as_str()),
+                    source: asset_server.load(format!("audio/{}", music)),
                     settings: PlaybackSettings {
                         volume: Volume::new_relative(volume),
                         mode: PlaybackMode::Loop,

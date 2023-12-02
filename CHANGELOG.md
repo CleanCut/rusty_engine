@@ -19,12 +19,12 @@
   - `LShift` -> `ShiftLeft`
   - `LWin` -> `SuperLeft`
   - `RWin` -> `SuperRight`
-  
+
 
 ### Improved
 
-- Update bevy from 0.8 to 0.11
-- Update bevy_prototype_lyon from 0.6 to 0.9
+- Update bevy from 0.8 to 0.12
+- Update bevy_prototype_lyon from 0.6 to 0.10
 - Update ron from 0.7 to 0.8
 - Fixed some inconsistent parameter names in examples
 - Some examples' audio was turned down lower

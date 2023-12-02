@@ -191,10 +191,10 @@ fn sync_mouse_events(
     game_state.mouse_wheel_events.clear();
 
     // Populate this frame's events
-    for ev in mouse_button_events.iter() {
+    for ev in mouse_button_events.read() {
         game_state.mouse_button_events.push(ev.clone());
     }
-    for ev in cursor_moved_events.iter() {
+    for ev in cursor_moved_events.read() {
         let mut new_event = ev.clone();
         // Convert from screen space to game space
         // TODO: Check to see if this needs to be adjusted for different DPIs
@@ -202,12 +202,12 @@ fn sync_mouse_events(
         new_event.position.y = -new_event.position.y + (game_state.window_dimensions.y * 0.5);
         game_state.mouse_location_events.push(new_event);
     }
-    for ev in mouse_motion_events.iter() {
+    for ev in mouse_motion_events.read() {
         let mut ev2 = ev.clone();
         ev2.delta.y *= -1.0;
         game_state.mouse_motion_events.push(ev2.clone());
     }
-    for ev in mouse_wheel_events.iter() {
+    for ev in mouse_wheel_events.read() {
         game_state.mouse_wheel_events.push(ev.clone());
     }
 }
@@ -223,7 +223,7 @@ fn sync_mouse_state(
 ) {
     // Sync the current mouse location, which will be the last cursor_moved event that occurred.
     // Only changes when we get a new event, otherwise we preserve the last location.
-    if let Some(event) = cursor_moved_events.iter().last() {
+    if let Some(event) = cursor_moved_events.read().last() {
         // Convert from bevy's window space to our game space
         let mut location = event.position.clone();
         location.x -= game_state.window_dimensions.x * 0.5;
@@ -232,7 +232,7 @@ fn sync_mouse_state(
     }
     // Sync the relative mouse motion. This is the cumulative relative motion during the last frame.
     mouse_state.motion = Vec2::ZERO;
-    for ev in mouse_motion_events.iter() {
+    for ev in mouse_motion_events.read() {
         // Convert motion to game space direction (positive y is up, not down)
         // TODO: Check to see if this needs to be adjusted for different DPIs
         let mut ev2 = ev.clone();
@@ -243,7 +243,7 @@ fn sync_mouse_state(
     mouse_state.wheel = MouseWheelState::default();
     let mut cumulative_x = 0.0;
     let mut cumulative_y = 0.0;
-    for ev in mouse_wheel_events.iter() {
+    for ev in mouse_wheel_events.read() {
         cumulative_x += ev.x;
         cumulative_y += ev.y;
     }
