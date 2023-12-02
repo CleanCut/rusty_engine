@@ -11,8 +11,7 @@ pub(crate) struct KeyboardPlugin;
 impl Plugin for KeyboardPlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
         app.insert_resource::<KeyboardState>(KeyboardState::default())
-            .add_system(sync_keyboard_events)
-            .add_system(sync_keyboard_state);
+            .add_systems(Update, (sync_keyboard_events, sync_keyboard_state));
     }
 }
 
@@ -264,11 +263,11 @@ const KEYCODEVARIANTS: [KeyCode; 163] = [
     Grave,
     Kana,
     Kanji,
-    LAlt,
-    LBracket,
-    LControl,
-    LShift,
-    LWin,
+    AltLeft,
+    BracketLeft,
+    ControlLeft,
+    ShiftLeft,
+    SuperLeft,
     Mail,
     MediaSelect,
     MediaStop,
@@ -276,8 +275,8 @@ const KEYCODEVARIANTS: [KeyCode; 163] = [
     NumpadMultiply,
     Mute,
     MyComputer,
-    NavigateForward,  // also called "Prior"
-    NavigateBackward, // also called "Next"
+    NavigateForward,
+    NavigateBackward,
     NextTrack,
     NoConvert,
     NumpadComma,
@@ -288,11 +287,11 @@ const KEYCODEVARIANTS: [KeyCode; 163] = [
     PlayPause,
     Power,
     PrevTrack,
-    RAlt,
-    RBracket,
-    RControl,
-    RShift,
-    RWin,
+    AltRight,
+    BracketRight,
+    ControlRight,
+    ShiftRight,
+    SuperRight,
     Semicolon,
     Slash,
     Sleep,

@@ -17,8 +17,7 @@ pub(crate) struct MousePlugin;
 impl Plugin for MousePlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
         app.insert_resource(MouseState::default())
-            .add_system(sync_mouse_state)
-            .add_system(sync_mouse_events);
+            .add_systems(Update, (sync_mouse_state, sync_mouse_events));
     }
 }
 
@@ -199,7 +198,8 @@ fn sync_mouse_events(
         let mut new_event = ev.clone();
         // Convert from screen space to game space
         // TODO: Check to see if this needs to be adjusted for different DPIs
-        new_event.position -= game_state.window_dimensions * 0.5;
+        new_event.position.x -= game_state.window_dimensions.x * 0.5;
+        new_event.position.y = -new_event.position.y + (game_state.window_dimensions.y * 0.5);
         game_state.mouse_location_events.push(new_event);
     }
     for ev in mouse_motion_events.iter() {
@@ -225,7 +225,9 @@ fn sync_mouse_state(
     // Only changes when we get a new event, otherwise we preserve the last location.
     if let Some(event) = cursor_moved_events.iter().last() {
         // Convert from bevy's window space to our game space
-        let location = event.position - game_state.window_dimensions * 0.5;
+        let mut location = event.position.clone();
+        location.x -= game_state.window_dimensions.x * 0.5;
+        location.y = -location.y + (game_state.window_dimensions.y * 0.5);
         mouse_state.location = Some(location);
     }
     // Sync the relative mouse motion. This is the cumulative relative motion during the last frame.

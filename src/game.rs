@@ -316,18 +316,24 @@ impl<S: Resource + Send + Sync + 'static> Game<S> {
                     })
                     .set(ImagePlugin::default_nearest()),
             )
-            .add_system(close_on_esc)
+            .add_systems(
+                Update,
+                (
+                    (close_on_esc),
+                    (update_window_dimensions, game_logic_sync::<S>),
+                ),
+            )
             // External Plugins
-            .add_plugin(ShapePlugin) // bevy_prototype_lyon, for displaying sprite colliders
+            .add_plugins(ShapePlugin) // bevy_prototype_lyon, for displaying sprite colliders
             // Rusty Engine Plugins
-            .add_plugin(AudioManagerPlugin)
-            .add_plugin(KeyboardPlugin)
-            .add_plugin(MousePlugin)
-            .add_plugin(PhysicsPlugin)
+            .add_plugins((
+                AudioManagerPlugin,
+                KeyboardPlugin,
+                MousePlugin,
+                PhysicsPlugin,
+            ))
             //.insert_resource(ReportExecutionOrderAmbiguities) // for debugging
-            .add_system(update_window_dimensions)
-            .add_system(game_logic_sync::<S>) // this should happen after all the rest of the systems
-            .add_startup_system(setup);
+            .add_systems(Startup, setup);
         self.app.world.spawn(Camera2dBundle::default());
         let engine = std::mem::take(&mut self.engine);
         self.app.insert_resource(engine);

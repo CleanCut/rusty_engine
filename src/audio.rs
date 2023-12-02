@@ -61,7 +61,7 @@ pub struct AudioManagerPlugin;
 
 impl Plugin for AudioManagerPlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
-        app.add_system(queue_managed_audio_system);
+        app.add_systems(Update, queue_managed_audio_system);
     }
 }
 
@@ -231,7 +231,7 @@ impl From<MusicPreset> for String {
 }
 
 #[derive(Component)]
-struct Music;
+pub struct Music;
 
 /// The Bevy system that checks to see if there is any audio management that needs to be done.
 #[doc(hidden)]
@@ -271,6 +271,7 @@ pub fn queue_managed_audio_system(
                         ..Default::default()
                     },
                 })
+                .insert(Music)
                 .id();
             game_state.audio_manager.playing = Some(entity);
         }

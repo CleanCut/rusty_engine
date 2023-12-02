@@ -14,7 +14,7 @@ pub(crate) struct PhysicsPlugin;
 impl Plugin for PhysicsPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<CollisionEvent>()
-            .add_system(collision_detection);
+            .add_systems(Update, collision_detection);
     }
 }
 
@@ -25,7 +25,7 @@ impl Plugin for PhysicsPlugin {
 /// [Sprite]s which:
 /// - have colliders (you can use the `collider` example to create your own colliders)
 /// - have their `collision` flags set to `true`.
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Event)]
 pub struct CollisionEvent {
     pub state: CollisionState,
     pub pair: CollisionPair,

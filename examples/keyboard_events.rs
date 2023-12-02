@@ -33,6 +33,7 @@ fn logic(engine: &mut Engine, _: &mut GameState) {
             scan_code: _,
             key_code: Some(key_code),
             state: ButtonState::Pressed,
+            window: _,
         } = keyboard_event
         {
             // Handle various keypresses. The extra keys are for the Dvorak keyboard layout. ;-)

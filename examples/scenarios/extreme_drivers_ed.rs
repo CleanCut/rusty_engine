@@ -806,7 +806,7 @@ fn main() {
     a.collision = true;
 
     // Music!
-    game.audio_manager.play_music(MusicPreset::Classy8Bit, 0.5);
+    game.audio_manager.play_music(MusicPreset::Classy8Bit, 0.1);
 
     // Stuff used to keep and display score
     let score_text = game.add_text("score_text", "Score: 0");
@@ -916,7 +916,7 @@ fn logic(engine: &mut Engine, game_state: &mut GameState) {
                 event.pair.1.clone()
             };
             engine.sprites.remove(&shiny_label);
-            engine.audio_manager.play_sfx(SfxPreset::Confirmation1, 1.0);
+            engine.audio_manager.play_sfx(SfxPreset::Confirmation1, 0.5);
             game_state.score += 1;
             score_text.value = format!("Score: {}", game_state.score);
             if game_state.score >= game_state.win_amount {
@@ -928,14 +928,14 @@ fn logic(engine: &mut Engine, game_state: &mut GameState) {
         // Crash!
         game_state.crashed = true;
         //game_state.add_text("crashed", "You crashed. You fail. :-(");
-        engine.audio_manager.play_sfx(SfxPreset::Jingle3, 1.0);
+        engine.audio_manager.play_sfx(SfxPreset::Jingle3, 0.5);
         engine.audio_manager.stop_music();
     }
 
     if game_state.won {
         engine
             .audio_manager
-            .play_sfx(SfxPreset::Congratulations, 1.0);
+            .play_sfx(SfxPreset::Congratulations, 0.5);
         let you_win = engine.add_text("you win", "You Win!");
         you_win.font_size = 120.0;
         you_win.translation.y = -50.0;

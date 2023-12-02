@@ -154,7 +154,7 @@ fn game_logic(engine: &mut Engine, game_state: &mut GameState) {
             let location = (((location / game_state.scale) * 2.0).round() * 0.5) * game_state.scale;
             if engine
                 .keyboard_state
-                .pressed_any(&[KeyCode::RShift, KeyCode::LShift])
+                .pressed_any(&[KeyCode::ShiftLeft, KeyCode::ShiftRight])
             {
                 sprite.change_last_collider_point(location);
             } else {
