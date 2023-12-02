@@ -1,8 +1,8 @@
 # Mouse State
 
-Everything said about the [Keyboard State](105-keyboard-state.md) is true for Mouse State as well, just for your mouse instead of your keyboard. Mouse state is perfect for character movement or game controls such as buttons. If you need to process every bit of mouse input, such as all the locations the mouse was in since the beginning of the last frame, then you'll need to look at [Mouse Events](120-mouse-events.md) instead.
+Everything said about the [Keyboard State](105-keyboard-state.md) is true for Mouse State as well, just for your mouse instead of your keyboard. Mouse state is perfect for character movement or game controls such as buttons. If you need to process every bit of mouse input, such as all the locations the mouse was at since the beginning of the last frame, then you'll need to look at [Mouse Events](120-mouse-events.md) instead.
 
-All mouse state is stored in the `Engine.mouse_state`, and queried via methods.
+All mouse state is stored in the `Engine` struct's `mouse_state` field, and queried via methods.
 
 ### Mouse Buttons
 
@@ -37,9 +37,9 @@ if engine.mouse_state.just_released_any(&[MouseButton::Left, MouseButton::Middle
 
 ### Location
 
-Use the `location` method to see where the mouse is. It returns an `Option<Vec2>`. If `None` is returned, then the mouse pointer isn't in the window. If present, the `Vec2` value is in the same 2D world coordinate system as the rest of the game. See the [section on sprite translation](60-sprite-placement.html) for more info about `Vec2` or the world coordinate system.
+Use the `location` method to see where the mouse is. It returns an `Option<Vec2>`. If `None` is returned, then either the window isn't focused or the mouse pointer isn't in the window. If present, the `Vec2` value is in the same 2D world coordinate system as the rest of the game. See the [section on sprite translation](60-sprite-placement.html) for more info about `Vec2` or the world coordinate system.
 
-It is easy to demonstrate `location` by having a sprite appear wherever your mouse is located:
+A fun way to demonstrate mouse `location` is by having a sprite appear wherever your mouse is located:
 
 ```rust,ignored
 // `player` is a sprite
@@ -50,7 +50,7 @@ if let Some(location) = engine.mouse_state.location() {
 
 ### Motion
 
-The relative motion that the mouse moved last frame is accumulated into a single `Vec2`. This could be useful if you want to base some logic over how fast or in which direction the mouse is moving.
+The relative motion that the mouse moved last frame is accumulated into a single `Vec2`. This could be useful if you want to base some logic on how fast or in which direction the mouse is moving.
 
 ```rust,ignored
 let motion = engine.mouse_state.motion();

@@ -13,7 +13,7 @@ struct GameState {}
 fn main() {
     let mut game = Game::new();
 
-    let race_car = game.add_sprite("Race Car", SpritePreset::RacingCarGreen);
+    let race_car = game.add_sprite("Race Car", "sprite/racing/car_blue.png");
     race_car.translation = Vec2::new(0.0, 0.0);
     race_car.rotation = UP;
     race_car.scale = 1.0;

@@ -19,7 +19,7 @@ fn main() {
         resizable: false,
         decorations: false,
         cursor,
-        ..Default::default() // for the rest of the options, see https://docs.rs/bevy/0.11.3/bevy/window/struct.Window.html
+        ..Default::default() // for the rest of the options, see https://docs.rs/bevy/0.10.1/bevy/index.html
     });
     let _ = game.add_text(
         "message",

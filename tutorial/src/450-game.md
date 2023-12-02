@@ -16,12 +16,12 @@ fn main() {
 
 ### Window Settings
 
-Rusty Engine re-exports the [`WindowDescriptor`](https://docs.rs/rusty_engine/latest/rusty_engine/game/struct.WindowDescriptor.html) struct from Bevy, whose fields are all used to request certain window attributes. Please be aware that these are only _requests_ for configuration, and that the underlying operating system may refuse (or be unable) to give you exactly what you ask for. For example, you may not be able to obtain a window with larger dimensions than the physical monitor.
+Rusty Engine re-exports the [`Window`](https://docs.rs/rusty_engine/latest/rusty_engine/game/struct.Window.html) struct from Bevy, whose fields are all used to request certain window attributes. Please be aware that these are only _requests_ for configuration, and that the underlying operating system may refuse (or be unable) to give you exactly what you ask for. For example, you may not be able to obtain a window with larger dimensions than the physical monitor.
 
-Pass a `WindowDescriptor` to the `window_settings` method to request specific settings for your game window. This is a great time to take advantage of "struct update" syntax so you don't have to re-specify the fields which you aren't customizing.
+Pass a `Window` to the `window_settings` method to request specific settings for your game window. This is a great time to take advantage of "struct update" syntax so you don't have to re-specify the fields which you aren't customizing.
 
 ```rust,ignored
-game.window_settings(WindowDescriptor {
+game.window_settings(Window {
     title: "My Awesome Game".into(),
     width: 800.0,
     height: 200.0,
@@ -34,4 +34,4 @@ Game has an `add_logic` method to add game logic functions to your game. Please 
 
 ### Running the game
 
-The last thing you will do in your main function is to call the `run` method to begin your game. The `run` method takes an instance of whatever game state struct you defined, or a unit struct `()` if you didn't define one.
+The last thing you will do in your main function is to call the `run` method to begin your game. The `run` method takes an instance of whatever game state struct you defined.

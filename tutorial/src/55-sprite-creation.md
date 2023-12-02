@@ -10,10 +10,10 @@ let _ = game.add_sprite("my_player", SpritePreset::RacingCarBlue);
 let _ = engine.add_sprite("my_player", SpritePreset::RacingCarBlue);
 ```
 
-All sprites in the asset pack have a "preset", which is just a fancy `enum` that makes it easy for you as a user to select one of sprite image files. You could also specify the image filepath, relative to the `assets/sprite` directory, which you would do if you add your own images.  For example, the full filepath of the blue racing car is `assets/sprite/racing/car_blue.png`, so to create it by filepath you would do:
+All sprites in the asset pack have a "preset", which is just a fancy `enum` that makes it easy for you as a user to select one of sprite image files that are included in the default assets pack. You could also specify the image filepath, relative to the `assets/` directory, which you would do if you add your own images.  For example, the full filepath of the blue racing car is `assets/sprite/racing/car_blue.png`, so to create it by filepath you would do:
 
 ```rust,ignored
-let _ = engine.add_sprite("my_player", "racing/car_blue.png");
+let _ = engine.add_sprite("my_player", "sprite/racing/car_blue.png");
 ```
 
 `add_sprite` returns a mutable reference to a `Sprite` (`&mut Sprite`). Since it will emit a warning to silently ignore the reference, you should explicitly ignore it if you are not going to use it by doing `let _ = ...` as in the examples above. However, most of the time you will want to use the mutable reference to immediately adjust your sprite.

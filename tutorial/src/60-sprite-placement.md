@@ -8,15 +8,31 @@ There are four different fields you can use to position and size your sprite:
 
 ### Rotation
 
-`Sprite.rotation` is an `f32` representing the angle in radians from the positive X axis. In other words, a rotation of `0.0` is facing to the right, so custom images you want to use in Rusty Engine should also be "facing" to the right in their raw form (whatever "to the right" means is up to you). `2 * PI` brings you in a full circle, so `0.5 * PI` is "up", `PI` is "left", and `1.5 * PI` is "down". There are a bunch of helpful constants defined for cardinal directions if you don't want to remember the numerical value yourself.
+`Sprite.rotation` is an `f32` representing the angle in radians from the positive X axis. In other words, a rotation of `0.0` is facing to the right, so custom images you want to use in Rusty Engine should also be "facing" to the right in their raw form (whatever "to the right" means is up to you). `2 * PI` brings you in a full circle, so `0.5 * PI` is "up", `PI` is "left", and `1.5 * PI` is "down". There are a bunch of helpful constants defined for cardinal directions if you don't want to remember the numerical value yourself. These constants are all included in the prelude.
+
+```
+UP
+DOWN
+LEFT
+RIGHT
+
+NORTH
+NORTH_EAST
+EAST
+SOUTH_EAST
+SOUTH
+SOUTH_WEST
+WEST
+NORTH_WEST
+```
 
 ### Scale
 
-`Sprite.scale` is an `f32`. `1.0` means matching a pixel of the source image to a pixel on the screen. `2.0` makes the image twice as wide and tall, etc.
+`Sprite.scale` is an `f32`. `1.0` is the default, which means matching a pixel of the source image to a pixel on the screen. `2.0` makes the image twice as wide and tall, etc.
 
 ### Layer
 
-`Sprite.layer` is an `f32` that affects what sprite or text is "on top" of another sprite or text when they overlap. `0.0` is the default and "bottom" layer, and `999.0` is the "top" layer. The order of sprites or text on the same layer is random and unstable (can change frame to frame), so you should make sure that sprites and text that will overlap are on different layers. A good practice is to choose a few layers and assign them to constants. For example:
+`Sprite.layer` is an `f32` that affects what sprite or text is "on top" of another sprite or text when they overlap. `0.0` is the default layer and is on the "bottom", while `999.0` is the "top" layer. The order of sprites or text on the same layer is random and unstable (can change frame to frame), so you should make sure that sprites and text that will overlap are on different layers so they don't change their position unpredictably. A good practice is to choose a few layers and assign them to constants, and then don't let sprites on the same layer overlap. For example:
 
 ```rust,ignored
 const BACKGROUND_LAYER: f32 = 0.0;
@@ -50,7 +66,7 @@ NOTE: If you want to adjust your sprite smoothly, you will need to multiply it b
 
 ### Adjusting an existing sprite
 
-To adjust a sprite which already exists, you need to get a mutable reference to it.  This is where that "label" comes in.  The `Engine.sprites` field is a hash map of labels to sprites. You get a mutable reference to a sprite with the `HashMap::get_mut` method:
+To adjust a sprite which already exists, you need to get a mutable reference to it.  This is where that "label" comes in.  The `sprites` field on the `Engine` struct is a hash map of labels to sprites. You get a mutable reference to a sprite with the `HashMap::get_mut` method:
 
 
 ```rust,ignored
@@ -61,7 +77,7 @@ player_reference.rotation += TURN_SPEED_PER_SEC * engine.delta_f32;
 
 ### Deleting a sprite
 
-To delete a sprite, simply remove it from the `Engine.sprites` hash map.
+To delete a sprite, remove it from the `Engine.sprites` hash map.
 
 ```rust,ignored
 engine.sprites.remove("my_player");

@@ -2,16 +2,16 @@
 
 Changing the string value, the chosen font, or the font size causes the `Text` to be re-rendered as a new image at the end of the frame. This is relatively expensive in terms of performance, so you should avoid changing these attributes except when you actually need to.
 
-All existing text values can be accessed through the `Engine.texts` vector.
+All existing text values can be accessed through the `Engine` struct's `texts` field, which is a vector of `Text`s.
 
 
 ### Value
 
-`Text.value` is the actual string that gets rendered to the screen. If you change the value, then the `Text` will be re-rendered as a new image at the end of the frame with the new value.
+The `Text` struct's `value` field is the actual string that gets rendered to the screen. If you change the value, then the `Text` will be re-rendered as a new image at the end of the frame with the new value.
 
 ```rust,ignored
 let score_text = engine.texts.get_mut("score_text").unwrap();
-score_text.value = format!("Score: {}", score);
+score_text.value = format!("Score: {}", score); // The `format` macro produces a String.
 ```
 
 ### Font

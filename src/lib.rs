@@ -79,6 +79,7 @@ pub mod prelude {
         DOWN, EAST, LEFT, NORTH, NORTH_EAST, NORTH_WEST, RIGHT, SOUTH, SOUTH_EAST, SOUTH_WEST, UP,
         WEST,
     };
+    pub use bevy::ecs as bevy_ecs;
     pub use bevy::{
         self,
         prelude::{Resource, Time, Timer, TimerMode, Vec2},
