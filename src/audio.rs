@@ -48,7 +48,10 @@
 //!
 
 use crate::prelude::Engine;
-use bevy::{audio::AudioSink, prelude::*};
+use bevy::{
+    audio::{AudioSink, PlaybackMode, Volume},
+    prelude::*,
+};
 use std::{array::IntoIter, fmt::Debug};
 
 #[derive(Default)]
@@ -70,7 +73,7 @@ impl Plugin for AudioManagerPlugin {
 pub struct AudioManager {
     sfx_queue: Vec<(String, f32)>,
     music_queue: Vec<Option<(String, f32)>>,
-    playing: Option<Handle<AudioSink>>,
+    playing: Option<Entity>,
     music_playing: bool,
 }
 
@@ -227,46 +230,49 @@ impl From<MusicPreset> for String {
     }
 }
 
+#[derive(Component)]
+struct Music;
+
 /// The Bevy system that checks to see if there is any audio management that needs to be done.
 #[doc(hidden)]
 pub fn queue_managed_audio_system(
+    mut commands: Commands,
+    music_query: Query<(Entity, &AudioSink), With<Music>>,
     asset_server: Res<AssetServer>,
-    audio: Res<Audio>,
-    audio_sinks: Res<Assets<AudioSink>>,
     mut game_state: ResMut<Engine>,
 ) {
     for (sfx, volume) in game_state.audio_manager.sfx_queue.drain(..) {
         let sfx_path = format!("audio/{}", sfx);
-        let sfx_handle = asset_server.load(sfx_path.as_str());
-        audio.play_with_settings(
-            sfx_handle,
-            PlaybackSettings {
-                volume,
+        commands.spawn(AudioBundle {
+            source: asset_server.load(sfx_path.as_str()),
+            settings: PlaybackSettings {
+                mode: PlaybackMode::Despawn,
+                volume: Volume::new_relative(volume),
                 ..Default::default()
             },
-        );
+        });
     }
     #[allow(clippy::for_loops_over_fallibles)]
     if let Some(item) = game_state.audio_manager.music_queue.drain(..).last() {
         // stop any music currently playing
-        if let Some(sink_handle) = &game_state.audio_manager.playing {
-            if let Some(sink) = audio_sinks.get(sink_handle) {
-                sink.stop();
-            }
+        if let Ok((entity, music)) = music_query.get_single() {
+            music.stop();
+            commands.entity(entity).despawn();
         }
         // start the new music...if we have some
         if let Some((music, volume)) = item {
             let music_path = format!("audio/{}", music);
-            let music_handle = asset_server.load(music_path.as_str());
-            let sink_handle = audio_sinks.get_handle(audio.play_with_settings(
-                music_handle,
-                PlaybackSettings {
-                    repeat: true,
-                    volume,
-                    ..Default::default()
-                },
-            ));
-            game_state.audio_manager.playing = Some(sink_handle);
+            let entity = commands
+                .spawn(AudioBundle {
+                    source: asset_server.load(music_path.as_str()),
+                    settings: PlaybackSettings {
+                        volume: Volume::new_relative(volume),
+                        mode: PlaybackMode::Loop,
+                        ..Default::default()
+                    },
+                })
+                .id();
+            game_state.audio_manager.playing = Some(entity);
         }
     }
 }
