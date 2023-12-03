@@ -172,16 +172,11 @@ fn collision_detection(
 /// Represents the collider (or lack thereof) of a sprite. Two sprites need to have colliders AND
 /// have their `Sprite.collision` fields set to `true` to generate collision events. See the
 /// `collider` example to create your own colliders
-#[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize, PartialEq)]
 pub enum Collider {
+    #[default]
     NoCollider,
     Poly(Vec<Vec2>),
-}
-
-impl Default for Collider {
-    fn default() -> Self {
-        Collider::NoCollider
-    }
 }
 
 impl Collider {
@@ -341,7 +336,7 @@ impl Collider {
             let poly2 = sprite2.collider.relative_to(sprite2);
             // Polygon intersection algorithm adapted from
             // https://stackoverflow.com/questions/10962379/how-to-check-intersection-between-2-rotated-rectangles
-            for poly in vec![poly1.clone(), poly2.clone()] {
+            for poly in [poly1.clone(), poly2.clone()] {
                 for (idx, &p1) in poly.iter().enumerate() {
                     let p2 = poly[(idx + 1) % poly.len()];
                     let normal = Vec2::new(p2.y - p1.y, p1.x - p2.x);

@@ -25,7 +25,7 @@ fn sync_keyboard_events(
 
     // Populate this frame's events
     for event in keyboard_input_events.read() {
-        engine.keyboard_events.push(event.clone());
+        engine.keyboard_events.push(*event);
     }
 }
 

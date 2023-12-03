@@ -192,7 +192,7 @@ fn sync_mouse_events(
 
     // Populate this frame's events
     for ev in mouse_button_events.read() {
-        game_state.mouse_button_events.push(ev.clone());
+        game_state.mouse_button_events.push(*ev);
     }
     for ev in cursor_moved_events.read() {
         let mut new_event = ev.clone();
@@ -203,12 +203,12 @@ fn sync_mouse_events(
         game_state.mouse_location_events.push(new_event);
     }
     for ev in mouse_motion_events.read() {
-        let mut ev2 = ev.clone();
+        let mut ev2 = *ev;
         ev2.delta.y *= -1.0;
-        game_state.mouse_motion_events.push(ev2.clone());
+        game_state.mouse_motion_events.push(ev2);
     }
     for ev in mouse_wheel_events.read() {
-        game_state.mouse_wheel_events.push(ev.clone());
+        game_state.mouse_wheel_events.push(*ev);
     }
 }
 
@@ -225,7 +225,7 @@ fn sync_mouse_state(
     // Only changes when we get a new event, otherwise we preserve the last location.
     if let Some(event) = cursor_moved_events.read().last() {
         // Convert from bevy's window space to our game space
-        let mut location = event.position.clone();
+        let mut location = event.position;
         location.x -= game_state.window_dimensions.x * 0.5;
         location.y = -location.y + (game_state.window_dimensions.y * 0.5);
         mouse_state.location = Some(location);
@@ -235,7 +235,7 @@ fn sync_mouse_state(
     for ev in mouse_motion_events.read() {
         // Convert motion to game space direction (positive y is up, not down)
         // TODO: Check to see if this needs to be adjusted for different DPIs
-        let mut ev2 = ev.clone();
+        let mut ev2 = *ev;
         ev2.delta.y *= -1.0;
         mouse_state.motion += ev2.delta;
     }
