@@ -1,6 +1,8 @@
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [6.0.0] - 2023-12-03
+
 ### Breaking changes
 
 - `WindowDescriptor` has been renamed to `Window`
@@ -324,7 +326,8 @@ specifying a path to a sound file relative to `assets/audio`.
 
 [Bevy]: https://bevyengine.org
 <!-- next-url -->
-[Unreleased]: https://github.com/CleanCut/rusty_engine/compare/v5.2.1...HEAD
+[Unreleased]: https://github.com/CleanCut/rusty_engine/compare/v6.0.0...HEAD
+[6.0.0]: https://github.com/CleanCut/rusty_engine/compare/v5.2.1...v6.0.0
 [5.2.1]: https://github.com/CleanCut/rusty_engine/compare/v5.2.0...v5.2.1
 [5.2.0]: https://github.com/CleanCut/rusty_engine/compare/v5.1.1...v5.2.0
 [5.1.1]: https://github.com/CleanCut/rusty_engine/compare/v5.1.0...v5.1.1
