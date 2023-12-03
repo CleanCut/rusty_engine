@@ -16,6 +16,7 @@ use std::path::PathBuf;
 
 use rusty_engine::prelude::*;
 
+#[derive(Resource)]
 struct GameState {
     circle_radius: f32,
     scale: f32,
@@ -70,7 +71,7 @@ fn main() {
     // Start with the "game" part
     let mut game = Game::new();
     game.show_colliders = true;
-    game.window_settings(WindowDescriptor {
+    game.window_settings(Window {
         title: "Collider Creator".into(),
         ..Default::default()
     });
@@ -153,7 +154,7 @@ fn game_logic(engine: &mut Engine, game_state: &mut GameState) {
             let location = (((location / game_state.scale) * 2.0).round() * 0.5) * game_state.scale;
             if engine
                 .keyboard_state
-                .pressed_any(&[KeyCode::RShift, KeyCode::LShift])
+                .pressed_any(&[KeyCode::ShiftLeft, KeyCode::ShiftRight])
             {
                 sprite.change_last_collider_point(location);
             } else {

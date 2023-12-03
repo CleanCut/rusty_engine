@@ -5,6 +5,7 @@
 use rand::prelude::*;
 use rusty_engine::prelude::*;
 
+#[derive(Resource)]
 struct GameState {
     marble_labels: Vec<String>,
     cars_left: i32,
@@ -18,11 +19,11 @@ fn main() {
     let game_state = GameState {
         marble_labels: vec!["marble1".into(), "marble2".into(), "marble3".into()],
         cars_left: 25,
-        spawn_timer: Timer::from_seconds(0.0, false),
+        spawn_timer: Timer::from_seconds(0.0, TimerMode::Once),
     };
 
     // Set the title of the window
-    game.window_settings(WindowDescriptor {
+    game.window_settings(Window {
         title: "Car Shoot".into(),
         ..Default::default()
     });
@@ -97,7 +98,8 @@ fn game_logic(engine: &mut Engine, game_state: &mut GameState) {
     // Spawn cars
     if game_state.spawn_timer.tick(engine.delta).just_finished() {
         // Reset the timer to a new value
-        game_state.spawn_timer = Timer::from_seconds(thread_rng().gen_range(0.1..1.25), false);
+        game_state.spawn_timer =
+            Timer::from_seconds(thread_rng().gen_range(0.1..1.25), TimerMode::Once);
         // Get the new car
         if game_state.cars_left > 0 {
             game_state.cars_left -= 1;

@@ -4,7 +4,7 @@
 
 use rusty_engine::prelude::*;
 
-#[derive(Default)]
+#[derive(Default, Resource)]
 struct GameState {
     sfx_timers: Vec<Timer>,
     end_timer: Timer,
@@ -18,17 +18,19 @@ fn main() {
     for (i, _sfx) in SfxPreset::variant_iter().enumerate() {
         game_state
             .sfx_timers
-            .push(Timer::from_seconds((i as f32) * 2.0, false));
+            .push(Timer::from_seconds((i as f32) * 2.0, TimerMode::Once));
     }
     // One timer to end them all
-    game_state.end_timer =
-        Timer::from_seconds((SfxPreset::variant_iter().len() as f32) * 2.0 + 1.0, false);
+    game_state.end_timer = Timer::from_seconds(
+        (SfxPreset::variant_iter().len() as f32) * 2.0 + 1.0,
+        TimerMode::Once,
+    );
 
-    let mut msg = game.add_text("msg", "Playing sound effects!");
+    let msg = game.add_text("msg", "Playing sound effects!");
     msg.translation = Vec2::new(0.0, 100.0);
     msg.font_size = 60.0;
 
-    let mut sfx_label = game.add_text("sfx_label", "");
+    let sfx_label = game.add_text("sfx_label", "");
     sfx_label.translation = Vec2::new(0.0, -100.0);
     sfx_label.font_size = 90.0;
 

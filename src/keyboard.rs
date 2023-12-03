@@ -11,8 +11,7 @@ pub(crate) struct KeyboardPlugin;
 impl Plugin for KeyboardPlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
         app.insert_resource::<KeyboardState>(KeyboardState::default())
-            .add_system(sync_keyboard_events.before("game_logic_sync"))
-            .add_system(sync_keyboard_state.before("game_logic_sync"));
+            .add_systems(Update, (sync_keyboard_events, sync_keyboard_state));
     }
 }
 
@@ -25,8 +24,8 @@ fn sync_keyboard_events(
     engine.keyboard_events.clear();
 
     // Populate this frame's events
-    for event in keyboard_input_events.iter() {
-        engine.keyboard_events.push(event.clone());
+    for event in keyboard_input_events.read() {
+        engine.keyboard_events.push(*event);
     }
 }
 
@@ -97,7 +96,7 @@ impl KeyboardStateChain {
 
 /// Represents the end-state of all keys during the last frame. Access it through
 /// [`Engine.keyboard_state`](crate::prelude::Engine) in your game logic function.
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug, Default, Resource)]
 pub struct KeyboardState {
     this_frame: HashMap<KeyCode, bool>,
     last_frame: HashMap<KeyCode, bool>,
@@ -264,11 +263,11 @@ const KEYCODEVARIANTS: [KeyCode; 163] = [
     Grave,
     Kana,
     Kanji,
-    LAlt,
-    LBracket,
-    LControl,
-    LShift,
-    LWin,
+    AltLeft,
+    BracketLeft,
+    ControlLeft,
+    ShiftLeft,
+    SuperLeft,
     Mail,
     MediaSelect,
     MediaStop,
@@ -276,8 +275,8 @@ const KEYCODEVARIANTS: [KeyCode; 163] = [
     NumpadMultiply,
     Mute,
     MyComputer,
-    NavigateForward,  // also called "Prior"
-    NavigateBackward, // also called "Next"
+    NavigateForward,
+    NavigateBackward,
     NextTrack,
     NoConvert,
     NumpadComma,
@@ -288,11 +287,11 @@ const KEYCODEVARIANTS: [KeyCode; 163] = [
     PlayPause,
     Power,
     PrevTrack,
-    RAlt,
-    RBracket,
-    RControl,
-    RShift,
-    RWin,
+    AltRight,
+    BracketRight,
+    ControlRight,
+    ShiftRight,
+    SuperRight,
     Semicolon,
     Slash,
     Sleep,

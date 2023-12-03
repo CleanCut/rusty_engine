@@ -1,6 +1,35 @@
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Breaking changes
+
+- `WindowDescriptor` has been renamed to `Window`
+- You must new add `#[derive(Resource)]` above your `GameState` struct.
+- It is no longer possible to use the unit type `()` instead of a `GameState` struct. Always create a `GameState` struct (it can be an empty struct with no fields).
+- The `Timer` now takes a `TimerMode` enum variant instead of a `bool`. Use `TimerMode::Once` for a timer that runs once, or `TimerMode::Repeating` for a repeating timer.
+- The following `KeyCode` variants have been renamed:
+  - `LShift` -> `ShiftLeft`
+  - `RShift` -> `ShiftRight`
+  - `LAlt` -> `AltLeft`
+  - `RAlt` -> `AltRight`
+  - `LBracket` -> `BracketLeft`
+  - `RBracket` -> `BracketRight`
+  - `LControl` -> `ControlLeft`
+  - `RControl` -> `ControlRight`
+  - `LShift` -> `ShiftLeft`
+  - `LWin` -> `SuperLeft`
+  - `RWin` -> `SuperRight`
+
+
+### Improved
+
+- Update bevy from 0.8 to 0.12
+- Update bevy_prototype_lyon from 0.6 to 0.10
+- Update ron from 0.7 to 0.8
+- Fixed some inconsistent parameter names in examples
+- Some examples' audio was turned down lower
+
+
 ## [5.2.1] - 2022-11-15
 
 ### Improved

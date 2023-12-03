@@ -6,14 +6,14 @@ Timers are super cheap, performance-wise. Feel free to create them and throw the
 
 ### Creation
 
-It is easy to create a timer with the `from_seconds` method. The first parameter is a number of seconds to countdown, and the second parameter is whether or not the timer is repeating. `false` means the timer will only countdown once, and then remain at `0.0` once finished. `true` means the timer will start counting down again from the same countdown time as soon as it has reached `0.0`.
+It is easy to create a timer with the `from_seconds` method. The first parameter is a number of seconds to countdown, and the second parameter is whether or not the timer is repeating. `TimerMode::Once` means the timer will only countdown once, and then remain at `0.0` once finished. `TimerMode::Repeating` means the timer will start counting down again from the same countdown time as soon as it has reached `0.0`.
 
 ```rust,ignored
 // A one-shot timer.
-let timer_once = Timer::from_seconds(10.0, false);
+let timer_once = Timer::from_seconds(10.0, TimerMode::Once);
 
 // A repeating timer.
-let timer_repeating = Timer::from_seconds(3.0, true);
+let timer_repeating = Timer::from_seconds(3.0, TimerMode::Repeating);
 ```
 
 ### Counting down & Finishing

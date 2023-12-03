@@ -1,7 +1,7 @@
 # Configuration
 
 - Create a new Rust project
-- In your `Cargo.toml` file, add `rusty_engine` to your `[dependencies]` section:
+- Do `cargo add rusty_engine` to add the latest version of Rusty Engine to the `[dependencies]` section of your `Cargo.toml`. It should add a line that looks something like this:
 
 ```toml
 # In your [dependencies] section of Cargo.toml

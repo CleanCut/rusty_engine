@@ -12,6 +12,7 @@
 
 use rusty_engine::prelude::*;
 
+#[derive(Resource)]
 struct GameState {
     current_label: String,
     // Use an incrementing index (converted to a string) for the unique label of the sprites
@@ -77,7 +78,7 @@ Z - Print out Rust code of current level
     let game_state = GameState::default();
 
     // Get our first sprite onto the board
-    let mut curr_sprite = game.add_sprite("0".to_string(), SpritePreset::RacingCarRed);
+    let curr_sprite = game.add_sprite("0".to_string(), SpritePreset::RacingCarRed);
     //curr_sprite.scale = 0.5;
     curr_sprite.layer = MAX_LAYER;
 
@@ -98,6 +99,7 @@ fn logic(engine: &mut Engine, game_state: &mut GameState) {
             scan_code: _,
             key_code: Some(key_code),
             state,
+            window: _,
         } = keyboard_event
         {
             if *state == ButtonState::Pressed {
@@ -105,7 +107,7 @@ fn logic(engine: &mut Engine, game_state: &mut GameState) {
                     KeyCode::Z | KeyCode::Semicolon => {
                         print_level = true;
                     }
-                    KeyCode::LShift | KeyCode::RShift => {
+                    KeyCode::ShiftLeft | KeyCode::ShiftRight => {
                         game_state.shift_pressed = true;
                     }
                     KeyCode::R | KeyCode::P => {
@@ -127,7 +129,7 @@ fn logic(engine: &mut Engine, game_state: &mut GameState) {
                 }
             } else {
                 match key_code {
-                    KeyCode::LShift | KeyCode::RShift => {
+                    KeyCode::ShiftLeft | KeyCode::ShiftRight => {
                         game_state.shift_pressed = false;
                     }
                     _ => {}
@@ -139,7 +141,7 @@ fn logic(engine: &mut Engine, game_state: &mut GameState) {
     // Print out the level?
     if print_level {
         println!(
-            "---------------\n\nuse rusty_engine::prelude::*;\n\nstruct GameState {{}}\n\nfn main() {{\n    let mut game = Game::new();\n"
+            "---------------\n\nuse rusty_engine::prelude::*;\n\n#[derive(Resource)]\nstruct GameState {{}}\n\nfn main() {{\n    let mut game = Game::new();\n"
         );
         for sprite in engine.sprites.values() {
             if sprite.label == game_state.current_label {

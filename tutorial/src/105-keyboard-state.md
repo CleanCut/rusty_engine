@@ -2,9 +2,9 @@
 
 You can think of keyboard _state_ as a snapshot of exactly which keys are pressed (or not) at the start of the frame. Keyboard state is best for interactive things like character movement.  If you need to process every single keystroke (like when entering text), check out the [Keyboard Event](110-keyboard-events.md) section instead.
 
-The `Engine.keyboard_state` field is a struct through which you query the state of the key(s) you are interested in.
+The `Engine` struct's `keyboard_state` field is a struct through which you query the state of the key(s) you are interested in.
 
-Rusty Engine exposes [Bevy](https://bevyengine.org/)'s [`KeyCode`](https://docs.rs/bevy/latest/bevy/input/keyboard/enum.KeyCode.html) enum directly. See [the `KeyCode` documentation](https://docs.rs/bevy/latest/bevy/input/keyboard/enum.KeyCode.html) for all the possible key variants.
+Rusty Engine exposes [Bevy](https://bevyengine.org/)'s [`KeyCode`](https://docs.rs/bevy/latest/bevy/input/keyboard/enum.KeyCode.html) enum through its prelude. See [the `KeyCode` documentation](https://docs.rs/bevy/latest/bevy/input/keyboard/enum.KeyCode.html) for all the possible key variants.
 
 ### Pressed / Released
 
@@ -54,7 +54,7 @@ if engine.keyboard_state.just_pressed_any(&[KeyCode::Q, KeyCode::F1]) {
     // open menu
 }
 if engine.keyboard_state.just_released_any(&[KeyCode::Space, KeyCode::LControl]) {
-    // reevaluate your life choices
+    // re-evaluate your life choices
 }
 ```
 

@@ -1,15 +1,9 @@
 use bevy::{
     app::AppExit,
-    prelude::{
-        debug, App, AssetServer, Camera2dBundle, Color, Commands, Component, DefaultPlugins,
-        Entity, EventReader, EventWriter, HorizontalAlign, ParallelSystemDescriptorCoercion,
-        ParamSet, Query, Res, ResMut, SpriteBundle, Text as BevyText, Text2dBundle, TextAlignment,
-        TextStyle, Transform, Vec2, VerticalAlign, Windows,
-    },
-    render::texture::ImageSettings,
+    prelude::{Text as BevyText, *},
     time::Time,
     utils::HashMap,
-    window::close_on_esc,
+    window::{close_on_esc, PrimaryWindow, WindowPlugin},
 };
 use bevy_prototype_lyon::prelude::*;
 use std::{
@@ -30,7 +24,7 @@ use crate::{
 };
 
 // Public re-export
-pub use bevy::window::{WindowDescriptor, WindowMode, WindowResizeConstraints};
+pub use bevy::window::{Cursor, Window, WindowMode, WindowResolution};
 
 /// Engine is the primary way that you will interact with Rusty Engine. Each frame this struct
 /// is provided to the "logic" functions (or closures) that you provided to [`Game::add_logic`]. The
@@ -47,7 +41,7 @@ pub use bevy::window::{WindowDescriptor, WindowMode, WindowResizeConstraints};
 /// INFO fields are provided as fresh, readable information to you each frame. Since information in
 /// these fields are overwritten every frame, any changes to them are ignored. Thus, you can feel
 /// free to, e.g. consume all the events out of the `collision_events` vector.
-#[derive(Default, Debug)]
+#[derive(Default, Debug, Resource)]
 pub struct Engine {
     /// SYNCED - The state of all sprites this frame. To add a sprite, use the
     /// [`add_sprite`](Engine::add_sprite) method. Modify & remove sprites as you like.
@@ -173,11 +167,19 @@ fn add_collider_lines(commands: &mut Commands, sprite: &mut Sprite) {
         let line = path_builder.build();
         let transform = sprite.bevy_transform();
         commands
-            .spawn_bundle(GeometryBuilder::build_as(
-                &line,
-                DrawMode::Stroke(StrokeMode::new(Color::WHITE, 1.0 / transform.scale.x)),
-                transform,
+            .spawn((
+                ShapeBundle {
+                    path: GeometryBuilder::new().add(&line).build(),
+                    spatial: SpatialBundle::from_transform(transform),
+                    ..Default::default()
+                },
+                Stroke::new(Color::WHITE, 1.0 / transform.scale.x),
             ))
+            // .spawn(GeometryBuilder::build_as(
+            //     &line,
+            //     DrawMode::Stroke(StrokeMode::new(Color::WHITE, 1.0 / transform.scale.x)),
+            //     transform,
+            // ))
             .insert(ColliderLines {
                 sprite_label: sprite.label.clone(),
             });
@@ -192,11 +194,14 @@ pub fn add_sprites(commands: &mut Commands, asset_server: &Res<AssetServer>, eng
         // Create the sprite
         let transform = sprite.bevy_transform();
         let texture_path = sprite.filepath.clone();
-        commands.spawn().insert(sprite).insert_bundle(SpriteBundle {
-            texture: asset_server.load(texture_path),
-            transform,
-            ..Default::default()
-        });
+        commands.spawn((
+            sprite,
+            SpriteBundle {
+                texture: asset_server.load(texture_path),
+                transform,
+                ..Default::default()
+            },
+        ));
     }
 }
 
@@ -209,35 +214,39 @@ pub fn add_texts(commands: &mut Commands, asset_server: &Res<AssetServer>, engin
         let font_size = text.font_size;
         let text_string = text.value.clone();
         let font_path = text.font.clone();
-        commands.spawn().insert(text).insert_bundle(Text2dBundle {
-            text: BevyText::from_section(
-                text_string,
-                TextStyle {
-                    font: asset_server.load(font_path.as_str()),
-                    font_size,
-                    color: Color::WHITE,
-                },
-            )
-            .with_alignment(TextAlignment {
-                vertical: VerticalAlign::Center,
-                horizontal: HorizontalAlign::Center,
-            }),
-            transform,
-            ..Default::default()
-        });
+        commands.spawn((
+            text,
+            Text2dBundle {
+                text: BevyText::from_section(
+                    text_string,
+                    TextStyle {
+                        font: asset_server.load(font_path),
+                        font_size,
+                        color: Color::WHITE,
+                    },
+                )
+                .with_alignment(TextAlignment::Center),
+                transform,
+                ..Default::default()
+            },
+        ));
     }
 }
 
 /// system - update current window dimensions in the engine, because people resize windows
 #[doc(hidden)]
-pub fn update_window_dimensions(windows: Res<Windows>, mut engine: ResMut<Engine>) {
-    // It's possible to not have window dimensions for the first frame or two
-    if let Some(window) = windows.get_primary() {
-        let screen_dimensions = Vec2::new(window.width(), window.height());
-        if screen_dimensions != engine.window_dimensions {
-            engine.window_dimensions = screen_dimensions;
-            debug!("Set window dimensions: {}", engine.window_dimensions);
-        }
+pub fn update_window_dimensions(
+    window_query: Query<&Window, With<PrimaryWindow>>,
+    mut engine: ResMut<Engine>,
+) {
+    // It's possible to not have a window for the first frame or two
+    let Ok(window) = window_query.get_single() else {
+        return;
+    };
+    let screen_dimensions = Vec2::new(window.width(), window.height());
+    if screen_dimensions != engine.window_dimensions {
+        engine.window_dimensions = screen_dimensions;
+        debug!("Set window dimensions: {}", engine.window_dimensions);
     }
 }
 
@@ -255,20 +264,20 @@ pub struct ColliderLines {
 ///
 /// [`Game`] forwards method calls to [`Engine`] when it can, so you should be able to use all
 /// of the methods from [`Engine`] on [`Game`] during your game setup in your `main()` function.
-pub struct Game<S: Send + Sync + 'static> {
+pub struct Game<S: Resource + Send + Sync + 'static> {
     app: App,
     engine: Engine,
-    logic_functions: Vec<fn(&mut Engine, &mut S)>,
-    window_descriptor: WindowDescriptor,
+    logic_functions: LogicFuncVec<S>,
+    window: Window,
 }
 
-impl<S: Send + Sync + 'static> Default for Game<S> {
+impl<S: Resource + Send + Sync + 'static> Default for Game<S> {
     fn default() -> Self {
         Self {
             app: App::new(),
             engine: Engine::default(),
-            logic_functions: vec![],
-            window_descriptor: WindowDescriptor {
+            logic_functions: LogicFuncVec(vec![]),
+            window: Window {
                 title: "Rusty Engine".into(),
                 ..Default::default()
             },
@@ -276,7 +285,7 @@ impl<S: Send + Sync + 'static> Default for Game<S> {
     }
 }
 
-impl<S: Send + Sync + 'static> Game<S> {
+impl<S: Resource + Send + Sync + 'static> Game<S> {
     /// Create an new, empty [`Game`] with an empty [`Engine`]
     pub fn new() -> Self {
         if std::fs::read_dir("assets").is_err() {
@@ -289,43 +298,49 @@ impl<S: Send + Sync + 'static> Game<S> {
     /// Use this to set properties of the native OS window before running the game. See the
     /// [window](https://github.com/CleanCut/rusty_engine/blob/main/examples/window.rs) example for
     /// more information.
-    pub fn window_settings(&mut self, window_descriptor: WindowDescriptor) -> &mut Self {
-        self.window_descriptor = window_descriptor;
+    pub fn window_settings(&mut self, window: Window) -> &mut Self {
+        self.window = window;
         self
     }
 
     /// Start the game.
     pub fn run(&mut self, initial_game_state: S) {
+        self.app.insert_resource::<S>(initial_game_state);
         self.app
-            .insert_resource::<WindowDescriptor>(self.window_descriptor.clone())
-            .insert_resource(ImageSettings::default_nearest())
-            .insert_resource::<S>(initial_game_state);
-        self.app
+            // TODO: Remove this to use the new, darker default color once the videos have been remastered
+            .insert_resource(ClearColor(Color::rgb(0.4, 0.4, 0.4)))
             // Built-ins
-            .add_plugins(DefaultPlugins)
-            .add_system(close_on_esc)
-            // External Plugins
-            .add_plugin(ShapePlugin) // bevy_prototype_lyon, for displaying sprite colliders
-            // Rusty Engine Plugins
-            .add_plugin(AudioManagerPlugin)
-            .add_plugin(KeyboardPlugin)
-            .add_plugin(MousePlugin)
-            .add_plugin(PhysicsPlugin)
-            //.insert_resource(ReportExecutionOrderAmbiguities) // for debugging
-            .add_system(
-                update_window_dimensions
-                    .label("update_window_dimensions")
-                    .before("game_logic_sync"),
+            .add_plugins(
+                DefaultPlugins
+                    .set(WindowPlugin {
+                        primary_window: Some(self.window.clone()),
+                        ..Default::default()
+                    })
+                    .set(ImagePlugin::default_nearest()),
             )
-            .add_system(game_logic_sync::<S>.label("game_logic_sync"))
-            .add_startup_system(setup);
-        self.app
-            .world
-            .spawn()
-            .insert_bundle(Camera2dBundle::default());
+            .add_systems(
+                Update,
+                (
+                    (close_on_esc),
+                    (update_window_dimensions, game_logic_sync::<S>),
+                ),
+            )
+            // External Plugins
+            .add_plugins(ShapePlugin) // bevy_prototype_lyon, for displaying sprite colliders
+            // Rusty Engine Plugins
+            .add_plugins((
+                AudioManagerPlugin,
+                KeyboardPlugin,
+                MousePlugin,
+                PhysicsPlugin,
+            ))
+            //.insert_resource(ReportExecutionOrderAmbiguities) // for debugging
+            .add_systems(Startup, setup);
+        self.app.world.spawn(Camera2dBundle::default());
         let engine = std::mem::take(&mut self.engine);
         self.app.insert_resource(engine);
-        let logic_functions = std::mem::take(&mut self.logic_functions);
+        let mut logic_functions = LogicFuncVec(vec![]);
+        std::mem::swap(&mut self.logic_functions, &mut logic_functions);
         self.app.insert_resource(logic_functions);
         self.app.run();
     }
@@ -336,18 +351,18 @@ impl<S: Send + Sync + 'static> Game<S> {
     /// - `game_state`, which is a mutable reference (`&mut`) to the game state struct you defined,
     ///    or `&mut ()` if you didn't define one.
     pub fn add_logic(&mut self, logic_function: fn(&mut Engine, &mut S)) {
-        self.logic_functions.push(logic_function);
+        self.logic_functions.0.push(logic_function);
     }
 }
 
 /// system - the magic that connects Rusty Engine to Bevy, frame by frame
 #[allow(clippy::type_complexity, clippy::too_many_arguments)]
-fn game_logic_sync<S: Send + Sync + 'static>(
+fn game_logic_sync<S: Resource + Send + Sync + 'static>(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut engine: ResMut<Engine>,
     mut game_state: ResMut<S>,
-    logic_functions: Res<Vec<fn(&mut Engine, &mut S)>>,
+    logic_functions: Res<LogicFuncVec<S>>,
     keyboard_state: Res<KeyboardState>,
     mouse_state: Res<MouseState>,
     time: Res<Time>,
@@ -356,14 +371,14 @@ fn game_logic_sync<S: Send + Sync + 'static>(
     mut query_set: ParamSet<(
         Query<(Entity, &mut Sprite, &mut Transform)>,
         Query<(Entity, &mut Text, &mut Transform, &mut BevyText)>,
-        Query<(Entity, &mut DrawMode, &mut Transform, &ColliderLines)>,
+        Query<(Entity, &mut Stroke, &mut Transform, &ColliderLines)>,
     )>,
 ) {
     // Update this frame's timing info
     engine.delta = time.delta();
     engine.delta_f32 = time.delta_seconds();
-    engine.time_since_startup = time.time_since_startup();
-    engine.time_since_startup_f64 = time.seconds_since_startup();
+    engine.time_since_startup = time.elapsed();
+    engine.time_since_startup_f64 = time.elapsed_seconds_f64();
 
     // Copy keyboard state over to engine to give to users
     engine.keyboard_state = keyboard_state.clone();
@@ -373,7 +388,7 @@ fn game_logic_sync<S: Send + Sync + 'static>(
 
     // Copy all collision events over to the engine to give to users
     engine.collision_events.clear();
-    for collision_event in collision_events.iter() {
+    for collision_event in collision_events.read() {
         engine.collision_events.push(collision_event.clone());
     }
 
@@ -392,7 +407,7 @@ fn game_logic_sync<S: Send + Sync + 'static>(
     }
 
     // Perform all the user's game logic for this frame
-    for func in logic_functions.iter() {
+    for func in logic_functions.0.iter() {
         func(&mut engine, &mut game_state);
     }
 
@@ -426,7 +441,7 @@ fn game_logic_sync<S: Send + Sync + 'static>(
             }
         }
         // Update transform & line width
-        for (_, mut draw_mode, mut transform, collider_lines) in query_set.p2().iter_mut() {
+        for (_, mut stroke, mut transform, collider_lines) in query_set.p2().iter_mut() {
             if let Some(sprite) = engine.sprites.get(&collider_lines.sprite_label) {
                 *transform = sprite.bevy_transform();
                 // We want collider lines to appear on top of the sprite they are for, so they need a
@@ -435,10 +450,7 @@ fn game_logic_sync<S: Send + Sync + 'static>(
             }
             // Stroke line width gets scaled with the transform, but we want it to appear to be the same
             // regardless of scale, so we have to counter the scale.
-            if let DrawMode::Stroke(ref mut stroke_mode) = *draw_mode {
-                let line_width = 1.0 / transform.scale.x;
-                *stroke_mode = StrokeMode::new(Color::WHITE, line_width);
-            }
+            stroke.options.line_width = 1.0 / transform.scale.x;
         }
     }
     engine.last_show_colliders = engine.show_colliders;
@@ -468,7 +480,7 @@ fn game_logic_sync<S: Send + Sync + 'static>(
             if text.font_size != bevy_text_component.sections[0].style.font_size {
                 bevy_text_component.sections[0].style.font_size = text.font_size;
             }
-            let font = asset_server.load(text.font.as_str());
+            let font = asset_server.load(text.font.clone());
             if bevy_text_component.sections[0].style.font != font {
                 bevy_text_component.sections[0].style.font = font;
             }
@@ -487,7 +499,7 @@ fn game_logic_sync<S: Send + Sync + 'static>(
 
 // The Deref and DerefMut implementations make it so that you can call all the `Engine` methods
 // on a `Game`, which is much more straightforward for game setup in `main()`
-impl<S: Send + Sync + 'static> Deref for Game<S> {
+impl<S: Resource + Send + Sync + 'static> Deref for Game<S> {
     type Target = Engine;
 
     fn deref(&self) -> &Self::Target {
@@ -495,8 +507,11 @@ impl<S: Send + Sync + 'static> Deref for Game<S> {
     }
 }
 
-impl<S: Send + Sync + 'static> DerefMut for Game<S> {
+impl<S: Resource + Send + Sync + 'static> DerefMut for Game<S> {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.engine
     }
 }
+
+#[derive(Resource)]
+struct LogicFuncVec<S: Resource + Send + Sync + 'static>(Vec<fn(&mut Engine, &mut S)>);

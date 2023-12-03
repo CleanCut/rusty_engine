@@ -6,8 +6,8 @@ Keyboard events are passed through from Bevy as instances of the [`KeyboardInput
 
 ```rust,ignored
 for keyboard_event in game_state.keyboard_events.drain(..) {
-    // We're using `if let` and a pattern to both destructure the struct and at the
-    // same time match "Pressed" events containing some key code.
+    // We're using `if let` and a pattern to destructure the KeyboardInput struct and only look at
+    // keyboard input if the state is "Pressed". Then we match on the KeyCode and take action.
     if let KeyboardInput {
         scan_code: _,
         key_code: Some(key_code),

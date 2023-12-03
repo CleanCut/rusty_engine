@@ -6,7 +6,7 @@ Mouse events are most useful when you want to process multiple events that happe
 
 ### Mouse button events
 
-You usually want to use [mouse state](115-mouse-state.md) for mouse buttons, which are less awkward to deal with than mouse events when you only care about the state the mouse ended up in at the end of the frame. Mouse events are available in the `Engine.mouse_button_events` vector. The Bevy struct [`MouseButtonInput`](https://docs.rs/rusty_engine/latest/rusty_engine/mouse/struct.MouseButtonInput.html) is used for the event value.  Here is an example of using mouse button events to rotate a sprite by a fixed amount for each click. This is guaranteed not to miss any clicks in the (unlikely) event that two clicks come in on the same frame.
+You usually want to use [mouse state](115-mouse-state.md) for mouse buttons, which are less awkward to deal with than mouse events when you only care about the state the mouse ended up in at the end of the frame. Mouse events are available in the `Engine` struct's `mouse_button_events` field, which is a vector of mouse button input events. The Bevy struct [`MouseButtonInput`](https://docs.rs/rusty_engine/latest/rusty_engine/mouse/struct.MouseButtonInput.html) is used for the event value.  Here is an example of using mouse button events to rotate a sprite by a fixed amount for each click. This is guaranteed not to miss any clicks in the (unlikely) event that two clicks come in on the same frame.
 
 
 ```rust,ignored
@@ -26,7 +26,7 @@ for mouse_button_input in &engine.mouse_button_events {
 
 Mouse location events are most useful if you are trying to capture all the points the mouse was at during the frame. Unlike mouse button events, there are *often* multiple mouse location events, since moving the mouse produces a series of events for each location that the mouse cursor is rendered on screen. If you only care about the final location of the mouse during the frame, you should use [mouse state](115-mouse-state.md) instead.
 
-Mouse location events are accessed through the `Engine.mouse_location_events` vector and contain the [`CursorMoved`](https://docs.rs/rusty_engine/latest/rusty_engine/mouse/struct.CursorMoved.html) struct re-exported from Bevy. If one wanted to draw a trail of sparkles wherever a mouse went, mouse location events might be a good source of data:
+Mouse location events are accessed through the `Engine.mouse_location_events` vector and contain the [`CursorMoved`](https://docs.rs/rusty_engine/latest/rusty_engine/mouse/struct.CursorMoved.html) struct re-exported from Bevy. If you want to draw a trail of sparkles wherever a mouse went, mouse location events might be a good source of data:
 
 ```rust,ignored
 for cursor_moved in &engine.mouse_location_events {

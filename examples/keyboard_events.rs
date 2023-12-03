@@ -4,10 +4,13 @@
 
 use rusty_engine::prelude::*;
 
+#[derive(Resource)]
+struct GameState {}
+
 fn main() {
     let mut game = Game::new();
 
-    let mut race_car = game.add_sprite("Race Car", SpritePreset::RacingCarGreen);
+    let race_car = game.add_sprite("Race Car", SpritePreset::RacingCarGreen);
     race_car.translation = Vec2::new(0.0, 0.0);
     race_car.rotation = UP;
     race_car.scale = 1.0;
@@ -17,19 +20,20 @@ fn main() {
     text.translation.y = 250.0;
 
     game.add_logic(logic);
-    game.run(());
+    game.run(GameState {});
 }
 
-fn logic(game_state: &mut Engine, _: &mut ()) {
+fn logic(engine: &mut Engine, _: &mut GameState) {
     // Get the race car sprite
-    let race_car = game_state.sprites.get_mut("Race Car").unwrap();
+    let race_car = engine.sprites.get_mut("Race Car").unwrap();
 
     // Loop through any keyboard input that hasn't been processed this frame
-    for keyboard_event in &game_state.keyboard_events {
+    for keyboard_event in &engine.keyboard_events {
         if let KeyboardInput {
             scan_code: _,
             key_code: Some(key_code),
             state: ButtonState::Pressed,
+            window: _,
         } = keyboard_event
         {
             // Handle various keypresses. The extra keys are for the Dvorak keyboard layout. ;-)
@@ -50,8 +54,8 @@ fn logic(game_state: &mut Engine, _: &mut ()) {
 
             // Clamp the translation so that the car stays on the screen
             race_car.translation = race_car.translation.clamp(
-                -game_state.window_dimensions * 0.5,
-                game_state.window_dimensions * 0.5,
+                -engine.window_dimensions * 0.5,
+                engine.window_dimensions * 0.5,
             );
         }
     }

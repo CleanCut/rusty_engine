@@ -17,8 +17,7 @@ pub(crate) struct MousePlugin;
 impl Plugin for MousePlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
         app.insert_resource(MouseState::default())
-            .add_system(sync_mouse_state.before("game_logic_sync"))
-            .add_system(sync_mouse_events.before("game_logic_sync"));
+            .add_systems(Update, (sync_mouse_state, sync_mouse_events));
     }
 }
 
@@ -102,7 +101,7 @@ impl MouseStateChain {
 /// If you need to process all mouse events that occurred during a single frame, use the
 /// `mouse_button_events`, `mouse_location_events`, `mouse_motion_events`, or `mouse_wheel_events`
 /// fields on [`Engine`](crate::prelude::Engine).
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug, Default, Resource)]
 pub struct MouseState {
     location: Option<Vec2>,
     motion: Vec2,
@@ -192,23 +191,24 @@ fn sync_mouse_events(
     game_state.mouse_wheel_events.clear();
 
     // Populate this frame's events
-    for ev in mouse_button_events.iter() {
-        game_state.mouse_button_events.push(ev.clone());
+    for ev in mouse_button_events.read() {
+        game_state.mouse_button_events.push(*ev);
     }
-    for ev in cursor_moved_events.iter() {
+    for ev in cursor_moved_events.read() {
         let mut new_event = ev.clone();
         // Convert from screen space to game space
         // TODO: Check to see if this needs to be adjusted for different DPIs
-        new_event.position -= game_state.window_dimensions * 0.5;
+        new_event.position.x -= game_state.window_dimensions.x * 0.5;
+        new_event.position.y = -new_event.position.y + (game_state.window_dimensions.y * 0.5);
         game_state.mouse_location_events.push(new_event);
     }
-    for ev in mouse_motion_events.iter() {
-        let mut ev2 = ev.clone();
+    for ev in mouse_motion_events.read() {
+        let mut ev2 = *ev;
         ev2.delta.y *= -1.0;
-        game_state.mouse_motion_events.push(ev2.clone());
+        game_state.mouse_motion_events.push(ev2);
     }
-    for ev in mouse_wheel_events.iter() {
-        game_state.mouse_wheel_events.push(ev.clone());
+    for ev in mouse_wheel_events.read() {
+        game_state.mouse_wheel_events.push(*ev);
     }
 }
 
@@ -223,17 +223,19 @@ fn sync_mouse_state(
 ) {
     // Sync the current mouse location, which will be the last cursor_moved event that occurred.
     // Only changes when we get a new event, otherwise we preserve the last location.
-    if let Some(event) = cursor_moved_events.iter().last() {
+    if let Some(event) = cursor_moved_events.read().last() {
         // Convert from bevy's window space to our game space
-        let location = event.position - game_state.window_dimensions * 0.5;
+        let mut location = event.position;
+        location.x -= game_state.window_dimensions.x * 0.5;
+        location.y = -location.y + (game_state.window_dimensions.y * 0.5);
         mouse_state.location = Some(location);
     }
     // Sync the relative mouse motion. This is the cumulative relative motion during the last frame.
     mouse_state.motion = Vec2::ZERO;
-    for ev in mouse_motion_events.iter() {
+    for ev in mouse_motion_events.read() {
         // Convert motion to game space direction (positive y is up, not down)
         // TODO: Check to see if this needs to be adjusted for different DPIs
-        let mut ev2 = ev.clone();
+        let mut ev2 = *ev;
         ev2.delta.y *= -1.0;
         mouse_state.motion += ev2.delta;
     }
@@ -241,7 +243,7 @@ fn sync_mouse_state(
     mouse_state.wheel = MouseWheelState::default();
     let mut cumulative_x = 0.0;
     let mut cumulative_y = 0.0;
-    for ev in mouse_wheel_events.iter() {
+    for ev in mouse_wheel_events.read() {
         cumulative_x += ev.x;
         cumulative_y += ev.y;
     }
