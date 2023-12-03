@@ -14,6 +14,7 @@
 //! use rusty_engine::prelude::*;
 //!
 //! // Define a struct to hold custom data for your game (it can be a lot more complicated than this one!)
+//! #[derive(Resource)]
 //! struct GameState {
 //!     health: i32,
 //! }
@@ -24,7 +25,7 @@
 //!     // Set up your game. `Game` exposes all of the methods and fields of `Engine`.
 //!     let sprite = game.add_sprite("player", SpritePreset::RacingCarBlue);
 //!     sprite.scale = 2.0;
-//!     game.audio_manager.play_music(MusicPreset::Classy8Bit, 1.0);
+//!     game.audio_manager.play_music(MusicPreset::Classy8Bit, 0.1);
 //!     // Add one or more functions with logic for your game. When the game is run, the logic
 //!     // functions will run in the order they were added.
 //!     game.add_logic(game_logic);
