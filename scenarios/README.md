@@ -15,6 +15,7 @@ All scenarios assume you've followed the setup steps below and that you are usin
 ```rust
 use rusty_engine::prelude::*;
 
+#[derive(Resource)]
 struct GameState {}
 
 fn main() {
