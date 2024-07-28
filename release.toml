@@ -1,3 +1,4 @@
+pre-release-hook = [ "cargo", "clippy" ]
 pre-release-commit-message = "{{crate_name}} {{version}}"
 tag-message = "{{tag_name}}"
 tag-name = "{{prefix}}v{{version}}"
