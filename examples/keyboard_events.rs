@@ -30,22 +30,22 @@ fn logic(engine: &mut Engine, _: &mut GameState) {
     // Loop through any keyboard input that hasn't been processed this frame
     for keyboard_event in &engine.keyboard_events {
         if let KeyboardInput {
-            scan_code: _,
-            key_code: Some(key_code),
+            key_code,
             state: ButtonState::Pressed,
             window: _,
+            logical_key: _,
         } = keyboard_event
         {
             // Handle various keypresses. The extra keys are for the Dvorak keyboard layout. ;-)
             match key_code {
-                KeyCode::A | KeyCode::Left => race_car.translation.x -= 10.0,
-                KeyCode::D | KeyCode::Right | KeyCode::E => race_car.translation.x += 10.0,
-                KeyCode::O | KeyCode::Down | KeyCode::S => race_car.translation.y -= 10.0,
-                KeyCode::W | KeyCode::Up | KeyCode::Comma => race_car.translation.y += 10.0,
-                KeyCode::Z | KeyCode::Semicolon => race_car.rotation += std::f32::consts::FRAC_PI_4,
-                KeyCode::C | KeyCode::J => race_car.rotation -= std::f32::consts::FRAC_PI_4,
-                KeyCode::Plus | KeyCode::Equals => race_car.scale *= 1.1,
-                KeyCode::Minus | KeyCode::Underline => race_car.scale *= 0.9,
+                KeyCode::KeyA | KeyCode::ArrowLeft => race_car.translation.x -= 10.0,
+                KeyCode::KeyD | KeyCode::ArrowRight => race_car.translation.x += 10.0,
+                KeyCode::KeyO | KeyCode::ArrowDown => race_car.translation.y -= 10.0,
+                KeyCode::KeyW | KeyCode::ArrowUp  => race_car.translation.y += 10.0,
+                KeyCode::KeyZ => race_car.rotation += std::f32::consts::FRAC_PI_4,
+                KeyCode::KeyC => race_car.rotation -= std::f32::consts::FRAC_PI_4,
+                KeyCode::Equal => race_car.scale *= 1.1,
+                KeyCode::Minus  => race_car.scale *= 0.9,
                 _ => {}
             }
 

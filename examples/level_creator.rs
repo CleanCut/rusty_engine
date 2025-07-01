@@ -95,45 +95,44 @@ fn logic(engine: &mut Engine, game_state: &mut GameState) {
     let mut prev_preset = false;
     let mut next_preset = false;
     for keyboard_event in &engine.keyboard_events {
-        if let KeyboardInput {
-            scan_code: _,
-            key_code: Some(key_code),
+        let KeyboardInput {
+            key_code,
             state,
             window: _,
-        } = keyboard_event
-        {
-            if *state == ButtonState::Pressed {
-                match key_code {
-                    KeyCode::Z | KeyCode::Semicolon => {
-                        print_level = true;
-                    }
-                    KeyCode::ShiftLeft | KeyCode::ShiftRight => {
-                        game_state.shift_pressed = true;
-                    }
-                    KeyCode::R | KeyCode::P => {
-                        reset = true;
-                    }
-                    KeyCode::S | KeyCode::O => {
-                        print_status = true;
-                    }
-                    KeyCode::Space | KeyCode::Back => {
-                        place_sprite = true;
-                    }
-                    KeyCode::Left | KeyCode::Up => {
-                        prev_preset = true;
-                    }
-                    KeyCode::Right | KeyCode::Down => {
-                        next_preset = true;
-                    }
-                    _ => {}
+            logical_key: _,
+        } = keyboard_event;
+
+        if *state == ButtonState::Pressed {
+            match key_code {
+                KeyCode::KeyZ => {
+                    print_level = true;
                 }
-            } else {
-                match key_code {
-                    KeyCode::ShiftLeft | KeyCode::ShiftRight => {
-                        game_state.shift_pressed = false;
-                    }
-                    _ => {}
+                KeyCode::ShiftLeft | KeyCode::ShiftRight => {
+                    game_state.shift_pressed = true;
                 }
+                KeyCode::KeyR => {
+                    reset = true;
+                }
+                KeyCode::KeyS => {
+                    print_status = true;
+                }
+                KeyCode::Space | KeyCode::Backspace => {
+                    place_sprite = true;
+                }
+                KeyCode::ArrowLeft | KeyCode::ArrowUp => {
+                    prev_preset = true;
+                }
+                KeyCode::ArrowRight | KeyCode::ArrowDown => {
+                    next_preset = true;
+                }
+                _ => {}
+            }
+        } else {
+            match key_code {
+                KeyCode::ShiftLeft | KeyCode::ShiftRight => {
+                    game_state.shift_pressed = false;
+                }
+                _ => {}
             }
         }
     }

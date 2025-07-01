@@ -225,7 +225,7 @@ pub fn add_texts(commands: &mut Commands, asset_server: &Res<AssetServer>, engin
                         color: Color::WHITE,
                     },
                 )
-                .with_alignment(TextAlignment::Center),
+                .with_justify(JustifyText::Center),
                 transform,
                 ..Default::default()
             },

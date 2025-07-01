@@ -214,7 +214,7 @@ fn sync_mouse_events(
 
 /// Gather the mouse state from bevy and store it for our own use
 fn sync_mouse_state(
-    mouse_button_input: Res<Input<MouseButton>>,
+    mouse_button_input: Res<ButtonInput<MouseButton>>,
     mut mouse_state: ResMut<MouseState>,
     mut mouse_motion_events: EventReader<MouseMotion>,
     mut cursor_moved_events: EventReader<CursorMoved>,

@@ -861,17 +861,17 @@ fn logic(engine: &mut Engine, game_state: &mut GameState) {
     {
         use KeyCode::*;
         // Acceleration input
-        if engine.keyboard_state.pressed_any(&[W, Up, Comma]) {
+        if engine.keyboard_state.pressed_any(&[KeyW, ArrowUp, Comma]) {
             acceleration += 1.0;
         }
-        if engine.keyboard_state.pressed_any(&[S, Down, O]) {
+        if engine.keyboard_state.pressed_any(&[KeyS, ArrowDown]) {
             acceleration -= 1.0;
         }
         // Rotation/Turning input
-        if engine.keyboard_state.pressed_any(&[A, Left]) {
+        if engine.keyboard_state.pressed_any(&[KeyA, ArrowLeft]) {
             rotation += 1.0;
         }
-        if engine.keyboard_state.pressed_any(&[D, Right, E]) {
+        if engine.keyboard_state.pressed_any(&[KeyD, ArrowRight]) {
             rotation -= 1.0;
         }
     }

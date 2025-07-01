@@ -8,11 +8,14 @@
 //! ```rust,no_run
 //! # use rusty_engine::prelude::*;
 //! #
+//! # #[derive(Resource)]
+//! # struct GameState;
+//! #
 //! # fn main() {
 //! # let mut game = Game::new();
 //! // Inside your logic function...
 //! game.audio_manager.play_sfx("my_sound_effect.mp3", 1.0);
-//! # game.run(());
+//! # game.run(GameState);
 //! # }
 //! ```
 //!
@@ -22,11 +25,14 @@
 //! ```rust,no_run
 //! # use rusty_engine::prelude::*;
 //! #
+//! # #[derive(Resource)]
+//! # struct GameState;
+//! #
 //! # fn main() {
 //! # let mut game = Game::new();
 //! // Inside your logic function...
 //! game.audio_manager.play_music("my_game/spooky_loop.ogg", 1.0);
-//! # game.run(());
+//! # game.run(GameState);
 //! # }
 //! ```
 //!
@@ -37,12 +43,15 @@
 //! // Import the enums into scope first
 //! use rusty_engine::prelude::*;
 //!
+//! # #[derive(Resource)]
+//! # struct GameState;
+//! #
 //! # fn main() {
 //! # let mut game = Game::new();
 //! // Inside your logic function...
 //! game.audio_manager.play_sfx(SfxPreset::Confirmation1, 1.0);
 //! game.audio_manager.play_music(MusicPreset::Classy8Bit, 1.0);
-//! # game.run(());
+//! # game.run(GameState);
 //! # }
 //! ```
 //!
@@ -246,7 +255,7 @@ pub fn queue_managed_audio_system(
             source: asset_server.load(format!("audio/{}", sfx)),
             settings: PlaybackSettings {
                 mode: PlaybackMode::Despawn,
-                volume: Volume::new_relative(volume),
+                volume: Volume::new(volume),
                 ..Default::default()
             },
         });
@@ -264,7 +273,7 @@ pub fn queue_managed_audio_system(
                 .spawn(AudioBundle {
                     source: asset_server.load(format!("audio/{}", music)),
                     settings: PlaybackSettings {
-                        volume: Volume::new_relative(volume),
+                        volume: Volume::new(volume),
                         mode: PlaybackMode::Loop,
                         ..Default::default()
                     },
