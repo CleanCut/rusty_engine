@@ -39,7 +39,7 @@ for cursor_moved in &engine.mouse_location_events {
 Each location event has a corresponding motion event which reports the _relative_ motion of the mouse, rather than the absolute location.  Mouse motion events are accessed through the `Engine.mouse_motion_events` vector and contain the [`MouseMotion`](https://docs.rs/rusty_engine/latest/rusty_engine/mouse/struct.MouseMotion.html) struct re-exported from Bevy.
 
 ```rust,ignored
-for mouse_motion in &engine.state.mouse_motion_events {
+for mouse_motion in &engine.mouse_motion_events {
     // do something with mouse_motion.delta
 }
 ```

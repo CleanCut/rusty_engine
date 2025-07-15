@@ -36,26 +36,26 @@ fn logic(engine: &mut Engine, _: &mut GameState) {
 
     // Handle keyboard input
     let ks = &mut engine.keyboard_state;
-    if ks.pressed_any(&[KeyCode::KeyW, KeyCode::ArrowUp]) {
+    if ks.pressed_any(&[KeyCode::KeyW, KeyCode::ArrowUp, KeyCode::Comma]) {
         race_car.translation.y += move_amount;
     }
     if ks.pressed_any(&[KeyCode::KeyA, KeyCode::ArrowLeft]) {
         race_car.translation.x -= move_amount;
     }
-    if ks.pressed_any(&[KeyCode::KeyS, KeyCode::ArrowDown]) {
+    if ks.pressed_any(&[KeyCode::KeyS, KeyCode::ArrowDown, KeyCode::KeyO]) {
         race_car.translation.y -= move_amount;
     }
-    if ks.pressed_any(&[KeyCode::KeyD, KeyCode::ArrowRight]) {
+    if ks.pressed_any(&[KeyCode::KeyD, KeyCode::ArrowRight, KeyCode::KeyE]) {
         race_car.translation.x += move_amount;
     }
 
     // If you prefer a more functional style that is equivalent to the kind of logic above,
     // but takes closures to run if the buttons are pressed, you can call `.chain()`
     ks.chain()
-        .pressed_any(&[KeyCode::KeyZ], |_| {
+        .pressed_any(&[KeyCode::KeyZ, KeyCode::Semicolon], |_| {
             race_car.rotation += rotation_amount;
         })
-        .pressed_any(&[KeyCode::KeyC], |_| {
+        .pressed_any(&[KeyCode::KeyC, KeyCode::KeyJ], |_| {
             race_car.rotation -= rotation_amount;
         })
         .pressed_any(&[KeyCode::Equal], |_| {

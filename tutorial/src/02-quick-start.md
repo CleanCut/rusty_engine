@@ -20,6 +20,7 @@ use rusty_engine::prelude::*;
 struct GameState {
     health: i32, // add any fields you want, or leave the struct without fields
 }
+
 fn main() {
     // Create a game
     let mut game = Game::new();
@@ -34,6 +35,7 @@ fn main() {
     // Run the game, with an initial state
     game.run(GameState { health: 100 });
 }
+
 // Your game logic functions can be named anything, but the first parameter is always a
 // `&mut Engine`, and the second parameter is a mutable reference to your custom game
 // state struct (`&mut GameState` in this case). The function returns a `bool`.

@@ -864,14 +864,14 @@ fn logic(engine: &mut Engine, game_state: &mut GameState) {
         if engine.keyboard_state.pressed_any(&[KeyW, ArrowUp, Comma]) {
             acceleration += 1.0;
         }
-        if engine.keyboard_state.pressed_any(&[KeyS, ArrowDown]) {
+        if engine.keyboard_state.pressed_any(&[KeyS, ArrowDown, KeyO]) {
             acceleration -= 1.0;
         }
         // Rotation/Turning input
         if engine.keyboard_state.pressed_any(&[KeyA, ArrowLeft]) {
             rotation += 1.0;
         }
-        if engine.keyboard_state.pressed_any(&[KeyD, ArrowRight]) {
+        if engine.keyboard_state.pressed_any(&[KeyD, ArrowRight, KeyE]) {
             rotation -= 1.0;
         }
     }

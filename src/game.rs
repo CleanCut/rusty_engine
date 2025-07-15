@@ -3,7 +3,7 @@ use bevy::{
     prelude::{Text as BevyText, *},
     time::Time,
     utils::HashMap,
-    window::{close_on_esc, PrimaryWindow, WindowPlugin},
+    window::{PrimaryWindow, WindowPlugin},
 };
 use bevy_prototype_lyon::prelude::*;
 use std::{
@@ -308,7 +308,7 @@ impl<S: Resource + Send + Sync + 'static> Game<S> {
         self.app.insert_resource::<S>(initial_game_state);
         self.app
             // TODO: Remove this to use the new, darker default color once the videos have been remastered
-            .insert_resource(ClearColor(Color::rgb(0.4, 0.4, 0.4)))
+            .insert_resource(ClearColor(Color::srgb(0.4, 0.4, 0.4)))
             // Built-ins
             .add_plugins(
                 DefaultPlugins
@@ -336,7 +336,7 @@ impl<S: Resource + Send + Sync + 'static> Game<S> {
             ))
             //.insert_resource(ReportExecutionOrderAmbiguities) // for debugging
             .add_systems(Startup, setup);
-        self.app.world.spawn(Camera2dBundle::default());
+        self.app.world_mut().spawn(Camera2dBundle::default());
         let engine = std::mem::take(&mut self.engine);
         self.app.insert_resource(engine);
         let mut logic_functions = LogicFuncVec(vec![]);
@@ -493,7 +493,7 @@ fn game_logic_sync<S: Resource + Send + Sync + 'static>(
     add_texts(&mut commands, &asset_server, &mut engine);
 
     if engine.should_exit {
-        app_exit_events.send(AppExit);
+        app_exit_events.send(AppExit::Success);
     }
 }
 
@@ -515,3 +515,19 @@ impl<S: Resource + Send + Sync + 'static> DerefMut for Game<S> {
 
 #[derive(Resource)]
 struct LogicFuncVec<S: Resource + Send + Sync + 'static>(Vec<fn(&mut Engine, &mut S)>);
+
+pub fn close_on_esc(
+    mut commands: Commands,
+    focused_windows: Query<(Entity, &Window)>,
+    input: Res<ButtonInput<KeyCode>>,
+) {
+    for (window, focus) in focused_windows.iter() {
+        if !focus.focused {
+            continue;
+        }
+
+        if input.just_pressed(KeyCode::Escape) {
+            commands.entity(window).despawn();
+        }
+    }
+}

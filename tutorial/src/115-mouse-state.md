@@ -65,7 +65,7 @@ This represents both the final scrolling (vertical, y) state of the mouse wheel 
 
 ```rust,ignored
 let mouse_wheel_state = engine.mouse_state.wheel();
-if mouse_wheel_state.y > 0 {
+if mouse_wheel_state.y > 0.0 {
     // scrolling in one direction...
 }
 ```

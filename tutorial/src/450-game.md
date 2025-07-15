@@ -23,9 +23,9 @@ Pass a `Window` to the `window_settings` method to request specific settings for
 ```rust,ignored
 game.window_settings(Window {
     title: "My Awesome Game".into(),
-    width: 800.0,
-    height: 200.0,
+    resolution: WindowResolution::new(800.0, 200.0),
     ..Default::default()
+});
 ```
 
 ### Adding Game Logic Functions

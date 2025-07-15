@@ -9,16 +9,17 @@ for keyboard_event in game_state.keyboard_events.drain(..) {
     // We're using `if let` and a pattern to destructure the KeyboardInput struct and only look at
     // keyboard input if the state is "Pressed". Then we match on the KeyCode and take action.
     if let KeyboardInput {
-        scan_code: _,
-        key_code: Some(key_code),
+        key_code,
+        logical_key,
         state: ButtonState::Pressed,
+        window: _,
     } = keyboard_event
     {
         match key_code {
-            KeyCode::W | KeyCode::Up => race_car.translation.y += 10.0,
-            KeyCode::A | KeyCode::Left => race_car.translation.x -= 10.0,
-            KeyCode::S | KeyCode::Down => race_car.translation.y -= 10.0,
-            KeyCode::D | KeyCode::Right => race_car.translation.x += 10.0,
+            KeyCode::KeyW | KeyCode::ArrowUp => race_car.translation.y += 10.0,
+            KeyCode::KeyA | KeyCode::ArrowLeft => race_car.translation.x -= 10.0,
+            KeyCode::KeyS | KeyCode::ArrowDown => race_car.translation.y -= 10.0,
+            KeyCode::KeyD | KeyCode::ArrowRight => race_car.translation.x += 10.0,
             _ => {}
         }
     }

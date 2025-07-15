@@ -31,7 +31,7 @@ if engine.keyboard_state.just_pressed(KeyCode::Escape) {
 Since "just pressed" and "just released" are not logical opposites, there is also a `just_released` method. This returns `true` if the key was previously in a pressed state and was just released this frame.
 
 ```rust,ignored
-if engine.keyboard_state.just_released(KeyCode::W) {
+if engine.keyboard_state.just_released(KeyCode::KeyW) {
     // do a thing when the key has just been released
 }
 ```
@@ -47,13 +47,13 @@ There is an `*_any` method for each of the three single key methods that does th
 Instead of passing a single `KeyCode` to these methods, you pass a slice containing all of the key codes you care about:
 
 ```rust,ignored
-if engine.keyboard_state.pressed_any(&[KeyCode::W, KeyCode::Up]) {
+if engine.keyboard_state.pressed_any(&[KeyCode::KeyW, KeyCode::ArrowUp]) {
     // player moves upward
 }
-if engine.keyboard_state.just_pressed_any(&[KeyCode::Q, KeyCode::F1]) {
+if engine.keyboard_state.just_pressed_any(&[KeyCode::KeyQ, KeyCode::F1]) {
     // open menu
 }
-if engine.keyboard_state.just_released_any(&[KeyCode::Space, KeyCode::LControl]) {
+if engine.keyboard_state.just_released_any(&[KeyCode::Space, KeyCode::ControlLeft]) {
     // re-evaluate your life choices
 }
 ```
