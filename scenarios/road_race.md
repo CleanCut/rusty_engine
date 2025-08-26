@@ -229,7 +229,7 @@ Now we need to actually handle the health.  At **_the bottom_** of the `game_log
 1. Get a mutable reference to the health message
     * `let health_message = engine.texts.get_mut("health_message").unwrap();`
 1. Loop through all the collision events in a `for` loop using `engine.collision_events.drain(..)`
-    1. Ignore events (by doing a `continue` in the `for` loop) that contain `"player1"` in the collision pair OR where the event state is the ending of a collision.
+    1. Ignore events (by doing a `continue` in the `for` loop) that do not contain `"player1"` in the collision pair OR where the event state is the ending of a collision.
         * `if !event.pair.either_contains("player1") || event.state.is_end() { continue; }`
     1. If `game_state.health_amount` is greater than `0` (we don't want to try to subtract from an unsigned number without checking first)
         1. Subtract `1` from `game_state.health_amount`
