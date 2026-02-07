@@ -50,8 +50,8 @@ fn main() {
         let obstacle = game.add_sprite(format!("obstacle{}", i), preset);
         obstacle.layer = 5.0;
         obstacle.collision = true;
-        obstacle.translation.x = thread_rng().gen_range(800.0..1600.0);
-        obstacle.translation.y = thread_rng().gen_range(-300.0..300.0);
+        obstacle.translation.x = rand::rng().random_range(800.0..1600.0);
+        obstacle.translation.y = rand::rng().random_range(-300.0..300.0);
     }
 
     // Create the health message
@@ -105,8 +105,8 @@ fn game_logic(engine: &mut Engine, game_state: &mut GameState) {
         if sprite.label.starts_with("obstacle") {
             sprite.translation.x -= ROAD_SPEED * engine.delta_f32;
             if sprite.translation.x < -800.0 {
-                sprite.translation.x = thread_rng().gen_range(800.0..1600.0);
-                sprite.translation.y = thread_rng().gen_range(-300.0..300.0);
+                sprite.translation.x = rand::rng().random_range(800.0..1600.0);
+                sprite.translation.y = rand::rng().random_range(-300.0..300.0);
             }
         }
     }

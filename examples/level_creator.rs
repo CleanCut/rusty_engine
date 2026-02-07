@@ -100,6 +100,7 @@ fn logic(engine: &mut Engine, game_state: &mut GameState) {
             state,
             window: _,
             logical_key: _,
+            ..
         } = keyboard_event;
 
         if *state == ButtonState::Pressed {

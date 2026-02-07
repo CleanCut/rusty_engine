@@ -68,7 +68,7 @@ fn game_logic(engine: &mut Engine, game_state: &mut GameState) {
     r.rotation -= 1.5 * engine.delta_f32;
 
     let s = engine.texts.get_mut("scale").unwrap();
-    s.scale = 1.5 + ((engine.time_since_startup_f64 * 0.5).cos() as f32) * -1.0;
+    s.scale = 1.5 - (engine.time_since_startup_f64 * 0.5).cos() as f32;
 
     let msg3 = engine.texts.get_mut("zoom_msg").unwrap();
     msg3.font_size = 10.0 * (engine.time_since_startup_f64 * 0.5).cos() as f32 + 25.0;

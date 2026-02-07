@@ -37,8 +37,8 @@ pub struct Sprite {
 
 /// Reads the collider file and creates the collider
 fn read_collider_from_file(filepath: &Path) -> Collider {
-    match File::open(filepath) {
-        Ok(fh) => match ron::de::from_reader::<_, Collider>(fh) {
+    match std::fs::read_to_string(filepath) {
+        Ok(contents) => match ron::from_str::<Collider>(&contents) {
             Ok(collider) => collider,
             Err(e) => {
                 eprintln!("failed deserializing collider from file: {}", e);

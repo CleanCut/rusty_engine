@@ -34,18 +34,25 @@ fn logic(engine: &mut Engine, _: &mut GameState) {
             state: ButtonState::Pressed,
             window: _,
             logical_key: _,
+            ..
         } = keyboard_event
         {
             // Handle various keypresses. The extra keys are for the Dvorak keyboard layout. ;-)
             match key_code {
                 KeyCode::KeyW | KeyCode::ArrowUp | KeyCode::Comma => race_car.translation.y += 10.0,
                 KeyCode::KeyA | KeyCode::ArrowLeft => race_car.translation.x -= 10.0,
-                KeyCode::KeyS | KeyCode::ArrowDown | KeyCode::KeyO => race_car.translation.y -= 10.0,
-                KeyCode::KeyD | KeyCode::ArrowRight | KeyCode::KeyE => race_car.translation.x += 10.0,
-                KeyCode::KeyZ | KeyCode::Semicolon=> race_car.rotation += std::f32::consts::FRAC_PI_4,
+                KeyCode::KeyS | KeyCode::ArrowDown | KeyCode::KeyO => {
+                    race_car.translation.y -= 10.0
+                }
+                KeyCode::KeyD | KeyCode::ArrowRight | KeyCode::KeyE => {
+                    race_car.translation.x += 10.0
+                }
+                KeyCode::KeyZ | KeyCode::Semicolon => {
+                    race_car.rotation += std::f32::consts::FRAC_PI_4
+                }
                 KeyCode::KeyC | KeyCode::KeyJ => race_car.rotation -= std::f32::consts::FRAC_PI_4,
                 KeyCode::Equal => race_car.scale *= 1.1,
-                KeyCode::Minus  => race_car.scale *= 0.9,
+                KeyCode::Minus => race_car.scale *= 0.9,
                 _ => {}
             }
 

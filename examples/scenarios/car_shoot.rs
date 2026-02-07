@@ -99,7 +99,7 @@ fn game_logic(engine: &mut Engine, game_state: &mut GameState) {
     if game_state.spawn_timer.tick(engine.delta).just_finished() {
         // Reset the timer to a new value
         game_state.spawn_timer =
-            Timer::from_seconds(thread_rng().gen_range(0.1..1.25), TimerMode::Once);
+            Timer::from_seconds(rand::rng().random_range(0.1..1.25), TimerMode::Once);
         // Get the new car
         if game_state.cars_left > 0 {
             game_state.cars_left -= 1;
@@ -114,14 +114,10 @@ fn game_logic(engine: &mut Engine, game_state: &mut GameState) {
                 RacingCarRed,
                 RacingCarYellow,
             ];
-            let sprite_preset = car_choices
-                .iter()
-                .choose(&mut thread_rng())
-                .unwrap()
-                .clone();
+            let sprite_preset = car_choices.iter().choose(&mut rand::rng()).unwrap().clone();
             let car = engine.add_sprite(label, sprite_preset);
             car.translation.x = -740.0;
-            car.translation.y = thread_rng().gen_range(-100.0..325.0);
+            car.translation.y = rand::rng().random_range(-100.0..325.0);
             car.collision = true;
         }
     }

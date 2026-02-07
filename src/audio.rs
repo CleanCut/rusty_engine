@@ -251,17 +251,18 @@ pub fn queue_managed_audio_system(
     mut game_state: ResMut<Engine>,
 ) {
     for (sfx, volume) in game_state.audio_manager.sfx_queue.drain(..) {
-        commands.spawn(AudioBundle {
-            source: asset_server.load(format!("audio/{}", sfx)),
-            settings: PlaybackSettings {
+        commands.spawn((
+            AudioPlayer::<AudioSource>(asset_server.load(format!("audio/{}", sfx))),
+            PlaybackSettings {
                 mode: PlaybackMode::Despawn,
                 volume: Volume::new(volume),
                 ..Default::default()
             },
-        });
+        ));
     }
-    #[allow(for_loops_over_fallibles)]
-    if let Some(item) = game_state.audio_manager.music_queue.drain(..).last() {
+    let last_music_item = game_state.audio_manager.music_queue.pop();
+    game_state.audio_manager.music_queue.clear();
+    if let Some(item) = last_music_item {
         // stop any music currently playing
         if let Ok((entity, music)) = music_query.get_single() {
             music.stop();
@@ -270,15 +271,15 @@ pub fn queue_managed_audio_system(
         // start the new music...if we have some
         if let Some((music, volume)) = item {
             let entity = commands
-                .spawn(AudioBundle {
-                    source: asset_server.load(format!("audio/{}", music)),
-                    settings: PlaybackSettings {
-                        volume: Volume::new(volume),
+                .spawn((
+                    AudioPlayer::<AudioSource>(asset_server.load(format!("audio/{}", music))),
+                    PlaybackSettings {
                         mode: PlaybackMode::Loop,
+                        volume: Volume::new(volume),
                         ..Default::default()
                     },
-                })
-                .insert(Music)
+                    Music,
+                ))
                 .id();
             game_state.audio_manager.playing = Some(entity);
         }
