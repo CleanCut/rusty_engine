@@ -29,7 +29,7 @@ bevy = { version = "0.18", default-features = false, features = [
     "vorbis",
 ] }
 bevy_prototype_lyon = "0.16.0"
-ron = "0.9"
+ron = "0.12"
 serde = { version = "1.0", features = ["derive"] }
 
 [dev-dependencies]
