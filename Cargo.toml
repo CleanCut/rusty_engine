@@ -25,7 +25,6 @@ bevy = { version = "0.18", default-features = false, features = [
     "hdr",
     "mp3",
     "x11",
-    "wayland",
     "vorbis",
 ] }
 bevy_prototype_lyon = "0.16.0"
