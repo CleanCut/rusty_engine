@@ -5,7 +5,7 @@
 
 ```toml
 # In your [dependencies] section of Cargo.toml
-rusty_engine = "6.0.0"
+rusty_engine = "7.0.0"
 ```
 
 ### (Optional) Make `dev` profile act like `release`

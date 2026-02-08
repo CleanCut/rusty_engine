@@ -3,7 +3,7 @@
 - Create a new Rust project and run `cargo add rusty_engine` to add Rusty Engine as a dependency (see the [Configuration](05-config.md) page for more details). Your `Cargo.toml` file should end up with a line similar to this:
 ```toml
 # In your [dependencies] section of Cargo.toml
-rusty_engine = "6.0.0"
+rusty_engine = "7.0.0"
 ```
 - Download the Asset Pack to your project (see the [Asset Pack](10-assets.md) page for more details).
 ```shell

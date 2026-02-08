@@ -1,6 +1,8 @@
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [7.0.0] - 2026-02-08
+
 ### Breaking changes
 
 - The `KeyCode` enum (passed through from Bevy) has had many variants renamed. For example, `KeyCode::Key1` is now `KeyCode::Digit1`, `KeyCode::A` is now `KeyCode::KeyA`, and `KeyCode::Right` is now `KeyCode::ArrowRight`. Please refer to Bevy's [`KeyCode` documentation](https://docs.rs/bevy/0.18.0/bevy/input/keyboard/enum.KeyCode.html) for the full list of variants and their new names.
@@ -341,7 +343,8 @@ specifying a path to a sound file relative to `assets/audio`.
 
 [Bevy]: https://bevyengine.org
 <!-- next-url -->
-[Unreleased]: https://github.com/CleanCut/rusty_engine/compare/v6.0.0...HEAD
+[Unreleased]: https://github.com/CleanCut/rusty_engine/compare/v7.0.0...HEAD
+[7.0.0]: https://github.com/CleanCut/rusty_engine/compare/v6.0.0...v7.0.0
 [6.0.0]: https://github.com/CleanCut/rusty_engine/compare/v5.2.1...v6.0.0
 [5.2.1]: https://github.com/CleanCut/rusty_engine/compare/v5.2.0...v5.2.1
 [5.2.0]: https://github.com/CleanCut/rusty_engine/compare/v5.1.1...v5.2.0
