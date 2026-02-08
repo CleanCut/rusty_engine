@@ -76,7 +76,7 @@ In your [`game_logic(...)` function](https://cleancut.github.io/rusty_engine/25-
     1. Set `game_state.spawn_timer` to a new `Timer` with a random value between `0.1` and `1.25`
         - Add the `rand` crate as a dependency in your `Cargo.toml`
         - Add `use rand::prelude::*;` to the top of your `main.rs` file
-        - Use `thread_rng().gen_range(0.1..1.25)` to obtain a random `f32` value between `0.1` and `1.25`
+        - Use `rand::rng().random_range(0.1..1.25)` to obtain a random `f32` value between `0.1` and `1.25`
         - [Create a non-repeating `Timer`](https://cleancut.github.io/rusty_engine/250-timer.html#creation) and assign it as the value to `game_state.spawn_timer`
     1. If there are any cars left (check the value of `game_state.cars_left`), then:
         1. Decrement `game_state.cars_left` by one
@@ -84,10 +84,10 @@ In your [`game_logic(...)` function](https://cleancut.github.io/rusty_engine/25-
             - Set the `value` to `format!("Cars left: {}", game_state.cars_left)`
         1. Create a label for the current car that starts with `car`: `format!("car{}", game_state.cars_left)` (remember, a label starting with `car` is what the movement code is looking for).
         1. Create a vector of `SpritePreset`s of cars to randomly select from: `let car_choices = vec![SpritePreset::RacingCarBlack, SpritePreset::RacingCarBlue, SpritePreset::RacingCarGreen, SpritePreset::RacingCarRed, SpritePreset::RacingCarYellow];`
-        1. Make a random sprite preset choice: `car_choices.iter().choose(&mut thread_rng()).unwrap().clone()`
+        1. Make a random sprite preset choice: `car_choices.iter().choose(&mut rand::rng()).unwrap().clone()`
         1. Actually create the sprite with the label and sprite preset selected above. Set the sprite's:
             - `translation.x` to `-740.0`
-            - `translation.y` to a random value from `-100.0` to `325.0` -- `thread_rng().gen_range(-100.0..325.0)`
+            - `translation.y` to a random value from `-100.0` to `325.0` -- `rand::rng().random_range(-100.0..325.0)`
             - `collision` to `true` so that the car will collide with marbles
 1. Move cars right across the screen (in the positive X direction). The logic for this section is _very_ similar to the previous section that moved marbles.
     1. Define a `CAR_SPEED` constant and set it to `250.0`

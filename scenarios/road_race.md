@@ -173,8 +173,8 @@ Now it's time to add some obstacles. Interesting obstacles will be in random loc
         1. Add a sprite with that preset and a label that starts with `"obstacle"`, and ends with the number value of `i`. (Use the `format!()` macro to construct the label string).
         1. Set the sprite's `layer` to `5.0` so that the obstacle will be on top of road lines, but underneath the player.
         1. set the sprite's `collision` to `true` so that it will generate collision events with the race car.
-        1. Set the `x` location to a random value between `800.0` and `1600.0` using `thread_rng()`
-        * `sprite.translation.x = thread_rng().gen_range(800.0..1600.0);`
+        1. Set the `x` location to a random value between `800.0` and `1600.0` using `rand::rng()`
+        * `sprite.translation.x = rand::rng().random_range(800.0..1600.0);`
         1. Do the same for `y`, only between `-300.0` and `300.0`
 
 ```rust
@@ -184,8 +184,8 @@ for (i, preset) in obstacle_presets.into_iter().enumerate() {
     let obstacle = game.add_sprite(format!("obstacle{}", i), preset);
     obstacle.layer = 5.0;
     obstacle.collision = true;
-    obstacle.translation.x = thread_rng().gen_range(800.0..1600.0);
-    obstacle.translation.y = thread_rng().gen_range(-300.0..300.0);
+    obstacle.translation.x = rand::rng().random_range(800.0..1600.0);
+    obstacle.translation.y = rand::rng().random_range(-300.0..300.0);
 }
 ```
 
@@ -201,8 +201,8 @@ The obstacles need to move, too, so they appear to be on the road!  In the `game
 if sprite.label.starts_with("obstacle") {
     sprite.translation.x -= ROAD_SPEED * engine.delta_f32;
     if sprite.translation.x < -800.0 {
-        sprite.translation.x = thread_rng().gen_range(800.0..1600.0);
-        sprite.translation.y = thread_rng().gen_range(-300.0..300.0);
+        sprite.translation.x = rand::rng().random_range(800.0..1600.0);
+        sprite.translation.y = rand::rng().random_range(-300.0..300.0);
     }
 }
 ```
