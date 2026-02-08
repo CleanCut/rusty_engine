@@ -15,12 +15,10 @@ jobs:
   tests:
     name: Tests
     runs-on: ${{ matrix.os }}
-    continue-on-error: ${{ matrix.toolchain == 'nightly' || matrix.toolchain == 'beta' }}
     strategy:
       fail-fast: false
       matrix:
         os: [macos-latest, windows-latest, ubuntu-latest]
-        toolchain: [stable]
         include:
           - os: macos-latest
             MACOS: true
@@ -28,58 +26,26 @@ jobs:
           - os: ubuntu-latest
     env:
       RUST_BACKTRACE: full
-      RUSTV: ${{ matrix.toolchain }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v6
 
       - name: Install Linux deps alsa and udev
         run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev
         if: runner.os == 'linux'
 
-      - name: install ${{ matrix.toolchain }} toolchain
+      - name: install stable toolchain
         id: install_toolchain
-        uses: actions-rs/toolchain@v1
+        uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
-          toolchain: ${{ matrix.toolchain }}
-          profile: minimal
-          # Don't use a 'components:' entry--we don't need them with beta/nightly, plus nightly often doesn't have them
-          override: true
-
-      - name: Fetch cargo registry cache
-        uses: actions/cache@v3
-        continue-on-error: false
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-            Cargo.lock
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-        if: runner.os != 'windows'
-
-      - name: Fetch cargo registry cache (windows)
-        uses: actions/cache@v3
-        continue-on-error: false
-        with:
-          path: |
-            C:\Rust\.cargo\bin
-            C:\Rust\.cargo\registry\index
-            C:\Rust\.cargo\registry\cache
-            C:\Rust\.cargo\git\db
-            target
-            Cargo.lock
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-        if: runner.os == 'windows'
+          components: rustfmt clippy
 
       - name: rustfmt & clippy
         run: |
-          rustup component add clippy rustfmt
           cargo clippy --workspace
           cargo fmt --all -- --check
-        if: matrix.toolchain == 'stable' && matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-latest'
 
-      - run: cargo test --workspace --all-targets --all-features
+      - name: run tests
+        run: cargo test --workspace --all-targets --all-features
         env:
           MACOS: ${{ matrix.MACOS }} # Used by some tests
