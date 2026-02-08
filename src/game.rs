@@ -277,7 +277,9 @@ impl<S: Resource + Send + Sync + 'static> Game<S> {
     /// Create an new, empty [`Game`] with an empty [`Engine`]
     pub fn new() -> Self {
         if std::fs::read_dir("assets").is_err() {
-            println!("FATAL: Could not find assets directory. Have you downloaded the assets?\nhttps://github.com/CleanCut/rusty_engine#you-must-download-the-assets-separately");
+            println!(
+                "FATAL: Could not find assets directory. Have you downloaded the assets?\nhttps://github.com/CleanCut/rusty_engine#you-must-download-the-assets-separately"
+            );
             std::process::exit(1);
         }
         Default::default()

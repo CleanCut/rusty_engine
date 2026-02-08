@@ -6,8 +6,8 @@ use bevy::{platform::collections::HashSet, prelude::*};
 // Re-export some Bevy types to use
 pub use bevy::{
     input::{
-        mouse::{MouseButton, MouseButtonInput, MouseMotion, MouseWheel},
         ButtonState,
+        mouse::{MouseButton, MouseButtonInput, MouseMotion, MouseWheel},
     },
     window::CursorMoved,
 };

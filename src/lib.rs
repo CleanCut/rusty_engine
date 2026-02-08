@@ -75,11 +75,11 @@ pub mod text;
 
 // Public prelude
 pub mod prelude {
-    pub use crate::{audio::*, game::*, keyboard::*, mouse::*, physics::*, sprite::*, text::*};
     pub use crate::{
         DOWN, EAST, LEFT, NORTH, NORTH_EAST, NORTH_WEST, RIGHT, SOUTH, SOUTH_EAST, SOUTH_WEST, UP,
         WEST,
     };
+    pub use crate::{audio::*, game::*, keyboard::*, mouse::*, physics::*, sprite::*, text::*};
     pub use bevy::ecs as bevy_ecs;
     pub use bevy::{
         self,

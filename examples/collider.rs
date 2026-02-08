@@ -84,7 +84,8 @@ fn main() {
     let _ = game.add_sprite("sprite", path);
 
     // Print instructions to the console
-    println!("\n\
+    println!(
+        "\n\
     Collider Instructions:\n\
     \n\
     1-9: Set Zoom level (sprite scale) to this amount.\n\
@@ -96,7 +97,8 @@ fn main() {
     -: Decrease the radius by 0.5 and generate a circle collider*\n\
     w: Write the collider file. NOTE: This will overwrite the existing collider file (if any), so make a backup if you need the old one!\n\
     \n\
-    *This command deletes the current collider in memory, but only writing the collider file will affect the collider file on disk.");
+    *This command deletes the current collider in memory, but only writing the collider file will affect the collider file on disk."
+    );
 
     // Tell the user to look to the console for the instructions
     let msg = game.add_text("msg", "See console output for instructions.");

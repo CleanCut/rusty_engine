@@ -164,7 +164,9 @@ fn logic(engine: &mut Engine, game_state: &mut GameState) {
                 sprite.layer,
             );
         }
-        println!("\n    game.add_logic(logic);\n    game.run(GameState {{}});\n}}\n\nfn logic(engine: &mut Engine, game_state: &mut GameState) {{\n    // Game Logic Goes Here\n}}")
+        println!(
+            "\n    game.add_logic(logic);\n    game.run(GameState {{}});\n}}\n\nfn logic(engine: &mut Engine, game_state: &mut GameState) {{\n    // Game Logic Goes Here\n}}"
+        )
     }
 
     // Handle current sprite that has not yet been placed
