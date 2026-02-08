@@ -36,12 +36,18 @@ fn main() {
     // makes using it from `cargo install rusty_engine --example collider` possible.
     // This takes advantage of bevy's hard-coded asset loading behavior, and may break in future
     // bevy versions.
-    std::env::set_var(
-        "CARGO_MANIFEST_DIR",
-        std::env::var("PWD").unwrap_or_default(),
-    );
+    //
+    // Safety: This is done in single-threaded code, so concurrent access isn't a problem.
+    unsafe {
+        std::env::set_var(
+            "CARGO_MANIFEST_DIR",
+            std::env::var("PWD").unwrap_or_default(),
+        )
+    };
     // Make engine logging a bit quieter since we've got console instructions we want folks to see.
-    std::env::set_var("RUST_LOG", "error");
+    //
+    // Safety: This is done in single-threaded code, so concurrent access isn't a problem.
+    unsafe { std::env::set_var("RUST_LOG", "error") };
     // We need an image file to work with, so the user must pass in the path of an image
     let args = std::env::args().skip(1).collect::<Vec<_>>();
     if args.len() != 1 {

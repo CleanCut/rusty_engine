@@ -7,9 +7,9 @@
 - Bevy's `WindowResolution::new` function now takes `u32`s instead of `f32`s
 - Bevy's `Color` struct has had many changes. For example, `Color::rgb` is now `Color::srgb`. Please refer to Bevy's [`Color` documentation](https://docs.rs/bevy/0.18.0/bevy/color/enum.Color.html) for the full list of associated functions and their new names.
 
-
 ### Improved
 
+- Update to Rust 2024 edition
 - Update bevy from 0.12 to 0.18
 - Update bevy_prototype_lyon from 0.10 to 0.16
 - Update ron from 0.9 to 0.12
