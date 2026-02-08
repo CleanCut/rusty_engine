@@ -48,10 +48,10 @@ fn my_logic(engine: &mut Engine, game_state: &mut GameState) {
 
 Key dependencies (keep versions aligned when updating):
 - `bevy` — Core engine (selective features: audio, rendering, text, gamepad, GLTF)
-- `bevy_prototype_lyon` 0.12.0 — Shape rendering for collider visualization
-- `ron` 0.8 — RON format serialization for collider data
-- `serde` 1.0 — Serialization/deserialization for colliders
-- `rand` 0.8 — Dev dependency only, used in examples
+- `bevy_prototype_lyon` — Shape rendering for collider visualization
+- `ron` — RON format serialization for collider data
+- `serde` — Serialization/deserialization for colliders
+- `rand` — Dev dependency only, used in examples
 
 Dependencies that start with `bevy_` are bevy plugins and need to be a version supported by the version of bevy we are currently on. The README.md file for these dependencies usually has a table indicating which version(s) are compatible with bevy version(s).
 
