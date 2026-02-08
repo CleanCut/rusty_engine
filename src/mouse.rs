@@ -1,7 +1,7 @@
 //! Facilities for dealing with mouse input
 
 use crate::prelude::Engine;
-use bevy::{prelude::*, utils::HashSet};
+use bevy::{platform::collections::HashSet, prelude::*};
 
 // Re-export some Bevy types to use
 pub use bevy::{

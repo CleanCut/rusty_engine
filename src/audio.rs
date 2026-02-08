@@ -255,7 +255,7 @@ pub fn queue_managed_audio_system(
             AudioPlayer::<AudioSource>(asset_server.load(format!("audio/{}", sfx))),
             PlaybackSettings {
                 mode: PlaybackMode::Despawn,
-                volume: Volume::new(volume),
+                volume: Volume::Linear(volume),
                 ..Default::default()
             },
         ));
@@ -264,7 +264,7 @@ pub fn queue_managed_audio_system(
     game_state.audio_manager.music_queue.clear();
     if let Some(item) = last_music_item {
         // stop any music currently playing
-        if let Ok((entity, music)) = music_query.get_single() {
+        if let Ok((entity, music)) = music_query.single() {
             music.stop();
             commands.entity(entity).despawn();
         }
@@ -275,7 +275,7 @@ pub fn queue_managed_audio_system(
                     AudioPlayer::<AudioSource>(asset_server.load(format!("audio/{}", music))),
                     PlaybackSettings {
                         mode: PlaybackMode::Loop,
-                        volume: Volume::new(volume),
+                        volume: Volume::Linear(volume),
                         ..Default::default()
                     },
                     Music,

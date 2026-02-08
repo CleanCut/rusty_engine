@@ -36,7 +36,7 @@ fn my_logic(engine: &mut Engine, game_state: &mut GameState) {
 ## Code Conventions
 
 - **Prelude pattern**: All public types are re-exported via `rusty_engine::prelude::*`
-- **Labels as identifiers**: Sprites and texts are stored in `HashMap<String, Sprite/Text>` keyed by a unique label string
+- **Labels as identifiers**: Sprites and texts are stored in `bevy::utils::HashMap<String, Sprite/Text>` keyed by a unique label string
 - **Constants**: Use `SCREAMING_SNAKE_CASE` (e.g., `ROTATION_SPEED`, `TEXT_DEFAULT_LAYER`)
 - **Enums for presets**: Built-in assets use enums (`SpritePreset`, `SfxPreset`, `MusicPreset`) that implement `IntoIterator` and filepath conversion
 - **Collider files**: Sprite colliders are stored as `.collider` files in RON format alongside sprite assets

@@ -145,7 +145,7 @@ fn collision_detection(
         .cloned()
         .collect();
 
-    collision_events.send_batch(beginning_collisions.iter().map(|p| CollisionEvent {
+    collision_events.write_batch(beginning_collisions.iter().map(|p| CollisionEvent {
         state: CollisionState::Begin,
         pair: p.clone(),
     }));
@@ -159,7 +159,7 @@ fn collision_detection(
         .cloned()
         .collect();
 
-    collision_events.send_batch(ending_collisions.iter().map(|p| CollisionEvent {
+    collision_events.write_batch(ending_collisions.iter().map(|p| CollisionEvent {
         state: CollisionState::End,
         pair: p.clone(),
     }));

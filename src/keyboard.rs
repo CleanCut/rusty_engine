@@ -1,7 +1,7 @@
 //! Facilities for dealing with keyboard input
 
 use crate::prelude::Engine;
-use bevy::{prelude::*, utils::HashMap};
+use bevy::{platform::collections::HashMap, prelude::*};
 
 // Re-export some Bevy types to use
 pub use bevy::input::keyboard::{KeyCode, KeyboardInput};

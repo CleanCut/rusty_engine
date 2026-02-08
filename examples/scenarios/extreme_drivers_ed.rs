@@ -854,7 +854,7 @@ fn logic(engine: &mut Engine, game_state: &mut GameState) {
     }
 
     // Player movement
-    let player = engine.sprites.get_mut("player".into()).unwrap();
+    let player = engine.sprites.get_mut("player").unwrap();
     let mut acceleration = 0.0;
     let mut rotation = 0.0;
     // Nested scope so the bare KeyCode variants only show up here where we want to use them

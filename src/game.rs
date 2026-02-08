@@ -1,8 +1,8 @@
 use bevy::{
     app::AppExit,
+    platform::collections::HashMap,
     prelude::{Sprite as BevySprite, *},
     time::Time,
-    utils::HashMap,
     window::{PrimaryWindow, WindowPlugin},
 };
 use bevy_prototype_lyon::prelude::*;
@@ -158,28 +158,20 @@ fn add_collider_lines(commands: &mut Commands, sprite: &mut Sprite) {
     // Add the collider lines, a visual representation of the sprite's collider
     let points = sprite.collider.points(); // will be empty vector if NoCollider
     if points.len() >= 2 {
-        let mut path_builder = PathBuilder::new();
-        path_builder.move_to(points[0]);
+        let mut shape_path = ShapePath::new().move_to(points[0]);
         for point in &points[1..] {
-            path_builder.line_to(*point);
+            shape_path = shape_path.line_to(*point);
         }
-        path_builder.close(); // draws the line from the last point to the first point
-        let line = path_builder.build();
+        shape_path = shape_path.close();
         let transform = sprite.bevy_transform();
+        let line_width = 1.0 / transform.scale.x;
         commands
             .spawn((
-                ShapeBundle {
-                    path: GeometryBuilder::new().add(&line).build(),
-                    transform,
-                    ..Default::default()
-                },
-                Stroke::new(Color::WHITE, 1.0 / transform.scale.x),
+                ShapeBuilder::with(&shape_path)
+                    .stroke(Stroke::new(Color::WHITE, line_width))
+                    .build(),
+                transform,
             ))
-            // .spawn(GeometryBuilder::build_as(
-            //     &line,
-            //     DrawMode::Stroke(StrokeMode::new(Color::WHITE, 1.0 / transform.scale.x)),
-            //     transform,
-            // ))
             .insert(ColliderLines {
                 sprite_label: sprite.label.clone(),
             });
@@ -236,7 +228,7 @@ pub fn update_window_dimensions(
     mut engine: ResMut<Engine>,
 ) {
     // It's possible to not have a window for the first frame or two
-    let Ok(window) = window_query.get_single() else {
+    let Ok(window) = window_query.single() else {
         return;
     };
     let screen_dimensions = Vec2::new(window.width(), window.height());
@@ -373,7 +365,7 @@ fn game_logic_sync<S: Resource + Send + Sync + 'static>(
             &mut Text2d,
             &mut TextFont,
         )>,
-        Query<(Entity, &mut Stroke, &mut Transform, &ColliderLines)>,
+        Query<(Entity, &mut Shape, &mut Transform, &ColliderLines)>,
     )>,
 ) {
     // Update this frame's timing info
@@ -443,7 +435,7 @@ fn game_logic_sync<S: Resource + Send + Sync + 'static>(
             }
         }
         // Update transform & line width
-        for (_, mut stroke, mut transform, collider_lines) in query_set.p2().iter_mut() {
+        for (_, mut shape, mut transform, collider_lines) in query_set.p2().iter_mut() {
             if let Some(sprite) = engine.sprites.get(&collider_lines.sprite_label) {
                 *transform = sprite.bevy_transform();
                 // We want collider lines to appear on top of the sprite they are for, so they need a
@@ -452,7 +444,9 @@ fn game_logic_sync<S: Resource + Send + Sync + 'static>(
             }
             // Stroke line width gets scaled with the transform, but we want it to appear to be the same
             // regardless of scale, so we have to counter the scale.
-            stroke.options.line_width = 1.0 / transform.scale.x;
+            if let Some(ref mut stroke) = shape.stroke {
+                stroke.options.line_width = 1.0 / transform.scale.x;
+            }
         }
     }
     engine.last_show_colliders = engine.show_colliders;
@@ -497,7 +491,7 @@ fn game_logic_sync<S: Resource + Send + Sync + 'static>(
     add_texts(&mut commands, &asset_server, &mut engine);
 
     if engine.should_exit {
-        app_exit_events.send(AppExit::Success);
+        app_exit_events.write(AppExit::Success);
     }
 }
 
