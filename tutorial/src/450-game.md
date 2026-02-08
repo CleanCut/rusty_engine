@@ -23,7 +23,7 @@ Pass a `Window` to the `window_settings` method to request specific settings for
 ```rust,ignored
 game.window_settings(Window {
     title: "My Awesome Game".into(),
-    resolution: WindowResolution::new(800.0, 200.0),
+    resolution: WindowResolution::new(800, 200),
     ..Default::default()
 });
 ```

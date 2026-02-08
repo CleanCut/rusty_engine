@@ -87,6 +87,8 @@ CI runs on Ubuntu, macOS, and Windows. Linux requires `libasound2-dev` and `libu
 - **`scenarios/`** — Game programming challenges at varying difficulty (Easy → Insane). Include skeleton code and step-by-step instructions.
 - **`tutorial/`** — mdBook-based tutorial covering all engine features, built with `mdbook`.
 
+All examples, scenarios, and the tutorial documentation should be updated whenever the public API is changed.
+
 ## Release Process
 
 Uses `cargo-release` configured via `release.toml`. Version replacements are automated across README.md, tutorial files, and CHANGELOG.md. See `RELEASE.md` for full instructions.
