@@ -3,5 +3,4 @@
 .idea
 **/*.rs.bk
 **/target
-Cargo.lock
 tutorial/book
