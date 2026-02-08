@@ -215,7 +215,7 @@ pub fn add_texts(commands: &mut Commands, asset_server: &Res<AssetServer>, engin
                 ..Default::default()
             },
             TextColor(Color::WHITE),
-            TextLayout::new_with_justify(Justify::Center),
+            TextLayout::new_with_justify(Justify::Center).with_no_wrap(),
             transform,
         ));
     }
