@@ -18,7 +18,7 @@ impl Plugin for KeyboardPlugin {
 /// Sync any keyboard events to the engine
 fn sync_keyboard_events(
     mut engine: ResMut<Engine>,
-    mut keyboard_input_events: EventReader<KeyboardInput>,
+    mut keyboard_input_events: MessageReader<KeyboardInput>,
 ) {
     // Clear any events that weren't used last frame
     engine.keyboard_events.clear();

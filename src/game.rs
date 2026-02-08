@@ -215,7 +215,7 @@ pub fn add_texts(commands: &mut Commands, asset_server: &Res<AssetServer>, engin
                 ..Default::default()
             },
             TextColor(Color::WHITE),
-            TextLayout::new_with_justify(JustifyText::Center),
+            TextLayout::new_with_justify(Justify::Center),
             transform,
         ));
     }
@@ -354,8 +354,8 @@ fn game_logic_sync<S: Resource + Send + Sync + 'static>(
     keyboard_state: Res<KeyboardState>,
     mouse_state: Res<MouseState>,
     time: Res<Time>,
-    mut app_exit_events: EventWriter<AppExit>,
-    mut collision_events: EventReader<CollisionEvent>,
+    mut app_exit_events: MessageWriter<AppExit>,
+    mut collision_events: MessageReader<CollisionEvent>,
     mut query_set: ParamSet<(
         Query<(Entity, &mut Sprite, &mut Transform)>,
         Query<(

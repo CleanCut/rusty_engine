@@ -179,10 +179,10 @@ impl MouseState {
 /// Gather the mouse events from bevy and store them for our own use
 fn sync_mouse_events(
     mut game_state: ResMut<Engine>,
-    mut mouse_button_events: EventReader<MouseButtonInput>,
-    mut cursor_moved_events: EventReader<CursorMoved>,
-    mut mouse_motion_events: EventReader<MouseMotion>,
-    mut mouse_wheel_events: EventReader<MouseWheel>,
+    mut mouse_button_events: MessageReader<MouseButtonInput>,
+    mut cursor_moved_events: MessageReader<CursorMoved>,
+    mut mouse_motion_events: MessageReader<MouseMotion>,
+    mut mouse_wheel_events: MessageReader<MouseWheel>,
 ) {
     // Clear any events that weren't used last frame
     game_state.mouse_button_events.clear();
@@ -216,9 +216,9 @@ fn sync_mouse_events(
 fn sync_mouse_state(
     mouse_button_input: Res<ButtonInput<MouseButton>>,
     mut mouse_state: ResMut<MouseState>,
-    mut mouse_motion_events: EventReader<MouseMotion>,
-    mut cursor_moved_events: EventReader<CursorMoved>,
-    mut mouse_wheel_events: EventReader<MouseWheel>,
+    mut mouse_motion_events: MessageReader<MouseMotion>,
+    mut cursor_moved_events: MessageReader<CursorMoved>,
+    mut mouse_wheel_events: MessageReader<MouseWheel>,
     game_state: Res<Engine>,
 ) {
     // Sync the current mouse location, which will be the last cursor_moved event that occurred.

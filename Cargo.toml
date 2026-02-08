@@ -12,11 +12,12 @@ license = "MIT OR Apache-2.0"
 exclude = ["/assets", "/.github", "/scenarios", "/tutorial", "/script", "release.toml", "RELEASE.md", ".gitignore"]
 
 [dependencies]
-bevy = { version = "0.16", default-features = false, features = [
+bevy = { version = "0.17", default-features = false, features = [
     "bevy_audio",
     "bevy_gilrs",
     "bevy_gltf",
     "bevy_render",
+    "bevy_sprite_render",
     "bevy_text",
     "bevy_winit",
     "custom_cursor",
@@ -24,9 +25,10 @@ bevy = { version = "0.16", default-features = false, features = [
     "hdr",
     "mp3",
     "x11",
+    "wayland",
     "vorbis",
 ] }
-bevy_prototype_lyon = "0.14.0"
+bevy_prototype_lyon = "0.15.0"
 ron = "0.9"
 serde = { version = "1.0", features = ["derive"] }
 
