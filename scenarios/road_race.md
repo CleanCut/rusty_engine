@@ -63,7 +63,7 @@ game.audio_manager
 
 ## Player input
 
-Let's look at the player input and store it for using it to move the player later. This section is all done in your [game logic function](https://cleancut.github.io/rusty_engine/25-game-logic-function.html), which is called once every frame.
+Let's look at the player input and store it to move the player later. This section is all done in your [game logic function](https://cleancut.github.io/rusty_engine/25-game-logic-function.html), which is called once every frame.
 
 1. Make a mutable variable `direction` of type `f32` and initialize it to `0.0`.
     1. `1.0` means up (positive `y` direction). `0.0` means not moving up or down. `-1.0` means down (negative `y` direction)
