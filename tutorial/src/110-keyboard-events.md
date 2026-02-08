@@ -5,20 +5,20 @@ Keyboard events are what your operating system passes to text input boxes. If yo
 Keyboard events are passed through from Bevy as instances of the [`KeyboardInput`](https://docs.rs/rusty_engine/latest/rusty_engine/keyboard/struct.KeyboardInput.html) struct. Here is an example of processing keyboard events to adjust the position of a sprite:
 
 ```rust,ignored
-for keyboard_event in game_state.keyboard_events.drain(..) {
+for keyboard_event in engine.keyboard_events.drain(..) {
     // We're using `if let` and a pattern to destructure the KeyboardInput struct and only look at
     // keyboard input if the state is "Pressed". Then we match on the KeyCode and take action.
     if let KeyboardInput {
-        scan_code: _,
-        key_code: Some(key_code),
+        key_code,
         state: ButtonState::Pressed,
+        ..
     } = keyboard_event
     {
         match key_code {
-            KeyCode::W | KeyCode::Up => race_car.translation.y += 10.0,
-            KeyCode::A | KeyCode::Left => race_car.translation.x -= 10.0,
-            KeyCode::S | KeyCode::Down => race_car.translation.y -= 10.0,
-            KeyCode::D | KeyCode::Right => race_car.translation.x += 10.0,
+            KeyCode::KeyW | KeyCode::ArrowUp => race_car.translation.y += 10.0,
+            KeyCode::KeyA | KeyCode::ArrowLeft => race_car.translation.x -= 10.0,
+            KeyCode::KeyS | KeyCode::ArrowDown => race_car.translation.y -= 10.0,
+            KeyCode::KeyD | KeyCode::ArrowRight => race_car.translation.x += 10.0,
             _ => {}
         }
     }

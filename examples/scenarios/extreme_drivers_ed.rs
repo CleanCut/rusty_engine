@@ -854,24 +854,24 @@ fn logic(engine: &mut Engine, game_state: &mut GameState) {
     }
 
     // Player movement
-    let player = engine.sprites.get_mut("player".into()).unwrap();
+    let player = engine.sprites.get_mut("player").unwrap();
     let mut acceleration = 0.0;
     let mut rotation = 0.0;
     // Nested scope so the bare KeyCode variants only show up here where we want to use them
     {
         use KeyCode::*;
         // Acceleration input
-        if engine.keyboard_state.pressed_any(&[W, Up, Comma]) {
+        if engine.keyboard_state.pressed_any(&[KeyW, ArrowUp, Comma]) {
             acceleration += 1.0;
         }
-        if engine.keyboard_state.pressed_any(&[S, Down, O]) {
+        if engine.keyboard_state.pressed_any(&[KeyS, ArrowDown, KeyO]) {
             acceleration -= 1.0;
         }
         // Rotation/Turning input
-        if engine.keyboard_state.pressed_any(&[A, Left]) {
+        if engine.keyboard_state.pressed_any(&[KeyA, ArrowLeft]) {
             rotation += 1.0;
         }
-        if engine.keyboard_state.pressed_any(&[D, Right, E]) {
+        if engine.keyboard_state.pressed_any(&[KeyD, ArrowRight, KeyE]) {
             rotation -= 1.0;
         }
     }

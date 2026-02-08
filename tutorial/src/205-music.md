@@ -13,7 +13,7 @@ The second parameter is the volume, which should be a value between `0.0` (silen
 game.audio_manager.play_music(MusicPreset::Classy8Bit, 1.0);
 
 // using a filepath relative to `assets/`
-game.audio_manager.play_music("audio/music/Classy 8-Bit.ogg", 1.0);
+game.audio_manager.play_music("music/Classy 8-Bit.ogg", 1.0);
 ```
 
 Any music already playing will be stopped when `play_music` is called.

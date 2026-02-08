@@ -106,31 +106,31 @@ fn main() {
 
 fn game_logic(engine: &mut Engine, game_state: &mut GameState) {
     // Zoom levels
-    if engine.keyboard_state.just_pressed(KeyCode::Key1) {
+    if engine.keyboard_state.just_pressed(KeyCode::Digit1) {
         game_state.scale = 1.0;
     }
-    if engine.keyboard_state.just_pressed(KeyCode::Key2) {
+    if engine.keyboard_state.just_pressed(KeyCode::Digit2) {
         game_state.scale = 2.0;
     }
-    if engine.keyboard_state.just_pressed(KeyCode::Key3) {
+    if engine.keyboard_state.just_pressed(KeyCode::Digit3) {
         game_state.scale = 3.0;
     }
-    if engine.keyboard_state.just_pressed(KeyCode::Key4) {
+    if engine.keyboard_state.just_pressed(KeyCode::Digit4) {
         game_state.scale = 4.0;
     }
-    if engine.keyboard_state.just_pressed(KeyCode::Key5) {
+    if engine.keyboard_state.just_pressed(KeyCode::Digit5) {
         game_state.scale = 5.0;
     }
-    if engine.keyboard_state.just_pressed(KeyCode::Key6) {
+    if engine.keyboard_state.just_pressed(KeyCode::Digit6) {
         game_state.scale = 6.0;
     }
-    if engine.keyboard_state.just_pressed(KeyCode::Key7) {
+    if engine.keyboard_state.just_pressed(KeyCode::Digit7) {
         game_state.scale = 7.0;
     }
-    if engine.keyboard_state.just_pressed(KeyCode::Key8) {
+    if engine.keyboard_state.just_pressed(KeyCode::Digit8) {
         game_state.scale = 8.0;
     }
-    if engine.keyboard_state.just_pressed(KeyCode::Key9) {
+    if engine.keyboard_state.just_pressed(KeyCode::Digit9) {
         game_state.scale = 9.0;
     }
     // Update scale
@@ -143,7 +143,7 @@ fn game_logic(engine: &mut Engine, game_state: &mut GameState) {
     }
     // Delete collider
     if engine.keyboard_state.just_pressed(KeyCode::Delete)
-        || engine.keyboard_state.just_pressed(KeyCode::Back)
+        || engine.keyboard_state.just_pressed(KeyCode::Backspace)
     {
         sprite.collider = Collider::NoCollider;
         sprite.collider_dirty = true;
@@ -165,7 +165,7 @@ fn game_logic(engine: &mut Engine, game_state: &mut GameState) {
     // Generate a circle collider
     if engine
         .keyboard_state
-        .just_pressed_any(&[KeyCode::Plus, KeyCode::Equals, KeyCode::NumpadAdd])
+        .just_pressed_any(&[KeyCode::Equal, KeyCode::NumpadAdd])
     {
         game_state.circle_radius += 0.5;
     }
@@ -176,12 +176,11 @@ fn game_logic(engine: &mut Engine, game_state: &mut GameState) {
         game_state.circle_radius -= 0.5;
     }
     if engine.keyboard_state.just_pressed_any(&[
-        KeyCode::Plus,
-        KeyCode::Equals,
+        KeyCode::Equal,
         KeyCode::NumpadAdd,
         KeyCode::Minus,
         KeyCode::NumpadSubtract,
-        KeyCode::C,
+        KeyCode::KeyC,
     ]) {
         sprite.collider = Collider::circle(game_state.circle_radius);
         sprite.collider_dirty = true;
@@ -194,13 +193,11 @@ fn game_logic(engine: &mut Engine, game_state: &mut GameState) {
         if convex.value != CONVEX_MESSAGE {
             convex.value = CONVEX_MESSAGE.into();
         }
-    } else {
-        if convex.value != NOT_CONVEX_MESSAGE {
-            convex.value = NOT_CONVEX_MESSAGE.into();
-        }
+    } else if convex.value != NOT_CONVEX_MESSAGE {
+        convex.value = NOT_CONVEX_MESSAGE.into();
     }
     // Write the collider file
-    if engine.keyboard_state.just_pressed(KeyCode::W) {
+    if engine.keyboard_state.just_pressed(KeyCode::KeyW) {
         if sprite.write_collider() {
             println!(
                 "Successfully wrote the new collider file: {}",

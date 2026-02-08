@@ -6,40 +6,33 @@ edition = "2021"
 homepage = "https://github.com/CleanCut/rusty_engine"
 repository = "https://github.com/CleanCut/rusty_engine"
 readme = "README.md"
-keywords = [ "game", "engine", "graphics", "audio", "rusty" ]
-categories = [ "game-engines" ]
+keywords = ["game", "engine", "graphics", "audio", "rusty"]
+categories = ["game-engines"]
 license = "MIT OR Apache-2.0"
-exclude = [
-    "/assets",
-    "/.github",
-    "/scenarios",
-    "/tutorial",
-    "/script",
-    "release.toml",
-    "RELEASE.md",
-    ".gitignore",
-]
+exclude = ["/assets", "/.github", "/scenarios", "/tutorial", "/script", "release.toml", "RELEASE.md", ".gitignore"]
 
 [dependencies]
-bevy = { version = "0.12.1", default-features = false, features = [
+bevy = { version = "0.18", default-features = false, features = [
     "bevy_audio",
     "bevy_gilrs",
     "bevy_gltf",
     "bevy_render",
+    "bevy_sprite_render",
     "bevy_text",
     "bevy_winit",
+    "custom_cursor",
     "png",
     "hdr",
     "mp3",
     "x11",
     "vorbis",
 ] }
-bevy_prototype_lyon = "0.10.0"
-ron = "0.8"
-serde = { version = "1.0", features = [ "derive" ] }
+bevy_prototype_lyon = "0.16.0"
+ron = "0.12"
+serde = { version = "1.0", features = ["derive"] }
 
 [dev-dependencies]
-rand = "0.8"
+rand = "0.9"
 
 [[example]]
 name = "car_shoot"

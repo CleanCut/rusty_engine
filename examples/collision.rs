@@ -84,7 +84,7 @@ fn logic(engine: &mut Engine, _: &mut GameState) {
     }
 
     // Pressing C toggles sprite collider debug lines
-    if engine.keyboard_state.just_pressed(KeyCode::C) {
+    if engine.keyboard_state.just_pressed(KeyCode::KeyC) {
         engine.show_colliders = !engine.show_colliders;
     }
 }

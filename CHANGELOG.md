@@ -1,6 +1,21 @@
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Breaking changes
+
+- The `KeyCode` enum (passed through from Bevy) has had many variants renamed. For example, `KeyCode::Key1` is now `KeyCode::Digit1`, `KeyCode::A` is now `KeyCode::KeyA`, and `KeyCode::Right` is now `KeyCode::ArrowRight`. Please refer to Bevy's [`KeyCode` documentation](https://docs.rs/bevy/0.18.0/bevy/input/keyboard/enum.KeyCode.html) for the full list of variants and their new names.
+- Bevy's `WindowResolution::new` function now takes `u32`s instead of `f32`s
+- Bevy's `Color` struct has had many changes. For example, `Color::rgb` is now `Color::srgb`. Please refer to Bevy's [`Color` documentation](https://docs.rs/bevy/0.18.0/bevy/color/enum.Color.html) for the full list of associated functions and their new names.
+
+
+### Improved
+
+- Update bevy from 0.12 to 0.18
+- Update bevy_prototype_lyon from 0.10 to 0.16
+- Update ron from 0.9 to 0.12
+- Update rand from 0.8 to 0.9
+- The tutorial has been updated to reflect the API changes and fix a few issues.
+
 ## [6.0.0] - 2023-12-03
 
 ### Breaking changes

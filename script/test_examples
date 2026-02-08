@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+cargo build --release --examples
+
 for file in $(find examples -name '*.rs' | sort) ; do
     example=$(basename $file | cut -d . -f 1)
     extra_args=

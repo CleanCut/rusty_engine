@@ -1,9 +1,9 @@
 use bevy::{
     app::AppExit,
-    prelude::{Text as BevyText, *},
+    platform::collections::HashMap,
+    prelude::{Sprite as BevySprite, *},
     time::Time,
-    utils::HashMap,
-    window::{close_on_esc, PrimaryWindow, WindowPlugin},
+    window::{PrimaryWindow, WindowPlugin},
 };
 use bevy_prototype_lyon::prelude::*;
 use std::{
@@ -24,7 +24,7 @@ use crate::{
 };
 
 // Public re-export
-pub use bevy::window::{Cursor, Window, WindowMode, WindowResolution};
+pub use bevy::window::{CursorOptions, Window, WindowMode, WindowResolution};
 
 /// Engine is the primary way that you will interact with Rusty Engine. Each frame this struct
 /// is provided to the "logic" functions (or closures) that you provided to [`Game::add_logic`]. The
@@ -158,28 +158,20 @@ fn add_collider_lines(commands: &mut Commands, sprite: &mut Sprite) {
     // Add the collider lines, a visual representation of the sprite's collider
     let points = sprite.collider.points(); // will be empty vector if NoCollider
     if points.len() >= 2 {
-        let mut path_builder = PathBuilder::new();
-        path_builder.move_to(points[0]);
+        let mut shape_path = ShapePath::new().move_to(points[0]);
         for point in &points[1..] {
-            path_builder.line_to(*point);
+            shape_path = shape_path.line_to(*point);
         }
-        path_builder.close(); // draws the line from the last point to the first point
-        let line = path_builder.build();
+        shape_path = shape_path.close();
         let transform = sprite.bevy_transform();
+        let line_width = 1.0 / transform.scale.x;
         commands
             .spawn((
-                ShapeBundle {
-                    path: GeometryBuilder::new().add(&line).build(),
-                    spatial: SpatialBundle::from_transform(transform),
-                    ..Default::default()
-                },
-                Stroke::new(Color::WHITE, 1.0 / transform.scale.x),
+                ShapeBuilder::with(&shape_path)
+                    .stroke(Stroke::new(Color::WHITE, line_width))
+                    .build(),
+                transform,
             ))
-            // .spawn(GeometryBuilder::build_as(
-            //     &line,
-            //     DrawMode::Stroke(StrokeMode::new(Color::WHITE, 1.0 / transform.scale.x)),
-            //     transform,
-            // ))
             .insert(ColliderLines {
                 sprite_label: sprite.label.clone(),
             });
@@ -196,11 +188,11 @@ pub fn add_sprites(commands: &mut Commands, asset_server: &Res<AssetServer>, eng
         let texture_path = sprite.filepath.clone();
         commands.spawn((
             sprite,
-            SpriteBundle {
-                texture: asset_server.load(texture_path),
-                transform,
+            BevySprite {
+                image: asset_server.load(texture_path),
                 ..Default::default()
             },
+            transform,
         ));
     }
 }
@@ -216,19 +208,15 @@ pub fn add_texts(commands: &mut Commands, asset_server: &Res<AssetServer>, engin
         let font_path = text.font.clone();
         commands.spawn((
             text,
-            Text2dBundle {
-                text: BevyText::from_section(
-                    text_string,
-                    TextStyle {
-                        font: asset_server.load(font_path),
-                        font_size,
-                        color: Color::WHITE,
-                    },
-                )
-                .with_alignment(TextAlignment::Center),
-                transform,
+            Text2d(text_string),
+            TextFont {
+                font: asset_server.load(font_path),
+                font_size,
                 ..Default::default()
             },
+            TextColor(Color::WHITE),
+            TextLayout::new_with_justify(Justify::Center).with_no_wrap(),
+            transform,
         ));
     }
 }
@@ -240,7 +228,7 @@ pub fn update_window_dimensions(
     mut engine: ResMut<Engine>,
 ) {
     // It's possible to not have a window for the first frame or two
-    let Ok(window) = window_query.get_single() else {
+    let Ok(window) = window_query.single() else {
         return;
     };
     let screen_dimensions = Vec2::new(window.width(), window.height());
@@ -308,7 +296,7 @@ impl<S: Resource + Send + Sync + 'static> Game<S> {
         self.app.insert_resource::<S>(initial_game_state);
         self.app
             // TODO: Remove this to use the new, darker default color once the videos have been remastered
-            .insert_resource(ClearColor(Color::rgb(0.4, 0.4, 0.4)))
+            .insert_resource(ClearColor(Color::srgb(0.4, 0.4, 0.4)))
             // Built-ins
             .add_plugins(
                 DefaultPlugins
@@ -336,7 +324,7 @@ impl<S: Resource + Send + Sync + 'static> Game<S> {
             ))
             //.insert_resource(ReportExecutionOrderAmbiguities) // for debugging
             .add_systems(Startup, setup);
-        self.app.world.spawn(Camera2dBundle::default());
+        self.app.world_mut().spawn(Camera2d);
         let engine = std::mem::take(&mut self.engine);
         self.app.insert_resource(engine);
         let mut logic_functions = LogicFuncVec(vec![]);
@@ -349,7 +337,7 @@ impl<S: Resource + Send + Sync + 'static> Game<S> {
     ///
     /// - `engine: &mut Engine`
     /// - `game_state`, which is a mutable reference (`&mut`) to the game state struct you defined,
-    ///    or `&mut ()` if you didn't define one.
+    ///   or `&mut ()` if you didn't define one.
     pub fn add_logic(&mut self, logic_function: fn(&mut Engine, &mut S)) {
         self.logic_functions.0.push(logic_function);
     }
@@ -366,19 +354,25 @@ fn game_logic_sync<S: Resource + Send + Sync + 'static>(
     keyboard_state: Res<KeyboardState>,
     mouse_state: Res<MouseState>,
     time: Res<Time>,
-    mut app_exit_events: EventWriter<AppExit>,
-    mut collision_events: EventReader<CollisionEvent>,
+    mut app_exit_events: MessageWriter<AppExit>,
+    mut collision_events: MessageReader<CollisionEvent>,
     mut query_set: ParamSet<(
         Query<(Entity, &mut Sprite, &mut Transform)>,
-        Query<(Entity, &mut Text, &mut Transform, &mut BevyText)>,
-        Query<(Entity, &mut Stroke, &mut Transform, &ColliderLines)>,
+        Query<(
+            Entity,
+            &mut Text,
+            &mut Transform,
+            &mut Text2d,
+            &mut TextFont,
+        )>,
+        Query<(Entity, &mut Shape, &mut Transform, &ColliderLines)>,
     )>,
 ) {
     // Update this frame's timing info
     engine.delta = time.delta();
-    engine.delta_f32 = time.delta_seconds();
+    engine.delta_f32 = time.delta_secs();
     engine.time_since_startup = time.elapsed();
-    engine.time_since_startup_f64 = time.elapsed_seconds_f64();
+    engine.time_since_startup_f64 = time.elapsed_secs_f64();
 
     // Copy keyboard state over to engine to give to users
     engine.keyboard_state = keyboard_state.clone();
@@ -402,7 +396,7 @@ fn game_logic_sync<S: Resource + Send + Sync + 'static>(
 
     // Copy all texts over to the engine to give to users
     engine.texts.clear();
-    for (_, text, _, _) in query_set.p1().iter() {
+    for (_, text, _, _, _) in query_set.p1().iter() {
         let _ = engine.texts.insert(text.label.clone(), (*text).clone());
     }
 
@@ -441,7 +435,7 @@ fn game_logic_sync<S: Resource + Send + Sync + 'static>(
             }
         }
         // Update transform & line width
-        for (_, mut stroke, mut transform, collider_lines) in query_set.p2().iter_mut() {
+        for (_, mut shape, mut transform, collider_lines) in query_set.p2().iter_mut() {
             if let Some(sprite) = engine.sprites.get(&collider_lines.sprite_label) {
                 *transform = sprite.bevy_transform();
                 // We want collider lines to appear on top of the sprite they are for, so they need a
@@ -450,7 +444,9 @@ fn game_logic_sync<S: Resource + Send + Sync + 'static>(
             }
             // Stroke line width gets scaled with the transform, but we want it to appear to be the same
             // regardless of scale, so we have to counter the scale.
-            stroke.options.line_width = 1.0 / transform.scale.x;
+            if let Some(ref mut stroke) = shape.stroke {
+                stroke.options.line_width = 1.0 / transform.scale.x;
+            }
         }
     }
     engine.last_show_colliders = engine.show_colliders;
@@ -469,20 +465,22 @@ fn game_logic_sync<S: Resource + Send + Sync + 'static>(
     add_sprites(&mut commands, &asset_server, &mut engine);
 
     // Transfer any changes in the user's Texts to the Bevy Text and Transform components
-    for (entity, mut text, mut transform, mut bevy_text_component) in query_set.p1().iter_mut() {
+    for (entity, mut text, mut transform, mut bevy_text_component, mut text_font) in
+        query_set.p1().iter_mut()
+    {
         if let Some(text_copy) = engine.texts.remove(&text.label) {
             *text = text_copy;
             *transform = text.bevy_transform();
-            if text.value != bevy_text_component.sections[0].value {
-                bevy_text_component.sections[0].value = text.value.clone();
+            if text.value != bevy_text_component.0 {
+                bevy_text_component.0 = text.value.clone();
             }
             #[allow(clippy::float_cmp)]
-            if text.font_size != bevy_text_component.sections[0].style.font_size {
-                bevy_text_component.sections[0].style.font_size = text.font_size;
+            if text.font_size != text_font.font_size {
+                text_font.font_size = text.font_size;
             }
             let font = asset_server.load(text.font.clone());
-            if bevy_text_component.sections[0].style.font != font {
-                bevy_text_component.sections[0].style.font = font;
+            if text_font.font != font {
+                text_font.font = font;
             }
         } else {
             commands.entity(entity).despawn();
@@ -493,7 +491,7 @@ fn game_logic_sync<S: Resource + Send + Sync + 'static>(
     add_texts(&mut commands, &asset_server, &mut engine);
 
     if engine.should_exit {
-        app_exit_events.send(AppExit);
+        app_exit_events.write(AppExit::Success);
     }
 }
 
@@ -515,3 +513,19 @@ impl<S: Resource + Send + Sync + 'static> DerefMut for Game<S> {
 
 #[derive(Resource)]
 struct LogicFuncVec<S: Resource + Send + Sync + 'static>(Vec<fn(&mut Engine, &mut S)>);
+
+pub fn close_on_esc(
+    mut commands: Commands,
+    focused_windows: Query<(Entity, &Window)>,
+    input: Res<ButtonInput<KeyCode>>,
+) {
+    for (window, focus) in focused_windows.iter() {
+        if !focus.focused {
+            continue;
+        }
+
+        if input.just_pressed(KeyCode::Escape) {
+            commands.entity(window).despawn();
+        }
+    }
+}
