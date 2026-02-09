@@ -45,3 +45,7 @@ path = "examples/scenarios/road_race.rs"
 [[example]]
 name = "extreme_drivers_ed"
 path = "examples/scenarios/extreme_drivers_ed.rs"
+
+[[example]]
+name = "invaders"
+path = "examples/scenarios/invaders.rs"
